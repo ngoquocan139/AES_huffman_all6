@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
-| Date         : Mon Apr 27 21:57:37 2026
+| Date         : Wed Apr 29 23:35:24 2026
 | Host         : An running 64-bit major release  (build 9200)
 | Command      : report_utilization -file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/reports/post_synth_utilization.rpt
 | Design       : rv32_soc_fpga_demo_top
@@ -34,11 +34,11 @@ Table of Contents
 | Slice LUTs*             | 41896 |     0 |          0 |     53200 | 78.75 |
 |   LUT as Logic          | 41896 |     0 |          0 |     53200 | 78.75 |
 |   LUT as Memory         |     0 |     0 |          0 |     17400 |  0.00 |
-| Slice Registers         | 34844 |     0 |          0 |    106400 | 32.75 |
-|   Register as Flip Flop | 34844 |     0 |          0 |    106400 | 32.75 |
+| Slice Registers         | 34846 |     0 |          0 |    106400 | 32.75 |
+|   Register as Flip Flop | 34846 |     0 |          0 |    106400 | 32.75 |
 |   Register as Latch     |     0 |     0 |          0 |    106400 |  0.00 |
-| F7 Muxes                |  8770 |     0 |          0 |     26600 | 32.97 |
-| F8 Muxes                |  3394 |     0 |          0 |     13300 | 25.52 |
+| F7 Muxes                |  8775 |     0 |          0 |     26600 | 32.99 |
+| F8 Muxes                |  3395 |     0 |          0 |     13300 | 25.53 |
 +-------------------------+-------+-------+------------+-----------+-------+
 * Warning! The Final LUT count, after physical optimizations and full implementation, is typically lower. Run opt_design after synthesis, if not already completed, for a more realistic count.
 Warning! LUT value is adjusted to account for LUT combining.
@@ -58,9 +58,9 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 | 0     |            _ |       Reset |            - |
 | 0     |          Yes |           - |            - |
 | 16    |          Yes |           - |          Set |
-| 31872 |          Yes |           - |        Reset |
+| 31873 |          Yes |           - |        Reset |
 | 14    |          Yes |         Set |            - |
-| 2942  |          Yes |       Reset |            - |
+| 2943  |          Yes |       Reset |            - |
 +-------+--------------+-------------+--------------+
 
 
@@ -152,17 +152,17 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 +----------+-------+---------------------+
 | Ref Name |  Used | Functional Category |
 +----------+-------+---------------------+
-| FDCE     | 31872 |        Flop & Latch |
-| LUT6     | 31636 |                 LUT |
-| MUXF7    |  8770 |               MuxFx |
-| LUT5     |  4325 |                 LUT |
-| LUT4     |  3781 |                 LUT |
-| LUT2     |  3730 |                 LUT |
-| MUXF8    |  3394 |               MuxFx |
-| FDRE     |  2942 |        Flop & Latch |
-| LUT3     |  2158 |                 LUT |
+| FDCE     | 31873 |        Flop & Latch |
+| LUT6     | 31625 |                 LUT |
+| MUXF7    |  8775 |               MuxFx |
+| LUT5     |  4337 |                 LUT |
+| LUT4     |  3791 |                 LUT |
+| LUT2     |  3731 |                 LUT |
+| MUXF8    |  3395 |               MuxFx |
+| FDRE     |  2943 |        Flop & Latch |
+| LUT3     |  2159 |                 LUT |
 | CARRY4   |   923 |          CarryLogic |
-| LUT1     |   124 |                 LUT |
+| LUT1     |   125 |                 LUT |
 | FDPE     |    16 |        Flop & Latch |
 | FDSE     |    14 |        Flop & Latch |
 | RAMB36E1 |    10 |        Block Memory |

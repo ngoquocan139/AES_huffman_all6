@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l dma_compress_aes_input3.log -c test_bench "+CASE_NAME=dma_compress_aes_input3" "+INPUT_FILE=input3.txt" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit dma_compress_aes_input3.ucdb; log -r /*; run -all" 
-# Start time: 05:36:50 on Apr 29,2026
+# Start time: 17:43:04 on Apr 29,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -79,7 +79,6 @@
 # Sync Istr 2: 0040006f
 # Sync Istr 3: ff010113
 # Test_result STARTED dma_compress_aes_input3
-# TEST_INPUT=input3.txt
 # Loaded 242 byte(s) from input3.txt into DMEM @ 0x00000400
 # ===== RV32I SOC DMA TX->RX CHECK =====
 # input_file=input3.txt input_len=242
@@ -117,7 +116,7 @@
 # LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=112
 # FILES summary=loopback/tb_rv32_soc_mmio_dma_summary.txt compare=loopback/tb_rv32_soc_mmio_dma_compare.txt src_dump=dmem_dump/tb_rv32_soc_mmio_dma_src.txt tx_dump=dmem_dump/tb_rv32_soc_mmio_dma_tx.txt rx_dump=dmem_dump/tb_rv32_soc_mmio_dma_rx.txt
 # [PASS] mem_err_o_should_be_zero | actual=0 expected=0
-# [PASS] cpu_should_publish_result_signature_before_timeout
+# [PASS] cpu_should_publish_known_signature
 # [PASS] result_signature | actual=0x44525831 expected=0x44525831
 # [PASS] cpu_error_mask_should_be_zero | actual=0x00000000 expected=0x00000000
 # [PASS] tx_status_before_start | actual=0x00000098 expected=0x00000098
@@ -135,9 +134,9 @@
 # [PASS] tx_ciphertext_region_should_not_be_all_zero
 # [PASS] dma_start_pulse_count | actual=0x00000002 expected=0x00000002
 # SUMMARY: PASS=18 FAIL=0
-# [PASS] rv32_soc_dma_tx_rx_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(894)
+# [PASS] rv32_soc_unified_test
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1412)
 #    Time: 115686 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 05:37:20 on Apr 29,2026, Elapsed time: 0:00:30
+# End time: 17:43:38 on Apr 29,2026, Elapsed time: 0:00:34
 # Errors: 0, Warnings: 0

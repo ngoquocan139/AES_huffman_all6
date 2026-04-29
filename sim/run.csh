@@ -29,50 +29,105 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             set c_src = "test_mmio_dma.c"
             set run_args = "+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
             breaksw
+        case dma_compress_aes_one_symbol_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_dma.c"
+            set run_args = "+CASE_NAME=dma_compress_aes_one_symbol_cov +INPUT_FILE=input_cov_one_symbol.txt"
+            breaksw
         case dma_compress_aes_input4_cov_debug:
             set tb_name = "test_bench"
             set c_src = "test_mmio_dma.c"
             set run_args = "+CASE_NAME=dma_compress_aes_input4_cov_debug +INPUT_FILE=input4_cov.txt"
             breaksw
         case tx_compress_only_input1:
-            set tb_name = "tb_rv32_soc_tx_only"
+            set tb_name = "test_bench"
             set c_src = "test_mmio_tx_only.c"
             set run_args = "+CASE_NAME=tx_compress_only_input1 +INPUT_FILE=input1.txt"
             breaksw
         case tx_compress_only_input4_cov:
-            set tb_name = "tb_rv32_soc_tx_only"
+            set tb_name = "test_bench"
             set c_src = "test_mmio_tx_only.c"
             set run_args = "+CASE_NAME=tx_compress_only_input4_cov +INPUT_FILE=input4_cov.txt"
             breaksw
+        case tx_compress_only_one_symbol_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_tx_only.c"
+            set run_args = "+CASE_NAME=tx_compress_only_one_symbol_cov +INPUT_FILE=input_cov_one_symbol.txt"
+            breaksw
+        case tx_compress_only_ascii_sweep_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_tx_encoder_error.c"
+            set run_args = "+CASE_NAME=tx_compress_only_ascii_sweep_cov +INPUT_FILE=input_cov_ascii_sweep.txt"
+            breaksw
+        case tx_compress_only_short_raw_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_tx_only.c"
+            set run_args = "+CASE_NAME=tx_compress_only_short_raw_cov +INPUT_FILE=input_cov_short_raw.txt"
+            breaksw
         case tx_compress_aes_block_input3:
-            set tb_name = "tb_rv32_soc_tx_only"
+            set tb_name = "test_bench"
             set c_src = "test_mmio_tx_only_aes_block.c"
             set run_args = "+CASE_NAME=tx_compress_aes_block_input3 +INPUT_FILE=input3.txt"
             breaksw
         case tx_compress_only_block_input3:
-            set tb_name = "tb_rv32_soc_tx_only"
+            set tb_name = "test_bench"
             set c_src = "test_mmio_tx_only_compress_block.c"
             set run_args = "+CASE_NAME=tx_compress_only_block_input3 +INPUT_FILE=input3.txt"
             breaksw
         case mmio_regfile_basic:
-            set tb_name = "tb_rv32_soc_mmio_regfile"
+            set tb_name = "test_bench"
             set c_src = "test_mmio_regfile_basic.c"
             set run_args = "+CASE_NAME=mmio_regfile_basic"
             breaksw
         case mmio_mode_matrix:
-            set tb_name = "tb_rv32_soc_mmio_regfile"
+            set tb_name = "test_bench"
             set c_src = "test_mmio_mode_matrix.c"
             set run_args = "+CASE_NAME=mmio_mode_matrix"
             breaksw
         case mmio_regfile_negative:
-            set tb_name = "tb_rv32_soc_mmio_regfile"
+            set tb_name = "test_bench"
             set c_src = "test_mmio_regfile_negative.c"
             set run_args = "+CASE_NAME=mmio_regfile_negative"
             breaksw
-        case host_preprocess_input4_cov_debug:
-            set tb_name = "tb_rv32_log_preprocess"
-            set c_src = "test_log_preprocess.c"
-            set run_args = "+CASE_NAME=host_preprocess_input4_cov_debug +INPUT_FILE=input4_cov.txt"
+        case mmio_rx_bad_length:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_rx_bad_length.c"
+            set run_args = "+CASE_NAME=mmio_rx_bad_length"
+            breaksw
+        case soc_sideband_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_regfile_basic.c"
+            set run_args = "+CASE_NAME=soc_sideband_cov +SIDEBAND_COV"
+            breaksw
+        case tx_apb_wait_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_tx_only.c"
+            set run_args = "+CASE_NAME=tx_apb_wait_cov +INPUT_FILE=input1.txt +TX_APB_WAIT_COV"
+            breaksw
+        case rx_backpressure_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_dma.c"
+            set run_args = "+CASE_NAME=rx_backpressure_cov +INPUT_FILE=input1.txt +RX_APB_WAIT_COV +RX_STREAM_BACKPRESSURE_COV"
+            breaksw
+        case tx_apb_error_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_tx_apb_error.c"
+            set run_args = "+CASE_NAME=tx_apb_error_cov +INPUT_FILE=input1.txt +TX_APB_ERROR_COV"
+            breaksw
+        case rx_if_direct_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_regfile_basic.c"
+            set run_args = "+CASE_NAME=rx_if_direct_cov +INPUT_FILE=input1.txt +RX_IF_DIRECT_COV"
+            breaksw
+        case rx_parser_decoder_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_regfile_basic.c"
+            set run_args = "+CASE_NAME=rx_parser_decoder_cov +INPUT_FILE=input1.txt +RX_PARSE_DECODE_COV"
+            breaksw
+        case cpu_instruction_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_cpu_instruction_cov.c"
+            set run_args = "+CASE_NAME=cpu_instruction_cov +INPUT_FILE=input1.txt"
             breaksw
         default:
             echo "[FAIL] unknown pattern in pat.list: $pat"

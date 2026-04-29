@@ -13,3 +13,4 @@
 !sim/**
 
 !.gitignore
+!push_source.sh

@@ -107,6 +107,9 @@ gen_cov:
 	vcover merge IP.ucdb ucdb/*.ucdb
 	vcover report IP.ucdb -output coverage/summary_report.txt
 	vcover report -zeros -detail -code bcesft -annotate -All -codeAll IP.ucdb -output coverage/detail_report.txt
+	cp IP.ucdb IP_closed.ucdb
+	vsim -c -viewcov IP_closed.ucdb -do "do coverage_close.do"
+	vcover report -instance=/test_bench/dut -recursive IP_closed.ucdb -output coverage/dut_closed_report.txt
 
 gen_html:
 	mkdir -p coverage

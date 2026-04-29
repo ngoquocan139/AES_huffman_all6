@@ -1,14 +1,27 @@
 dma_compress_aes_input1
 dma_compress_aes_input3
+dma_compress_aes_one_symbol_cov
 tx_compress_only_input1
 tx_compress_only_input4_cov
+tx_compress_only_one_symbol_cov
+tx_compress_only_ascii_sweep_cov
+tx_compress_only_short_raw_cov
 tx_compress_aes_block_input3
 tx_compress_only_block_input3
 mmio_regfile_basic
 mmio_mode_matrix
 mmio_regfile_negative
+mmio_rx_bad_length
+soc_sideband_cov
+tx_apb_wait_cov
+rx_backpressure_cov
+tx_apb_error_cov
+rx_if_direct_cov
+rx_parser_decoder_cov
+cpu_instruction_cov
 
 # Known failing / not in clean baseline yet:
 # dma_compress_aes_input2_debug      # TX error on current input2.txt, keep for debug closure
 # dma_compress_aes_input4_cov_debug  # TX error 0x05 on current log-like input4_cov.txt
+# dma_compress_aes_ascii_sweep_cov   # More than 63 unique symbols; covered by tx_compress_only_ascii_sweep_cov error test
 # host_preprocess_input4_cov_debug   # host parser rejects current header line format

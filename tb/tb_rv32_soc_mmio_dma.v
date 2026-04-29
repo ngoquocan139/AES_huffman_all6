@@ -8,11 +8,22 @@ module test_bench;
   localparam integer VALID_BITS_WIDTH = 7;
   localparam real    CLOCK_PERIOD_NS = 10.0;
 
-  localparam [31:0] RESULT_SIGNATURE = 32'h44525831;
+  localparam [31:0] RESULT_SIGNATURE_DMA  = 32'h44525831;
+  localparam [31:0] RESULT_SIGNATURE_TX   = 32'h44545843;
+  localparam [31:0] RESULT_SIGNATURE_REG1 = 32'h52454731;
+  localparam [31:0] RESULT_SIGNATURE_NEG1 = 32'h4e454731;
+  localparam [31:0] RESULT_SIGNATURE_MODE = 32'h4d4f4445;
+  localparam [31:0] RESULT_SIGNATURE_RXER = 32'h52584552;
+  localparam [31:0] RESULT_SIGNATURE_TXER = 32'h54584552;
+  localparam [31:0] RESULT_SIGNATURE_CPUC = 32'h43505543;
   localparam [31:0] EXPECTED_TX_IDLE = 32'h00000098;
   localparam [31:0] EXPECTED_TX_DONE = 32'h0000009a;
   localparam [31:0] EXPECTED_RX_IDLE = 32'h00000028;
   localparam [31:0] EXPECTED_RX_DONE = 32'h0000002a;
+  localparam [31:0] MODE_TX_COMPRESS_AES_BLOCK  = 32'h00000001;
+  localparam [31:0] MODE_TX_COMPRESS_ONLY_BLOCK = 32'h00000005;
+  localparam [31:0] MODE_TX_COMPRESS_AES_WHOLE  = 32'h00000009;
+  localparam [31:0] MODE_TX_COMPRESS_ONLY_WHOLE = 32'h0000000d;
 
   localparam [31:0] INPUT_LEN_ADDR   = 32'h00000040;
   localparam [31:0] SRC_BASE_ADDR    = 32'h00000400;
@@ -46,6 +57,18 @@ module test_bench;
   integer pass_count;
   integer fail_count;
   integer dma_start_pulse_count;
+  integer soft_reset_pulse_count;
+  integer clear_done_pulse_count;
+  integer clear_error_pulse_count;
+  integer apb_error_count;
+  integer bridge_error_count;
+  integer sideband_cov_enable;
+  integer tx_apb_wait_cov_enable;
+  integer rx_apb_wait_cov_enable;
+  integer rx_stream_backpressure_cov_enable;
+  integer tx_apb_error_cov_enable;
+  integer rx_if_direct_cov_enable;
+  integer rx_parser_decoder_cov_enable;
   integer wait_cycles;
   integer system_rc;
   integer i;
@@ -80,6 +103,7 @@ module test_bench;
   reg tx_busy_prev;
   reg rx_busy_prev;
   reg [8*32-1:0] input_file_name;
+  reg [8*64-1:0] case_name;
 
   reg [127:0] first_tx_transport_word;
   reg [127:0] first_tx_ciphertext_dmem_word;
@@ -156,6 +180,25 @@ module test_bench;
     begin
       tx_transport_valid_bits = {{(32-VALID_BITS_WIDTH){1'b0}},
                                  transport_word[TRANSPORT_WORD_WIDTH-2 -: VALID_BITS_WIDTH]};
+    end
+  endfunction
+
+  function automatic [31:0] expected_tx_idle_status;
+    input [31:0] mode;
+    begin
+      expected_tx_idle_status = 32'h00000008 |
+                                ((mode & 32'h00000003) << 4) |
+                                ((mode & 32'h0000000c) << 4);
+    end
+  endfunction
+
+  function automatic known_tx_mode;
+    input [31:0] mode;
+    begin
+      known_tx_mode = (mode == MODE_TX_COMPRESS_AES_BLOCK)  ||
+                      (mode == MODE_TX_COMPRESS_ONLY_BLOCK) ||
+                      (mode == MODE_TX_COMPRESS_AES_WHOLE)  ||
+                      (mode == MODE_TX_COMPRESS_ONLY_WHOLE);
     end
   endfunction
 
@@ -381,6 +424,19 @@ module test_bench;
     end
   endtask
 
+  task automatic compare_source_file;
+    integer idx;
+    reg [7:0] src_byte;
+    begin
+      src_mismatch_count = 0;
+      for (idx = 0; idx < input_len_bytes; idx = idx + 1) begin
+        aux_read_byte(SRC_BASE_ADDR + idx, src_byte);
+        if (src_byte !== input_bytes[idx])
+          src_mismatch_count = src_mismatch_count + 1;
+      end
+    end
+  endtask
+
   task automatic count_nonzero_region;
     input [31:0]  base_addr;
     input integer byte_count;
@@ -394,6 +450,48 @@ module test_bench;
         if (byte_val != 8'h00)
           nonzero_count = nonzero_count + 1;
       end
+    end
+  endtask
+
+  task automatic exercise_sideband_coverage;
+    reg [31:0] scratch_read;
+    begin
+      $display("# SIDEBAND_COV: pulse cpu_stall/cpu_if_flush and aux high-bit activity");
+
+      @(posedge clk);
+      #1;
+      cpu_stall    = 1'b1;
+      cpu_if_flush = 1'b1;
+      aux_en       = 1'b1;
+      aux_we       = 4'b0000;
+      aux_addr     = 32'hffff_7ffc;
+      aux_wdata    = 32'hffff_ffff;
+
+      repeat (4) @(posedge clk);
+      #1;
+      cpu_stall    = 1'b0;
+      cpu_if_flush = 1'b0;
+      aux_en       = 1'b0;
+      aux_we       = 4'b0000;
+      aux_addr     = 32'b0;
+      aux_wdata    = 32'b0;
+
+      aux_write_word(32'h0000_7ffc, 32'hffff_ffff);
+      aux_read_word(32'hffff_7ffc, scratch_read);
+
+      aux_en    = 1'b1;
+      aux_we    = 4'b1010;
+      aux_addr  = 32'h8000_7ffc;
+      aux_wdata = 32'ha5a5_5a5a;
+      @(posedge clk);
+      #1;
+      aux_en    = 1'b0;
+      aux_we    = 4'b0000;
+      aux_addr  = 32'b0;
+      aux_wdata = 32'b0;
+
+      repeat (8) @(posedge clk);
+      $display("# SIDEBAND_COV: scratch_read=0x%08x", scratch_read);
     end
   endtask
 
@@ -461,6 +559,11 @@ module test_bench;
   always @(posedge clk) begin
     if (rst) begin
       dma_start_pulse_count <= 0;
+      soft_reset_pulse_count <= 0;
+      clear_done_pulse_count <= 0;
+      clear_error_pulse_count <= 0;
+      apb_error_count <= 0;
+      bridge_error_count <= 0;
       cycle_counter         <= 0;
       tx_busy_cycles        <= 0;
       rx_busy_cycles        <= 0;
@@ -517,6 +620,16 @@ module test_bench;
 
       if (dut.u_dma_regfile.start_pulse_o)
         dma_start_pulse_count <= dma_start_pulse_count + 1;
+      if (dut.u_dma_regfile.soft_reset_pulse_o)
+        soft_reset_pulse_count <= soft_reset_pulse_count + 1;
+      if (dut.u_dma_regfile.clear_done_pulse_o)
+        clear_done_pulse_count <= clear_done_pulse_count + 1;
+      if (dut.u_dma_regfile.clear_error_pulse_o)
+        clear_error_pulse_count <= clear_error_pulse_count + 1;
+      if (dut.bridge_psel_w && dut.bridge_penable_w && dut.dma_apb_pready_w && dut.dma_apb_pslverr_w)
+        apb_error_count <= apb_error_count + 1;
+      if (dut.bridge_mmio_error_w)
+        bridge_error_count <= bridge_error_count + 1;
 
       if (dut.bridge_psel_w &&
           dut.bridge_penable_w &&
@@ -636,6 +749,304 @@ module test_bench;
     end
   end
 
+  task automatic inject_tx_apb_waitstate_once;
+    begin
+      wait (rst == 1'b0);
+      wait ((dut.u_dma_tx_engine.state_r == 5'd22) && dut.tx_pready_w);
+      $display("# COV inject TX APB wait-state");
+      force dut.tx_pready_w = 1'b0;
+      repeat (3) @(posedge clk);
+      release dut.tx_pready_w;
+    end
+  endtask
+
+  task automatic inject_rx_apb_waitstate_once;
+    begin
+      wait (rst == 1'b0);
+      wait ((dut.u_dma_rx_engine.state_r == 5'd24) && dut.rx_pready_w);
+      $display("# COV inject RX APB wait-state");
+      force dut.rx_pready_w = 1'b0;
+      repeat (3) @(posedge clk);
+      release dut.rx_pready_w;
+    end
+  endtask
+
+  task automatic inject_rx_stream_backpressure_once;
+    begin
+      wait (rst == 1'b0);
+      wait ((dut.u_dma_rx_engine.state_r == 5'd15) && dut.rx_ciphertext_word_valid_w);
+      $display("# COV inject RX ciphertext stream backpressure");
+      force dut.rx_ciphertext_word_ready_unused_w = 1'b0;
+      repeat (4) @(posedge clk);
+      release dut.rx_ciphertext_word_ready_unused_w;
+    end
+  endtask
+
+  task automatic inject_tx_apb_error_once;
+    begin
+      wait (rst == 1'b0);
+      wait ((dut.u_dma_tx_engine.state_r == 5'd22) && dut.tx_pready_w);
+      $display("# COV inject TX APB PSLVERR");
+      force dut.tx_pslverr_w = 1'b1;
+      @(posedge clk);
+      release dut.tx_pslverr_w;
+    end
+  endtask
+
+  task force_rx_apb_idle;
+    begin
+      release dut.rx_psel_w;
+      release dut.rx_penable_w;
+      release dut.rx_pwrite_w;
+      release dut.rx_paddr_w;
+      release dut.rx_pwdata_w;
+      @(posedge clk);
+      #1;
+    end
+  endtask
+
+  task force_rx_apb_write;
+    input [31:0] addr;
+    input [31:0] data;
+    begin
+      force dut.rx_psel_w    = 1'b1;
+      force dut.rx_penable_w = 1'b1;
+      force dut.rx_pwrite_w  = 1'b1;
+      force dut.rx_paddr_w   = addr;
+      force dut.rx_pwdata_w  = data;
+      @(posedge clk);
+      #1;
+      force_rx_apb_idle;
+    end
+  endtask
+
+  task force_rx_apb_read;
+    input  [31:0] addr;
+    output [31:0] data;
+    begin
+      force dut.rx_psel_w    = 1'b1;
+      force dut.rx_penable_w = 1'b1;
+      force dut.rx_pwrite_w  = 1'b0;
+      force dut.rx_paddr_w   = addr;
+      force dut.rx_pwdata_w  = 32'h00000000;
+      @(posedge clk);
+      #1;
+      data = dut.rx_prdata_w;
+      force_rx_apb_idle;
+    end
+  endtask
+
+  task force_rx_word_idle;
+    begin
+      release dut.u_rx_top.rx_word_data_w;
+      release dut.u_rx_top.rx_word_valid_bytes_w;
+      release dut.u_rx_top.rx_word_last_in_block_w;
+      release dut.u_rx_top.rx_word_last_in_frame_w;
+      release dut.u_rx_top.rx_word_valid_w;
+      @(posedge clk);
+      #1;
+    end
+  endtask
+
+  task force_rx_word_push;
+    input [31:0] data;
+    input [2:0]  valid_bytes;
+    input        last_block;
+    input        last_frame;
+    begin
+      force dut.u_rx_top.rx_word_data_w          = data;
+      force dut.u_rx_top.rx_word_valid_bytes_w   = valid_bytes;
+      force dut.u_rx_top.rx_word_last_in_block_w = last_block;
+      force dut.u_rx_top.rx_word_last_in_frame_w = last_frame;
+      force dut.u_rx_top.rx_word_valid_w         = 1'b1;
+      @(posedge clk);
+      #1;
+      force_rx_word_idle;
+    end
+  endtask
+
+  task automatic exercise_rx_if_direct_coverage;
+    reg [31:0] scratch_read;
+    integer word_idx;
+    begin
+      $display("# RX_IF_DIRECT_COV: exercise APB RX IF empty/full/error/wait-state branches");
+
+      force_rx_apb_read(32'h00000000, scratch_read); // RX_DATA empty, PREADY low branch
+      force_rx_apb_read(32'h00000004, scratch_read); // RX_META empty branch
+      force_rx_apb_read(32'h00000008, scratch_read); // STATUS empty
+      force_rx_apb_read(32'h00000010, scratch_read); // DEBUG
+      force_rx_apb_read(32'h00000034, scratch_read); // CTXT_STATUS
+      force_rx_apb_read(32'h000000fc, scratch_read); // invalid read, PSLVERR branch
+
+      force_rx_apb_write(32'h0000000c, 32'h00000008); // reserved CONTROL bits
+      force_rx_apb_write(32'h00000030, 32'h00000000); // CTXT_START missing start bit
+      force_rx_apb_write(32'h00000030, 32'h00000001); // CTXT_START before 4 words valid
+      force_rx_apb_write(32'h00000030, 32'h00000003); // CTXT_START reserved bits
+      force_rx_apb_write(32'h000000fc, 32'h12345678); // invalid write
+      force_rx_apb_write(32'h0000000c, 32'h00000004); // clear error sticky
+
+      force dut.u_rx_top.apb_ciphertext_word_ready_w = 1'b0;
+      force_rx_apb_write(32'h00000020, 32'h03020100);
+      force_rx_apb_write(32'h00000024, 32'h07060504);
+      force_rx_apb_write(32'h00000028, 32'h0b0a0908);
+      force_rx_apb_write(32'h0000002c, 32'h0f0e0d0c);
+      force_rx_apb_write(32'h00000030, 32'h00000001); // create pending ciphertext
+      force_rx_apb_read(32'h00000034, scratch_read);  // pending-valid status
+      force_rx_apb_write(32'h00000030, 32'h00000001); // pending full, PREADY low branch
+      force dut.u_rx_top.apb_ciphertext_word_ready_w = 1'b1;
+      repeat (2) @(posedge clk);
+      release dut.u_rx_top.apb_ciphertext_word_ready_w;
+
+      force_rx_word_push(32'hdeadbeef, 3'd0, 1'b0, 1'b0); // invalid valid-bytes
+      force_rx_word_push(32'hcafebabe, 3'd5, 1'b0, 1'b0); // invalid > 4 bytes
+      force_rx_word_push(32'h11223344, 3'd4, 1'b0, 1'b1); // frame without block
+      force_rx_apb_write(32'h0000000c, 32'h00000007);     // soft reset and clear stickies
+
+      for (word_idx = 0; word_idx < 16; word_idx = word_idx + 1)
+        force_rx_word_push(32'h80000000 | word_idx[31:0], 3'd4, (word_idx == 15), (word_idx == 15));
+
+      force_rx_apb_read(32'h00000008, scratch_read); // full status
+
+      force dut.u_rx_top.rx_word_data_w          = 32'hfeed0001;
+      force dut.u_rx_top.rx_word_valid_bytes_w   = 3'd4;
+      force dut.u_rx_top.rx_word_last_in_block_w = 1'b0;
+      force dut.u_rx_top.rx_word_last_in_frame_w = 1'b0;
+      force dut.u_rx_top.rx_word_valid_w         = 1'b1;
+      force dut.rx_psel_w                        = 1'b1;
+      force dut.rx_penable_w                     = 1'b1;
+      force dut.rx_pwrite_w                      = 1'b0;
+      force dut.rx_paddr_w                       = 32'h00000000;
+      force dut.rx_pwdata_w                      = 32'h00000000;
+      @(posedge clk);
+      #1;
+      scratch_read = dut.rx_prdata_w;            // simultaneous push + pop when full
+      force_rx_word_idle;
+      force_rx_apb_idle;
+
+      for (word_idx = 0; word_idx < 18; word_idx = word_idx + 1) begin
+        force_rx_apb_read(32'h00000004, scratch_read);
+        force_rx_apb_read(32'h00000000, scratch_read);
+      end
+
+      force_rx_apb_write(32'h0000000c, 32'h00000007);
+      $display("# RX_IF_DIRECT_COV: done scratch=0x%08x", scratch_read);
+    end
+  endtask
+
+  task force_rx_parser_stream_idle;
+    begin
+      release dut.u_rx_top.depacker_stream_data_w;
+      release dut.u_rx_top.depacker_stream_len_w;
+      release dut.u_rx_top.depacker_stream_valid_w;
+      release dut.u_rx_top.depacker_stream_last_w;
+      @(posedge clk);
+      #1;
+    end
+  endtask
+
+  task force_rx_parser_stream_chunk;
+    input [31:0] data;
+    input [5:0]  len;
+    input        last;
+    begin
+      force dut.u_rx_top.depacker_stream_data_w  = data;
+      force dut.u_rx_top.depacker_stream_len_w   = len;
+      force dut.u_rx_top.depacker_stream_valid_w = 1'b1;
+      force dut.u_rx_top.depacker_stream_last_w  = last;
+      wait (dut.u_rx_top.depacker_stream_ready_w == 1'b1);
+      @(posedge clk);
+      #1;
+      force_rx_parser_stream_idle;
+    end
+  endtask
+
+  task reset_rx_pipeline_for_cov;
+    begin
+      rst = 1'b1;
+      repeat (4) @(posedge clk);
+      rst = 1'b0;
+      repeat (4) @(posedge clk);
+    end
+  endtask
+
+  task drain_rx_output_words_for_cov;
+    reg [31:0] scratch_read;
+    integer drain_idx;
+    begin
+      for (drain_idx = 0; drain_idx < 16; drain_idx = drain_idx + 1) begin
+        if (dut.u_rx_top.u_apb_huffman_rx_if.fifo_count_r != 0) begin
+          force_rx_apb_read(32'h00000004, scratch_read);
+          force_rx_apb_read(32'h00000000, scratch_read);
+        end
+        @(posedge clk);
+      end
+    end
+  endtask
+
+  task run_rx_parser_decoder_frame_cov;
+    input [31:0] data;
+    input [5:0]  len;
+    input        expect_error;
+    integer timeout_idx;
+    begin
+      reset_rx_pipeline_for_cov;
+      force_rx_parser_stream_chunk(data, len, 1'b1);
+
+      for (timeout_idx = 0; timeout_idx < 512; timeout_idx = timeout_idx + 1) begin
+        if (expect_error) begin
+          if (dut.rx_parser_error_w || dut.rx_decoder_error_w)
+            timeout_idx = 512;
+        end
+        else begin
+          if (dut.u_rx_top.u_apb_huffman_rx_if.frame_done_sticky_r ||
+              dut.rx_parser_error_w ||
+              dut.rx_decoder_error_w)
+            timeout_idx = 512;
+        end
+        @(posedge clk);
+      end
+
+      drain_rx_output_words_for_cov;
+    end
+  endtask
+
+  task automatic exercise_rx_parser_decoder_coverage;
+    reg [31:0] raw_partial_frame;
+    reg [31:0] one_symbol_frame;
+    reg [31:0] compressed_one_symbol_frame;
+    reg [31:0] malformed_raw_size_frame;
+    reg [31:0] malformed_one_symbol_frame;
+    reg [31:0] malformed_compressed_frame;
+    begin
+      $display("# RX_PARSE_DECODE_COV: exercise parser/decoder raw/one-symbol/compressed/malformed frames");
+
+      raw_partial_frame =
+          (32'h43 << 24) | (32'h42 << 16) | (32'h41 << 8) |
+          (32'd3 << 2) | 32'd1;
+      one_symbol_frame =
+          (32'h41 << 8) | (32'd5 << 2) | 32'd3;
+      compressed_one_symbol_frame =
+          (32'd1 << 22) | (32'h5a << 14) |
+          (32'd1 << 8) | (32'd4 << 2) | 32'd2;
+      malformed_raw_size_frame =
+          (32'd32 << 2) | 32'd1;
+      malformed_one_symbol_frame =
+          (32'h01 << 8) | (32'd5 << 2) | 32'd3;
+      malformed_compressed_frame =
+          (32'd0 << 2) | 32'd2;
+
+      run_rx_parser_decoder_frame_cov(raw_partial_frame, 6'd32, 1'b0);
+      run_rx_parser_decoder_frame_cov(one_symbol_frame, 6'd16, 1'b0);
+      run_rx_parser_decoder_frame_cov(compressed_one_symbol_frame, 6'd31, 1'b0);
+      run_rx_parser_decoder_frame_cov(malformed_raw_size_frame, 6'd8, 1'b1);
+      run_rx_parser_decoder_frame_cov(malformed_one_symbol_frame, 6'd16, 1'b1);
+      run_rx_parser_decoder_frame_cov(malformed_compressed_frame, 6'd14, 1'b1);
+
+      reset_rx_pipeline_for_cov;
+      $display("# RX_PARSE_DECODE_COV: done");
+    end
+  endtask
+
   task automatic run_selected_test;
     begin
     clk = 0;
@@ -649,7 +1060,22 @@ module test_bench;
     pass_count = 0;
     fail_count = 0;
     dma_start_pulse_count = 0;
+    soft_reset_pulse_count = 0;
+    clear_done_pulse_count = 0;
+    clear_error_pulse_count = 0;
+    apb_error_count = 0;
+    bridge_error_count = 0;
+    sideband_cov_enable = $test$plusargs("SIDEBAND_COV");
+    tx_apb_wait_cov_enable = $test$plusargs("TX_APB_WAIT_COV");
+    rx_apb_wait_cov_enable = $test$plusargs("RX_APB_WAIT_COV");
+    rx_stream_backpressure_cov_enable = $test$plusargs("RX_STREAM_BACKPRESSURE_COV");
+    tx_apb_error_cov_enable = $test$plusargs("TX_APB_ERROR_COV");
+    rx_if_direct_cov_enable = $test$plusargs("RX_IF_DIRECT_COV");
+    rx_parser_decoder_cov_enable = $test$plusargs("RX_PARSE_DECODE_COV");
     wait_cycles = 0;
+    case_name = "rv32_soc";
+    if ($value$plusargs("CASE_NAME=%s", case_name))
+      $display("Test_result STARTED %0s", case_name);
     input_len_bytes = 0;
     src_mismatch_count = 0;
     rx_mismatch_count = 0;
@@ -685,24 +1111,29 @@ module test_bench;
     rst = 0;
 
     wait_cycles = 0;
-    while ((wait_cycles < MAX_WAIT_CYCLES) &&
-           ((dut.u_dma_regfile.done_sticky_r !== 1'b1) || dut.dma_engine_busy_w)) begin
-      @(posedge clk);
-      wait_cycles = wait_cycles + 1;
-    end
-
-    repeat (256) @(posedge clk);
-
     begin : wait_for_signature_done
-      while (wait_cycles < (MAX_WAIT_CYCLES + 50000)) begin
+      while (wait_cycles < MAX_WAIT_CYCLES) begin
         aux_read_word(32'h00000000, result_words[0]);
-        if (result_words[0] === RESULT_SIGNATURE)
+        if ((result_words[0] === RESULT_SIGNATURE_DMA)  ||
+            (result_words[0] === RESULT_SIGNATURE_TX)   ||
+            (result_words[0] === RESULT_SIGNATURE_REG1) ||
+            (result_words[0] === RESULT_SIGNATURE_NEG1) ||
+            (result_words[0] === RESULT_SIGNATURE_MODE) ||
+            (result_words[0] === RESULT_SIGNATURE_RXER) ||
+            (result_words[0] === RESULT_SIGNATURE_TXER) ||
+            (result_words[0] === RESULT_SIGNATURE_CPUC))
           disable wait_for_signature_done;
+        @(posedge clk);
         wait_cycles = wait_cycles + 1;
       end
     end
 
     repeat (128) @(posedge clk);
+
+    if (sideband_cov_enable)
+      exercise_sideband_coverage;
+    if (rx_if_direct_cov_enable)
+      exercise_rx_if_direct_coverage;
 
     for (i = 0; i < 16; i = i + 1)
       aux_read_word(i * 4, result_words[i]);
@@ -717,7 +1148,7 @@ module test_bench;
       $finish;
     end
 
-    if (rx_plaintext_bytes > RX_BUFFER_BYTES) begin
+    if ((result_words[0] == RESULT_SIGNATURE_DMA) && (rx_plaintext_bytes > RX_BUFFER_BYTES)) begin
       $display("[FAIL] rx plaintext length exceeds RX buffer: %0d > %0d",
                rx_plaintext_bytes, RX_BUFFER_BYTES);
       fail_count = fail_count + 1;
@@ -733,8 +1164,13 @@ module test_bench;
 
     dump_dmem_region(SRC_DUMP_FILE, SRC_BASE_ADDR, input_len_bytes);
     dump_dmem_region(TX_DUMP_FILE, TX_DST_BASE_ADDR, tx_ciphertext_bytes);
-    dump_dmem_region(RX_DUMP_FILE, RX_DST_BASE_ADDR, rx_plaintext_bytes);
-    write_loopback_compare_file(LOOPBACK_COMPARE_FILE);
+    if (result_words[0] == RESULT_SIGNATURE_DMA) begin
+      dump_dmem_region(RX_DUMP_FILE, RX_DST_BASE_ADDR, rx_plaintext_bytes);
+      write_loopback_compare_file(LOOPBACK_COMPARE_FILE);
+    end else begin
+      compare_source_file;
+      rx_mismatch_count = 0;
+    end
     count_nonzero_region(TX_DST_BASE_ADDR, tx_ciphertext_bytes, tx_nonzero_byte_count);
 
     if (tx_busy_cycles > 0) begin
@@ -763,7 +1199,12 @@ module test_bench;
       space_saving_pct  = 100.0 - storage_ratio_pct;
     end
 
-    $display("# ===== RV32I SOC DMA TX->RX CHECK =====");
+    if (result_words[0] == RESULT_SIGNATURE_DMA)
+      $display("# ===== RV32I SOC DMA TX->RX CHECK =====");
+    else if (result_words[0] == RESULT_SIGNATURE_TX)
+      $display("# ===== RV32I SOC DMA TX-ONLY CHECK =====");
+    else
+      $display("# ===== RV32I SOC MMIO REGFILE CHECK =====");
     $display("# input_file=%0s input_len=%0d", input_file_name, input_len_bytes);
     $display("# dma_active_dir=%0d busy=%0b done_sticky=%0b error_sticky=%0b",
              dut.dma_active_dir_r,
@@ -861,39 +1302,136 @@ module test_bench;
              SRC_DUMP_FILE, TX_DUMP_FILE, RX_DUMP_FILE);
 
     check_eq_2 ("mem_err_o_should_be_zero", mem_err_o, 2'b00);
-    check_true ("cpu_should_publish_result_signature_before_timeout", result_words[0] == RESULT_SIGNATURE);
-    check_eq_32("result_signature", result_words[0], RESULT_SIGNATURE);
-    check_eq_32("cpu_error_mask_should_be_zero", result_words[1], 32'h00000000);
-    check_eq_32("tx_status_before_start", result_words[2], EXPECTED_TX_IDLE);
-    check_eq_32("tx_status_after_done", result_words[3], EXPECTED_TX_DONE);
-    check_true ("tx_bytes_done_should_be_transport_aligned",
-                (result_words[4] != 32'h00000000) &&
-                ((result_words[4] & 32'h0000000f) == 32'h00000000));
-    check_eq_32("tx_ciphertext_bytes_produced_should_match_tx_bytes_done",
-                result_words[5], result_words[4]);
-    check_true ("tx_poll_count_should_be_nonzero", result_words[6] != 32'h00000000);
-    check_true ("rx_status_before_start_should_be_idle_or_done_sticky",
-                (result_words[7] == EXPECTED_RX_IDLE) ||
-                (result_words[7] == EXPECTED_RX_DONE));
-    check_eq_32("rx_status_after_done", result_words[8], EXPECTED_RX_DONE);
-    check_eq_32("rx_bytes_done_should_match_input_len", result_words[9], input_len_bytes);
-    check_eq_32("rx_debug_after_done", result_words[10], 32'h00000000);
-    check_true ("rx_poll_count_should_be_nonzero", result_words[11] != 32'h00000000);
-    check_eq_32("source_dmem_should_match_input_file", src_mismatch_count, 32'h00000000);
-    check_eq_32("loopback_rx_should_match_input_file", rx_mismatch_count, 32'h00000000);
-    check_true ("tx_ciphertext_region_should_not_be_all_zero", tx_nonzero_byte_count != 0);
-    check_eq_32("dma_start_pulse_count", dma_start_pulse_count, 32'h00000002);
+    check_true ("cpu_should_publish_known_signature",
+                (result_words[0] == RESULT_SIGNATURE_DMA)  ||
+                (result_words[0] == RESULT_SIGNATURE_TX)   ||
+                (result_words[0] == RESULT_SIGNATURE_REG1) ||
+                (result_words[0] == RESULT_SIGNATURE_NEG1) ||
+                (result_words[0] == RESULT_SIGNATURE_MODE) ||
+                (result_words[0] == RESULT_SIGNATURE_RXER) ||
+                (result_words[0] == RESULT_SIGNATURE_TXER) ||
+                (result_words[0] == RESULT_SIGNATURE_CPUC));
+
+    if (result_words[0] == RESULT_SIGNATURE_DMA) begin
+      check_eq_32("result_signature", result_words[0], RESULT_SIGNATURE_DMA);
+      check_eq_32("cpu_error_mask_should_be_zero", result_words[1], 32'h00000000);
+      check_eq_32("tx_status_before_start", result_words[2], EXPECTED_TX_IDLE);
+      check_eq_32("tx_status_after_done", result_words[3], EXPECTED_TX_DONE);
+      check_true ("tx_bytes_done_should_be_transport_aligned",
+                  (result_words[4] != 32'h00000000) &&
+                  ((result_words[4] & 32'h0000000f) == 32'h00000000));
+      check_eq_32("tx_ciphertext_bytes_produced_should_match_tx_bytes_done",
+                  result_words[5], result_words[4]);
+      check_true ("tx_poll_count_should_be_nonzero", result_words[6] != 32'h00000000);
+      check_true ("rx_status_before_start_should_be_idle_or_done_sticky",
+                  (result_words[7] == EXPECTED_RX_IDLE) ||
+                  (result_words[7] == EXPECTED_RX_DONE));
+      check_eq_32("rx_status_after_done", result_words[8], EXPECTED_RX_DONE);
+      check_eq_32("rx_bytes_done_should_match_input_len", result_words[9], input_len_bytes);
+      check_eq_32("rx_debug_after_done", result_words[10], 32'h00000000);
+      check_true ("rx_poll_count_should_be_nonzero", result_words[11] != 32'h00000000);
+      check_eq_32("source_dmem_should_match_input_file", src_mismatch_count, 32'h00000000);
+      check_eq_32("loopback_rx_should_match_input_file", rx_mismatch_count, 32'h00000000);
+      check_true ("tx_ciphertext_region_should_not_be_all_zero", tx_nonzero_byte_count != 0);
+      check_eq_32("dma_start_pulse_count", dma_start_pulse_count, 32'h00000002);
+    end else if (result_words[0] == RESULT_SIGNATURE_TX) begin
+      check_eq_32("result_signature", result_words[0], RESULT_SIGNATURE_TX);
+      check_eq_32("cpu_error_mask_should_be_zero", result_words[1], 32'h00000000);
+      check_true ("tx_mode_should_be_known", known_tx_mode(result_words[8]));
+      check_eq_32("tx_status_before_start", result_words[2], expected_tx_idle_status(result_words[8]));
+      check_eq_32("tx_status_after_done", result_words[3], expected_tx_idle_status(result_words[8]) | 32'h00000002);
+      check_true ("tx_bytes_done_should_be_transport_aligned",
+                  (result_words[4] != 32'h00000000) &&
+                  ((result_words[4] & 32'h0000000f) == 32'h00000000));
+      check_eq_32("tx_ciphertext_bytes_produced_should_match_tx_bytes_done",
+                  result_words[5], result_words[4]);
+      check_true ("tx_poll_count_should_be_nonzero", result_words[6] != 32'h00000000);
+      check_eq_32("tx_debug_after_done", result_words[7], 32'h00000000);
+      check_eq_32("input_len_echo", result_words[9], input_len_bytes);
+      check_eq_32("source_dmem_should_match_input_file", src_mismatch_count, 32'h00000000);
+      check_true ("tx_region_should_not_be_all_zero", tx_nonzero_byte_count != 0);
+      check_eq_32("dma_start_pulse_count", dma_start_pulse_count, 32'h00000001);
+    end else if (result_words[0] == RESULT_SIGNATURE_REG1) begin
+      check_eq_32("cpu_error_mask_should_be_zero", result_words[1], 32'h00000000);
+      check_eq_32("basic_status_after_config", result_words[3], 32'h000000d8);
+      check_eq_32("basic_mode_readback", result_words[5], 32'h0000000d);
+      check_eq_32("basic_block_readback", result_words[6], 32'h00000020);
+      check_true("basic_soft_reset_pulse_seen", soft_reset_pulse_count >= 1);
+      check_eq_32("basic_status_after_soft_reset", result_words[4], 32'h00000000);
+      check_eq_32("basic_no_dma_start", dma_start_pulse_count, 32'h00000000);
+    end else if (result_words[0] == RESULT_SIGNATURE_NEG1) begin
+      check_true("negative_apb_errors_seen", apb_error_count >= 5);
+      check_true("negative_bridge_errors_seen", bridge_error_count >= 1);
+      check_eq_32("negative_no_dma_start", dma_start_pulse_count, 32'h00000000);
+      check_true("negative_clear_error_pulses_seen", clear_error_pulse_count >= 4);
+    end else if (result_words[0] == RESULT_SIGNATURE_MODE) begin
+      check_eq_32("mode_0x1_status", result_words[2], 32'h00000018);
+      check_eq_32("mode_0x5_status", result_words[3], 32'h00000058);
+      check_eq_32("mode_0x9_status", result_words[4], 32'h00000098);
+      check_eq_32("mode_0xd_status", result_words[5], 32'h000000d8);
+      check_eq_32("mode_0x2_status", result_words[6], 32'h00000028);
+      check_eq_32("mode_0x0_status_invalid_cfg", result_words[7], 32'h00000000);
+      check_eq_32("mode_0x3_status_invalid_cfg", result_words[8], 32'h00000030);
+      check_true("mode_reserved_write_sets_error", (result_words[9] & 32'h00000004) != 32'h00000000);
+      check_eq_32("mode_matrix_no_dma_start", dma_start_pulse_count, 32'h00000000);
+    end else if (result_words[0] == RESULT_SIGNATURE_RXER) begin
+      check_eq_32("rx_error_signature", result_words[0], RESULT_SIGNATURE_RXER);
+      check_eq_32("rx_error_mask_should_be_zero", result_words[1], 32'h00000000);
+      check_eq_32("rx_bad_len_status_before", result_words[2], 32'h00000028);
+      check_true("rx_bad_len_status_after_has_error", (result_words[3] & 32'h00000004) != 32'h00000000);
+      check_eq_32("rx_bad_len_bytes_done_zero", result_words[4], 32'h00000000);
+      check_eq_32("rx_bad_len_debug_error_code", result_words[5] & 32'h00000ff0, 32'h00000020);
+      check_eq_32("rx_bad_len_dma_start_pulse_count", dma_start_pulse_count, 32'h00000001);
+    end else if (result_words[0] == RESULT_SIGNATURE_TXER) begin
+      check_eq_32("tx_error_signature", result_words[0], RESULT_SIGNATURE_TXER);
+      check_eq_32("tx_error_mask_should_be_zero", result_words[1], 32'h00000000);
+      check_eq_32("tx_apb_error_status_before", result_words[2], EXPECTED_TX_IDLE);
+      check_true("tx_apb_error_status_after_has_error", (result_words[3] & 32'h00000004) != 32'h00000000);
+      check_true("tx_error_debug_code",
+                 ((result_words[5] & 32'h00000ff0) == 32'h00000030) ||
+                 ((result_words[5] & 32'h00000ff0) == 32'h00000060));
+      check_eq_32("tx_apb_error_dma_start_pulse_count", dma_start_pulse_count, 32'h00000001);
+    end else if (result_words[0] == RESULT_SIGNATURE_CPUC) begin
+      check_eq_32("cpu_instruction_signature", result_words[0], RESULT_SIGNATURE_CPUC);
+      check_eq_32("cpu_instruction_error_mask", result_words[1], 32'h00000000);
+      check_eq_32("cpu_instruction_r_type_mix", result_words[2], 32'hcd79bdff);
+      check_eq_32("cpu_instruction_mem_mix", result_words[3], 32'h0000e595);
+      check_eq_32("cpu_instruction_branch_score", result_words[4], 32'h0000003f);
+    end
+
+    if (rx_parser_decoder_cov_enable)
+      exercise_rx_parser_decoder_coverage;
 
     $display("# SUMMARY: PASS=%0d FAIL=%0d", pass_count, fail_count);
     if (fail_count == 0)
-      $display("[PASS] rv32_soc_dma_tx_rx_test");
+      $display("[PASS] rv32_soc_unified_test");
     else
-      $display("[FAIL] rv32_soc_dma_tx_rx_test");
+      $display("[FAIL] rv32_soc_unified_test");
 
     write_summary_file;
     $finish;
     end
   endtask
+
+  initial begin
+    if ($test$plusargs("TX_APB_WAIT_COV"))
+      inject_tx_apb_waitstate_once;
+  end
+
+  initial begin
+    if ($test$plusargs("RX_APB_WAIT_COV"))
+      inject_rx_apb_waitstate_once;
+  end
+
+  initial begin
+    if ($test$plusargs("RX_STREAM_BACKPRESSURE_COV"))
+      inject_rx_stream_backpressure_once;
+  end
+
+  initial begin
+    if ($test$plusargs("TX_APB_ERROR_COV"))
+      inject_tx_apb_error_once;
+  end
 
   `include "run_test.v"
 
