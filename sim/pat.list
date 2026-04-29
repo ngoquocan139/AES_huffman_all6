@@ -1,0 +1,14 @@
+dma_compress_aes_input1
+dma_compress_aes_input3
+tx_compress_only_input1
+tx_compress_only_input4_cov
+tx_compress_aes_block_input3
+tx_compress_only_block_input3
+mmio_regfile_basic
+mmio_mode_matrix
+mmio_regfile_negative
+
+# Known failing / not in clean baseline yet:
+# dma_compress_aes_input2_debug      # TX error on current input2.txt, keep for debug closure
+# dma_compress_aes_input4_cov_debug  # TX error 0x05 on current log-like input4_cov.txt
+# host_preprocess_input4_cov_debug   # host parser rejects current header line format

@@ -1,0 +1,163 @@
+# vsim -debugDB -l hostbench_prewait_fix.log -voptargs="+acc" -assertdebug -c tb_rv32_log_preprocess "+INPUT_FILE=input4.txt" -do "log -r /*;run -all;" 
+# Start time: 18:15:21 on Apr 17,2026
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vsim-8611) Generating debug db.
+# //  Questa Sim-64
+# //  Version 2021.2_1 linux_x86_64 May 15 2021
+# //
+# //  Copyright 1991-2021 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading work.tb_rv32_log_preprocess(fast)
+# Loading work.rv32_soc_top(fast)
+# Loading work.top_rv32_sync(fast)
+# Loading work.if_stage_sync(fast)
+# Loading work.id_stage(fast)
+# Loading work.ex_stage(fast)
+# Loading work.mem_stage_sync(fast)
+# Loading work.forwarding(fast)
+# Loading work.registers_file(fast)
+# Loading work.imem_sync(fast)
+# Loading work.dmem_ip_wrapper(fast)
+# Loading work.DMEM_ip(fast)
+# Loading work.apb_huffman_aes_tx_top(fast)
+# Loading work.apb_huffman_tx_if(fast)
+# Loading work.huffman_aes_tx_top(fast)
+# Loading work.dynamic_huffman_encoder(fast)
+# Loading work.input_collect_unit(fast)
+# Loading work.block_buffer(fast)
+# Loading work.frequency_counter(fast)
+# Loading work.huffman_builder(fast)
+# Loading work.symbol_list_builder(fast)
+# Loading work.code_length_builder(fast)
+# Loading work.canonical_code_generator(fast)
+# Loading work.mode_decision_logic(fast)
+# Loading work.emit_backend(fast)
+# Loading work.header_formatter(fast)
+# Loading work.payload_emitter(fast)
+# Loading work.stream_output_interface(fast)
+# Loading work.control_fsm(fast)
+# Loading work.bit_packer_128(fast)
+# Loading work.wrapper(fast)
+# Loading work.aes128_cipher_top(fast)
+# Loading work.aes128_cipher_core(fast)
+# Loading work.aes128_key_expansion(fast)
+# Loading work.apb_huffman_aes_rx_top(fast)
+# Loading work.wrapper_rx(fast)
+# Loading work.aes128_cipher_inv_top(fast)
+# Loading work.aes128_cipher_core_inv(fast)
+# Loading work.aes128_key_expansion_inv(fast)
+# Loading work.bit_depacker_128(fast)
+# Loading work.huffman_block_parser(fast)
+# Loading work.huffman_block_decoder(fast)
+# Loading work.rx_byte_packer_32(fast)
+# Loading work.apb_huffman_rx_if(fast)
+# Loading work.cpu_mmio_to_apb_bridge(fast)
+# Loading work.dma_regfile(fast)
+# Loading work.dma_tx_engine(fast)
+# Loading work.dma_rx_engine(fast)
+# ** Note: (vsim-8900) Creating design debug database vsim.dbg.
+# log -r /*
+# run -all
+# INPUT_FILE override: input4.txt
+# Sync Istr 0: 00008137
+# Sync Istr 1: f0010113
+# Sync Istr 2: 0040006f
+# Sync Istr 3: fd010113
+# Loaded 5990 byte(s) from input4.txt into DMEM @ 0x00000400
+# Wrote 924 byte(s) to preprocess/host_preprocessed.bin
+# Loaded 924 byte(s) of preprocessed binary into DMEM @ 0x00002000
+# DEBUG loader input_len=0x00001766 preproc_len=0x0000039c preproc_word0=0x3152504c
+# DEBUG cpu_result_write[0] pc=00000034 addr=00000000 data=11111111 we=1111
+# DEBUG cpu_result_write[1] pc=00000040 addr=00000004 data=00001766 we=1111
+# DEBUG cpu_result_write[2] pc=00000044 addr=00000008 data=0000039c we=1111
+# DEBUG cpu_result_write[3] pc=0000005c addr=0000000c data=22222222 we=1111
+# DEBUG mmio_write[0] addr=40000008 data=00000400
+# DEBUG mmio_write[1] addr=4000000c data=00004000
+# DEBUG mmio_write[2] addr=40000010 data=00001766
+# DEBUG mmio_write[3] addr=40000014 data=00000001
+# DEBUG mmio_write[4] addr=40000018 data=00000020
+# DEBUG mmio_write[5] addr=40000000 data=00000001
+# DEBUG cpu_main_entry[0] cycle=72
+# DEBUG cpu_main_entry[1] cycle=86
+# DEBUG cpu_main_entry[2] cycle=98
+# DEBUG cpu_main_entry[3] cycle=110
+# DEBUG cpu_main_entry[4] cycle=122
+# DEBUG cpu_main_entry[5] cycle=134
+# DEBUG cpu_main_entry[6] cycle=146
+# DEBUG cpu_main_entry[7] cycle=158
+# DEBUG cpu_main_entry[8] cycle=170
+# DEBUG cpu_main_entry[9] cycle=182
+# DEBUG cpu_main_entry[10] cycle=194
+# DEBUG cpu_main_entry[11] cycle=206
+# DEBUG cpu_main_entry[12] cycle=218
+# DEBUG cpu_main_entry[13] cycle=230
+# DEBUG cpu_main_entry[14] cycle=242
+# DEBUG cpu_main_entry[15] cycle=254
+# DEBUG cpu_result_write[4] pc=00000108 addr=00000010 data=33333333 we=1111
+# DEBUG cpu_result_write[5] pc=0000010c addr=00000014 data=0000001a we=1111
+# DEBUG cpu_result_write[6] pc=00000110 addr=00000018 data=00001910 we=1111
+# DEBUG mmio_write[6] addr=40000008 data=00002000
+# DEBUG mmio_write[7] addr=4000000c data=00006000
+# DEBUG mmio_write[8] addr=40000010 data=0000039c
+# DEBUG mmio_write[9] addr=40000014 data=00000001
+# DEBUG mmio_write[10] addr=40000018 data=00000020
+# DEBUG mmio_write[11] addr=40000000 data=00000001
+# DEBUG cpu_result_write[7] pc=000001b4 addr=0000001c data=44444444 we=1111
+# DEBUG cpu_result_write[8] pc=000001b8 addr=00000020 data=0000001a we=1111
+# DEBUG cpu_result_write[9] pc=000001bc addr=00000024 data=00000160 we=1111
+# DEBUG cpu_result_write[10] pc=00000308 addr=00000000 data=4c505231 we=1111
+# DEBUG cpu_result_write[11] pc=0000030c addr=00000004 data=00000000 we=1111
+# DEBUG cpu_result_write[12] pc=00000310 addr=00000008 data=00001766 we=1111
+# DEBUG cpu_result_write[13] pc=00000314 addr=0000000c data=00000018 we=1111
+# DEBUG cpu_result_write[14] pc=00000318 addr=00000010 data=0000001a we=1111
+# DEBUG cpu_result_write[15] pc=0000031c addr=00000014 data=00001910 we=1111
+# DEBUG cpu_result_write[16] pc=00000320 addr=00000018 data=00001910 we=1111
+# DEBUG cpu_result_write[17] pc=00000324 addr=0000001c data=0000039c we=1111
+# DEBUG cpu_result_write[18] pc=00000328 addr=00000020 data=0000002d we=1111
+# DEBUG cpu_result_write[19] pc=0000032c addr=00000024 data=0000001a we=1111
+# DEBUG cpu_result_write[20] pc=00000330 addr=00000028 data=0000001a we=1111
+# DEBUG cpu_result_write[21] pc=00000334 addr=0000002c data=00000160 we=1111
+# DEBUG cpu_result_write[22] pc=00000338 addr=00000030 data=00000160 we=1111
+# DEBUG cpu_result_write[23] pc=0000033c addr=00000034 data=3152504c we=1111
+# DEBUG cpu_result_write[24] pc=00000340 addr=00000038 data=0000002d we=1111
+# DEBUG cpu_result_write[25] pc=00000344 addr=0000003c data=000017b0 we=1111
+# ===== RV32I LOG PREPROCESS TX BENCH =====
+# input_file=input4.txt input_len=5990 preproc_len=924 records=45
+# raw_tx_cipher_bytes=6416 pre_tx_cipher_bytes=352 improvement=94.51%
+# preprocess_ratio=15.43% raw_storage_ratio=107.11% pre_storage_ratio=5.88%
+# raw_tx_cycles=120609 pre_tx_cycles=11709 raw_tx_MBps=5.320 pre_tx_MBps=3.006
+# FILES summary=preprocess/tb_rv32_log_preprocess_summary.txt src_dump=dmem_dump/tb_rv32_log_preprocess_src.txt preproc_dump=dmem_dump/tb_rv32_log_preprocess_preproc.txt raw_tx_dump=dmem_dump/tb_rv32_log_preprocess_raw_tx.txt pre_tx_dump=dmem_dump/tb_rv32_log_preprocess_pre_tx.txt
+# [PASS] mem_err_o_should_be_zero | actual=0 expected=0
+# [PASS] cpu_should_publish_result_signature_before_timeout
+# [PASS] result_signature | actual=0x4c505231 expected=0x4c505231
+# [PASS] cpu_error_mask_should_be_zero | actual=0x00000000 expected=0x00000000
+# [PASS] input_len_should_match_loader | actual=0x00001766 expected=0x00001766
+# [PASS] raw_tx_status_before_should_be_idle | actual=0x00000018 expected=0x00000018
+# [PASS] raw_tx_status_after_should_be_done | actual=0x0000001a expected=0x0000001a
+# [PASS] raw_tx_cipher_bytes_should_match_bytes_done | actual=0x00001910 expected=0x00001910
+# [PASS] record_count_should_be_nonzero
+# [PASS] preproc_len_should_be_nonzero
+# [PASS] preproc_len_should_be_smaller_than_input
+# [PASS] pre_tx_status_before_should_be_idle_or_done
+# [PASS] pre_tx_status_after_should_be_done | actual=0x0000001a expected=0x0000001a
+# [PASS] pre_tx_cipher_bytes_should_match_bytes_done | actual=0x00000160 expected=0x00000160
+# [PASS] preproc_header_magic | actual=0x3152504c expected=0x3152504c
+# [PASS] preprocessed_tx_should_beat_raw_tx
+# [PASS] raw_tx_region_should_not_be_all_zero
+# [PASS] pre_tx_region_should_not_be_all_zero
+# [PASS] dma_start_pulse_count_should_be_two | actual=0x00000002 expected=0x00000002
+# SUMMARY: PASS=19 FAIL=0
+# [PASS] rv32_log_preprocess_tx_bench
+# ** Note: $finish    : ../tb/tb_rv32_log_preprocess.v(627)
+#    Time: 12163796 ns  Iteration: 0  Instance: /tb_rv32_log_preprocess
+# End time: 18:16:46 on Apr 17,2026, Elapsed time: 0:01:25
+# Errors: 0, Warnings: 0

@@ -1,0 +1,34 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Wed Apr 22 15:42:49 2026
+# Process ID         : 11188
+# Current directory  : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim
+# Command line       : vivado.exe H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6\vivado\build\rv32_soc_synth_tx\rv32_soc_synth_tx.xpr
+# Log file           : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim/vivado.log
+# Journal file       : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim\vivado.jou
+# Running On         : An
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
+# CPU Frequency      : 1992 MHz
+# CPU Physical cores : 4
+# CPU Logical cores  : 8
+# Host memory        : 17024 MB
+# Swap memory        : 27917 MB
+# Total Virtual      : 44941 MB
+# Available Virtual  : 9885 MB
+#-----------------------------------------------------------
+start_gui
+open_project H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.xpr
+update_compile_order -fileset sources_1
+reset_run DMEM_ip_synth_1
+reset_run IMEM_ip_synth_1
+launch_runs impl_1 -jobs 4
+wait_on_run impl_1
+open_run impl_1
+report_power -name {power_1}
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1
+create_dataflow_design

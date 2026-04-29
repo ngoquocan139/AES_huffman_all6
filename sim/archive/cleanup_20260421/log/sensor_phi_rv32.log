@@ -1,0 +1,136 @@
+# vsim -debugDB -l sensor_phi_rv32.log -voptargs="+acc" -assertdebug -c tb_rv32_sensor_phi_preprocess_rv32 "+INPUT_FILE=input_sensor_phi.txt" -do "log -r /*;run -all;" 
+# Start time: 10:58:20 on Apr 20,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vsim-8611) Generating debug db.
+# ** Note: (vopt-4301) Memory core inferred for signal 'block_mem' width=8, depth=32, type=RAM at location ../rtl/block_buffer.v:23
+# ** Note: (vopt-143) Recognized 1 FSM in module "huffman_block_parser(fast)".
+# ** Note: (vopt-4301) Memory core inferred for signal 'code_local' width=31, depth=32, type=RAM at location ../rtl/huffman_block_decoder.v:94
+# ** Note: (vopt-143) Recognized 1 FSM in module "huffman_block_decoder(fast)".
+# ** Note: (vopt-4301) Memory core inferred for signal 'code_len_mem' width=5, depth=96, type=RAM at location ../rtl/code_length_builder.v:57
+# ** Note: (vopt-4301) Memory core inferred for signal 'node_mask' width=32, depth=63, type=RAM at location ../rtl/code_length_builder.v:51
+# ** Note: (vopt-4301) Memory core inferred for signal 'leaf_code_len' width=5, depth=32, type=RAM at location ../rtl/code_length_builder.v:48
+# ** Note: (vopt-4301) Memory core inferred for signal 'leaf_symbol' width=8, depth=32, type=RAM at location ../rtl/code_length_builder.v:47
+# ** Note: (vopt-143) Recognized 1 FSM in module "code_length_builder(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "header_formatter(fast)".
+# ** Note: (vopt-4301) Memory core inferred for signal 'code_mem' width=31, depth=96, type=RAM at location ../rtl/canonical_code_generator.v:60
+# ** Note: (vopt-4301) Memory core inferred for signal 'code_len_mem' width=5, depth=96, type=RAM at location ../rtl/canonical_code_generator.v:59
+# ** Note: (vopt-4301) Memory core inferred for signal 'symbol_local' width=8, depth=32, type=RAM at location ../rtl/canonical_code_generator.v:56
+# ** Note: (vopt-143) Recognized 1 FSM in module "canonical_code_generator(fast)".
+# ** Note: (vopt-4301) Memory core inferred for signal 'out_fifo_mem' width=32, depth=16, type=RAM at location ../rtl/apb_huffman_tx_if.v:76
+# ** Note: (vopt-4301) Memory core inferred for signal 'fifo_mem' width=32, depth=8, type=RAM at location ../rtl/apb_huffman_tx_if.v:71
+# ** Note: (vopt-143) Recognized 1 FSM in module "mode_decision_logic(fast)".
+# ** Note: (vopt-4301) Memory core inferred for signal 'fifo_data_mem' width=32, depth=16, type=RAM at location ../rtl/apb_huffman_rx_if.v:46
+# ** Note: (vopt-143) Recognized 1 FSM in module "dma_tx_engine(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "payload_emitter(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "dma_rx_engine(fast)".
+# ** Note: (vopt-4301) Memory core inferred for signal 'symbol_list_mem' width=8, depth=32, type=RAM at location ../rtl/symbol_list_builder.v:42
+# ** Note: (vopt-143) Recognized 1 FSM in module "symbol_list_builder(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "emit_backend(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "huffman_builder(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "input_collect_unit(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "stream_output_interface(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "control_fsm(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "cpu_mmio_to_apb_bridge(fast)".
+# //  Questa Sim-64
+# //  Version 2021.2_1 linux_x86_64 May 15 2021
+# //
+# //  Copyright 1991-2021 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading work.tb_rv32_sensor_phi_preprocess_rv32(fast)
+# Loading work.rv32_soc_top(fast)
+# Loading work.top_rv32_sync(fast)
+# Loading work.if_stage_sync(fast)
+# Loading work.id_stage(fast)
+# Loading work.ex_stage(fast)
+# Loading work.mem_stage_sync(fast)
+# Loading work.forwarding(fast)
+# Loading work.registers_file(fast)
+# Loading work.imem_sync(fast)
+# Loading work.dmem_ip_wrapper(fast)
+# Loading work.DMEM_ip(fast)
+# Loading work.apb_huffman_aes_tx_top(fast)
+# Loading work.apb_huffman_tx_if(fast)
+# Loading work.huffman_aes_tx_top(fast)
+# Loading work.dynamic_huffman_encoder(fast)
+# Loading work.input_collect_unit(fast)
+# Loading work.block_buffer(fast)
+# Loading work.frequency_counter(fast)
+# Loading work.huffman_builder(fast)
+# Loading work.symbol_list_builder(fast)
+# Loading work.code_length_builder(fast)
+# Loading work.canonical_code_generator(fast)
+# Loading work.mode_decision_logic(fast)
+# Loading work.emit_backend(fast)
+# Loading work.header_formatter(fast)
+# Loading work.payload_emitter(fast)
+# Loading work.stream_output_interface(fast)
+# Loading work.control_fsm(fast)
+# Loading work.bit_packer_128(fast)
+# Loading work.wrapper(fast)
+# Loading work.aes128_cipher_top(fast)
+# Loading work.aes128_cipher_core(fast)
+# Loading work.aes128_key_expansion(fast)
+# Loading work.apb_huffman_aes_rx_top(fast)
+# Loading work.wrapper_rx(fast)
+# Loading work.aes128_cipher_inv_top(fast)
+# Loading work.aes128_cipher_core_inv(fast)
+# Loading work.aes128_key_expansion_inv(fast)
+# Loading work.bit_depacker_128(fast)
+# Loading work.huffman_block_parser(fast)
+# Loading work.huffman_block_decoder(fast)
+# Loading work.rx_byte_packer_32(fast)
+# Loading work.apb_huffman_rx_if(fast)
+# Loading work.cpu_mmio_to_apb_bridge(fast)
+# Loading work.dma_regfile(fast)
+# Loading work.dma_tx_engine(fast)
+# Loading work.dma_rx_engine(fast)
+# ** Note: (vsim-8900) Creating design debug database vsim.dbg.
+# log -r /*
+# run -all
+# INPUT_FILE override: input_sensor_phi.txt
+# Sync Istr 0: 00008137
+# Sync Istr 1: f0010113
+# Sync Istr 2: 1800006f
+# Sync Istr 3: 00050613
+# Loaded 1536 byte(s) from input_sensor_phi.txt into DMEM @ 0x00000400
+# Wrote 656 byte(s) to preprocess/host_sensor_phi_preprocessed.bin
+# Generated host golden preprocessed binary: 656 byte(s)
+# ===== RV32I SENSOR PHI PREPROCESS TX BENCH =====
+# input_file=input_sensor_phi.txt input_len=1536 preproc_len=0 records=0
+# raw_tx_cipher_bytes=0 pre_tx_cipher_bytes=0 improvement=0.00%
+# preprocess_ratio=0.00% raw_storage_ratio=0.00% pre_storage_ratio=0.00%
+# FILES summary=preprocess/tb_rv32_sensor_phi_preprocess_rv32_summary.txt src_dump=dmem_dump/tb_rv32_sensor_phi_preprocess_rv32_src.txt preproc_dump=dmem_dump/tb_rv32_sensor_phi_preprocess_rv32_preproc.txt raw_tx_dump=dmem_dump/tb_rv32_sensor_phi_preprocess_rv32_raw_tx.txt pre_tx_dump=dmem_dump/tb_rv32_sensor_phi_preprocess_rv32_pre_tx.txt
+# [PASS] mem_err_o_should_be_zero | actual=0 expected=0
+# [FAIL] cpu_should_publish_result_signature_before_timeout
+# [FAIL] result_signature | actual=0x00000000 expected=0x53505231
+# [PASS] cpu_error_mask_should_be_zero | actual=0x00000000 expected=0x00000000
+# [FAIL] input_len_should_match_loader | actual=0x00000000 expected=0x00000600
+# [FAIL] preproc_len_should_be_nonzero
+# [FAIL] record_count_should_be_nonzero
+# [FAIL] raw_tx_status_before_should_be_idle | actual=0x00000000 expected=0x00000018
+# [FAIL] raw_tx_status_after_should_be_done | actual=0x00000000 expected=0x0000001a
+# [PASS] raw_tx_cipher_bytes_should_match_bytes_done | actual=0x00000000 expected=0x00000000
+# [FAIL] pre_tx_status_before_should_be_idle_or_done
+# [FAIL] pre_tx_status_after_should_be_done | actual=0x00000000 expected=0x0000001a
+# [PASS] pre_tx_cipher_bytes_should_match_bytes_done | actual=0x00000000 expected=0x00000000
+# [FAIL] preproc_header_magic | actual=0x00000000 expected=0x31485053
+# [FAIL] preprocessed_tx_should_beat_raw_tx
+# [FAIL] dma_start_pulse_count_should_be_two | actual=0x00000000 expected=0x00000002
+# [PASS] preprocessed_binary_should_match_host_golden | actual=0x00000000 expected=0x00000000
+# [FAIL] raw_tx_region_should_not_be_all_zero
+# [FAIL] pre_tx_region_should_not_be_all_zero
+# SUMMARY: PASS=5 FAIL=14
+# [FAIL] rv32_sensor_phi_preprocess_tx_bench
+# ** Note: $finish    : ../tb/tb_rv32_sensor_phi_preprocess_rv32.v(499)
+#    Time: 20333166 ns  Iteration: 0  Instance: /tb_rv32_sensor_phi_preprocess_rv32
+# End time: 10:59:30 on Apr 20,2026, Elapsed time: 0:01:10
+# Errors: 0, Warnings: 0

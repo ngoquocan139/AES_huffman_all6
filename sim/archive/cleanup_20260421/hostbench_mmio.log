@@ -1,0 +1,17 @@
+# vsim -debugDB -l hostbench_mmio.log -voptargs="+acc" -assertdebug -c tb_rv32_log_preprocess "+INPUT_FILE=input4.txt" -do "log -r /*;run -all;" 
+# Start time: 17:48:09 on Apr 17,2026
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vsim-8611) Generating debug db.
+# ** Error (suppressible): ../tb/tb_rv32_log_preprocess.v(470): (vopt-7063) Failed to find 'bridge_mmio_req_valid_w' in hierarchical name 'dut.bridge_mmio_req_valid_w'.
+#         Region: tb_rv32_log_preprocess
+# ** Error (suppressible): ../tb/tb_rv32_log_preprocess.v(470): (vopt-7063) Failed to find 'bridge_mmio_write_w' in hierarchical name 'dut.bridge_mmio_write_w'.
+#         Region: tb_rv32_log_preprocess
+# ** Error (suppressible): ../tb/tb_rv32_log_preprocess.v(473): (vopt-7063) Failed to find 'bridge_mmio_addr_w' in hierarchical name 'dut.bridge_mmio_addr_w'.
+#         Region: tb_rv32_log_preprocess
+# ** Error (suppressible): ../tb/tb_rv32_log_preprocess.v(474): (vopt-7063) Failed to find 'bridge_mmio_wdata_w' in hierarchical name 'dut.bridge_mmio_wdata_w'.
+#         Region: tb_rv32_log_preprocess
+# Optimization failed
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=4, Warnings=0.
+# Error loading design
+# End time: 17:48:12 on Apr 17,2026, Elapsed time: 0:00:03
+# Errors: 4, Warnings: 0

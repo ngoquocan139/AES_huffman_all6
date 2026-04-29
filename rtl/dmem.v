@@ -1,0 +1,24 @@
+module dmem (
+  input  wire       clka,
+  input  wire       ena,
+  input  wire       wea,
+  input  wire [7:0] addra,
+  input  wire [7:0] dina,
+  output wire  [7:0] douta
+);
+
+  reg [7:0] mem [0:255];
+  integer  i;
+  initial begin
+  for(i = 0; i < 256 ; i=i+1)
+    mem[i] = 8'b0;
+    $display("Index 0: %h", mem[0]);
+  end 
+  assign douta = mem[addra];
+  always @(posedge clka) begin
+    if (ena) begin
+      if (wea)
+        mem[addra] <= dina;
+    end
+  end
+endmodule

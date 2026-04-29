@@ -1,0 +1,6 @@
+base_addr=0x00002000 byte_count=4
+idx addr byte ascii
+0 0x00002000 00 .
+1 0x00002001 00 .
+2 0x00002002 00 .
+3 0x00002003 00 .

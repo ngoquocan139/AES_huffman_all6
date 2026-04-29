@@ -1,0 +1,53 @@
+Reading pref.tcl
+
+# 2021.2_1
+
+# vsim -c -lib work_soc_mmio_full2 tb_rv32_soc_mmio_dma -do "run -all; quit -f" 
+# Start time: 09:52:24 on Apr 14,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# //  Questa Sim-64
+# //  Version 2021.2_1 linux_x86_64 May 15 2021
+# //
+# //  Copyright 1991-2021 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading work.tb_rv32_soc_mmio_dma(fast)
+# run -all
+# Sync Istr 0: 00008137
+# Sync Istr 1: f0010113
+# Sync Istr 2: 0040006f
+# Sync Istr 3: 400002b7
+# ===== RV32I SOC MMIO DMA CHECK =====
+# [PASS] mem_err_o_should_be_zero | actual=0 expected=0
+# [PASS] result_signature | actual=0x4d4d494f expected=0x4d4d494f
+# [PASS] cpu_error_mask_should_be_zero | actual=0x00000000 expected=0x00000000
+# [PASS] src_addr_readback | actual=0x00000040 expected=0x00000040
+# [PASS] dst_addr_readback | actual=0x00000080 expected=0x00000080
+# [PASS] len_bytes_readback | actual=0x00000020 expected=0x00000020
+# [PASS] mode_readback | actual=0x00000001 expected=0x00000001
+# [PASS] block_cfg_readback | actual=0x00000010 expected=0x00000010
+# [PASS] status_before_start | actual=0x00000018 expected=0x00000018
+# [PASS] status_after_start | actual=0x00000018 expected=0x00000018
+# [PASS] bytes_done_default | actual=0x00000000 expected=0x00000000
+# [PASS] debug_default | actual=0x00000000 expected=0x00000000
+# [PASS] control_reads_as_zero | actual=0x00000000 expected=0x00000000
+# [PASS] dma_regfile_src_addr | actual=0x00000040 expected=0x00000040
+# [PASS] dma_regfile_dst_addr | actual=0x00000080 expected=0x00000080
+# [PASS] dma_regfile_len_bytes | actual=0x00000020 expected=0x00000020
+# [PASS] dma_regfile_mode | actual=0x00000001 expected=0x00000001
+# [PASS] dma_regfile_block_cfg | actual=0x00000010 expected=0x00000010
+# [PASS] dma_start_pulse_count | actual=0x00000001 expected=0x00000001
+# SUMMARY: PASS=19 FAIL=0
+# [PASS] rv32_soc_mmio_dma_test
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(146)
+#    Time: 5136 ns  Iteration: 0  Instance: /tb_rv32_soc_mmio_dma
+# End time: 09:52:32 on Apr 14,2026, Elapsed time: 0:00:08
+# Errors: 0, Warnings: 0

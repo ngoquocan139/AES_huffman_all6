@@ -1,0 +1,17 @@
+input_file=input_sensor_phi.txt
+input_len_bytes=192
+preproc_len_bytes=0
+record_count=0
+raw_tx_cipher_bytes=0
+pre_tx_cipher_bytes=0
+preproc_mismatch_count=0
+raw_tx_busy_cycles=0
+pre_tx_busy_cycles=0
+preprocess_ratio_pct=0.00
+raw_storage_ratio_pct=0.00
+pre_storage_ratio_pct=0.00
+tx_improvement_pct=0.00
+raw_tx_nonzero_count=0
+pre_tx_nonzero_count=0
+pass_count=5
+fail_count=14

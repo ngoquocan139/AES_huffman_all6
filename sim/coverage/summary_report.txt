@@ -1,0 +1,2014 @@
+Coverage Report Summary Data by instance
+
+=================================================================================
+=== Instance: /test_bench/dut/u_cpu/u_if_stage
+=== Design Unit: work.if_stage_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        20        18         2    90.00%
+    Conditions                       5         2         3    40.00%
+    Expressions                      6         5         1    83.33%
+    Statements                      33        32         1    96.96%
+    Toggles                        980       534       446    54.48%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_cpu/u_id_stage
+=== Design Unit: work.id_stage
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       106       101         5    95.28%
+    Conditions                      72        55        17    76.38%
+    Expressions                     17        11         6    64.70%
+    Statements                      94        94         0   100.00%
+    Toggles                       1214      1015       199    83.60%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_cpu/u_ex_stage
+=== Design Unit: work.ex_stage
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        45        37         8    82.22%
+    Conditions                      14        11         3    78.57%
+    Expressions                     15         7         8    46.66%
+    Statements                      35        35         0   100.00%
+    Toggles                       1490      1257       233    84.36%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_cpu/u_mem_stage
+=== Design Unit: work.mem_stage_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        57        27        30    47.36%
+    Conditions                      14         5         9    35.71%
+    Expressions                      4         4         0   100.00%
+    Statements                     139       108        31    77.69%
+    Toggles                        954       692       262    72.53%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_cpu/u_forwarding
+=== Design Unit: work.forwarding
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        48        36        12    75.00%
+    Conditions                      36        17        19    47.22%
+    Expressions                     12        12         0   100.00%
+    Statements                       8         8         0   100.00%
+    Toggles                        716       620        96    86.59%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_cpu
+=== Design Unit: work.top_rv32_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        10         9         1    90.00%
+    Conditions                       9         8         1    88.88%
+    Expressions                     20        20         0   100.00%
+    Statements                      11        11         0   100.00%
+    Toggles                       2092      1790       302    85.56%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_reg_file
+=== Design Unit: work.registers_file
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        11        11         0   100.00%
+    Conditions                      10         8         2    80.00%
+    Statements                      10        10         0   100.00%
+    Toggles                        292       227        65    77.73%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_imem
+=== Design Unit: work.imem_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         2         2         0   100.00%
+    Statements                      12        12         0   100.00%
+    Toggles                        218       147        71    67.43%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_dmem/u_dmem_ip
+=== Design Unit: work.DMEM_ip
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        20        20         0   100.00%
+    Statements                      17        17         0   100.00%
+    Toggles                        396       330        66    83.33%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_dmem
+=== Design Unit: work.dmem_ip_wrapper
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Expressions                      4         1         3    25.00%
+    Statements                       3         3         0   100.00%
+    Toggles                        460       382        78    83.04%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_apb_huffman_tx_if
+=== Design Unit: work.apb_huffman_tx_if
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        95        60        35    63.15%
+    Conditions                      24         2        22     8.33%
+    Expressions                     51        32        19    62.74%
+    Statements                     217       157        60    72.35%
+    Toggles                        636       465       171    73.11%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_file_frequency_counter
+=== Design Unit: work.frequency_counter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        15        12         3    80.00%
+    Conditions                       4         1         3    25.00%
+    Expressions                      3         2         1    66.66%
+    Statements                      27        24         3    88.88%
+    Toggles                        196       111        85    56.63%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_symbol_list_builder
+=== Design Unit: work.symbol_list_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        36        27         9    75.00%
+    Conditions                      10         5         5    50.00%
+    Expressions                      9         5         4    55.55%
+    FSM States                       4         4         0   100.00%
+    FSM Transitions                  7         3         4    42.85%
+    Statements                      49        38        11    77.55%
+    Toggles                        218       113       105    51.83%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_code_length_builder
+=== Design Unit: work.code_length_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        87        69        18    79.31%
+    Conditions                      34        17        17    50.00%
+    Expressions                     16        10         6    62.50%
+    FSM States                      10        10         0   100.00%
+    FSM Transitions                 25        11        14    44.00%
+    Statements                     157       140        17    89.17%
+    Toggles                        378       255       123    67.46%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_canonical_code_generator
+=== Design Unit: work.canonical_code_generator
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        61        43        18    70.49%
+    Conditions                      26        10        16    38.46%
+    Expressions                     10         7         3    70.00%
+    FSM States                       6         6         0   100.00%
+    FSM Transitions                 13         5         8    38.46%
+    Statements                     102        81        21    79.41%
+    Toggles                        418       229       189    54.78%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder
+=== Design Unit: work.huffman_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        35        32         3    91.42%
+    Conditions                      11         8         3    72.72%
+    Expressions                     14        14         0   100.00%
+    FSM States                       8         8         0   100.00%
+    FSM Transitions                 15         7         8    46.66%
+    Statements                      36        33         3    91.66%
+    Toggles                        506       349       157    68.97%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit/u_block_buffer
+=== Design Unit: work.block_buffer
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         9         8         1    88.88%
+    Conditions                       2         1         1    50.00%
+    Expressions                      2         2         0   100.00%
+    Statements                      20        19         1    95.00%
+    Toggles                        144        71        73    49.30%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit/u_frequency_counter
+=== Design Unit: work.frequency_counter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        15        12         3    80.00%
+    Conditions                       4         1         3    25.00%
+    Expressions                      3         2         1    66.66%
+    Statements                      27        24         3    88.88%
+    Toggles                        176        82        94    46.59%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit
+=== Design Unit: work.input_collect_unit
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        38        30         8    78.94%
+    Conditions                       8         2         6    25.00%
+    Expressions                      9         9         0   100.00%
+    FSM States                       4         4         0   100.00%
+    FSM Transitions                  8         4         4    50.00%
+    Statements                      40        31         9    77.50%
+    Toggles                        178       140        38    78.65%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_symbol_list_builder
+=== Design Unit: work.symbol_list_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        36         9        27    25.00%
+    Conditions                      10         0        10     0.00%
+    Expressions                      9         1         8    11.11%
+    FSM States                       4         1         3    25.00%
+    FSM Transitions                  7         0         7     0.00%
+    Statements                      49        24        25    48.97%
+    Toggles                        198        22       176    11.11%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_code_length_builder
+=== Design Unit: work.code_length_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        87         9        78    10.34%
+    Conditions                      34         0        34     0.00%
+    Expressions                     16         0        16     0.00%
+    FSM States                      10         1         9    10.00%
+    FSM Transitions                 25         0        25     0.00%
+    Statements                     157        48       109    30.57%
+    Toggles                        326         3       323     0.92%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_canonical_code_generator
+=== Design Unit: work.canonical_code_generator
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        61         9        52    14.75%
+    Conditions                      26         0        26     0.00%
+    Expressions                     10         0        10     0.00%
+    FSM States                       6         1         5    16.66%
+    FSM Transitions                 13         0        13     0.00%
+    Statements                     105        35        70    33.33%
+    Toggles                        410         3       407     0.73%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder
+=== Design Unit: work.huffman_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        35        10        25    28.57%
+    Conditions                      11         0        11     0.00%
+    Expressions                     14         0        14     0.00%
+    FSM States                       8         1         7    12.50%
+    FSM Transitions                 15         0        15     0.00%
+    Statements                      36        21        15    58.33%
+    Toggles                        466        20       446     4.29%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_mode_decision_logic
+=== Design Unit: work.mode_decision_logic
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        74        13        61    17.56%
+    Conditions                      36         1        35     2.77%
+    Expressions                     11         2         9    18.18%
+    FSM States                       5         1         4    20.00%
+    FSM Transitions                 10         0        10     0.00%
+    Statements                      93        45        48    48.38%
+    Toggles                        534        69       465    12.92%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_header_formatter
+=== Design Unit: work.header_formatter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        67        44        23    65.67%
+    Conditions                      26         9        17    34.61%
+    Expressions                     19        12         7    63.15%
+    FSM States                      10         8         2    80.00%
+    FSM Transitions                 23        11        12    47.82%
+    Statements                     143        99        44    69.23%
+    Toggles                        636       365       271    57.38%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_payload_emitter
+=== Design Unit: work.payload_emitter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        52        34        18    65.38%
+    Conditions                      25         5        20    20.00%
+    Expressions                     17        14         3    82.35%
+    FSM States                       7         7         0   100.00%
+    FSM Transitions                 18         8        10    44.44%
+    Statements                     108        83        25    76.85%
+    Toggles                        390       248       142    63.58%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_stream_output_interface
+=== Design Unit: work.stream_output_interface
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        32        27         5    84.37%
+    Conditions                      17         7        10    41.17%
+    Expressions                     10         8         2    80.00%
+    FSM States                       4         4         0   100.00%
+    FSM Transitions                  8         4         4    50.00%
+    Statements                      43        38         5    88.37%
+    Toggles                        276       228        48    82.60%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend
+=== Design Unit: work.emit_backend
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        26        22         4    84.61%
+    Conditions                       3         0         3     0.00%
+    Expressions                     11        10         1    90.90%
+    FSM States                       5         5         0   100.00%
+    FSM Transitions                  8         5         3    62.50%
+    Statements                      34        30         4    88.23%
+    Toggles                        648       532       116    82.09%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_control_fsm
+=== Design Unit: work.control_fsm
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        52        26        26    50.00%
+    Conditions                      23         5        18    21.73%
+    Expressions                      6         2         4    33.33%
+    FSM States                      11         6         5    54.54%
+    FSM Transitions                 24         6        18    25.00%
+    Statements                      58        34        24    58.62%
+    Toggles                         78        42        36    53.84%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder
+=== Design Unit: work.dynamic_huffman_encoder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        27        22         5    81.48%
+    Conditions                      24        11        13    45.83%
+    Expressions                      6         1         5    16.66%
+    Statements                      19        15         4    78.94%
+    Toggles                        838       403       435    48.09%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_bit_packer_128
+=== Design Unit: work.bit_packer_128
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        29        24         5    82.75%
+    Conditions                      17        13         4    76.47%
+    Expressions                      3         1         2    33.33%
+    Statements                     113        91        22    80.53%
+    Toggles                       2174      1659       515    76.31%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_aes_input_wrapper
+=== Design Unit: work.wrapper
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         4         0   100.00%
+    Expressions                      2         2         0   100.00%
+    Statements                       7         7         0   100.00%
+    Toggles                       1080       511       569    47.31%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top
+=== Design Unit: work.huffman_aes_tx_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        38        36         2    94.73%
+    Conditions                      14        10         4    71.42%
+    Expressions                     55        34        21    61.81%
+    Statements                      78        76         2    97.43%
+    Toggles                       2000      1313       687    65.65%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_AES_top_tx/u_aes128_cipher_core
+=== Design Unit: work.aes128_cipher_core
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        50        37        13    74.00%
+    Conditions                       4         4         0   100.00%
+    Expressions                    147       147         0   100.00%
+    Statements                     170       159        11    93.52%
+    Toggles                       3100      2843       257    91.70%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_AES_top_tx/u_aes128_key_expansion
+=== Design Unit: work.aes128_key_expansion
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        38        33         5    86.84%
+    Conditions                       3         3         0   100.00%
+    Expressions                    146       146         0   100.00%
+    Statements                     113       106         7    93.80%
+    Toggles                       1554      1248       306    80.30%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top/u_AES_top_tx
+=== Design Unit: work.aes128_cipher_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         2         2         0   100.00%
+    Statements                       2         2         0   100.00%
+    Toggles                       1554      1297       257    83.46%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_tx_top
+=== Design Unit: work.apb_huffman_aes_tx_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        43        33        10    76.74%
+    Conditions                       6         2         4    33.33%
+    Expressions                     28        14        14    50.00%
+    Statements                      62        51        11    82.25%
+    Toggles                       4488      2889      1599    64.37%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_aes_input_wrapper_rx
+=== Design Unit: work.wrapper_rx
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         4         0   100.00%
+    Expressions                      2         2         0   100.00%
+    Statements                       7         7         0   100.00%
+    Toggles                       1336       523       813    39.14%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_AES_top_rx/u_aes128_cipher_core_inv
+=== Design Unit: work.aes128_cipher_core_inv
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        85        71        14    83.52%
+    Conditions                       4         4         0   100.00%
+    Expressions                    148       108        40    72.97%
+    Statements                     161       141        20    87.57%
+    Toggles                       3358      3101       257    92.34%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_AES_top_rx/u_aes128_key_expansion_inv
+=== Design Unit: work.aes128_key_expansion_inv
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        43        33        10    76.74%
+    Conditions                       3         3         0   100.00%
+    Expressions                    146       146         0   100.00%
+    Statements                     123       105        18    85.36%
+    Toggles                       1554      1248       306    80.30%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_AES_top_rx
+=== Design Unit: work.aes128_cipher_inv_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                       1042       785       257    75.33%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_bit_depacker_128
+=== Design Unit: work.bit_depacker_128
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        16        15         1    93.75%
+    Conditions                      12         5         7    41.66%
+    Expressions                     15         9         6    60.00%
+    Statements                      75        66         9    88.00%
+    Toggles                        996       819       177    82.22%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_huffman_block_parser
+=== Design Unit: work.huffman_block_parser
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       119        54        65    45.37%
+    Conditions                      94        18        76    19.14%
+    Expressions                     18         8        10    44.44%
+    FSM States                       7         5         2    71.42%
+    FSM Transitions                 42         7        35    16.66%
+    Statements                     206       126        80    61.16%
+    Toggles                       1262       975       287    77.25%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_huffman_block_decoder/u_main_decode_table
+=== Design Unit: work.HUFFMAN_DECODE_TABLE_IP
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         8         5         3    62.50%
+    Statements                      11        10         1    90.90%
+    Toggles                        240       108       132    45.00%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_huffman_block_decoder
+=== Design Unit: work.huffman_block_decoder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       170       110        60    64.70%
+    Conditions                      96        31        65    32.29%
+    Expressions                     19         9        10    47.36%
+    FSM States                      18        13         5    72.22%
+    FSM Transitions                 42        17        25    40.47%
+    Statements                     360       224       136    62.22%
+    Toggles                       1064       643       421    60.43%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_rx_byte_packer_32
+=== Design Unit: work.rx_byte_packer_32
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        23        19         4    82.60%
+    Conditions                       2         0         2     0.00%
+    Expressions                     14         7         7    50.00%
+    Statements                      47        43         4    91.48%
+    Toggles                        350       289        61    82.57%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top/u_apb_huffman_rx_if
+=== Design Unit: work.apb_huffman_rx_if
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        74        37        37    50.00%
+    Conditions                       2         0         2     0.00%
+    Expressions                     58        18        40    31.03%
+    Statements                     159        99        60    62.26%
+    Toggles                       1282       251      1031    19.57%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_rx_top
+=== Design Unit: work.apb_huffman_aes_rx_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        23        19         4    82.60%
+    Conditions                       2         0         2     0.00%
+    Expressions                     35        21        14    60.00%
+    Statements                      43        42         1    97.67%
+    Toggles                       4308      3396       912    78.83%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_cpu_mmio_to_apb_bridge
+=== Design Unit: work.cpu_mmio_to_apb_bridge
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        22        18         4    81.81%
+    Expressions                     25        14        11    56.00%
+    FSM States                       2         2         0   100.00%
+    FSM Transitions                  2         2         0   100.00%
+    Statements                      46        42         4    91.30%
+    Toggles                        840       561       279    66.78%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_dma_regfile
+=== Design Unit: work.dma_regfile
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        83        51        32    61.44%
+    Conditions                       3         0         3     0.00%
+    Expressions                     28        15        13    53.57%
+    Statements                     104        69        35    66.34%
+    Toggles                       1124       408       716    36.29%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_dma_tx_engine
+=== Design Unit: work.dma_tx_engine
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        83        68        15    81.92%
+    Conditions                       7         6         1    85.71%
+    Expressions                     19        11         8    57.89%
+    FSM States                      31        30         1    96.77%
+    FSM Transitions                 90        52        38    57.77%
+    Statements                     244       193        51    79.09%
+    Toggles                       1648       708       940    42.96%
+
+=================================================================================
+=== Instance: /test_bench/dut/u_dma_rx_engine
+=== Design Unit: work.dma_rx_engine
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        58        48        10    82.75%
+    Conditions                       9         4         5    44.44%
+    Expressions                     21        13         8    61.90%
+    FSM States                      27        26         1    96.29%
+    FSM Transitions                 62        33        29    53.22%
+    Statements                     143       111        32    77.62%
+    Toggles                       1724      1002       722    58.12%
+
+=================================================================================
+=== Instance: /test_bench/dut
+=== Design Unit: work.rv32_soc_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        46        45         1    97.82%
+    Conditions                      13        13         0   100.00%
+    Expressions                     21        17         4    80.95%
+    Statements                      22        21         1    95.45%
+    Toggles                       4908      3237      1671    65.95%
+
+=================================================================================
+=== Instance: /test_bench
+=== Design Unit: work.test_bench
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       108        86        22    79.62%
+    Conditions                      69        42        27    60.86%
+    Expressions                      1         0         1     0.00%
+    Statements                     399       361        38    90.47%
+    Toggles                       3658      1028      2630    28.10%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_cpu/u_if_stage
+=== Design Unit: work.if_stage_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        20        18         2    90.00%
+    Conditions                       5         2         3    40.00%
+    Expressions                      6         5         1    83.33%
+    Statements                      33        32         1    96.96%
+    Toggles                        980       535       445    54.59%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_cpu/u_id_stage
+=== Design Unit: work.id_stage
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       106       102         4    96.22%
+    Conditions                      72        56        16    77.77%
+    Expressions                     17        11         6    64.70%
+    Statements                      94        94         0   100.00%
+    Toggles                       1214      1015       199    83.60%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_cpu/u_ex_stage
+=== Design Unit: work.ex_stage
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        45        35        10    77.77%
+    Conditions                      14        10         4    71.42%
+    Expressions                     15         6         9    40.00%
+    Statements                      35        35         0   100.00%
+    Toggles                       1490      1243       247    83.42%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_cpu/u_mem_stage
+=== Design Unit: work.mem_stage_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        57        29        28    50.87%
+    Conditions                      14         5         9    35.71%
+    Expressions                      4         3         1    75.00%
+    Statements                     139       110        29    79.13%
+    Toggles                        954       624       330    65.40%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_cpu/u_forwarding
+=== Design Unit: work.forwarding
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        48        34        14    70.83%
+    Conditions                      36        14        22    38.88%
+    Expressions                     12        12         0   100.00%
+    Statements                       8         8         0   100.00%
+    Toggles                        716       596       120    83.24%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_cpu
+=== Design Unit: work.top_rv32_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        10         9         1    90.00%
+    Conditions                       9         8         1    88.88%
+    Expressions                     20        20         0   100.00%
+    Statements                      11        11         0   100.00%
+    Toggles                       2092      1735       357    82.93%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_reg_file
+=== Design Unit: work.registers_file
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        11        11         0   100.00%
+    Conditions                      10         8         2    80.00%
+    Statements                      10        10         0   100.00%
+    Toggles                        292       227        65    77.73%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_imem
+=== Design Unit: work.imem_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         2         2         0   100.00%
+    Statements                      12        12         0   100.00%
+    Toggles                        218       148        70    67.88%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_dmem/u_dmem_ip
+=== Design Unit: work.DMEM_ip
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        20        12         8    60.00%
+    Statements                      17        13         4    76.47%
+    Toggles                        396       159       237    40.15%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_dmem
+=== Design Unit: work.dmem_ip_wrapper
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Expressions                      4         1         3    25.00%
+    Statements                       3         3         0   100.00%
+    Toggles                        460       180       280    39.13%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_apb_huffman_tx_if
+=== Design Unit: work.apb_huffman_tx_if
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        95        13        82    13.68%
+    Conditions                      24         0        24     0.00%
+    Expressions                     51         0        51     0.00%
+    Statements                     217        60       157    27.64%
+    Toggles                        636         3       633     0.47%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_file_frequency_counter
+=== Design Unit: work.frequency_counter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        15         7         8    46.66%
+    Conditions                       4         0         4     0.00%
+    Expressions                      3         0         3     0.00%
+    Statements                      27        17        10    62.96%
+    Toggles                        196         3       193     1.53%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_symbol_list_builder
+=== Design Unit: work.symbol_list_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        36         9        27    25.00%
+    Conditions                      10         0        10     0.00%
+    Expressions                      9         0         9     0.00%
+    FSM States                       4         1         3    25.00%
+    FSM Transitions                  7         0         7     0.00%
+    Statements                      49        24        25    48.97%
+    Toggles                        218         3       215     1.37%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_code_length_builder
+=== Design Unit: work.code_length_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        87         9        78    10.34%
+    Conditions                      34         0        34     0.00%
+    Expressions                     16         0        16     0.00%
+    FSM States                      10         1         9    10.00%
+    FSM Transitions                 25         0        25     0.00%
+    Statements                     157        48       109    30.57%
+    Toggles                        378         3       375     0.79%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_canonical_code_generator
+=== Design Unit: work.canonical_code_generator
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        61         8        53    13.11%
+    Conditions                      26         0        26     0.00%
+    Expressions                     10         0        10     0.00%
+    FSM States                       6         1         5    16.66%
+    FSM Transitions                 13         0        13     0.00%
+    Statements                     102        31        71    30.39%
+    Toggles                        418         3       415     0.71%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder
+=== Design Unit: work.huffman_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        35        10        25    28.57%
+    Conditions                      11         0        11     0.00%
+    Expressions                     14         0        14     0.00%
+    FSM States                       8         1         7    12.50%
+    FSM Transitions                 15         0        15     0.00%
+    Statements                      36        21        15    58.33%
+    Toggles                        506         3       503     0.59%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit/u_block_buffer
+=== Design Unit: work.block_buffer
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         9         4         5    44.44%
+    Conditions                       2         0         2     0.00%
+    Expressions                      2         0         2     0.00%
+    Statements                      20        11         9    55.00%
+    Toggles                        144         3       141     2.08%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit/u_frequency_counter
+=== Design Unit: work.frequency_counter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        15         7         8    46.66%
+    Conditions                       4         0         4     0.00%
+    Expressions                      3         0         3     0.00%
+    Statements                      27        17        10    62.96%
+    Toggles                        176         3       173     1.70%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit
+=== Design Unit: work.input_collect_unit
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        38        10        28    26.31%
+    Conditions                       8         0         8     0.00%
+    Expressions                      9         0         9     0.00%
+    FSM States                       4         1         3    25.00%
+    FSM Transitions                  8         0         8     0.00%
+    Statements                      40        18        22    45.00%
+    Toggles                        178         3       175     1.68%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_symbol_list_builder
+=== Design Unit: work.symbol_list_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        36         9        27    25.00%
+    Conditions                      10         0        10     0.00%
+    Expressions                      9         0         9     0.00%
+    FSM States                       4         1         3    25.00%
+    FSM Transitions                  7         0         7     0.00%
+    Statements                      49        24        25    48.97%
+    Toggles                        198         3       195     1.51%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_code_length_builder
+=== Design Unit: work.code_length_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        87         9        78    10.34%
+    Conditions                      34         0        34     0.00%
+    Expressions                     16         0        16     0.00%
+    FSM States                      10         1         9    10.00%
+    FSM Transitions                 25         0        25     0.00%
+    Statements                     157        48       109    30.57%
+    Toggles                        326         3       323     0.92%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_canonical_code_generator
+=== Design Unit: work.canonical_code_generator
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        61         9        52    14.75%
+    Conditions                      26         0        26     0.00%
+    Expressions                     10         0        10     0.00%
+    FSM States                       6         1         5    16.66%
+    FSM Transitions                 13         0        13     0.00%
+    Statements                     105        35        70    33.33%
+    Toggles                        410         3       407     0.73%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder
+=== Design Unit: work.huffman_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        35        10        25    28.57%
+    Conditions                      11         0        11     0.00%
+    Expressions                     14         0        14     0.00%
+    FSM States                       8         1         7    12.50%
+    FSM Transitions                 15         0        15     0.00%
+    Statements                      36        21        15    58.33%
+    Toggles                        466         3       463     0.64%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_mode_decision_logic
+=== Design Unit: work.mode_decision_logic
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        74        12        62    16.21%
+    Conditions                      36         0        36     0.00%
+    Expressions                     11         0        11     0.00%
+    FSM States                       5         1         4    20.00%
+    FSM Transitions                 10         0        10     0.00%
+    Statements                      93        44        49    47.31%
+    Toggles                        534         3       531     0.56%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_header_formatter
+=== Design Unit: work.header_formatter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        67         7        60    10.44%
+    Conditions                      26         0        26     0.00%
+    Expressions                     19         0        19     0.00%
+    FSM States                      10         1         9    10.00%
+    FSM Transitions                 23         0        23     0.00%
+    Statements                     143        35       108    24.47%
+    Toggles                        636         3       633     0.47%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_payload_emitter
+=== Design Unit: work.payload_emitter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        52         8        44    15.38%
+    Conditions                      25         0        25     0.00%
+    Expressions                     17         0        17     0.00%
+    FSM States                       7         1         6    14.28%
+    FSM Transitions                 18         0        18     0.00%
+    Statements                     108        37        71    34.25%
+    Toggles                        390         3       387     0.76%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_stream_output_interface
+=== Design Unit: work.stream_output_interface
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        32        10        22    31.25%
+    Conditions                      17         0        17     0.00%
+    Expressions                     10         0        10     0.00%
+    FSM States                       4         1         3    25.00%
+    FSM Transitions                  8         0         8     0.00%
+    Statements                      43        21        22    48.83%
+    Toggles                        276         3       273     1.08%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend
+=== Design Unit: work.emit_backend
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        26         7        19    26.92%
+    Conditions                       3         0         3     0.00%
+    Expressions                     11         0        11     0.00%
+    FSM States                       5         1         4    20.00%
+    FSM Transitions                  8         0         8     0.00%
+    Statements                      34        19        15    55.88%
+    Toggles                        648         3       645     0.46%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_control_fsm
+=== Design Unit: work.control_fsm
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        52         8        44    15.38%
+    Conditions                      23         0        23     0.00%
+    Expressions                      6         0         6     0.00%
+    FSM States                      11         1        10     9.09%
+    FSM Transitions                 24         0        24     0.00%
+    Statements                      58        17        41    29.31%
+    Toggles                         78         3        75     3.84%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder
+=== Design Unit: work.dynamic_huffman_encoder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        27        13        14    48.14%
+    Conditions                      24         0        24     0.00%
+    Expressions                      6         0         6     0.00%
+    Statements                      19        15         4    78.94%
+    Toggles                        838         3       835     0.35%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_bit_packer_128
+=== Design Unit: work.bit_packer_128
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        29         3        26    10.34%
+    Conditions                      17         0        17     0.00%
+    Expressions                      3         0         3     0.00%
+    Statements                     113        40        73    35.39%
+    Toggles                       2174         3      2171     0.13%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top/u_aes_input_wrapper
+=== Design Unit: work.wrapper
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         3         1    75.00%
+    Expressions                      2         0         2     0.00%
+    Statements                       7         5         2    71.42%
+    Toggles                       1080         3      1077     0.27%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_huffman_aes_tx_top
+=== Design Unit: work.huffman_aes_tx_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        38        13        25    34.21%
+    Conditions                      14         0        14     0.00%
+    Expressions                     55         0        55     0.00%
+    Statements                      78        40        38    51.28%
+    Toggles                       2000         3      1997     0.15%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_AES_top_tx/u_aes128_cipher_core
+=== Design Unit: work.aes128_cipher_core
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        50        12        38    24.00%
+    Conditions                       4         0         4     0.00%
+    Expressions                    147         0       147     0.00%
+    Statements                     170       138        32    81.17%
+    Toggles                       3100       131      2969     4.22%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_AES_top_tx/u_aes128_key_expansion
+=== Design Unit: work.aes128_key_expansion
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        38        10        28    26.31%
+    Conditions                       3         0         3     0.00%
+    Expressions                    146       107        39    73.28%
+    Statements                     113        84        29    74.33%
+    Toggles                       1554         4      1550     0.25%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top/u_AES_top_tx
+=== Design Unit: work.aes128_cipher_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         2         1         1    50.00%
+    Statements                       2         1         1    50.00%
+    Toggles                       1554       131      1423     8.42%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_tx_top
+=== Design Unit: work.apb_huffman_aes_tx_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        43        19        24    44.18%
+    Conditions                       6         0         6     0.00%
+    Expressions                     28         0        28     0.00%
+    Statements                      62        30        32    48.38%
+    Toggles                       4488       643      3845    14.32%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_aes_input_wrapper_rx
+=== Design Unit: work.wrapper_rx
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         3         1    75.00%
+    Expressions                      2         0         2     0.00%
+    Statements                       7         5         2    71.42%
+    Toggles                       1336         3      1333     0.22%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_AES_top_rx/u_aes128_cipher_core_inv
+=== Design Unit: work.aes128_cipher_core_inv
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        85        30        55    35.29%
+    Conditions                       4         0         4     0.00%
+    Expressions                    148         0       148     0.00%
+    Statements                     161       120        41    74.53%
+    Toggles                       3358         3      3355     0.08%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_AES_top_rx/u_aes128_key_expansion_inv
+=== Design Unit: work.aes128_key_expansion_inv
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        43        11        32    25.58%
+    Conditions                       3         0         3     0.00%
+    Expressions                    146        91        55    62.32%
+    Statements                     123        84        39    68.29%
+    Toggles                       1554         4      1550     0.25%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_AES_top_rx
+=== Design Unit: work.aes128_cipher_inv_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                       1042         3      1039     0.28%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_bit_depacker_128
+=== Design Unit: work.bit_depacker_128
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        16         6        10    37.50%
+    Conditions                      12         0        12     0.00%
+    Expressions                     15         0        15     0.00%
+    Statements                      75        41        34    54.66%
+    Toggles                        996         3       993     0.30%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_huffman_block_parser
+=== Design Unit: work.huffman_block_parser
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       119        15       104    12.60%
+    Conditions                      94         0        94     0.00%
+    Expressions                     18         0        18     0.00%
+    FSM States                       7         1         6    14.28%
+    FSM Transitions                 42         0        42     0.00%
+    Statements                     206        74       132    35.92%
+    Toggles                       1262         3      1259     0.23%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_huffman_block_decoder/u_main_decode_table
+=== Design Unit: work.HUFFMAN_DECODE_TABLE_IP
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         8         4         4    50.00%
+    Statements                      11         9         2    81.81%
+    Toggles                        240         4       236     1.66%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_huffman_block_decoder
+=== Design Unit: work.huffman_block_decoder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       170        13       157     7.64%
+    Conditions                      96         0        96     0.00%
+    Expressions                     19         0        19     0.00%
+    FSM States                      18         1        17     5.55%
+    FSM Transitions                 42         0        42     0.00%
+    Statements                     360        80       280    22.22%
+    Toggles                       1064         3      1061     0.28%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_rx_byte_packer_32
+=== Design Unit: work.rx_byte_packer_32
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        23         6        17    26.08%
+    Conditions                       2         0         2     0.00%
+    Expressions                     14         0        14     0.00%
+    Statements                      47        25        22    53.19%
+    Toggles                        350         3       347     0.85%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top/u_apb_huffman_rx_if
+=== Design Unit: work.apb_huffman_rx_if
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        74        17        57    22.97%
+    Conditions                       2         0         2     0.00%
+    Expressions                     58         0        58     0.00%
+    Statements                     159        53       106    33.33%
+    Toggles                       1282         3      1279     0.23%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_rx_top
+=== Design Unit: work.apb_huffman_aes_rx_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        23        10        13    43.47%
+    Conditions                       2         0         2     0.00%
+    Expressions                     35         0        35     0.00%
+    Statements                      43        27        16    62.79%
+    Toggles                       4308       260      4048     6.03%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_cpu_mmio_to_apb_bridge
+=== Design Unit: work.cpu_mmio_to_apb_bridge
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        22        19         3    86.36%
+    Expressions                     25        20         5    80.00%
+    FSM States                       2         2         0   100.00%
+    FSM Transitions                  2         2         0   100.00%
+    Statements                      46        45         1    97.82%
+    Toggles                        840       557       283    66.30%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_dma_regfile
+=== Design Unit: work.dma_regfile
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        83        62        21    74.69%
+    Conditions                       3         2         1    66.66%
+    Expressions                     28        18        10    64.28%
+    Statements                     104        91        13    87.50%
+    Toggles                       1124       448       676    39.85%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_dma_tx_engine
+=== Design Unit: work.dma_tx_engine
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        83        11        72    13.25%
+    Conditions                       7         0         7     0.00%
+    Expressions                     19         4        15    21.05%
+    FSM States                      31         1        30     3.22%
+    FSM Transitions                 90         0        90     0.00%
+    Statements                     244        71       173    29.09%
+    Toggles                       1648        90      1558     5.46%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut/u_dma_rx_engine
+=== Design Unit: work.dma_rx_engine
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        58        10        48    17.24%
+    Conditions                       9         0         9     0.00%
+    Expressions                     21         4        17    19.04%
+    FSM States                      27         1        26     3.70%
+    FSM Transitions                 62         0        62     0.00%
+    Statements                     143        54        89    37.76%
+    Toggles                       1724        86      1638     4.98%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile/dut
+=== Design Unit: work.rv32_soc_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        46        25        21    54.34%
+    Conditions                      13         0        13     0.00%
+    Expressions                     21         6        15    28.57%
+    Statements                      22        21         1    95.45%
+    Toggles                       4908      1212      3696    24.69%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_mmio_regfile
+=== Design Unit: work.tb_rv32_soc_mmio_regfile
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        30        23         7    76.66%
+    Conditions                      14         9         5    64.28%
+    Statements                      99        91         8    91.91%
+    Toggles                        854       117       737    13.70%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_cpu/u_if_stage
+=== Design Unit: work.if_stage_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        20        18         2    90.00%
+    Conditions                       5         2         3    40.00%
+    Expressions                      6         5         1    83.33%
+    Statements                      33        32         1    96.96%
+    Toggles                        980       517       463    52.75%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_cpu/u_id_stage
+=== Design Unit: work.id_stage
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       106        92        14    86.79%
+    Conditions                      72        44        28    61.11%
+    Expressions                     17        11         6    64.70%
+    Statements                      94        94         0   100.00%
+    Toggles                       1214      1007       207    82.94%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_cpu/u_ex_stage
+=== Design Unit: work.ex_stage
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        45        34        11    75.55%
+    Conditions                      14         8         6    57.14%
+    Expressions                     15         7         8    46.66%
+    Statements                      35        35         0   100.00%
+    Toggles                       1490      1253       237    84.09%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_cpu/u_mem_stage
+=== Design Unit: work.mem_stage_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        57        26        31    45.61%
+    Conditions                      14         2        12    14.28%
+    Expressions                      4         4         0   100.00%
+    Statements                     139        91        48    65.46%
+    Toggles                        954       662       292    69.39%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_cpu/u_forwarding
+=== Design Unit: work.forwarding
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        48        34        14    70.83%
+    Conditions                      36        14        22    38.88%
+    Expressions                     12        12         0   100.00%
+    Statements                       8         8         0   100.00%
+    Toggles                        716       610       106    85.19%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_cpu
+=== Design Unit: work.top_rv32_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        10         9         1    90.00%
+    Conditions                       9         8         1    88.88%
+    Expressions                     20        18         2    90.00%
+    Statements                      11        11         0   100.00%
+    Toggles                       2092      1767       325    84.46%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_reg_file
+=== Design Unit: work.registers_file
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        11        11         0   100.00%
+    Conditions                      10         8         2    80.00%
+    Statements                      10        10         0   100.00%
+    Toggles                        292       227        65    77.73%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_imem
+=== Design Unit: work.imem_sync
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         2         2         0   100.00%
+    Statements                      12        12         0   100.00%
+    Toggles                        218       146        72    66.97%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_dmem/u_dmem_ip
+=== Design Unit: work.DMEM_ip
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        20        20         0   100.00%
+    Statements                      17        17         0   100.00%
+    Toggles                        396       316        80    79.79%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_dmem
+=== Design Unit: work.dmem_ip_wrapper
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Expressions                      4         1         3    25.00%
+    Statements                       3         3         0   100.00%
+    Toggles                        460       354       106    76.95%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_apb_huffman_tx_if
+=== Design Unit: work.apb_huffman_tx_if
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        95        60        35    63.15%
+    Conditions                      24         2        22     8.33%
+    Expressions                     51        36        15    70.58%
+    Statements                     217       157        60    72.35%
+    Toggles                        636       476       160    74.84%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_file_frequency_counter
+=== Design Unit: work.frequency_counter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        15        12         3    80.00%
+    Conditions                       4         1         3    25.00%
+    Expressions                      3         2         1    66.66%
+    Statements                      27        24         3    88.88%
+    Toggles                        196       113        83    57.65%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_symbol_list_builder
+=== Design Unit: work.symbol_list_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        36        27         9    75.00%
+    Conditions                      10         5         5    50.00%
+    Expressions                      9         5         4    55.55%
+    FSM States                       4         4         0   100.00%
+    FSM Transitions                  7         3         4    42.85%
+    Statements                      49        38        11    77.55%
+    Toggles                        218       119        99    54.58%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_code_length_builder
+=== Design Unit: work.code_length_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        87        69        18    79.31%
+    Conditions                      34        17        17    50.00%
+    Expressions                     16        10         6    62.50%
+    FSM States                      10        10         0   100.00%
+    FSM Transitions                 25        11        14    44.00%
+    Statements                     157       140        17    89.17%
+    Toggles                        378       279        99    73.80%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_canonical_code_generator
+=== Design Unit: work.canonical_code_generator
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        61        43        18    70.49%
+    Conditions                      26        10        16    38.46%
+    Expressions                     10         7         3    70.00%
+    FSM States                       6         6         0   100.00%
+    FSM Transitions                 13         5         8    38.46%
+    Statements                     102        81        21    79.41%
+    Toggles                        418       251       167    60.04%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder
+=== Design Unit: work.huffman_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        35        32         3    91.42%
+    Conditions                      11         8         3    72.72%
+    Expressions                     14        14         0   100.00%
+    FSM States                       8         8         0   100.00%
+    FSM Transitions                 15         7         8    46.66%
+    Statements                      36        33         3    91.66%
+    Toggles                        506       365       141    72.13%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit/u_block_buffer
+=== Design Unit: work.block_buffer
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         9         8         1    88.88%
+    Conditions                       2         1         1    50.00%
+    Expressions                      2         2         0   100.00%
+    Statements                      20        19         1    95.00%
+    Toggles                        144        71        73    49.30%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit/u_frequency_counter
+=== Design Unit: work.frequency_counter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        15        12         3    80.00%
+    Conditions                       4         1         3    25.00%
+    Expressions                      3         2         1    66.66%
+    Statements                      27        24         3    88.88%
+    Toggles                        176       103        73    58.52%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit
+=== Design Unit: work.input_collect_unit
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        38        30         8    78.94%
+    Conditions                       8         2         6    25.00%
+    Expressions                      9         9         0   100.00%
+    FSM States                       4         4         0   100.00%
+    FSM Transitions                  8         4         4    50.00%
+    Statements                      40        31         9    77.50%
+    Toggles                        178       161        17    90.44%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_symbol_list_builder
+=== Design Unit: work.symbol_list_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        36        28         8    77.77%
+    Conditions                      10         5         5    50.00%
+    Expressions                      9         5         4    55.55%
+    FSM States                       4         4         0   100.00%
+    FSM Transitions                  7         4         3    57.14%
+    Statements                      49        39        10    79.59%
+    Toggles                        198       111        87    56.06%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_code_length_builder
+=== Design Unit: work.code_length_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        87        68        19    78.16%
+    Conditions                      34        15        19    44.11%
+    Expressions                     16        10         6    62.50%
+    FSM States                      10        10         0   100.00%
+    FSM Transitions                 25        13        12    52.00%
+    Statements                     157       139        18    88.53%
+    Toggles                        326       171       155    52.45%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_canonical_code_generator
+=== Design Unit: work.canonical_code_generator
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        61        47        14    77.04%
+    Conditions                      26        12        14    46.15%
+    Expressions                     10         7         3    70.00%
+    FSM States                       6         6         0   100.00%
+    FSM Transitions                 13         7         6    53.84%
+    Statements                     105        91        14    86.66%
+    Toggles                        410       129       281    31.46%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder
+=== Design Unit: work.huffman_builder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        35        33         2    94.28%
+    Conditions                      11         8         3    72.72%
+    Expressions                     14        14         0   100.00%
+    FSM States                       8         8         0   100.00%
+    FSM Transitions                 15         8         7    53.33%
+    Statements                      36        34         2    94.44%
+    Toggles                        466       255       211    54.72%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_mode_decision_logic
+=== Design Unit: work.mode_decision_logic
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        74        54        20    72.97%
+    Conditions                      36        17        19    47.22%
+    Expressions                     11        10         1    90.90%
+    FSM States                       5         5         0   100.00%
+    FSM Transitions                 10         6         4    60.00%
+    Statements                      93        73        20    78.49%
+    Toggles                        534       257       277    48.12%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_header_formatter
+=== Design Unit: work.header_formatter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        67        49        18    73.13%
+    Conditions                      26         9        17    34.61%
+    Expressions                     19        15         4    78.94%
+    FSM States                      10        10         0   100.00%
+    FSM Transitions                 23        14         9    60.86%
+    Statements                     143       115        28    80.41%
+    Toggles                        636       408       228    64.15%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_payload_emitter
+=== Design Unit: work.payload_emitter
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        52        34        18    65.38%
+    Conditions                      25         5        20    20.00%
+    Expressions                     17        15         2    88.23%
+    FSM States                       7         7         0   100.00%
+    FSM Transitions                 18         8        10    44.44%
+    Statements                     108        83        25    76.85%
+    Toggles                        390       253       137    64.87%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_stream_output_interface
+=== Design Unit: work.stream_output_interface
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        32        29         3    90.62%
+    Conditions                      17        11         6    64.70%
+    Expressions                     10         7         3    70.00%
+    FSM States                       4         4         0   100.00%
+    FSM Transitions                  8         5         3    62.50%
+    Statements                      43        40         3    93.02%
+    Toggles                        276       229        47    82.97%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend
+=== Design Unit: work.emit_backend
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        26        23         3    88.46%
+    Conditions                       3         0         3     0.00%
+    Expressions                     11        10         1    90.90%
+    FSM States                       5         5         0   100.00%
+    FSM Transitions                  8         6         2    75.00%
+    Statements                      34        31         3    91.17%
+    Toggles                        648       545       103    84.10%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_control_fsm
+=== Design Unit: work.control_fsm
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        52        40        12    76.92%
+    Conditions                      23         9        14    39.13%
+    Expressions                      6         4         2    66.66%
+    FSM States                      11        10         1    90.90%
+    FSM Transitions                 24        11        13    45.83%
+    Statements                      58        46        12    79.31%
+    Toggles                         78        60        18    76.92%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder
+=== Design Unit: work.dynamic_huffman_encoder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        27        27         0   100.00%
+    Conditions                      24        24         0   100.00%
+    Expressions                      6         5         1    83.33%
+    Statements                      19        19         0   100.00%
+    Toggles                        838       577       261    68.85%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_bit_packer_128
+=== Design Unit: work.bit_packer_128
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        29        24         5    82.75%
+    Conditions                      17        11         6    64.70%
+    Expressions                      3         1         2    33.33%
+    Statements                     113        91        22    80.53%
+    Toggles                       2174      1659       515    76.31%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top/u_aes_input_wrapper
+=== Design Unit: work.wrapper
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         4         0   100.00%
+    Expressions                      2         1         1    50.00%
+    Statements                       7         7         0   100.00%
+    Toggles                       1080       511       569    47.31%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_huffman_aes_tx_top
+=== Design Unit: work.huffman_aes_tx_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        38        36         2    94.73%
+    Conditions                      14        10         4    71.42%
+    Expressions                     55        34        21    61.81%
+    Statements                      78        76         2    97.43%
+    Toggles                       2000      1323       677    66.15%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_AES_top_tx/u_aes128_cipher_core
+=== Design Unit: work.aes128_cipher_core
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        50        37        13    74.00%
+    Conditions                       4         4         0   100.00%
+    Expressions                    147       147         0   100.00%
+    Statements                     170       159        11    93.52%
+    Toggles                       3100      2843       257    91.70%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_AES_top_tx/u_aes128_key_expansion
+=== Design Unit: work.aes128_key_expansion
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        38        33         5    86.84%
+    Conditions                       3         3         0   100.00%
+    Expressions                    146       146         0   100.00%
+    Statements                     113       106         7    93.80%
+    Toggles                       1554      1248       306    80.30%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top/u_AES_top_tx
+=== Design Unit: work.aes128_cipher_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         2         2         0   100.00%
+    Statements                       2         2         0   100.00%
+    Toggles                       1554      1297       257    83.46%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_tx_top
+=== Design Unit: work.apb_huffman_aes_tx_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        43        39         4    90.69%
+    Conditions                       6         2         4    33.33%
+    Expressions                     28        26         2    92.85%
+    Statements                      62        58         4    93.54%
+    Toggles                       4488      2806      1682    62.52%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_aes_input_wrapper_rx
+=== Design Unit: work.wrapper_rx
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         3         1    75.00%
+    Expressions                      2         0         2     0.00%
+    Statements                       7         5         2    71.42%
+    Toggles                       1336         3      1333     0.22%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_AES_top_rx/u_aes128_cipher_core_inv
+=== Design Unit: work.aes128_cipher_core_inv
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        85        30        55    35.29%
+    Conditions                       4         0         4     0.00%
+    Expressions                    148         0       148     0.00%
+    Statements                     161       120        41    74.53%
+    Toggles                       3358         3      3355     0.08%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_AES_top_rx/u_aes128_key_expansion_inv
+=== Design Unit: work.aes128_key_expansion_inv
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        43        11        32    25.58%
+    Conditions                       3         0         3     0.00%
+    Expressions                    146        91        55    62.32%
+    Statements                     123        84        39    68.29%
+    Toggles                       1554         4      1550     0.25%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_AES_top_rx
+=== Design Unit: work.aes128_cipher_inv_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                       1042         3      1039     0.28%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_bit_depacker_128
+=== Design Unit: work.bit_depacker_128
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        16         6        10    37.50%
+    Conditions                      12         0        12     0.00%
+    Expressions                     15         0        15     0.00%
+    Statements                      75        41        34    54.66%
+    Toggles                        996         3       993     0.30%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_huffman_block_parser
+=== Design Unit: work.huffman_block_parser
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       119        15       104    12.60%
+    Conditions                      94         0        94     0.00%
+    Expressions                     18         0        18     0.00%
+    FSM States                       7         1         6    14.28%
+    FSM Transitions                 42         0        42     0.00%
+    Statements                     206        74       132    35.92%
+    Toggles                       1262         3      1259     0.23%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_huffman_block_decoder/u_main_decode_table
+=== Design Unit: work.HUFFMAN_DECODE_TABLE_IP
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         8         4         4    50.00%
+    Statements                      11         9         2    81.81%
+    Toggles                        240         4       236     1.66%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_huffman_block_decoder
+=== Design Unit: work.huffman_block_decoder
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       170        13       157     7.64%
+    Conditions                      96         0        96     0.00%
+    Expressions                     19         0        19     0.00%
+    FSM States                      18         1        17     5.55%
+    FSM Transitions                 42         0        42     0.00%
+    Statements                     360        80       280    22.22%
+    Toggles                       1064         3      1061     0.28%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_rx_byte_packer_32
+=== Design Unit: work.rx_byte_packer_32
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        23         6        17    26.08%
+    Conditions                       2         0         2     0.00%
+    Expressions                     14         0        14     0.00%
+    Statements                      47        25        22    53.19%
+    Toggles                        350         3       347     0.85%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top/u_apb_huffman_rx_if
+=== Design Unit: work.apb_huffman_rx_if
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        74        17        57    22.97%
+    Conditions                       2         0         2     0.00%
+    Expressions                     58         0        58     0.00%
+    Statements                     159        53       106    33.33%
+    Toggles                       1282         3      1279     0.23%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_rx_top
+=== Design Unit: work.apb_huffman_aes_rx_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        23        10        13    43.47%
+    Conditions                       2         0         2     0.00%
+    Expressions                     35         0        35     0.00%
+    Statements                      43        27        16    62.79%
+    Toggles                       4308         4      4304     0.09%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_cpu_mmio_to_apb_bridge
+=== Design Unit: work.cpu_mmio_to_apb_bridge
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        22        18         4    81.81%
+    Expressions                     25        14        11    56.00%
+    FSM States                       2         2         0   100.00%
+    FSM Transitions                  2         2         0   100.00%
+    Statements                      46        42         4    91.30%
+    Toggles                        840       323       517    38.45%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_dma_regfile
+=== Design Unit: work.dma_regfile
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        83        38        45    45.78%
+    Conditions                       3         0         3     0.00%
+    Expressions                     28        14        14    50.00%
+    Statements                     104        64        40    61.53%
+    Toggles                       1124       159       965    14.14%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_dma_tx_engine
+=== Design Unit: work.dma_tx_engine
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        83        69        14    83.13%
+    Conditions                       7         6         1    85.71%
+    Expressions                     19        10         9    52.63%
+    FSM States                      31        30         1    96.77%
+    FSM Transitions                 90        53        37    58.88%
+    Statements                     244       196        48    80.32%
+    Toggles                       1648       716       932    43.44%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut/u_dma_rx_engine
+=== Design Unit: work.dma_rx_engine
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        58         8        50    13.79%
+    Conditions                       9         0         9     0.00%
+    Expressions                     21         0        21     0.00%
+    FSM States                      27         1        26     3.70%
+    FSM Transitions                 62         0        62     0.00%
+    Statements                     143        35       108    24.47%
+    Toggles                       1724        84      1640     4.87%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only/dut
+=== Design Unit: work.rv32_soc_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        46        35        11    76.08%
+    Conditions                      13         7         6    53.84%
+    Expressions                     21        12         9    57.14%
+    Statements                      22        21         1    95.45%
+    Toggles                       4908      2133      2775    43.45%
+
+=================================================================================
+=== Instance: /tb_rv32_soc_tx_only
+=== Design Unit: work.tb_rv32_soc_tx_only
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        62        44        18    70.96%
+    Conditions                      27        11        16    40.74%
+    Expressions                      4         0         4     0.00%
+    Statements                     253       222        31    87.74%
+    Toggles                       1242       376       866    30.27%
+
+
+Total Coverage By Instance (filtered view): 46.16%
+

@@ -1,0 +1,15 @@
+*
+
+!rtl/
+!tb/
+!docs/
+!testcase/
+!sim/
+
+!rtl/**
+!tb/**
+!docs/**
+!testcase/**
+!sim/**
+
+!.gitignore
