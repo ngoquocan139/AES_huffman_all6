@@ -248,8 +248,7 @@ license:
 		exit 1; \
 	fi
 push_github:
-	cd ..
-	./push_source.sh
+	cd .. && ./push_source.sh	
 help:
 	@echo ""
 	@echo "****************************************"
