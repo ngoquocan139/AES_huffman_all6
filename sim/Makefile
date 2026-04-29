@@ -247,6 +247,9 @@ license:
 		echo "[FAIL] pubkey_verify failed"; \
 		exit 1; \
 	fi
+push_github:
+	cd ..
+	./push_source.sh
 help:
 	@echo ""
 	@echo "****************************************"
