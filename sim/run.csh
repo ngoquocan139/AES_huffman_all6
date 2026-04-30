@@ -59,6 +59,11 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             set c_src = "test_mmio_tx_encoder_error.c"
             set run_args = "+CASE_NAME=tx_compress_only_ascii_sweep_cov +INPUT_FILE=input_cov_ascii_sweep.txt"
             breaksw
+        case tx_compress_only_alnum63_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_tx_only.c"
+            set run_args = "+CASE_NAME=tx_compress_only_alnum63_cov +INPUT_FILE=input_cov_alnum63.txt"
+            breaksw
         case tx_compress_only_short_raw_cov:
             set tb_name = "test_bench"
             set c_src = "test_mmio_tx_only.c"
@@ -104,6 +109,11 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             set c_src = "test_mmio_tx_only.c"
             set run_args = "+CASE_NAME=tx_apb_wait_cov +INPUT_FILE=input1.txt +TX_APB_WAIT_COV"
             breaksw
+        case tx_if_direct_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_regfile_basic.c"
+            set run_args = "+CASE_NAME=tx_if_direct_cov +INPUT_FILE=input1.txt +TX_IF_DIRECT_COV"
+            breaksw
         case rx_backpressure_cov:
             set tb_name = "test_bench"
             set c_src = "test_mmio_dma.c"
@@ -124,10 +134,25 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             set c_src = "test_mmio_regfile_basic.c"
             set run_args = "+CASE_NAME=rx_parser_decoder_cov +INPUT_FILE=input1.txt +RX_PARSE_DECODE_COV"
             breaksw
+        case rx_decoder_direct_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_regfile_basic.c"
+            set run_args = "+CASE_NAME=rx_decoder_direct_cov +INPUT_FILE=input1.txt +RX_DECODER_DIRECT_COV"
+            breaksw
         case cpu_instruction_cov:
             set tb_name = "test_bench"
             set c_src = "test_cpu_instruction_cov.c"
             set run_args = "+CASE_NAME=cpu_instruction_cov +INPUT_FILE=input1.txt"
+            breaksw
+        case cpu_mem_forward_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_cpu_mem_forward_cov.c"
+            set run_args = "+CASE_NAME=cpu_mem_forward_cov +INPUT_FILE=input1.txt"
+            breaksw
+        case cpu_forward_direct_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_regfile_basic.c"
+            set run_args = "+CASE_NAME=cpu_forward_direct_cov +INPUT_FILE=input1.txt +CPU_FORWARD_DIRECT_COV"
             breaksw
         default:
             echo "[FAIL] unknown pattern in pat.list: $pat"

@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l tx_compress_only_ascii_sweep_cov.log -c test_bench "+CASE_NAME=tx_compress_only_ascii_sweep_cov" "+INPUT_FILE=input_cov_ascii_sweep.txt" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit tx_compress_only_ascii_sweep_cov.ucdb; log -r /*; run -all" 
-# Start time: 17:47:44 on Apr 29,2026
+# Start time: 08:08:21 on Apr 30,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -125,8 +125,8 @@
 # [PASS] tx_apb_error_dma_start_pulse_count | actual=0x00000001 expected=0x00000001
 # SUMMARY: PASS=8 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1412)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1928)
 #    Time: 36516 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 17:48:15 on Apr 29,2026, Elapsed time: 0:00:31
+# End time: 08:08:51 on Apr 30,2026, Elapsed time: 0:00:30
 # Errors: 0, Warnings: 0

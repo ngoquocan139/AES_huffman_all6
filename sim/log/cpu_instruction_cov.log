@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l cpu_instruction_cov.log -c test_bench "+CASE_NAME=cpu_instruction_cov" "+INPUT_FILE=input1.txt" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit cpu_instruction_cov.ucdb; log -r /*; run -all" 
-# Start time: 18:00:19 on Apr 29,2026
+# Start time: 08:24:04 on Apr 30,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -124,8 +124,8 @@
 # [PASS] cpu_instruction_branch_score | actual=0x0000003f expected=0x0000003f
 # SUMMARY: PASS=7 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1412)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1928)
 #    Time: 103896 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 18:00:51 on Apr 29,2026, Elapsed time: 0:00:32
+# End time: 08:24:35 on Apr 30,2026, Elapsed time: 0:00:31
 # Errors: 0, Warnings: 0

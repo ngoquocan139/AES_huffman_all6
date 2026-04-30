@@ -16,6 +16,7 @@ module test_bench;
   localparam [31:0] RESULT_SIGNATURE_RXER = 32'h52584552;
   localparam [31:0] RESULT_SIGNATURE_TXER = 32'h54584552;
   localparam [31:0] RESULT_SIGNATURE_CPUC = 32'h43505543;
+  localparam [31:0] RESULT_SIGNATURE_CPUH = 32'h43505548;
   localparam [31:0] EXPECTED_TX_IDLE = 32'h00000098;
   localparam [31:0] EXPECTED_TX_DONE = 32'h0000009a;
   localparam [31:0] EXPECTED_RX_IDLE = 32'h00000028;
@@ -67,8 +68,11 @@ module test_bench;
   integer rx_apb_wait_cov_enable;
   integer rx_stream_backpressure_cov_enable;
   integer tx_apb_error_cov_enable;
+  integer tx_if_direct_cov_enable;
+  integer cpu_forward_direct_cov_enable;
   integer rx_if_direct_cov_enable;
   integer rx_parser_decoder_cov_enable;
+  integer rx_decoder_direct_cov_enable;
   integer wait_cycles;
   integer system_rc;
   integer i;
@@ -793,6 +797,155 @@ module test_bench;
     end
   endtask
 
+  task force_tx_apb_idle;
+    begin
+      release dut.tx_psel_w;
+      release dut.tx_penable_w;
+      release dut.tx_pwrite_w;
+      release dut.tx_paddr_w;
+      release dut.tx_pwdata_w;
+      @(posedge clk);
+      #1;
+    end
+  endtask
+
+  task force_tx_apb_write;
+    input [31:0] addr;
+    input [31:0] data;
+    begin
+      force dut.tx_psel_w    = 1'b1;
+      force dut.tx_penable_w = 1'b1;
+      force dut.tx_pwrite_w  = 1'b1;
+      force dut.tx_paddr_w   = addr;
+      force dut.tx_pwdata_w  = data;
+      @(posedge clk);
+      #1;
+      force_tx_apb_idle;
+    end
+  endtask
+
+  task force_tx_apb_read;
+    input  [31:0] addr;
+    output [31:0] data;
+    begin
+      force dut.tx_psel_w    = 1'b1;
+      force dut.tx_penable_w = 1'b1;
+      force dut.tx_pwrite_w  = 1'b0;
+      force dut.tx_paddr_w   = addr;
+      force dut.tx_pwdata_w  = 32'h00000000;
+      @(posedge clk);
+      #1;
+      data = dut.tx_prdata_w;
+      force_tx_apb_idle;
+    end
+  endtask
+
+  task force_tx_aes_out_idle;
+    begin
+      release dut.u_tx_top.aes_out_word_w;
+      release dut.u_tx_top.aes_out_word_last_w;
+      release dut.u_tx_top.aes_out_word_valid_w;
+      release dut.u_tx_top.aes_output_error_r;
+      @(posedge clk);
+      #1;
+    end
+  endtask
+
+  task force_tx_aes_out_push;
+    input [31:0] data;
+    input        last_word;
+    begin
+      force dut.u_tx_top.aes_out_word_w       = data;
+      force dut.u_tx_top.aes_out_word_last_w  = last_word;
+      force dut.u_tx_top.aes_out_word_valid_w = 1'b1;
+      wait (dut.u_tx_top.aes_out_word_ready_w == 1'b1);
+      @(posedge clk);
+      #1;
+      force_tx_aes_out_idle;
+    end
+  endtask
+
+  task automatic exercise_tx_if_direct_coverage;
+    reg [31:0] scratch_read;
+    integer word_idx;
+    begin
+      $display("# TX_IF_DIRECT_COV: exercise APB TX IF empty/full/error/status branches");
+
+      force_tx_apb_read(32'h00000000, scratch_read);
+      force_tx_apb_read(32'h00000004, scratch_read);
+      force_tx_apb_read(32'h0000000c, scratch_read);
+      force_tx_apb_read(32'h00000014, scratch_read);
+      force_tx_apb_read(32'h00000018, scratch_read);
+      force_tx_apb_read(32'h00000020, scratch_read); // output FIFO empty, PREADY low branch
+      force_tx_apb_read(32'h00000024, scratch_read);
+      force_tx_apb_read(32'h00000028, scratch_read);
+      force_tx_apb_read(32'h0000002c, scratch_read);
+      force_tx_apb_read(32'h000000fc, scratch_read); // invalid read
+
+      force_tx_apb_write(32'h00000000, 32'h00000001); // start without config
+      force_tx_apb_write(32'h00000004, 32'h00000000); // invalid block size
+      force_tx_apb_write(32'h00000004, 32'h00000021); // invalid > 32
+      force_tx_apb_write(32'h00000018, 32'h00000008); // reserved policy bits
+      force_tx_apb_write(32'h00000010, 32'h80000000); // reserved control bits
+      force_tx_apb_write(32'h000000fc, 32'h12345678); // invalid write
+
+      force_tx_apb_write(32'h00000010, 32'h00000001); // soft reset
+      force_tx_apb_write(32'h00000018, 32'h00000007); // compress_only + whole-file + count
+      force_tx_apb_write(32'h00000004, 32'h00000020); // 8 input words expected
+      force_tx_apb_write(32'h00000000, 32'h00000001); // start before all words loaded, PREADY low branch
+
+      for (word_idx = 0; word_idx < 8; word_idx = word_idx + 1)
+        force_tx_apb_write(32'h00000008, 32'h11110000 | word_idx[31:0]);
+
+      force_tx_apb_write(32'h00000008, 32'h22220000); // too many words
+
+      force dut.u_tx_top.apb_word_ready_w = 1'b0;
+      force_tx_apb_write(32'h00000000, 32'h00000003); // valid start + continue, hold stream
+      force_tx_apb_write(32'h00000004, 32'h00000010); // config while inflight, PREADY low
+      force_tx_apb_write(32'h00000018, 32'h00000000); // policy while inflight, PREADY low
+      repeat (2) @(posedge clk);
+      release dut.u_tx_top.apb_word_ready_w;
+      repeat (10) @(posedge clk);
+
+      force_tx_apb_write(32'h00000010, 32'h00000001); // clear inflight/direct FIFO state
+
+      for (word_idx = 0; word_idx < 16; word_idx = word_idx + 1)
+        force_tx_aes_out_push(32'ha0000000 | word_idx[31:0], (word_idx == 15));
+
+      force_tx_apb_read(32'h00000028, scratch_read); // output FIFO full status
+
+      force dut.u_tx_top.aes_out_word_w       = 32'hfeed0001;
+      force dut.u_tx_top.aes_out_word_last_w  = 1'b0;
+      force dut.u_tx_top.aes_out_word_valid_w = 1'b1;
+      force dut.tx_psel_w                     = 1'b1;
+      force dut.tx_penable_w                  = 1'b1;
+      force dut.tx_pwrite_w                   = 1'b0;
+      force dut.tx_paddr_w                    = 32'h00000020;
+      force dut.tx_pwdata_w                   = 32'h00000000;
+      @(posedge clk);
+      #1;
+      scratch_read = dut.tx_prdata_w;         // simultaneous output push + pop when full
+      force_tx_aes_out_idle;
+      force_tx_apb_idle;
+
+      for (word_idx = 0; word_idx < 18; word_idx = word_idx + 1) begin
+        force_tx_apb_read(32'h00000024, scratch_read);
+        force_tx_apb_read(32'h00000020, scratch_read);
+      end
+
+      force dut.u_tx_top.aes_output_error_r = 1'b1;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.aes_output_error_r = 1'b0;
+      force_tx_apb_read(32'h00000028, scratch_read);
+      force_tx_apb_write(32'h00000010, 32'h00000007); // clear done/error plus reset
+      force_tx_aes_out_idle;
+      force_tx_apb_idle;
+
+      $display("# TX_IF_DIRECT_COV: done scratch=0x%08x", scratch_read);
+    end
+  endtask
+
   task force_rx_apb_idle;
     begin
       release dut.rx_psel_w;
@@ -862,6 +1015,108 @@ module test_bench;
       @(posedge clk);
       #1;
       force_rx_word_idle;
+    end
+  endtask
+
+  task force_cpu_forward_idle;
+    begin
+      release dut.u_cpu.idex_rs1_addr_w;
+      release dut.u_cpu.idex_rs2_addr_w;
+      release dut.u_cpu.idex_rs1_data_w;
+      release dut.u_cpu.idex_rs2_data_w;
+      release dut.u_cpu.exmem_regwrite_w;
+      release dut.u_cpu.exmem_rd_addr_w;
+      release dut.u_cpu.exmem_wb_se_w;
+      release dut.u_cpu.exmem_alu_result_w;
+      release dut.u_cpu.exmem_pc_plus_w;
+      release dut.u_cpu.mem_data_w;
+      release dut.u_cpu.memwb_regwrite_w;
+      release dut.u_cpu.memwb_rd_addr_w;
+      release dut.u_cpu.memwb_wb_se_w;
+      release dut.u_cpu.memwb_alu_result_w;
+      release dut.u_cpu.memwb_mem_data_w;
+      release dut.u_cpu.memwb_pc_plus_w;
+      @(posedge clk);
+      #1;
+    end
+  endtask
+
+  task force_cpu_forward_case;
+    input [4:0] rs1_addr;
+    input [4:0] rs2_addr;
+    input       exmem_regwrite;
+    input [4:0] exmem_rd_addr;
+    input [1:0] exmem_wb_sel;
+    input       memwb_regwrite;
+    input [4:0] memwb_rd_addr;
+    input [1:0] memwb_wb_sel;
+    begin
+      force dut.u_cpu.idex_rs1_addr_w      = rs1_addr;
+      force dut.u_cpu.idex_rs2_addr_w      = rs2_addr;
+      force dut.u_cpu.idex_rs1_data_w      = 32'h11111111;
+      force dut.u_cpu.idex_rs2_data_w      = 32'h22222222;
+      force dut.u_cpu.exmem_regwrite_w     = exmem_regwrite;
+      force dut.u_cpu.exmem_rd_addr_w      = exmem_rd_addr;
+      force dut.u_cpu.exmem_wb_se_w        = exmem_wb_sel;
+      force dut.u_cpu.exmem_alu_result_w   = 32'haaaa0001;
+      force dut.u_cpu.exmem_pc_plus_w      = 32'hbbbb0002;
+      force dut.u_cpu.mem_data_w           = 32'hcccc0003;
+      force dut.u_cpu.memwb_regwrite_w     = memwb_regwrite;
+      force dut.u_cpu.memwb_rd_addr_w      = memwb_rd_addr;
+      force dut.u_cpu.memwb_wb_se_w        = memwb_wb_sel;
+      force dut.u_cpu.memwb_alu_result_w   = 32'hdddd0004;
+      force dut.u_cpu.memwb_mem_data_w     = 32'heeee0005;
+      force dut.u_cpu.memwb_pc_plus_w      = 32'hffff0006;
+      @(posedge clk);
+      #1;
+    end
+  endtask
+
+  task automatic exercise_cpu_forward_direct_coverage;
+    reg [31:0] fwd_mix;
+    begin
+      $display("# CPU_FORWARD_DIRECT_COV: exercise forwarding mux rs1/rs2 exmem/memwb paths");
+      fwd_mix = 32'h00000000;
+
+      force_cpu_forward_case(5'd1, 5'd2, 1'b0, 5'd0, 2'b00, 1'b0, 5'd0, 2'b00);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_1_w | dut.u_cpu.forward_src_2_w;
+
+      force_cpu_forward_case(5'd3, 5'd9, 1'b1, 5'd3, 2'b00, 1'b0, 5'd0, 2'b00);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_1_w;
+      force_cpu_forward_case(5'd3, 5'd9, 1'b1, 5'd3, 2'b10, 1'b0, 5'd0, 2'b00);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_1_w;
+      force_cpu_forward_case(5'd3, 5'd9, 1'b1, 5'd3, 2'b01, 1'b0, 5'd0, 2'b00);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_1_w;
+
+      force_cpu_forward_case(5'd9, 5'd4, 1'b1, 5'd4, 2'b00, 1'b0, 5'd0, 2'b00);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_2_w;
+      force_cpu_forward_case(5'd9, 5'd4, 1'b1, 5'd4, 2'b10, 1'b0, 5'd0, 2'b00);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_2_w;
+      force_cpu_forward_case(5'd9, 5'd4, 1'b1, 5'd4, 2'b01, 1'b0, 5'd0, 2'b00);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_2_w;
+
+      force_cpu_forward_case(5'd5, 5'd8, 1'b0, 5'd0, 2'b00, 1'b1, 5'd5, 2'b00);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_1_w;
+      force_cpu_forward_case(5'd5, 5'd8, 1'b0, 5'd0, 2'b00, 1'b1, 5'd5, 2'b01);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_1_w;
+      force_cpu_forward_case(5'd5, 5'd8, 1'b0, 5'd0, 2'b00, 1'b1, 5'd5, 2'b10);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_1_w;
+
+      force_cpu_forward_case(5'd8, 5'd6, 1'b0, 5'd0, 2'b00, 1'b1, 5'd6, 2'b00);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_2_w;
+      force_cpu_forward_case(5'd8, 5'd6, 1'b0, 5'd0, 2'b00, 1'b1, 5'd6, 2'b01);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_2_w;
+      force_cpu_forward_case(5'd8, 5'd6, 1'b0, 5'd0, 2'b00, 1'b1, 5'd6, 2'b10);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_2_w;
+
+      force_cpu_forward_case(5'd7, 5'd7, 1'b1, 5'd7, 2'b00, 1'b1, 5'd7, 2'b01);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_1_w | dut.u_cpu.forward_src_2_w;
+      force_cpu_forward_case(5'd0, 5'd0, 1'b1, 5'd0, 2'b00, 1'b1, 5'd0, 2'b01);
+      fwd_mix = fwd_mix | dut.u_cpu.forward_src_1_w | dut.u_cpu.forward_src_2_w;
+
+      check_true("cpu_forward_direct_mix_nonzero", fwd_mix != 32'h00000000);
+      force_cpu_forward_idle;
+      $display("# CPU_FORWARD_DIRECT_COV: done mix=0x%08x", fwd_mix);
     end
   endtask
 
@@ -1010,6 +1265,63 @@ module test_bench;
     end
   endtask
 
+  task run_rx_parser_decoder_two_chunk_frame_cov;
+    input [31:0] data0;
+    input [5:0]  len0;
+    input [31:0] data1;
+    input [5:0]  len1;
+    input        expect_error;
+    integer timeout_idx;
+    begin
+      reset_rx_pipeline_for_cov;
+      force_rx_parser_stream_chunk(data0, len0, 1'b0);
+      force_rx_parser_stream_chunk(data1, len1, 1'b1);
+
+      for (timeout_idx = 0; timeout_idx < 768; timeout_idx = timeout_idx + 1) begin
+        if (expect_error) begin
+          if (dut.rx_parser_error_w || dut.rx_decoder_error_w)
+            timeout_idx = 768;
+        end
+        else begin
+          if (dut.u_rx_top.u_apb_huffman_rx_if.frame_done_sticky_r ||
+              dut.rx_parser_error_w ||
+              dut.rx_decoder_error_w)
+            timeout_idx = 768;
+        end
+        @(posedge clk);
+      end
+
+      drain_rx_output_words_for_cov;
+    end
+  endtask
+
+  task run_rx_parser_decoder_raw_full_frame_cov;
+    integer chunk_idx;
+    integer timeout_idx;
+    reg [31:0] chunk_data;
+    begin
+      reset_rx_pipeline_for_cov;
+
+      // RAW_FULL frame: 2 mode bits followed by 256 payload bits.
+      force_rx_parser_stream_chunk(32'h55555554, 6'd32, 1'b0);
+      for (chunk_idx = 0; chunk_idx < 7; chunk_idx = chunk_idx + 1) begin
+        chunk_data = (chunk_idx[0] == 1'b0) ? 32'ha5a55a5a : 32'h3cc3c33c;
+        force_rx_parser_stream_chunk(chunk_data, 6'd32, 1'b0);
+      end
+      force_rx_parser_stream_chunk(32'h00000003, 6'd2, 1'b1);
+
+      for (timeout_idx = 0; timeout_idx < 2048; timeout_idx = timeout_idx + 1) begin
+        if (dut.u_rx_top.u_apb_huffman_rx_if.frame_done_sticky_r ||
+            dut.rx_parser_error_w ||
+            dut.rx_decoder_error_w)
+          timeout_idx = 2048;
+        @(posedge clk);
+      end
+
+      drain_rx_output_words_for_cov;
+    end
+  endtask
+
   task automatic exercise_rx_parser_decoder_coverage;
     reg [31:0] raw_partial_frame;
     reg [31:0] one_symbol_frame;
@@ -1017,6 +1329,8 @@ module test_bench;
     reg [31:0] malformed_raw_size_frame;
     reg [31:0] malformed_one_symbol_frame;
     reg [31:0] malformed_compressed_frame;
+    reg [63:0] compressed_two_symbol_frame;
+    reg [63:0] malformed_bad_entry_frame;
     begin
       $display("# RX_PARSE_DECODE_COV: exercise parser/decoder raw/one-symbol/compressed/malformed frames");
 
@@ -1034,16 +1348,202 @@ module test_bench;
           (32'h01 << 8) | (32'd5 << 2) | 32'd3;
       malformed_compressed_frame =
           (32'd0 << 2) | 32'd2;
+      compressed_two_symbol_frame =
+          (64'd5 << 40) | (64'd1 << 35) | (64'h42 << 27) |
+          (64'd1 << 22) | (64'h41 << 14) |
+          (64'd2 << 8) | (64'd4 << 2) | 64'd2;
+      malformed_bad_entry_frame =
+          (64'd0 << 35) | (64'h01 << 27) |
+          (64'd1 << 22) | (64'h41 << 14) |
+          (64'd2 << 8) | (64'd4 << 2) | 64'd2;
 
+      run_rx_parser_decoder_raw_full_frame_cov;
       run_rx_parser_decoder_frame_cov(raw_partial_frame, 6'd32, 1'b0);
       run_rx_parser_decoder_frame_cov(one_symbol_frame, 6'd16, 1'b0);
       run_rx_parser_decoder_frame_cov(compressed_one_symbol_frame, 6'd31, 1'b0);
+      run_rx_parser_decoder_two_chunk_frame_cov(compressed_two_symbol_frame[31:0],
+                                                6'd32,
+                                                compressed_two_symbol_frame[63:32],
+                                                6'd12,
+                                                1'b0);
       run_rx_parser_decoder_frame_cov(malformed_raw_size_frame, 6'd8, 1'b1);
       run_rx_parser_decoder_frame_cov(malformed_one_symbol_frame, 6'd16, 1'b1);
       run_rx_parser_decoder_frame_cov(malformed_compressed_frame, 6'd14, 1'b1);
+      run_rx_parser_decoder_two_chunk_frame_cov(malformed_bad_entry_frame[31:0],
+                                                6'd32,
+                                                malformed_bad_entry_frame[63:32],
+                                                6'd8,
+                                                1'b1);
+      run_rx_parser_decoder_frame_cov(32'h00000000, 6'd0, 1'b1);
 
       reset_rx_pipeline_for_cov;
       $display("# RX_PARSE_DECODE_COV: done");
+    end
+  endtask
+
+  task force_rx_decoder_direct_idle;
+    begin
+      release dut.u_rx_top.parser_block_mode_w;
+      release dut.u_rx_top.parser_block_size_w;
+      release dut.u_rx_top.parser_symbol_count_w;
+      release dut.u_rx_top.parser_one_symbol_value_w;
+      release dut.u_rx_top.parser_block_meta_valid_w;
+      release dut.u_rx_top.parser_entry_symbol_w;
+      release dut.u_rx_top.parser_entry_code_len_w;
+      release dut.u_rx_top.parser_entry_valid_w;
+      release dut.u_rx_top.parser_entry_last_w;
+      release dut.u_rx_top.parser_payload_window_data_w;
+      release dut.u_rx_top.parser_payload_window_len_w;
+      release dut.u_rx_top.parser_payload_window_valid_w;
+      release dut.u_rx_top.parser_block_done;
+      release dut.u_rx_top.parser_frame_done;
+      release dut.u_rx_top.decoder_out_ready_w;
+    end
+  endtask
+
+  task automatic rx_decoder_direct_reset;
+    begin
+      force_rx_decoder_direct_idle;
+      reset_rx_pipeline_for_cov;
+      force dut.u_rx_top.decoder_out_ready_w = 1'b1;
+      force dut.u_rx_top.parser_payload_window_data_w  = 32'h00000000;
+      force dut.u_rx_top.parser_payload_window_len_w   = 6'd0;
+      force dut.u_rx_top.parser_payload_window_valid_w = 1'b0;
+      force dut.u_rx_top.parser_block_done             = 1'b0;
+      force dut.u_rx_top.parser_frame_done             = 1'b0;
+    end
+  endtask
+
+  task rx_decoder_direct_meta;
+    input [1:0] mode;
+    input [5:0] block_size;
+    input [5:0] symbol_count;
+    input [7:0] one_symbol;
+    integer timeout_idx;
+    begin
+      force dut.u_rx_top.parser_block_mode_w       = mode;
+      force dut.u_rx_top.parser_block_size_w       = block_size;
+      force dut.u_rx_top.parser_symbol_count_w     = symbol_count;
+      force dut.u_rx_top.parser_one_symbol_value_w = one_symbol;
+      force dut.u_rx_top.parser_block_meta_valid_w = 1'b1;
+
+      for (timeout_idx = 0; timeout_idx < 16; timeout_idx = timeout_idx + 1) begin
+        if (dut.u_rx_top.parser_block_meta_ready_w)
+          timeout_idx = 16;
+        @(posedge clk);
+      end
+      force dut.u_rx_top.parser_block_meta_valid_w = 1'b0;
+      @(posedge clk);
+    end
+  endtask
+
+  task rx_decoder_direct_entry;
+    input [7:0] symbol;
+    input [4:0] code_len;
+    input       entry_last;
+    integer timeout_idx;
+    begin
+      force dut.u_rx_top.parser_entry_symbol_w   = symbol;
+      force dut.u_rx_top.parser_entry_code_len_w = code_len;
+      force dut.u_rx_top.parser_entry_last_w     = entry_last;
+      force dut.u_rx_top.parser_entry_valid_w    = 1'b1;
+
+      for (timeout_idx = 0; timeout_idx < 16; timeout_idx = timeout_idx + 1) begin
+        if (dut.u_rx_top.parser_entry_ready_w)
+          timeout_idx = 16;
+        @(posedge clk);
+      end
+      force dut.u_rx_top.parser_entry_valid_w = 1'b0;
+      @(posedge clk);
+    end
+  endtask
+
+  task automatic rx_decoder_wait_error_or_done;
+    input integer max_cycles;
+    integer timeout_idx;
+    begin
+      for (timeout_idx = 0; timeout_idx < max_cycles; timeout_idx = timeout_idx + 1) begin
+        if (dut.rx_decoder_error_w ||
+            dut.u_rx_top.u_apb_huffman_rx_if.frame_done_sticky_r)
+          timeout_idx = max_cycles;
+        @(posedge clk);
+      end
+    end
+  endtask
+
+  task automatic rx_decoder_direct_finish_parser_done;
+    begin
+      force dut.u_rx_top.parser_block_done = 1'b1;
+      force dut.u_rx_top.parser_frame_done = 1'b1;
+      @(posedge clk);
+      force dut.u_rx_top.parser_block_done = 1'b0;
+      force dut.u_rx_top.parser_frame_done = 1'b0;
+      rx_decoder_wait_error_or_done(64);
+      drain_rx_output_words_for_cov;
+    end
+  endtask
+
+  task automatic exercise_rx_decoder_direct_coverage;
+    begin
+      $display("# RX_DECODER_DIRECT_COV: exercise decoder fallback and entry-error paths");
+
+      // Long-code compressed block: len=12 forces main-table long entry and fallback decode.
+      rx_decoder_direct_reset;
+      rx_decoder_direct_meta(2'd2, 6'd1, 6'd1, 8'h00);
+      rx_decoder_direct_entry(8'h41, 5'd12, 1'b1);
+      rx_decoder_wait_error_or_done(2300);
+      force dut.u_rx_top.parser_payload_window_data_w  = 32'h00000000;
+      force dut.u_rx_top.parser_payload_window_len_w   = 6'd12;
+      force dut.u_rx_top.parser_payload_window_valid_w = 1'b1;
+      rx_decoder_wait_error_or_done(64);
+      rx_decoder_direct_finish_parser_done;
+      force dut.u_rx_top.parser_payload_window_valid_w = 1'b0;
+
+      // Reuse table without a new codebook to cover symbol_count==0 compressed path.
+      rx_decoder_direct_meta(2'd2, 6'd1, 6'd0, 8'h00);
+      force dut.u_rx_top.parser_payload_window_data_w  = 32'h00000000;
+      force dut.u_rx_top.parser_payload_window_len_w   = 6'd12;
+      force dut.u_rx_top.parser_payload_window_valid_w = 1'b1;
+      rx_decoder_wait_error_or_done(64);
+      rx_decoder_direct_finish_parser_done;
+
+      // Entry validation failures.
+      rx_decoder_direct_reset;
+      rx_decoder_direct_meta(2'd2, 6'd1, 6'd2, 8'h00);
+      rx_decoder_direct_entry(8'h41, 5'd1, 1'b0);
+      rx_decoder_direct_entry(8'h41, 5'd1, 1'b1);
+      rx_decoder_wait_error_or_done(64);
+
+      rx_decoder_direct_reset;
+      rx_decoder_direct_meta(2'd2, 6'd1, 6'd1, 8'h00);
+      rx_decoder_direct_entry(8'h42, 5'd1, 1'b0);
+      rx_decoder_wait_error_or_done(64);
+
+      rx_decoder_direct_reset;
+      rx_decoder_direct_meta(2'd2, 6'd2, 6'd2, 8'h00);
+      rx_decoder_direct_entry(8'h43, 5'd1, 1'b1);
+      rx_decoder_wait_error_or_done(64);
+
+      // Metadata validation failures for each mode family.
+      rx_decoder_direct_reset;
+      rx_decoder_direct_meta(2'd0, 6'd31, 6'd0, 8'h00);
+      rx_decoder_wait_error_or_done(16);
+
+      rx_decoder_direct_reset;
+      rx_decoder_direct_meta(2'd1, 6'd32, 6'd0, 8'h00);
+      rx_decoder_wait_error_or_done(16);
+
+      rx_decoder_direct_reset;
+      rx_decoder_direct_meta(2'd3, 6'd1, 6'd1, 8'h01);
+      rx_decoder_wait_error_or_done(16);
+
+      rx_decoder_direct_reset;
+      rx_decoder_direct_meta(2'd2, 6'd1, 6'd0, 8'h00);
+      rx_decoder_wait_error_or_done(16);
+
+      force_rx_decoder_direct_idle;
+      reset_rx_pipeline_for_cov;
+      $display("# RX_DECODER_DIRECT_COV: done");
     end
   endtask
 
@@ -1070,8 +1570,11 @@ module test_bench;
     rx_apb_wait_cov_enable = $test$plusargs("RX_APB_WAIT_COV");
     rx_stream_backpressure_cov_enable = $test$plusargs("RX_STREAM_BACKPRESSURE_COV");
     tx_apb_error_cov_enable = $test$plusargs("TX_APB_ERROR_COV");
+    tx_if_direct_cov_enable = $test$plusargs("TX_IF_DIRECT_COV");
+    cpu_forward_direct_cov_enable = $test$plusargs("CPU_FORWARD_DIRECT_COV");
     rx_if_direct_cov_enable = $test$plusargs("RX_IF_DIRECT_COV");
     rx_parser_decoder_cov_enable = $test$plusargs("RX_PARSE_DECODE_COV");
+    rx_decoder_direct_cov_enable = $test$plusargs("RX_DECODER_DIRECT_COV");
     wait_cycles = 0;
     case_name = "rv32_soc";
     if ($value$plusargs("CASE_NAME=%s", case_name))
@@ -1121,7 +1624,8 @@ module test_bench;
             (result_words[0] === RESULT_SIGNATURE_MODE) ||
             (result_words[0] === RESULT_SIGNATURE_RXER) ||
             (result_words[0] === RESULT_SIGNATURE_TXER) ||
-            (result_words[0] === RESULT_SIGNATURE_CPUC))
+            (result_words[0] === RESULT_SIGNATURE_CPUC) ||
+            (result_words[0] === RESULT_SIGNATURE_CPUH))
           disable wait_for_signature_done;
         @(posedge clk);
         wait_cycles = wait_cycles + 1;
@@ -1310,7 +1814,8 @@ module test_bench;
                 (result_words[0] == RESULT_SIGNATURE_MODE) ||
                 (result_words[0] == RESULT_SIGNATURE_RXER) ||
                 (result_words[0] == RESULT_SIGNATURE_TXER) ||
-                (result_words[0] == RESULT_SIGNATURE_CPUC));
+                (result_words[0] == RESULT_SIGNATURE_CPUC) ||
+                (result_words[0] == RESULT_SIGNATURE_CPUH));
 
     if (result_words[0] == RESULT_SIGNATURE_DMA) begin
       check_eq_32("result_signature", result_words[0], RESULT_SIGNATURE_DMA);
@@ -1397,10 +1902,21 @@ module test_bench;
       check_eq_32("cpu_instruction_r_type_mix", result_words[2], 32'hcd79bdff);
       check_eq_32("cpu_instruction_mem_mix", result_words[3], 32'h0000e595);
       check_eq_32("cpu_instruction_branch_score", result_words[4], 32'h0000003f);
+    end else if (result_words[0] == RESULT_SIGNATURE_CPUH) begin
+      check_eq_32("cpu_mem_forward_signature", result_words[0], RESULT_SIGNATURE_CPUH);
+      check_eq_32("cpu_mem_forward_error_mask", result_words[1], 32'h00000000);
+      check_eq_32("cpu_mem_forward_mem_error", result_words[2], 32'h00000000);
+      check_true ("cpu_mem_forward_mix_nonzero", result_words[3] != 32'h00000000);
     end
 
     if (rx_parser_decoder_cov_enable)
       exercise_rx_parser_decoder_coverage;
+    if (rx_decoder_direct_cov_enable)
+      exercise_rx_decoder_direct_coverage;
+    if (tx_if_direct_cov_enable)
+      exercise_tx_if_direct_coverage;
+    if (cpu_forward_direct_cov_enable)
+      exercise_cpu_forward_direct_coverage;
 
     $display("# SUMMARY: PASS=%0d FAIL=%0d", pass_count, fail_count);
     if (fail_count == 0)

@@ -5,6 +5,7 @@ tx_compress_only_input1
 tx_compress_only_input4_cov
 tx_compress_only_one_symbol_cov
 tx_compress_only_ascii_sweep_cov
+tx_compress_only_alnum63_cov
 tx_compress_only_short_raw_cov
 tx_compress_aes_block_input3
 tx_compress_only_block_input3
@@ -14,11 +15,15 @@ mmio_regfile_negative
 mmio_rx_bad_length
 soc_sideband_cov
 tx_apb_wait_cov
+tx_if_direct_cov
 rx_backpressure_cov
 tx_apb_error_cov
 rx_if_direct_cov
 rx_parser_decoder_cov
+rx_decoder_direct_cov
 cpu_instruction_cov
+cpu_mem_forward_cov
+cpu_forward_direct_cov
 
 # Known failing / not in clean baseline yet:
 # dma_compress_aes_input2_debug      # TX error on current input2.txt, keep for debug closure

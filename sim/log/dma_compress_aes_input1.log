@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l dma_compress_aes_input1.log -c test_bench "+CASE_NAME=dma_compress_aes_input1" "+INPUT_FILE=input1.txt" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit dma_compress_aes_input1.ucdb; log -r /*; run -all" 
-# Start time: 17:41:45 on Apr 29,2026
+# Start time: 08:02:22 on Apr 30,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vsim-8611) Generating debug db.
 # ** Warning: (vopt-4308) Enabling visibility using +acc is recommended with debug flow.
@@ -179,8 +179,8 @@
 # [PASS] dma_start_pulse_count | actual=0x00000002 expected=0x00000002
 # SUMMARY: PASS=18 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1412)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1928)
 #    Time: 610236 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 17:42:42 on Apr 29,2026, Elapsed time: 0:00:57
+# End time: 08:03:16 on Apr 30,2026, Elapsed time: 0:00:54
 # Errors: 0, Warnings: 2

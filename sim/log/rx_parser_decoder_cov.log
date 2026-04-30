@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l rx_parser_decoder_cov.log -c test_bench "+CASE_NAME=rx_parser_decoder_cov" "+INPUT_FILE=input1.txt" "+RX_PARSE_DECODE_COV" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit rx_parser_decoder_cov.ucdb; log -r /*; run -all" 
-# Start time: 17:59:25 on Apr 29,2026
+# Start time: 08:22:14 on Apr 30,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -128,8 +128,8 @@
 # RX_PARSE_DECODE_COV: done
 # SUMMARY: PASS=9 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1412)
-#    Time: 68435 ns  Iteration: 1  Instance: /test_bench
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1928)
+#    Time: 78225 ns  Iteration: 1  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 17:59:57 on Apr 29,2026, Elapsed time: 0:00:32
+# End time: 08:22:46 on Apr 30,2026, Elapsed time: 0:00:32
 # Errors: 0, Warnings: 0
