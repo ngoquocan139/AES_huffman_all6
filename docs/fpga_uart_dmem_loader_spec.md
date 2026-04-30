@@ -20,6 +20,17 @@ host file
 The loader is intentionally small and fixed-purpose. It is a bring-up path for
 loading the plaintext source buffer into `DMEM` before the CPU starts.
 
+Current integration status:
+
+| Item | Status |
+|---|---|
+| FPGA wrapper | `rv32_soc_fpga_demo_top` |
+| Input protocol | `"LOAD" + payload_len_le32 + payload` |
+| Default baud | `115200` |
+| Demo clock | `50 MHz` |
+| Build style | TX-only/RX-only split bitstreams |
+| Remaining gap | runtime output readback from board is still future work |
+
 ## 1.1 Loader Flow Chart
 
 ```mermaid

@@ -54,6 +54,15 @@ Implementation hien tai nham toi:
 - khong ho tro burst
 - khong ho tro pipelining giao dich lien tiep trong cung mot transfer
 
+Verification status hien tai:
+
+| Case | Coverage/use |
+|---|---|
+| `mmio_regfile_basic` | legal CPU MMIO load/store path |
+| `mmio_regfile_negative` | invalid size/address and APB error propagation |
+| `dma_bridge_direct_cov` | APB wait-state, PSLVERR, invalid local request branches |
+| Full regression | included in `32/32` PASS coverage baseline |
+
 ## 5. Cong module de xuat
 
 ### 5.1 Clock va reset

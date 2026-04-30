@@ -28,6 +28,16 @@ Spec nay ap dung cho cac module sau:
 
 Tai lieu nay khong mo ta chi tiet protocol APB cua DMA/TX/RX. No chi chot phan bo nho va ownership cua cac port BRAM.
 
+Trang thai hien tai:
+
+| Item | Status |
+|---|---|
+| IMEM init | `sim/instruction.mem` tao bang `make compile C_SRC=...` |
+| Simulation input load | `test_bench` nap `+INPUT_FILE` vao DMEM Port B khi DMA idle |
+| FPGA input load | `uart_dmem_loader` nap payload vao DMEM Port B truoc khi release CPU reset |
+| DMA ownership | TX/RX DMA chiem DMEM Port B khi engine busy |
+| Clean regression | included in `32/32` PASS baseline |
+
 ## 2.1 Port Ownership Flow Chart
 
 ```mermaid

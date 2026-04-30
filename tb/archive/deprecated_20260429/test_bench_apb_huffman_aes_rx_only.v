@@ -154,6 +154,7 @@ module test_bench;
     integer                     rx_done_pulse_count;
     integer                     tx_cipher_pulse_count;
     integer                     bridge_nonempty_seen_count;
+    integer                     system_rc;
     integer                     i;
     integer                     j;
     integer                     block_idx;
@@ -517,28 +518,29 @@ module test_bench;
 
     task open_dump_files;
     begin
-        pre_dump_fd      = $fopen("loopback_pre_compress_dump.txt", "w");
-        compress_dump_fd = $fopen("loopback_post_compress_dump.txt", "w");
-        post_dump_fd     = $fopen("loopback_post_decode_dump.txt", "w");
-        ascii_dump_fd = $fopen("loopback_ascii_compare.txt", "w");
+        system_rc = $system("mkdir -p loopback");
+        pre_dump_fd      = $fopen("loopback/loopback_pre_compress_dump.txt", "w");
+        compress_dump_fd = $fopen("loopback/loopback_post_compress_dump.txt", "w");
+        post_dump_fd     = $fopen("loopback/loopback_post_decode_dump.txt", "w");
+        ascii_dump_fd = $fopen("loopback/loopback_ascii_compare.txt", "w");
 
         if (pre_dump_fd == 0) begin
-            $display("[FAIL] could not open loopback_pre_compress_dump.txt");
+            $display("[FAIL] could not open loopback/loopback_pre_compress_dump.txt");
             fail_count = fail_count + 1;
         end
 
         if (post_dump_fd == 0) begin
-            $display("[FAIL] could not open loopback_post_decode_dump.txt");
+            $display("[FAIL] could not open loopback/loopback_post_decode_dump.txt");
             fail_count = fail_count + 1;
         end
 
         if (compress_dump_fd == 0) begin
-            $display("[FAIL] could not open loopback_post_compress_dump.txt");
+            $display("[FAIL] could not open loopback/loopback_post_compress_dump.txt");
             fail_count = fail_count + 1;
         end
 
         if (ascii_dump_fd == 0) begin
-            $display("[FAIL] could not open loopback_ascii_compare.txt");
+            $display("[FAIL] could not open loopback/loopback_ascii_compare.txt");
             fail_count = fail_count + 1;
         end
 
@@ -1705,4 +1707,3 @@ module test_bench;
     end
 
 endmodule
-

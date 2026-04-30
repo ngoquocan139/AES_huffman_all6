@@ -66,6 +66,7 @@ id | function | testname | description | expectation | testcase | status | comme
 | DMA-03 | TX APB wait-state | `tx_apb_wait_cov` | Inject TX APB `PREADY=0` trong ACCESS | TX-only flow pass, DMA TX wait dung | `test_mmio_tx_only.c` + `tx_apb_wait_cov.v` | PASS | Cover `dma_tx_engine` wait branch |
 | DMA-04 | TX APB slave error | `tx_apb_error_cov` | Inject TX APB `PSLVERR=1` | TX error sticky set, last error `0x03` | `test_mmio_tx_apb_error.c` + `tx_apb_error_cov.v` | PASS | Cover `tx_dma_error_w` |
 | DMA-05 | RX APB wait/backpressure | `rx_backpressure_cov` | Inject RX APB wait-state va ciphertext ready low | Loopback pass, RX khong mat data | `test_mmio_dma.c` + `rx_backpressure_cov.v` | PASS | Cover RX wait/backpressure co ban |
+| DMA-06 | DMA bridge/regfile direct defensive coverage | `dma_bridge_direct_cov` | TB force truc tiep bridge, DMA regfile va DMA TX/RX engine vao cac pha wait/error/invalid config hiem: APB wait, PSLVERR readback, invalid state, busy-write, misaligned config, bad block size va defensive state eval. | Base MMIO pass, bridge/regfile/DMA engine branch/statement coverage tang, khong thay doi software contract | `test_mmio_regfile_basic.c` + `dma_bridge_direct_cov.v` | PASS | Coverage hook tap trung vao defensive branches kho tao bang CPU program |
 
 ### 3.3 TX Encode / Compress / AES
 
@@ -80,6 +81,8 @@ id | function | testname | description | expectation | testcase | status | comme
 | TX-07 | TX max-valid-symbol stress | `tx_compress_only_alnum63_cov` | File co 63 symbol hop le dung nguong `MAX_SYMBOLS` | TX done, output align 16B, debug 0 | `test_mmio_tx_only.c` + `tx_compress_only_alnum63_cov.v` | PASS | Stress Huffman builder hop le |
 | TX-08 | TX short input | `tx_compress_only_short_raw_cov` | File rat ngan de hit header/payload corner | TX done, output hop le | `test_mmio_tx_only.c` + `tx_compress_only_short_raw_cov.v` | PASS | Cover short-input path |
 | TX-09 | TX APB IF direct coverage | `tx_if_direct_cov` | Ep TX APB IF doc empty/full/error/status, invalid config, soft reset, output FIFO full va simultaneous push/pop | Base MMIO test pass, `apb_huffman_tx_if` branch/statement coverage tang manh | `test_mmio_regfile_basic.c` + `tx_if_direct_cov.v` | PASS | Coverage hook cho TX APB wrapper, khong thay doi software contract |
+| TX-10 | TX encoder direct coverage | `tx_encoder_direct_cov` | TB force cac stage encoder/decision de cover input collect, mode decision, header/payload transition, raw/compressed corner va error flags hiem. | Base MMIO pass, TX encoder branch/statement coverage tang | `test_mmio_regfile_basic.c` + `tx_encoder_direct_cov.v` | PASS | White-box coverage hook cho module con TX |
+| TX-11 | TX builder/packer direct coverage | `tx_builder_packer_direct_cov` | TB force Huffman builder, code-length/canonical generator va bit-packer qua cac state/transition hiem: one-symbol, multi-symbol, overflow/short frame, final partial word va flush. | Base MMIO pass, TX builder/packer bins tang | `test_mmio_regfile_basic.c` + `tx_builder_packer_direct_cov.v` | PASS | White-box coverage hook cho Huffman builder/packer |
 
 ### 3.4 RX Decode / Decrypt
 
@@ -88,11 +91,14 @@ id | function | testname | description | expectation | testcase | status | comme
 | RX-01 | RX normal decode input1 | `dma_compress_aes_input1` | RX doc ciphertext cua input1 tu DMEM, AES decrypt, Huffman decode | RX done, bytes_done bang input_len, output match source | `test_mmio_dma.c` + `dma_compress_aes_input1.v` | PASS | RX normal path voi input dai |
 | RX-02 | RX normal decode input3 | `dma_compress_aes_input3` | RX doc ciphertext cua input3, frame nho/lap lai cao | RX done, output match source | `test_mmio_dma.c` + `dma_compress_aes_input3.v` | PASS | RX small-frame path |
 | RX-07 | RX one-symbol loopback | `dma_compress_aes_one_symbol_cov` | TX tao ciphertext cho file mot ky tu, RX decrypt/decode lai | RX output match source | `test_mmio_dma.c` + `dma_compress_aes_one_symbol_cov.v` | PASS | Cover one-symbol/short-frame behavior |
+| RX-09 | RX max-valid-symbol loopback | `dma_compress_aes_alnum63_cov` | TX tao ciphertext tu file 63 symbol hop le, RX decrypt/decode lai voi codebook lon hon input binh thuong | RX output match source, `rx_bytes_done=504`, decoder meta `symbol_count=63` | `test_mmio_dma.c` + `dma_compress_aes_alnum63_cov.v` | PASS | Functional E2E stress; saving am la expected |
 | RX-03 | RX malformed length | `mmio_rx_bad_length` | RX length khong align 16B | Expected error, khong ghi plaintext | `test_mmio_rx_bad_length.c` + `mmio_rx_bad_length.v` | PASS | Error path cua RX DMA |
 | RX-04 | RX stream backpressure | `rx_backpressure_cov` | Giu ready low khi ciphertext valid high | Loopback van pass | `test_mmio_dma.c` + `rx_backpressure_cov.v` | PASS | Chua cover FIFO full sau |
 | RX-05 | RX APB IF direct coverage | `rx_if_direct_cov` | Ep APB RX IF empty/full/error/pending CTXT va simultaneous push/pop | Base MMIO test pass, RX IF branch/expression coverage tang manh | `test_mmio_regfile_basic.c` + `rx_if_direct_cov.v` | PASS | Coverage hook cho `apb_huffman_rx_if` |
 | RX-06 | RX parser/decoder direct coverage | `rx_parser_decoder_cov` | Ep parser nhan raw partial, one-symbol, compressed va malformed frame | Base MMIO test pass, parser/decoder state/error bins tang | `test_mmio_regfile_basic.c` + `rx_parser_decoder_cov.v` | PASS | Coverage hook, khong thay doi software contract |
 | RX-08 | RX decoder fallback/error direct coverage | `rx_decoder_direct_cov` | Force truc tiep cac wire parser->decoder de cover long-code fallback, reuse table, duplicate entry, entry-last miss/early va metadata error | Base MMIO test pass, decoder fallback/error bins tang | `test_mmio_regfile_basic.c` + `rx_decoder_direct_cov.v` | PASS | Coverage hook tap trung vao `huffman_block_decoder` |
+| RX-10 | RX depacker/packer direct coverage | `rx_depacker_packer_direct_cov` | TB drive depacker/byte-packer bang malformed transport, valid_bytes corner, fifo full/empty va packer backpressure/error branches. | Base MMIO pass, depacker/packer bins tang | `test_mmio_regfile_basic.c` + `rx_depacker_packer_direct_cov.v` | PASS | White-box coverage hook cho RX data formatting |
+| RX-11 | RX parser/decoder error direct coverage | `rx_parser_decoder_error_direct_cov` | TB tao malformed parser/decode entries: invalid header, invalid code length, missing/early entry last, zero-length va append dummy path. | Base MMIO pass, parser/decoder defensive error bins tang | `test_mmio_regfile_basic.c` + `rx_parser_decoder_error_direct_cov.v` | PASS | Bo sung nhung malformed path khong nen tao bang normal DMA |
 
 ### 3.5 SoC End-To-End
 
@@ -100,11 +106,12 @@ id | function | testname | description | expectation | testcase | status | comme
 |---|---|---|---|---|---|---|---|
 | SOC-01 | Full TX->RX secure storage | `dma_compress_aes_input1` | CPU cau hinh TX `COMPRESS_AES`, ghi ciphertext DMEM, RX decrypt/decode ve DMEM | Source match input, RX match source, TX non-zero, 2 DMA starts | `test_mmio_dma.c` + `dma_compress_aes_input1.v` | PASS | Main regression |
 | SOC-02 | Full TX->RX small input | `dma_compress_aes_input3` | E2E voi input ngan/co lap lai cao | Loopback pass, saving duong | `test_mmio_dma.c` + `dma_compress_aes_input3.v` | PASS | Variation cho whole-file Huffman |
+| SOC-03 | Full TX->RX max-valid-symbol stress | `dma_compress_aes_alnum63_cov` | E2E voi 63 symbol hop le de stress max-valid codebook va AES/RX loopback | Loopback pass, TX ciphertext non-zero, 2 DMA starts | `test_mmio_dma.c` + `dma_compress_aes_alnum63_cov.v` | PASS | Functional stress, khong dung de danh gia saving |
 
 Pass/fail summary:
 
 ```text
-TOTAL/PASSED/REMAIN:26/26/0
+TOTAL/PASSED/REMAIN:32/32/0
 ```
 
 Coverage da chay lai sau khi gom ve mot testbench chinh. UCDB merged:
@@ -114,19 +121,24 @@ cpu_forward_direct_cov.ucdb
 cpu_instruction_cov.ucdb
 cpu_mem_forward_cov.ucdb
 dma_compress_aes_input1.ucdb
+dma_compress_aes_alnum63_cov.ucdb
 dma_compress_aes_input3.ucdb
 dma_compress_aes_one_symbol_cov.ucdb
+dma_bridge_direct_cov.ucdb
 mmio_mode_matrix.ucdb
 mmio_regfile_basic.ucdb
 mmio_regfile_negative.ucdb
 mmio_rx_bad_length.ucdb
 rx_backpressure_cov.ucdb
 rx_decoder_direct_cov.ucdb
+rx_depacker_packer_direct_cov.ucdb
 rx_if_direct_cov.ucdb
 rx_parser_decoder_cov.ucdb
+rx_parser_decoder_error_direct_cov.ucdb
 soc_sideband_cov.ucdb
 tx_apb_error_cov.ucdb
 tx_apb_wait_cov.ucdb
+tx_builder_packer_direct_cov.ucdb
 tx_compress_aes_block_input3.ucdb
 tx_compress_only_alnum63_cov.ucdb
 tx_compress_only_ascii_sweep_cov.ucdb
@@ -135,35 +147,37 @@ tx_compress_only_input1.ucdb
 tx_compress_only_input4_cov.ucdb
 tx_compress_only_one_symbol_cov.ucdb
 tx_compress_only_short_raw_cov.ucdb
+tx_encoder_direct_cov.ucdb
 tx_if_direct_cov.ucdb
 ```
 
 Coverage summary:
 
 ```text
-Raw overall summary coverage: 78.34%
-Raw DUT total with toggle (-code bcesft): 78.76%
-Raw DUT total without toggle (-code bcesf): 79.17%
-Raw DUT statement coverage: 89.54%
-Raw DUT branch coverage: 84.52%
-Closed DUT Total Coverage By Instance (/test_bench/dut recursive): 91.72%
+Raw overall summary coverage: 85.46%
+Raw DUT total with toggle (-code bcesft): 86.44%
+Raw DUT total without toggle (-code bcesf): 87.78%
+Raw DUT statement coverage: 96.38%
+Raw DUT branch coverage: 93.49%
+Raw DUT branch+statement (-code bs): 94.93%
+Closed DUT Total Coverage By Instance (/test_bench/dut recursive): 95.59%
 vcover merge: Errors=0, Warnings=0
 ```
 
 Ghi chu: `summary_report.txt` la raw coverage, khong exclude. `dut_closed_report.txt`
 la coverage-closure report sau `sim/coverage_close.do`. Closed report exclude
 toggle, condition/expression/FSM-transition bins va mot so defensive/rare
-branch/statement scope co comment/reason trong UCDB. Khong duoc nham lan 91.72%
-voi raw DUT total coverage 78.76%.
+branch/statement scope co comment/reason trong UCDB. Khong duoc nham lan 95.59%
+voi raw DUT total coverage 86.44%.
 
 Module target sau lan chay nay:
 
 | Module / Instance | Branch | Condition | Expression | Statement | Comment |
 |---|---:|---:|---:|---:|---|
-| `u_tx_top/u_apb_huffman_tx_if` | 88.42% | 50.00% | 80.39% | 92.62% | Tang manh nho `tx_if_direct_cov`; con thieu condition/error cross bins |
-| `u_rx_top/u_apb_huffman_rx_if` | 87.83% | 100.00% | 98.27% | 94.33% | Tang manh nho `rx_if_direct_cov` |
-| `u_rx_top/u_huffman_block_parser` | 73.94% | 51.06% | 66.66% | 89.80% | Da tang bang raw-full/multi-entry direct frame; van can malformed/parser sau hon |
-| `u_rx_top/u_huffman_block_decoder` | 82.35% | 55.20% | 73.68% | 84.72% | Tang nho `rx_decoder_direct_cov`; van thieu mot so decode-error/FSM-transition bins |
+| `u_tx_top/u_apb_huffman_tx_if` | 98.94% | 75.00% | 80.39% | 100.00% | Tang manh nho `tx_if_direct_cov`; con thieu condition/expression bins |
+| `u_rx_top/u_apb_huffman_rx_if` | 100.00% | 100.00% | 100.00% | 100.00% | RX APB IF dat full code coverage theo b/c/e/s |
+| `u_rx_top/u_huffman_block_parser` | 92.43% | 73.40% | 77.77% | 98.54% | Da tang bang raw-full/multi-entry/malformed direct frame; con thieu condition/FSM-transition/toggle |
+| `u_rx_top/u_huffman_block_decoder` | 96.47% | 84.37% | 78.94% | 99.44% | Da tang bang fallback/error direct coverage; con thieu expression/FSM-transition/toggle |
 | `u_cpu/u_id_stage` | 98.11% | 88.88% | 88.23% | 100.00% | `cpu_instruction_cov` da tang instruction coverage |
 | `u_cpu/u_ex_stage` | 100.00% | 100.00% | 100.00% | 100.00% | ALU/branch path dat full code coverage |
 | `u_cpu/u_mem_stage` | 91.22% | 85.71% | 100.00% | 96.40% | `cpu_mem_forward_cov` da cover byte/half/word offsets va misaligned branches |
@@ -175,6 +189,7 @@ Module target sau lan chay nay:
 |---|---:|---|---:|---:|---:|---:|
 | `dma_compress_aes_input1` | 2551 bytes | `COMPRESS_AES` | 36.32% | 63.68% | 38.89% | 61.11% |
 | `dma_compress_aes_input3` | 242 bytes | `COMPRESS_AES` | 40.81% | 59.19% | 46.28% | 53.72% |
+| `dma_compress_aes_alnum63_cov` | 504 bytes | `COMPRESS_AES` | 100.67% | -0.67% | 107.94% | -7.94% |
 | `tx_compress_only_input1` | 2551 bytes | `COMPRESS_ONLY + whole_file` | 36.32% | 63.68% | 38.89% | 61.11% |
 | `tx_compress_only_input4_cov` | 6000 bytes | `COMPRESS_ONLY + whole_file` | 62.23% | 37.77% | 66.40% | 33.60% |
 | `tx_compress_only_alnum63_cov` | 504 bytes | `COMPRESS_ONLY + whole_file` | 100.67% | -0.67% | 107.94% | -7.94% |
@@ -194,27 +209,27 @@ Nhan xet:
 |---|---|---|
 | `0x1` | TX `COMPRESS_AES`, per-block Huffman | `tx_compress_aes_block_input3` |
 | `0x5` | TX `COMPRESS_ONLY`, per-block Huffman | `tx_compress_only_block_input3` |
-| `0x9` | TX `COMPRESS_AES`, whole-file Huffman | `dma_compress_aes_input1`, `dma_compress_aes_input3` |
+| `0x9` | TX `COMPRESS_AES`, whole-file Huffman | `dma_compress_aes_input1`, `dma_compress_aes_input3`, `dma_compress_aes_alnum63_cov` |
 | `0xd` | TX `COMPRESS_ONLY`, whole-file Huffman | `tx_compress_only_input1`, `tx_compress_only_input4_cov` |
-| `0x2` | RX decrypt + decode | RX phase of `dma_compress_aes_input1`, RX phase of `dma_compress_aes_input3` |
+| `0x2` | RX decrypt + decode | RX phase of `dma_compress_aes_input1`, RX phase of `dma_compress_aes_input3`, RX phase of `dma_compress_aes_alnum63_cov` |
 | invalid `0x0/0x3` | Invalid/unsupported direction encoding | `mmio_mode_matrix` |
 | reserved bit write | Illegal mode programming | `mmio_mode_matrix`, `mmio_regfile_negative` |
 
 ## 6. Current Gap To 100% Coverage
 
-Raw DUT total coverage tren `/test_bench/dut` hien tai chi khoang 79%
-(`78.76%` voi toggle, `79.17%` khong tinh toggle). Statement rieng la
-`89.54%`, nhung khong duoc xem la total coverage. Baseline nay chua phai
-closure 100%.
+Raw DUT total coverage tren `/test_bench/dut` hien tai la 86.44% khi tinh ca
+toggle va 87.78% khi bo toggle. Branch+statement da dat 94.93%, closed DUT dat
+95.59%. Baseline nay da vuot muc 90% cho coverage closure, nhung chua phai raw
+full-code 100%.
 
 Nhung nhom test con thieu:
 
 | Missing class | Purpose |
 |---|---|
-| DMA invalid config | Bad direction/reserved/bad block/RX bad length partially covered; still need zero-length/start edge if targeting closure |
-| APB bridge wait-state | TX/RX engine APB wait-state da cover; con CPU bridge-level external wait-state neu them APB slave moi |
-| RX malformed transport | Cover parser/depacker/decoder error states sau hon |
-| TX/RX backpressure | RX ciphertext stream-ready low da cover; con FIFO full/empty va stall sau hon |
+| FSM transition bins | Nhieu transition reset/abort/default trong Huffman builder/parser va DMA engine khong xay ra o flow functional binh thuong |
+| Toggle bins | Cac bus AES/Huffman/DMA rong co bit cao/hiem it doi trang thai, lam raw `bcesft` bi keo xuong |
+| Condition/expression bins | Mot so condition defensive cua parser/decoder/builder chi xay ra voi malformed frame cuc doan |
+| Raw full 100% | Can them waiver/exclusion co reason hoac white-box transition/toggle sweep; khong nen coi day la loi functional neu branch/statement da pass |
 
 Da cover them trong run 2026-04-29 va 2026-04-30:
 
@@ -232,7 +247,13 @@ Da cover them trong run 2026-04-29 va 2026-04-30:
 | `tx_apb_error_cov` | TX APB `PSLVERR` expected error path and `tx_dma_error_w` |
 | `tx_if_direct_cov` | TX APB IF invalid config, soft reset, output FIFO full/empty, status/debug read branches |
 | `tx_compress_only_alnum63_cov` | Valid max-symbol Huffman builder path at 63 symbols |
+| `dma_compress_aes_alnum63_cov` | Full TX/RX max-valid-symbol loopback at 63 symbols |
 | `rx_parser_decoder_cov` update | Raw-full multi-chunk, compressed two-symbol frame, malformed entry, zero-length chunk |
+| `rx_depacker_packer_direct_cov` | RX depacker/byte-packer malformed transport, full/empty/backpressure branches |
+| `rx_parser_decoder_error_direct_cov` | RX parser/decoder malformed-entry and append-dummy error branches |
+| `tx_encoder_direct_cov` | TX encoder/control/mode-decision defensive branches |
+| `tx_builder_packer_direct_cov` | TX Huffman builder/canonical/packer state and final-word branches |
+| `dma_bridge_direct_cov` | CPU MMIO bridge, DMA regfile, DMA TX/RX engine defensive branches |
 | AES IV variation | Cover non-zero IV and CBC chain transitions |
 | UART loader | Cover FPGA data-loading wrapper |
 | CPU instruction stress | Cover RV32I instructions not used by current DMA software |

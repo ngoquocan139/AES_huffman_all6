@@ -18,6 +18,17 @@ Trong SoC hien tai, engine nay:
 6. doc plaintext word 32-bit tu RX
 7. ghi plaintext ve `DMEM`
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `dma_compress_aes_input1/input3/alnum63` | Normal whole-file RX phase trong TX->RX loopback |
+| `mmio_rx_bad_length` | RX rejects ciphertext length khong align 16 byte |
+| `rx_backpressure_cov` | Stream/FIFO backpressure giua RX top va DMA RX |
+| `rx_malformed_transport_cov` | Malformed transport frame propagates RX error |
+| `dma_bridge_direct_cov` | Defensive config/error branches cua DMA/APB path |
+| Full coverage regression | Included in `32/32` PASS baseline |
+
 ## 1.1 Flow Chart
 
 ```mermaid

@@ -18,6 +18,9 @@ Spec nay dua tren:
 - chuong trinh `testcase/test_mmio_dma.c`
 - disassembly cua `testcase/test_mmio_dma.elf`
 
+Regression baseline hien tai dung mot testbench chinh `test_bench`; testcase
+wrapper duoc chon bang `TESTNAME` va plusargs duoc chon bang `RUN_ARGS`.
+
 ## 2. Tong quan kien truc lap trinh
 
 CPU `RV32I` khong “goi ham DMA” theo kieu software library.
@@ -543,7 +546,7 @@ Quy trinh dung trong repo:
 cd /mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim
 make compile C_SRC=test_mmio_dma.c
 make drc
-make all TESTNAME=my_test
+make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
 ```
 
 Ket qua cua `make compile`:

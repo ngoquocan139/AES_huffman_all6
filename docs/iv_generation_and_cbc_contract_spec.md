@@ -11,6 +11,16 @@ Tai lieu nay chot 3 diem cho he thong hien tai:
 Spec nay mo ta **flow active hien tai trong repo**, khong mo ta cac huong cu
 nhu ECB hay host-preprocess.
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `dma_compress_aes_input1/input3/alnum63` | RV32I writes IV, TX encrypts with CBC, RX decrypts with the same IV |
+| `tx_compress_aes_block_input3` | TX-only AES-CBC path with software-provided IV |
+| `mmio_regfile_basic` | CPU read/write coverage for `IV0..IV3` registers |
+| `mmio_regfile_negative` | Invalid MMIO/error behavior around DMA config path |
+| Full coverage regression | Included in `32/32` PASS baseline |
+
 ## 1.1 IV And CBC Flow Chart
 
 ```mermaid

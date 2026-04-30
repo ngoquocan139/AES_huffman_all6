@@ -7,6 +7,15 @@ block, table entry va payload window cho `huffman_block_decoder`.
 
 Parser khong tu decode Huffman symbol. No chi parse format transport cua TX.
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `dma_compress_aes_input1/input3/alnum63` | Normal parser path from real TX transport stream |
+| `rx_parser_decoder_cov` | Legal raw/compressed/one-symbol parser branches |
+| `rx_parser_decoder_error_direct_cov` | Invalid mode/size/table/payload parser branches |
+| `rx_malformed_transport_cov` | Parser receives malformed depacker output and reports error |
+
 ## 2. Position In RX Path
 
 ```text

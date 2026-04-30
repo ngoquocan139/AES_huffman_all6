@@ -134,6 +134,7 @@ clean:
 	rm -rf covhtmlreport
 	rm -rf log ucdb
 	rm -rf loopback preprocess dmem_dump debug_mmio tx_only
+	rm -rf loopback_*.txt
 	rm -rf hostbench*.log rv32_preproc*.log sim.log
 	rm -rf regfile_dump_*.txt vsim_stacktrace.vstf vi
 	rm -rf .input.txt.swp

@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l soc_sideband_cov.log -c test_bench "+CASE_NAME=soc_sideband_cov" "+SIDEBAND_COV" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit soc_sideband_cov.ucdb; log -r /*; run -all" 
-# Start time: 08:16:28 on Apr 30,2026
+# Start time: 14:51:04 on Apr 30,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -127,8 +127,8 @@
 # [PASS] basic_no_dma_start | actual=0x00000000 expected=0x00000000
 # SUMMARY: PASS=9 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1928)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4005)
 #    Time: 61416 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 08:17:02 on Apr 30,2026, Elapsed time: 0:00:34
+# End time: 14:52:03 on Apr 30,2026, Elapsed time: 0:00:59
 # Errors: 0, Warnings: 0

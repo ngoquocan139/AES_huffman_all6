@@ -1,8 +1,9 @@
 # vsim -debugDB -coverage -l dma_compress_aes_input1.log -c test_bench "+CASE_NAME=dma_compress_aes_input1" "+INPUT_FILE=input1.txt" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit dma_compress_aes_input1.ucdb; log -r /*; run -all" 
-# Start time: 08:02:22 on Apr 30,2026
+# Start time: 14:27:55 on Apr 30,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vsim-8611) Generating debug db.
 # ** Warning: (vopt-4308) Enabling visibility using +acc is recommended with debug flow.
+# ** Note: (vopt-143) Recognized 1 FSM in module "input_collect_unit(fast)".
 # ** Note: (vopt-143) Recognized 1 FSM in module "control_fsm(fast)".
 # ** Note: (vopt-143) Recognized 1 FSM in module "stream_output_interface(fast)".
 # ** Note: (vopt-143) Recognized 1 FSM in module "cpu_mmio_to_apb_bridge(fast)".
@@ -43,7 +44,6 @@
 # ** Note: (vopt-143) Recognized 1 FSM in module "huffman_builder(fast)".
 # ** Note: (vopt-143) Recognized 1 FSM in module "huffman_builder(fast__1)".
 # ** Note: (vopt-143) Recognized 1 FSM in module "emit_backend(fast)".
-# ** Note: (vopt-143) Recognized 1 FSM in module "input_collect_unit(fast)".
 # ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=2.
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -179,8 +179,8 @@
 # [PASS] dma_start_pulse_count | actual=0x00000002 expected=0x00000002
 # SUMMARY: PASS=18 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1928)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4005)
 #    Time: 610236 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 08:03:16 on Apr 30,2026, Elapsed time: 0:00:54
+# End time: 14:29:31 on Apr 30,2026, Elapsed time: 0:01:36
 # Errors: 0, Warnings: 2

@@ -14,6 +14,15 @@ Spec nay dua tren code hien tai trong repo, sau khi loopback:
 
 da pass simulation.
 
+Regression baseline hien tai:
+
+| Metric | Value |
+|---|---:|
+| Active testcase count | 32 |
+| Passed testcase count | 32 |
+| Raw DUT branch+statement | 94.93% |
+| Closed DUT coverage | 95.59% |
+
 ## 1.1 Software Contract Flow Chart
 
 ```mermaid
@@ -391,7 +400,15 @@ static uint32_t rotl32(uint32_t x, uint32_t sh) {
 }
 
 static void write_demo_iv(uint32_t input_len) {
-    uint32_t mix = input_len ^ 0x10203040u;
+    static uint32_t sw_iv_counter = 0x10203040u;
+    uint32_t mix;
+
+    sw_iv_counter = sw_iv_counter + 1u;
+    mix = input_len ^ SRC_BASE_ADDR ^ TX_DST_BASE_ADDR ^ RX_DST_BASE_ADDR;
+    mix = mix ^ sw_iv_counter ^ 0x43424331u;
+    mix = mix ^ (mix << 13);
+    mix = mix ^ (mix >> 17);
+    mix = mix ^ (mix << 5);
 
     DMA_IV0 = 0x43424331u;
     DMA_IV1 = mix ^ 0x3a5c742eu;

@@ -5,6 +5,19 @@
 Tai lieu nay la spec tong cua SoC hien tai trong repo. Day la file doc dau
 tien can doc truoc khi di vao TX, RX, DMA, MMIO, UART loader hoac Vivado.
 
+Trang thai cap nhat hien tai:
+
+| Item | Current status |
+|---|---|
+| Simulation top | Mot top duy nhat: `test_bench` trong `tb/tb_rv32_soc_mmio_dma.v` |
+| Active coverage regression | `32/32` testcase PASS bang `cd sim && ./run.csh cov` |
+| Raw DUT full coverage | `86.44%` voi `-code bcesft` |
+| Raw DUT branch+statement | `94.93%` voi `-code bs` |
+| Closed DUT coverage | `95.59%` sau `sim/coverage_close.do` |
+| Lint/DRC | `make drc` PASS voi Verilator |
+| Main simulation flow | `test_mmio_dma.c` + `dma_compress_aes_input1/input3/...` testcase wrappers |
+| FPGA flow | TX-only va RX-only split bitstreams la huong demo thuc dung |
+
 Muc tieu he thong:
 
 ```text
@@ -372,9 +385,9 @@ flowchart TD
   C --> D{"Target?"}
   D -->|"simulation"| E["Testbench loads input*.txt into DMEM"]
   E --> F["make drc"]
-  F --> G["make all RUN_ARGS=+INPUT_FILE=..."]
+  F --> G["make all TESTNAME=... RUN_ARGS=+CASE_NAME=... +INPUT_FILE=..."]
   G --> H["Check sim.log and loopback/dmem_dump outputs"]
-  D -->|"FPGA"| I["make clean"]
+  D -->|"FPGA"| I["make clean_vivado"]
   I --> J["make vivado_flow_tx or make vivado_flow_rx"]
   J --> K["Program bitstream to board"]
   K --> L["make uart_load UART_PORT=... UART_INPUT=..."]
@@ -480,7 +493,7 @@ Simulation:
 cd sim
 make compile C_SRC=test_mmio_dma.c
 make drc
-make all RUN_ARGS="+INPUT_FILE=input1.txt"
+make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
 ```
 
 TX-only simulation:
@@ -489,15 +502,23 @@ TX-only simulation:
 cd sim
 make compile C_SRC=test_mmio_tx_only.c
 make drc
-make all TB_NAME=tb_rv32_soc_tx_only RUN_ARGS="+INPUT_FILE=input4.txt"
+make all TESTNAME=tx_compress_only_input4_cov RUN_ARGS="+CASE_NAME=tx_compress_only_input4_cov +INPUT_FILE=input4_cov.txt"
+```
+
+Coverage regression:
+
+```bash
+cd sim
+./run.csh cov
+./report.csh
 ```
 
 FPGA TX build and runtime load:
 
 ```bash
 cd sim
+make clean_vivado
 make compile C_SRC=test_mmio_tx_only.c
-make clean
 make vivado_flow_tx
 make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
 ```
@@ -516,6 +537,7 @@ make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
 | AES key | fixed RTL key in prototype |
 | IV source | RV32I software demo IV |
 | FPGA runtime output readback | not complete yet |
+| Coverage closure | Branch+statement va closed DUT da vuot 90%; raw full con bi gioi han boi toggle/FSM-transition bins |
 
 ## 21. Detailed Specs
 
@@ -533,3 +555,5 @@ Use this file as the summary. For module-level details, read:
 | RX end-to-end | [rx_path_end_to_end_spec.md](./rx_path_end_to_end_spec.md) |
 | FPGA usage | [soc_usage_and_fpga_guide.md](./soc_usage_and_fpga_guide.md) |
 | UART loader | [fpga_uart_dmem_loader_spec.md](./fpga_uart_dmem_loader_spec.md) |
+| Coverage test plan | [coverage_test_plan_spec.md](./coverage_test_plan_spec.md) |
+| Latest coverage report | [coverage_regression_report.md](./coverage_regression_report.md) |

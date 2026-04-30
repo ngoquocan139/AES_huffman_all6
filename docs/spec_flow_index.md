@@ -10,6 +10,19 @@ The main rule is:
 - treat debug reports and old exploration notes as archive material;
 - do not use old preprocess/RV32I sensor notes as the main architecture.
 
+Current baseline:
+
+| Item | Value |
+|---|---|
+| Main simulation top | `test_bench` only |
+| Active testcase source | `sim/pat.list` |
+| Coverage runner | `cd sim && ./run.csh cov` |
+| Latest pass/fail | `32/32` PASS |
+| Raw DUT full coverage | `86.44%` |
+| Raw DUT branch+statement | `94.93%` |
+| Closed DUT coverage | `95.59%` |
+| Usage guide | [soc_usage_and_fpga_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_usage_and_fpga_guide.md) |
+
 ## 2. Main Flow
 
 1. `00` [00_current_system_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/00_current_system_spec.md)
@@ -137,5 +150,11 @@ For FPGA:
 For coverage closure:
 
 ```text
-25 -> sim/pat.list -> ./run.csh cov -> ./report.csh -> coverage/detail_report.txt
+25 -> 26 -> sim/pat.list -> ./run.csh cov -> ./report.csh -> coverage/detail_report.txt
+```
+
+For day-to-day commands:
+
+```text
+23 -> make compile C_SRC=... -> make drc -> make all TESTNAME=... RUN_ARGS=...
 ```

@@ -13,6 +13,16 @@ da duoc chuan hoa tu `huffman_aes_tx_top`, tu minh di qua cac pha:
 Module nay khong quan tam den MMIO, DMA hay AES. No chi lam viec voi block
 byte input, frequency table, codebook va bitstream output.
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `tx_compress_only_input1/input4_cov` | Whole-file dynamic Huffman behavior qua SoC TX-only |
+| `tx_compress_only_alnum63_cov` | Max valid-symbol stress within current alphabet |
+| `tx_compress_only_ascii_sweep_cov` | Printable ASCII sweep and mode-decision coverage |
+| `tx_encoder_direct_cov` | Direct encoder mode/error/FSM branches |
+| `tx_builder_packer_direct_cov` | Huffman builder and packer interaction branches |
+
 ## 2. Role In TX Stack
 
 `dynamic_huffman_encoder` nam giua:

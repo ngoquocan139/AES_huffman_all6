@@ -15,6 +15,18 @@ Muc tieu cua top nay la nhan tung block du lieu kich thuoc 1..32 byte qua giao t
 - hoac dua vao CBC + AES core de ma hoa
 - hoac bypass AES de tang space saving
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `tx_compress_only_input1` | TX-only compressed storage path, AES bypass |
+| `tx_compress_only_input4_cov` | Whole-file dynamic Huffman with larger log-like input |
+| `tx_compress_only_ascii_sweep_cov` | ASCII/symbol coverage and encoder mode diversity |
+| `dma_compress_aes_input1/input3/alnum63` | Full `COMPRESS_AES` path through CBC/AES and RX loopback |
+| `tx_if_direct_cov` | APB TX interface register/status/error coverage |
+| `tx_encoder_direct_cov` | Encoder mode/error coverage without SoC overhead |
+| `tx_builder_packer_direct_cov` | Builder/packer corner coverage |
+
 ## 2. So do khoi
 
 ```mermaid

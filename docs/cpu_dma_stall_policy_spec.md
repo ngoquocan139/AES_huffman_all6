@@ -18,6 +18,16 @@ Muc tieu chinh:
 - chot cach xu ly `load-use hazard` khac voi `APB wait state`;
 - lam co so cho viec refactor pipeline va code `cpu_mmio_to_apb_bridge`.
 
+Verification status hien tai:
+
+| Case | Coverage/use |
+|---|---|
+| `mmio_regfile_basic` | normal CPU MMIO read/write return path |
+| `mmio_regfile_negative` | MMIO error propagation without false DMA start |
+| `soc_sideband_cov` | top-level `cpu_stall_i`, `cpu_if_flush_i`, aux/toggle coverage |
+| `cpu_instruction_cov` | branch/load/store instruction behavior while SoC is integrated |
+| Full regression | included in `32/32` PASS coverage baseline |
+
 ## 2. Nguyen tac tong quat
 
 He thong nay su dung:

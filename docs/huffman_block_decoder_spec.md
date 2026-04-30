@@ -7,6 +7,15 @@ plaintext byte stream va dua byte sang `rx_byte_packer_32`.
 
 Module nay khong biet AES hay DMA. No chi decode tung Huffman/raw block.
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `dma_compress_aes_input1/input3/alnum63` | Normal decode of TX-generated whole-file frames |
+| `rx_parser_decoder_cov` | Legal `RAW_FULL`, `RAW_PARTIAL`, `COMPRESSED`, `ONE_SYMBOL` decode paths |
+| `rx_decoder_direct_cov` | Direct canonical lookup/fallback and byte-output branches |
+| `rx_parser_decoder_error_direct_cov` | Duplicate/invalid code length/lookup miss/error paths |
+
 ## 2. Supported Modes
 
 | Mode | Decoder behavior |

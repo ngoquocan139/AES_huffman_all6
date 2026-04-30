@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
-| Date         : Mon Apr 27 18:58:07 2026
+| Date         : Thu Apr 30 18:35:50 2026
 | Host         : An running 64-bit major release  (build 9200)
 | Command      : report_utilization -file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_rx/reports/post_synth_utilization.rpt
 | Design       : rv32_soc_fpga_demo_top
@@ -31,11 +31,11 @@ Table of Contents
 +-------------------------+-------+-------+------------+-----------+-------+
 |        Site Type        |  Used | Fixed | Prohibited | Available | Util% |
 +-------------------------+-------+-------+------------+-----------+-------+
-| Slice LUTs*             | 11336 |     0 |          0 |     53200 | 21.31 |
-|   LUT as Logic          | 11336 |     0 |          0 |     53200 | 21.31 |
+| Slice LUTs*             | 11711 |     0 |          0 |     53200 | 22.01 |
+|   LUT as Logic          | 11711 |     0 |          0 |     53200 | 22.01 |
 |   LUT as Memory         |     0 |     0 |          0 |     17400 |  0.00 |
-| Slice Registers         | 10133 |     0 |          0 |    106400 |  9.52 |
-|   Register as Flip Flop | 10133 |     0 |          0 |    106400 |  9.52 |
+| Slice Registers         | 10486 |     0 |          0 |    106400 |  9.86 |
+|   Register as Flip Flop | 10486 |     0 |          0 |    106400 |  9.86 |
 |   Register as Latch     |     0 |     0 |          0 |    106400 |  0.00 |
 | F7 Muxes                |  1194 |     0 |          0 |     26600 |  4.49 |
 | F8 Muxes                |   151 |     0 |          0 |     13300 |  1.14 |
@@ -59,8 +59,8 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 | 0     |          Yes |           - |            - |
 | 1     |          Yes |           - |          Set |
 | 1014  |          Yes |           - |        Reset |
-| 23    |          Yes |         Set |            - |
-| 9095  |          Yes |       Reset |            - |
+| 27    |          Yes |         Set |            - |
+| 9444  |          Yes |       Reset |            - |
 +-------+--------------+-------------+--------------+
 
 
@@ -94,8 +94,8 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 +-----------------------------+------+-------+------------+-----------+-------+
 |          Site Type          | Used | Fixed | Prohibited | Available | Util% |
 +-----------------------------+------+-------+------------+-----------+-------+
-| Bonded IOB                  |    5 |     5 |          0 |       200 |  2.50 |
-|   IOB Master Pads           |    3 |       |            |           |       |
+| Bonded IOB                  |    7 |     7 |          0 |       200 |  3.50 |
+|   IOB Master Pads           |    5 |       |            |           |       |
 |   IOB Slave Pads            |    2 |       |            |           |       |
 | Bonded IPADs                |    0 |     0 |          0 |         2 |  0.00 |
 | Bonded IOPADs               |    0 |     0 |          0 |       130 |  0.00 |
@@ -152,21 +152,21 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 +----------+------+---------------------+
 | Ref Name | Used | Functional Category |
 +----------+------+---------------------+
-| FDRE     | 9095 |        Flop & Latch |
-| LUT6     | 7792 |                 LUT |
-| LUT5     | 1583 |                 LUT |
-| LUT4     | 1442 |                 LUT |
+| FDRE     | 9444 |        Flop & Latch |
+| LUT6     | 7896 |                 LUT |
+| LUT5     | 1650 |                 LUT |
+| LUT4     | 1571 |                 LUT |
 | MUXF7    | 1194 |               MuxFx |
+| LUT2     | 1017 |                 LUT |
 | FDCE     | 1014 |        Flop & Latch |
-| LUT2     |  968 |                 LUT |
-| LUT3     |  925 |                 LUT |
+| LUT3     |  976 |                 LUT |
+| CARRY4   |  170 |          CarryLogic |
 | MUXF8    |  151 |               MuxFx |
-| CARRY4   |  145 |          CarryLogic |
-| LUT1     |   43 |                 LUT |
-| FDSE     |   23 |        Flop & Latch |
+| LUT1     |  108 |                 LUT |
+| FDSE     |   27 |        Flop & Latch |
 | RAMB36E1 |   11 |        Block Memory |
-| OBUF     |    4 |                  IO |
-| IBUF     |    1 |                  IO |
+| OBUF     |    5 |                  IO |
+| IBUF     |    2 |                  IO |
 | FDPE     |    1 |        Flop & Latch |
 | BUFG     |    1 |               Clock |
 +----------+------+---------------------+

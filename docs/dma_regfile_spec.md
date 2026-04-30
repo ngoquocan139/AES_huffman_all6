@@ -27,6 +27,16 @@ Phien ban hien tai ho tro ca 2 flow:
 `dma_regfile` khong sinh key va khong chon AES CBC/ECB runtime. Module nay expose
 `IV0..IV3` de CPU ghi initialization vector cho AES-CBC trong TX/RX path.
 
+Verification status hien tai:
+
+| Case | Coverage/use |
+|---|---|
+| `mmio_regfile_basic` | legal read/write, IV readback, clear pulse, soft reset |
+| `mmio_regfile_negative` | invalid start, readonly write, bad address, reserved bits |
+| `mmio_mode_matrix` | all supported mode encodings and invalid mode cases |
+| `dma_bridge_direct_cov` | APB wait/error/defensive regfile branches |
+| Full regression | included in `32/32` PASS coverage baseline |
+
 ## 3. So do khoi
 
 ```mermaid

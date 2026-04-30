@@ -11,6 +11,16 @@ Tai lieu nay mo ta rieng nhanh `TX` cua SoC hien tai:
 
 Spec nay chi mo ta path active hien tai trong repo.
 
+Current verification status:
+
+| Item | Status |
+|---|---|
+| Main TX loopback mode | `MODE=0x9`, whole-file Huffman + AES-CBC |
+| TX-only saving mode | `MODE=0xD`, whole-file Huffman + AES bypass |
+| Active TX testcase examples | `dma_compress_aes_input1`, `tx_compress_only_input4_cov`, `tx_apb_error_cov` |
+| Coverage hooks | `tx_if_direct_cov`, `tx_encoder_direct_cov`, `tx_builder_packer_direct_cov` |
+| Latest regression | included in `32/32` PASS coverage baseline |
+
 ## 2. TX Goal
 
 TX nhan plaintext trong `DMEM`, nen Huffman, sau do:
@@ -347,6 +357,7 @@ CPU writes MODE=0x9, BLOCK_CFG=32, IV0..IV3
 - key AES hien tai la fixed key trong RTL
 - IV hien tai do software RV32I tao, chua phai entropy manh
 - TX top khong dung `AES_top.v` da-mode; chi dung `aes128_cipher_top` + CBC wrapper nho
+- raw full coverage cua TX-related logic van bi keo boi toggle/FSM-transition bins; functional branch/statement closure da dat trong regression chung
 
 ## 13. Source Files
 

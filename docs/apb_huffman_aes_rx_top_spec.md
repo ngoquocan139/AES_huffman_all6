@@ -9,6 +9,17 @@ decode Huffman, pack lai plaintext thanh word 32-bit va dua ra APB readback FIFO
 Module nay khong tu doc/ghi `DMEM`. `dma_rx_engine` la khoi doc ciphertext tu
 `DMEM`, feed RX top, sau do drain plaintext output ve `DMEM`.
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `dma_compress_aes_input1/input3/alnum63` | Full AES-CBC decrypt + Huffman decode loopback |
+| `rx_backpressure_cov` | Stream input/output FIFO backpressure |
+| `rx_malformed_transport_cov` | Malformed transport word error propagation |
+| `rx_if_direct_cov` | RX APB output FIFO/status/control behavior |
+| `rx_parser_decoder_cov` | Parser/decoder legal mode coverage |
+| `rx_parser_decoder_error_direct_cov` | Parser/decoder malformed frame branches |
+
 ## 2. Position In RX Path
 
 ```text

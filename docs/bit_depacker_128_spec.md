@@ -6,6 +6,15 @@
 transport word 128-bit sau AES-CBC decrypt va tach thanh stream bit chunk 32-bit
 cho `huffman_block_parser`.
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `dma_compress_aes_input1/input3/alnum63` | Normal depack path after AES-CBC decrypt |
+| `rx_malformed_transport_cov` | Invalid `valid_bits` and malformed transport frame |
+| `rx_depacker_packer_direct_cov` | Direct pack/depack compatibility and edge chunks |
+| `rx_parser_decoder_error_direct_cov` | Error propagation into parser/decoder stack |
+
 ## 2. Transport Word Format
 
 Transport word gom:

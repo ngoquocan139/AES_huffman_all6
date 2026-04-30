@@ -8,6 +8,17 @@
 
 Trong SoC hien tai, module nay nhan config tu `dma_regfile`, chiem `DMEM` port B trong luc transfer dang chay, dieu khien `apb_huffman_aes_tx_top` bang private APB master, va ghi ciphertext tro lai `DMEM`.
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `dma_compress_aes_input1/input3/alnum63` | Normal whole-file `COMPRESS_AES` TX phase trong loopback SoC |
+| `tx_compress_only_input1/input4_cov` | TX-only `COMPRESS_ONLY` path de do saving truc tiep |
+| `tx_apb_wait_cov` | Private APB wait-state giua DMA TX va TX accelerator |
+| `tx_apb_error_cov` | Private APB error path va `last_error_code_o` |
+| `dma_bridge_direct_cov` | Defensive config/error branches cua DMA/APB path |
+| Full coverage regression | Included in `32/32` PASS baseline |
+
 ## 1.1 Flow Chart
 
 ```mermaid

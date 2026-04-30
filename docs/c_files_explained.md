@@ -2,14 +2,26 @@
 
 ## 1. Scope
 
-Repo hien tai co 4 chuong trinh C phuc vu mo phong RV32I:
+Repo hien tai co nhom chuong trinh C phuc vu RV32I simulation/coverage:
 
-- `testcase/test.c`: smoke test cho core sync.
-- `testcase/test_mmio_dma.c`: test DMA loopback qua `dma_regfile` -> `dma_tx_engine` -> `TX` -> `DMEM` -> `dma_rx_engine` -> `RX` -> `DMEM`.
-- `testcase/test_mmio_tx_only.c`: test `COMPRESS_ONLY` TX-only de do space saving truc tiep, mac dinh dung `input1.txt`, khong chay RX.
-- `testcase/test_log_preprocess.c`: benchmark host-preprocess cho `input4.txt`; RV32I chi control DMA/TX, khong parse/preprocess text.
+| C file | Main role | Active baseline |
+|---|---|---|
+| `testcase/test.c` | smoke program cu cho core sync | reference only |
+| `testcase/test_mmio_dma.c` | main DMA loopback: TX `COMPRESS_AES + whole_file` roi RX decode ve DMEM | yes |
+| `testcase/test_mmio_tx_only.c` | TX-only `COMPRESS_ONLY + whole_file` de do saving truc tiep | yes |
+| `testcase/test_mmio_tx_only_aes_block.c` | TX-only `COMPRESS_AES` per-block 32B | coverage |
+| `testcase/test_mmio_tx_only_compress_block.c` | TX-only `COMPRESS_ONLY` per-block 32B | coverage |
+| `testcase/test_mmio_tx_encoder_error.c` | expected TX symbol-overflow error path | coverage |
+| `testcase/test_mmio_regfile_basic.c` | legal MMIO register read/write, IV, reset/clear pulse | coverage |
+| `testcase/test_mmio_regfile_negative.c` | invalid MMIO/config/error propagation | coverage |
+| `testcase/test_mmio_mode_matrix.c` | mode decode/status matrix | coverage |
+| `testcase/test_mmio_rx_bad_length.c` | expected RX bad ciphertext length error | coverage |
+| `testcase/test_cpu_instruction_cov.c` | RV32I instruction coverage | coverage |
+| `testcase/test_cpu_mem_forward_cov.c` | CPU memory-stage/forwarding corner coverage | coverage |
 
-Nhanh cu `RV32I` tu preprocess/parser text da bi bo khoi flow chinh. Neu thay cac artifact ten `*_preprocess_rv32.*`, xem chung la deprecated/debug history, khong dung lam demo mac dinh.
+Nhanh cu `RV32I` tu preprocess/parser text va host-preprocess benchmark khong con
+la flow chinh. Neu thay cac artifact ten `*_preprocess*`, xem chung la
+deprecated/debug history, khong dung lam demo mac dinh.
 
 Tai lieu nay giai thich ro:
 
@@ -25,12 +37,12 @@ flowchart TD
   B -->|"core smoke"| C["test.c"]
   B -->|"full TX/RX loopback"| D["test_mmio_dma.c"]
   B -->|"TX-only saving"| E["test_mmio_tx_only.c"]
-  B -->|"host preprocess benchmark"| F["test_log_preprocess.c"]
+  B -->|"MMIO/CPU coverage"| F["test_mmio_regfile_basic.c / test_cpu_*.c"]
   C --> G["make compile C_SRC=test.c"]
   D --> H["make compile C_SRC=test_mmio_dma.c"]
   E --> I["make compile C_SRC=test_mmio_tx_only.c"]
-  F --> J["make compile C_SRC=test_log_preprocess.c"]
-  G --> K["make all"]
+  F --> J["make compile C_SRC=<coverage>.c"]
+  G --> K["make all TESTNAME=... RUN_ARGS=..."]
   H --> K
   I --> K
   J --> K
@@ -134,7 +146,7 @@ Gia tri config duoc ghi:
 
 ### 4.3 Result layout trong DMEM (word offset)
 
-- `word0`  = signature `0x44545831`
+- `word0`  = signature `0x44525831`
 - `word1`  = `error_mask`
 - `word2`  = `tx_status_before_start`
 - `word3`  = `tx_status_after_done`
@@ -232,7 +244,7 @@ Gia tri config duoc ghi:
 
 ### 5.5 Input policy
 
-- `input1.txt` va cac file text thuong: chay `test_mmio_tx_only.c` + `tb_rv32_soc_tx_only.v`
+- `input1.txt` va cac file text thuong: chay `test_mmio_tx_only.c` + `test_bench`
 - mode DMA: `COMPRESS_ONLY`
 - du lieu di theo duong `DMEM -> Huffman TX -> DMEM`
 
@@ -314,23 +326,31 @@ De tranh chay nham chuong trinh:
 1. Compile dung file C:
    - `make compile C_SRC=<file>.c`
 2. Dam bao `instruction.mem` dang la output ban muon.
-3. Dam bao `rtl.f/tb.f` dung mode.
+3. Dam bao `rtl.f/tb.f` dang dung unified SoC mode, `tb.f` chi compile `test_bench`.
 4. Chay:
    - `make drc`
-   - `make all TESTNAME=<name>`
+   - `make all TESTNAME=<name> RUN_ARGS="+CASE_NAME=<name> +INPUT_FILE=<input>.txt"`
 5. Kiem tra 4 instruction dau trong log:
    - MMIO test: bat dau bang `00008137`
    - Smoke sync: bat dau bang `00500093`
 
 ## 8. Flow khuyen nghi theo loai input
 
-- `input1.txt`:
-  - compile: `make compile C_SRC=test_mmio_tx_only.c`
-  - run: `make all TB_NAME=tb_rv32_soc_tx_only TESTNAME=tx_only_input1 RUN_ARGS="+INPUT_FILE=input1.txt"`
-  - policy: `COMPRESS_ONLY`
+- `input1.txt` full loopback:
+  - compile: `make compile C_SRC=test_mmio_dma.c`
+  - run: `make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"`
+  - policy: TX `COMPRESS_AES + whole_file`, RX decrypt/decode.
 
-- `input4.txt`:
-  - compile: `make compile C_SRC=test_log_preprocess.c`
-  - run: `make all TB_NAME=tb_rv32_log_preprocess TESTNAME=preproc_input4 RUN_ARGS="+INPUT_FILE=input4.txt"`
-  - policy: `host preprocess -> COMPRESS_AES`
-  - CPU role: chi ghi MMIO, poll DMA/TX va publish benchmark; preprocess nam tren host script.
+- `input1.txt` TX-only saving:
+  - compile: `make compile C_SRC=test_mmio_tx_only.c`
+  - run: `make all TESTNAME=tx_compress_only_input1 RUN_ARGS="+CASE_NAME=tx_compress_only_input1 +INPUT_FILE=input1.txt"`
+  - policy: TX `COMPRESS_ONLY + whole_file`.
+
+- `input4_cov.txt` TX-only log-like saving:
+  - compile: `make compile C_SRC=test_mmio_tx_only.c`
+  - run: `make all TESTNAME=tx_compress_only_input4_cov RUN_ARGS="+CASE_NAME=tx_compress_only_input4_cov +INPUT_FILE=input4_cov.txt"`
+  - policy: TX `COMPRESS_ONLY + whole_file`.
+
+- Full coverage:
+  - command: `cd sim && ./run.csh cov && ./report.csh`
+  - result hien tai: `32/32` PASS, closed DUT `95.59%`.

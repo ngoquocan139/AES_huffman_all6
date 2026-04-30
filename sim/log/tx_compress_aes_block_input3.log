@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l tx_compress_aes_block_input3.log -c test_bench "+CASE_NAME=tx_compress_aes_block_input3" "+INPUT_FILE=input3.txt" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit tx_compress_aes_block_input3.ucdb; log -r /*; run -all" 
-# Start time: 08:11:09 on Apr 30,2026
+# Start time: 14:41:45 on Apr 30,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -132,8 +132,8 @@
 # [PASS] dma_start_pulse_count | actual=0x00000001 expected=0x00000001
 # SUMMARY: PASS=15 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1928)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4005)
 #    Time: 52746 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 08:11:44 on Apr 30,2026, Elapsed time: 0:00:35
+# End time: 14:42:45 on Apr 30,2026, Elapsed time: 0:01:00
 # Errors: 0, Warnings: 0

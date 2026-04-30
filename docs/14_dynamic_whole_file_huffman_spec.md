@@ -222,21 +222,39 @@ Regression hien tai:
 ```text
 make compile C_SRC=test_mmio_dma.c
 make drc
-make build
-make all
+make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
 ```
 
-Ket qua voi `sim/input4.txt`:
+Ket qua loopback whole-file AES voi `sim/input1.txt`:
 
-- input length: `5990` byte
-- TX ciphertext/storage bytes: `3888`
-- RX plaintext bytes: `5990`
+- input length: `2551` byte
+- payload ratio: `36.32%`
+- payload space saving: `63.68%`
+- final storage ratio: `38.89%`
+- final storage saving: `61.11%`
 - RX mismatch: `0`
-- payload ratio: `60.77%`
-- payload space saving: `39.23%`
-- final storage ratio: `64.91%`
-- final storage saving: `35.09%`
-- testbench summary: `PASS=18 FAIL=0`
+
+Ket qua TX-only whole-file `COMPRESS_ONLY` voi `sim/input4_cov.txt`:
+
+- input length: `6000` byte
+- payload ratio: `62.23%`
+- payload space saving: `37.77%`
+- final storage ratio: `66.40%`
+- final storage saving: `33.60%`
+
+Ket qua max-valid-symbol stress voi `input_cov_alnum63.txt`:
+
+- input length: `504` byte
+- payload saving: `-0.67%`
+- final storage saving: `-7.94%`
+- day la expected voi input gan uniform va codebook/header overhead lon
+
+Regression coverage hien tai:
+
+- active testcase: `32`
+- pass: `32`
+- raw DUT branch+statement: `94.93%`
+- closed DUT coverage: `95.59%`
 
 ## 9. Tradeoff
 

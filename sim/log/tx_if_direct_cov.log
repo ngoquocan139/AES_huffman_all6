@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l tx_if_direct_cov.log -c test_bench "+CASE_NAME=tx_if_direct_cov" "+INPUT_FILE=input1.txt" "+TX_IF_DIRECT_COV" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit tx_if_direct_cov.ucdb; log -r /*; run -all" 
-# Start time: 08:18:22 on Apr 30,2026
+# Start time: 14:54:09 on Apr 30,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -128,8 +128,8 @@
 # TX_IF_DIRECT_COV: done scratch=0x00000204
 # SUMMARY: PASS=9 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(1928)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4005)
 #    Time: 63196 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 08:18:55 on Apr 30,2026, Elapsed time: 0:00:33
+# End time: 14:55:16 on Apr 30,2026, Elapsed time: 0:01:07
 # Errors: 0, Warnings: 0

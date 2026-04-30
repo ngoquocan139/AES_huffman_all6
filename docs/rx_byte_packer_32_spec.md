@@ -7,6 +7,15 @@
 
 Module nay bao toan thu tu little-endian cua `DMEM`.
 
+Current verification status:
+
+| Case | Coverage/use |
+|---|---|
+| `dma_compress_aes_input1/input3/alnum63` | Normal byte-to-word packing before DMEM writeback |
+| `rx_backpressure_cov` | Output word held while APB/FIFO path is not ready |
+| `rx_depacker_packer_direct_cov` | Partial final word, last-in-block, last-in-frame branches |
+| `rx_if_direct_cov` | APB FIFO consumes packed word/meta correctly |
+
 ## 1.1 Packing Flow Chart
 
 ```mermaid
