@@ -12,5 +12,13 @@
 !testcase/**
 !sim/**
 
+# Ignore Vivado generated files inside sim
+sim/.Xil/
+sim/*.log
+sim/*.jou
+sim/*.str
+sim/*.backup.jou
+sim/vivado_pid*.str
+
 !.gitignore
 !push_source.sh

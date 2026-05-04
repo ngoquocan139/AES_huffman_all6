@@ -3873,3 +3873,4 @@ runTclCommand (PAResourceOtoP.PAViews_SCHEMATIC, "select_objects [get_nets u_soc
 // WARNING: HEventQueue.dispatchEvent() is taking  2212 ms.
 // HMemoryUtils.trashcanNow. Engine heap size: 4,133 MB. GUI used memory: 218 MB. Current time: 5/4/26, 2:49:28 PM ICT
 // TclEventType: RUN_STATUS_CHANGE
+// TclEventType: FILE_SET_CHANGE
