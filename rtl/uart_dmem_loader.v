@@ -1,7 +1,7 @@
 module uart_dmem_loader #(
   parameter integer CLK_HZ          = 50000000,
   parameter integer BAUD_RATE       = 115200,
-  parameter [31:0]  SRC_BASE_ADDR   = 32'h0000_0400,
+  parameter [31:0]  SRC_BASE_ADDR   = 32'h0000_2000,
   parameter [31:0]  INPUT_LEN_ADDR  = 32'h0000_0040,
   parameter integer MAX_INPUT_BYTES = 7168
 ) (

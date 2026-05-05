@@ -25,21 +25,20 @@ main:
 	lui	a5,%hi(sw_iv_counter)
 	lw	a2,64(zero)
 	lw	a4,%lo(sw_iv_counter)(a5)
-	li	a3,1128415232
-	addi	a3,a3,817
+	li	a6,2
 	addi	a4,a4,1
 	sw	a4,%lo(sw_iv_counter)(a5)
 	lw	a5,%lo(sw_iv_counter)(a5)
-	li	a4,1128407040
-	addi	a4,a4,1841
+	li	a4,1128415232
+	addi	a4,a4,817
 	xor	a5,a2,a5
 	xor	a5,a5,a4
-	slli	a4,a5,13
-	xor	a5,a5,a4
-	srli	a4,a5,17
-	xor	a5,a5,a4
-	li	a4,1073741824
-	sw	a3,40(a4)
+	slli	a3,a5,13
+	xor	a5,a5,a3
+	srli	a3,a5,17
+	xor	a5,a5,a3
+	li	a3,1073741824
+	sw	a4,40(a3)
 	slli	a1,a5,5
 	li	a4,979136512
 	xor	a5,a5,a1
@@ -66,10 +65,10 @@ main:
 	li	a4,1073741824
 	sw	a5,52(a4)
 	li	a5,1073741824
-	li	a4,1024
+	li	a4,8192
 	sw	a4,8(a5)
 	li	a5,1073741824
-	li	a4,8192
+	li	a4,16384
 	sw	a4,12(a5)
 	li	a5,1073741824
 	sw	a2,16(a5)
@@ -89,7 +88,6 @@ main:
 	addi	a3,a3,4
 	addi	a5,a5,1152
 	li	a1,0
-	li	a6,2
 	addi	a2,a2,36
 .L6:
 	lw	a4,0(a3)
@@ -110,13 +108,13 @@ main:
 .L4:
 	li	a3,1073741824
 	lw	a5,28(a3)
-	li	a2,8192
+	li	a2,16384
 	li	a5,1073741824
 	lw	a4,36(a5)
 	li	a5,1073741824
 	sw	a2,8(a5)
 	li	a5,1073741824
-	li	a2,16384
+	li	a2,24576
 	sw	a2,12(a5)
 	li	a5,1073741824
 	sw	a4,16(a5)
@@ -161,26 +159,26 @@ main:
 .L11:
 	addi	a5,a5,-1
 	bne	a5,zero,.L11
-	li	a5,16384
+	li	a5,24576
 	lw	a5,0(a5)
-	li	a5,16384
+	li	a5,24576
 	addi	a5,a5,4
 	lw	a5,0(a5)
-	li	a5,16384
+	li	a5,24576
 	addi	a5,a5,8
 	lw	a5,0(a5)
-	li	a5,16384
+	li	a5,24576
 	addi	a5,a5,12
 	lw	a5,0(a5)
-	li	a5,8192
+	li	a5,16384
 	lw	a5,0(a5)
-	li	a5,8192
+	li	a5,16384
 	addi	a5,a5,4
 	lw	a5,0(a5)
-	li	a5,8192
+	li	a5,16384
 	addi	a5,a5,8
 	lw	a5,0(a5)
-	li	a5,8192
+	li	a5,16384
 	addi	a5,a5,12
 	lw	a5,0(a5)
 	sw	zero,0(zero)

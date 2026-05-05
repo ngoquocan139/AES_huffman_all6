@@ -9,6 +9,7 @@ R0
 R0
 R0
 R0
+R0
 !s11f vlog 2021.2_1 2021.05, May 15 2021
 13
 !s112 1.1
@@ -29,17 +30,17 @@ n@_opt
 Z5 OL;O;2021.2_1;73
 R1
 T_opt1
-!s110 1777983369
-VFi`A1j^XD4Vd@T7LNc0K@1
+!s110 1777991866
+VMa@Wi;RJ7H@CN;NYWdmfE0
 R2
-=1-000ae431a4f1-69f9df84-2e0f7-3b2f
+=1-000ae431a4f1-69fa00b8-87e54-685b
 R3
 o-quiet -auto_acc_if_foreign -work work +acc
 R4
 n@_opt1
 R5
 vaes128_cipher_core
-Z6 !s110 1777983325
+Z6 !s110 1777991845
 !i10b 1
 !s100 068CMUCdS?1U4FzV78<VU0
 IO?G>7PzOmb^Wd9Z9@hXCj2
@@ -48,14 +49,14 @@ Z7 w1776100863
 8../rtl/aes128_cipher_core.v
 F../rtl/aes128_cipher_core.v
 Z8 F../rtl/aes_encrypt_funcs.vh
-!i122 45
+!i122 48
 L0 11 370
 Z9 VDg1SIo80bB@j0V0VzS_@n1
 Z10 OL;L;2021.2_1;73
 r1
 !s85 0
 31
-Z11 !s108 1777983323.000000
+Z11 !s108 1777991843.000000
 Z12 !s107 run_test.v|../rtl/aes_inverse_funcs.vh|../rtl/aes_encrypt_funcs.vh|../rtl/huffman_symbol_map.vh|../rtl/defines.vh|../tb/tb_rv32_soc_mmio_dma.v|../rtl/apb_huffman_aes_tx_top.v|../rtl/aes128_cipher_inv_top.v|../rtl/aes128_key_expansion_inv.v|../rtl/aes128_cipher_core_inv.v|../rtl/aes128_cipher_top.v|../rtl/aes128_cipher_core.v|../rtl/aes128_key_expansion.v|../rtl/apb_huffman_tx_if.v|../rtl/huffman_aes_tx_top.v|../rtl/apb_huffman_aes_rx_top.v|../rtl/apb_huffman_rx_if.v|../rtl/rx_byte_packer_32.v|../rtl/huffman_block_decoder.v|../rtl/HUFFMAN_DECODE_TABLE_IP.v|../rtl/huffman_block_parser.v|../rtl/bit_depacker_128.v|../rtl/bit_packer_128.v|../rtl/wrapper_rx.v|../rtl/wrapper.v|../rtl/dynamic_huffman_encoder.v|../rtl/control_fsm.v|../rtl/emit_backend.v|../rtl/stream_output_interface.v|../rtl/payload_emitter.v|../rtl/header_formatter.v|../rtl/mode_decision_logic.v|../rtl/huffman_builder.v|../rtl/canonical_code_generator.v|../rtl/code_length_builder.v|../rtl/symbol_list_builder.v|../rtl/input_collect_unit.v|../rtl/frequency_counter.v|../rtl/block_buffer.v|../rtl/rv32_soc_top.v|../rtl/dmem_ip_wrapper.v|../rtl/DMEM_ip.v|../rtl/dma_rx_engine.v|../rtl/dma_tx_engine.v|../rtl/cpu_mmio_to_apb_bridge.v|../rtl/dma_regfile.v|../rtl/imem_sync.v|../rtl/registers_file.v|../rtl/top_rv32_sync.v|../rtl/mem_stage_sync.v|../rtl/if_stage_sync.v|../rtl/forwarding.v|../rtl/id_stage.v|../rtl/ex_stage.v|
 Z13 !s90 -f|compile.f|
 !i113 0
@@ -71,7 +72,7 @@ R7
 8../rtl/aes128_cipher_core_inv.v
 F../rtl/aes128_cipher_core_inv.v
 Z15 F../rtl/aes_inverse_funcs.vh
-!i122 45
+!i122 48
 L0 11 422
 R9
 R10
@@ -93,7 +94,7 @@ R1
 R7
 8../rtl/aes128_cipher_inv_top.v
 F../rtl/aes128_cipher_inv_top.v
-!i122 45
+!i122 48
 L0 13 46
 R9
 R10
@@ -115,7 +116,7 @@ R1
 R7
 8../rtl/aes128_cipher_top.v
 F../rtl/aes128_cipher_top.v
-!i122 45
+!i122 48
 L0 13 50
 R9
 R10
@@ -138,7 +139,7 @@ R7
 8../rtl/aes128_key_expansion.v
 F../rtl/aes128_key_expansion.v
 R8
-!i122 45
+!i122 48
 L0 11 276
 R9
 R10
@@ -161,7 +162,7 @@ R7
 8../rtl/aes128_key_expansion_inv.v
 F../rtl/aes128_key_expansion_inv.v
 R15
-!i122 45
+!i122 48
 L0 11 330
 R9
 R10
@@ -183,7 +184,7 @@ R1
 w1777287834
 8../rtl/apb_huffman_aes_rx_top.v
 F../rtl/apb_huffman_aes_rx_top.v
-!i122 45
+!i122 48
 L0 1 504
 R9
 R10
@@ -205,7 +206,7 @@ R1
 w1777287227
 8../rtl/apb_huffman_aes_tx_top.v
 F../rtl/apb_huffman_aes_tx_top.v
-!i122 45
+!i122 48
 L0 1 479
 R9
 R10
@@ -227,7 +228,7 @@ R1
 R7
 8../rtl/apb_huffman_rx_if.v
 F../rtl/apb_huffman_rx_if.v
-!i122 45
+!i122 48
 L0 1 451
 R9
 R10
@@ -249,7 +250,7 @@ R1
 w1777437030
 8../rtl/apb_huffman_tx_if.v
 F../rtl/apb_huffman_tx_if.v
-!i122 45
+!i122 48
 L0 1 613
 R9
 R10
@@ -271,7 +272,7 @@ R1
 w1776836496
 8../rtl/bit_depacker_128.v
 F../rtl/bit_depacker_128.v
-!i122 45
+!i122 48
 L0 1 208
 R9
 R10
@@ -293,7 +294,7 @@ R1
 w1776845260
 8../rtl/bit_packer_128.v
 F../rtl/bit_packer_128.v
-!i122 45
+!i122 48
 L0 1 262
 R9
 R10
@@ -307,7 +308,7 @@ R13
 R14
 R4
 vblock_buffer
-R6
+Z16 !s110 1777991844
 !i10b 1
 !s100 FFd5[8Q>62oY:<<O]7iQT0
 IioXQ`4e6Xz`dn[=aVn2Ag0
@@ -315,7 +316,7 @@ R1
 R7
 8../rtl/block_buffer.v
 F../rtl/block_buffer.v
-!i122 45
+!i122 48
 L0 1 70
 R9
 R10
@@ -337,8 +338,8 @@ R1
 w1777252634
 8../rtl/canonical_code_generator.v
 F../rtl/canonical_code_generator.v
-Z16 F../rtl/huffman_symbol_map.vh
-!i122 45
+Z17 F../rtl/huffman_symbol_map.vh
+!i122 48
 L0 1 384
 R9
 R10
@@ -360,8 +361,8 @@ R1
 w1777978178
 8../rtl/code_length_builder.v
 F../rtl/code_length_builder.v
-R16
-!i122 45
+R17
+!i122 48
 L0 1 580
 R9
 R10
@@ -383,7 +384,7 @@ R1
 w1777251517
 8../rtl/control_fsm.v
 F../rtl/control_fsm.v
-!i122 45
+!i122 48
 L0 1 247
 R9
 R10
@@ -397,7 +398,7 @@ R13
 R14
 R4
 vcpu_mmio_to_apb_bridge
-Z17 !s110 1777983324
+R16
 !i10b 1
 !s100 ]Han1U@o>gmYdHCj_9J]92
 IfBn;:?H4Ti`4[b71HS<cZ2
@@ -405,7 +406,7 @@ R1
 w1776243447
 8../rtl/cpu_mmio_to_apb_bridge.v
 F../rtl/cpu_mmio_to_apb_bridge.v
-!i122 45
+!i122 48
 L0 1 150
 R9
 R10
@@ -419,7 +420,7 @@ R13
 R14
 R4
 vdma_regfile
-R17
+R16
 !i10b 1
 !s100 JUBMNjj1G]zi>YjgcoG5M3
 IeODX^72S`:IlY0AD5^E[00
@@ -427,7 +428,7 @@ R1
 w1777287192
 8../rtl/dma_regfile.v
 F../rtl/dma_regfile.v
-!i122 45
+!i122 48
 L0 1 349
 R9
 R10
@@ -441,7 +442,7 @@ R13
 R14
 R4
 vdma_rx_engine
-R6
+R16
 !i10b 1
 !s100 bXL44z19Gm;NW_>6?RFD<1
 I@4AoKOFnEW_AeegOA5fdK2
@@ -449,7 +450,7 @@ R1
 w1776880693
 8../rtl/dma_rx_engine.v
 F../rtl/dma_rx_engine.v
-!i122 45
+!i122 48
 L0 1 386
 R9
 R10
@@ -463,7 +464,7 @@ R13
 R14
 R4
 vdma_tx_engine
-R6
+R16
 !i10b 1
 !s100 ]k<5>HAN9f]BCih7WRHQC2
 I1MzCocN2mAIMKD9Z:Kl<L2
@@ -471,7 +472,7 @@ R1
 w1777437348
 8../rtl/dma_tx_engine.v
 F../rtl/dma_tx_engine.v
-!i122 45
+!i122 48
 L0 1 571
 R9
 R10
@@ -485,7 +486,7 @@ R13
 R14
 R4
 vDMEM_ip
-R6
+R16
 !i10b 1
 !s100 nDXY>]NIh8;R`?K1iZGg:2
 IemI?WRz4YG_YX=R6:O<WC3
@@ -493,7 +494,7 @@ R1
 w1776783033
 8../rtl/DMEM_ip.v
 F../rtl/DMEM_ip.v
-!i122 45
+!i122 48
 L0 13 51
 R9
 R10
@@ -508,7 +509,7 @@ R14
 R4
 n@d@m@e@m_ip
 vdmem_ip_wrapper
-R6
+R16
 !i10b 1
 !s100 ZRAiL?Gk7c5WKV9jUL2VO2
 I>JCj4h;Nndik]825Vk_bd2
@@ -516,7 +517,7 @@ R1
 w1776783069
 8../rtl/dmem_ip_wrapper.v
 F../rtl/dmem_ip_wrapper.v
-!i122 45
+!i122 48
 L0 11 40
 R9
 R10
@@ -538,7 +539,7 @@ R1
 w1777983182
 8../rtl/dynamic_huffman_encoder.v
 F../rtl/dynamic_huffman_encoder.v
-!i122 45
+!i122 48
 L0 1 472
 R9
 R10
@@ -560,7 +561,7 @@ R1
 R7
 8../rtl/emit_backend.v
 F../rtl/emit_backend.v
-!i122 45
+!i122 48
 L0 1 328
 R9
 R10
@@ -574,7 +575,7 @@ R13
 R14
 R4
 vex_stage
-R17
+R16
 !i10b 1
 !s100 k?03cXHNlloDD4S04M3Hl0
 IMCLXmF7la5i5PDbHT?Hb02
@@ -582,7 +583,7 @@ R1
 R7
 8../rtl/ex_stage.v
 F../rtl/ex_stage.v
-!i122 45
+!i122 48
 L0 3 132
 R9
 R10
@@ -596,7 +597,7 @@ R13
 R14
 R4
 vforwarding
-R17
+R16
 !i10b 1
 !s100 HXMJP6T[cHAfQBXi<3^mA0
 IT;gL8BU8LH`FA7ni7FPK40
@@ -604,7 +605,7 @@ R1
 w1776859463
 8../rtl/forwarding.v
 F../rtl/forwarding.v
-!i122 45
+!i122 48
 L0 1 87
 R9
 R10
@@ -618,7 +619,7 @@ R13
 R14
 R4
 vfrequency_counter
-R6
+R16
 !i10b 1
 !s100 Kc56_UgchS_J4>RAj8[fb0
 I;>Q8<E:cjISgnQZSlKid<0
@@ -626,8 +627,8 @@ R1
 R7
 8../rtl/frequency_counter.v
 F../rtl/frequency_counter.v
-R16
-!i122 45
+R17
+!i122 48
 L0 1 125
 R9
 R10
@@ -649,8 +650,8 @@ R1
 w1777980692
 8../rtl/header_formatter.v
 F../rtl/header_formatter.v
-R16
-!i122 45
+R17
+!i122 48
 L0 1 512
 R9
 R10
@@ -672,7 +673,7 @@ R1
 w1777252944
 8../rtl/huffman_aes_tx_top.v
 F../rtl/huffman_aes_tx_top.v
-!i122 45
+!i122 48
 L0 1 566
 R9
 R10
@@ -694,7 +695,7 @@ R1
 w1777268471
 8../rtl/huffman_block_decoder.v
 F../rtl/huffman_block_decoder.v
-!i122 45
+!i122 48
 L0 1 1051
 R9
 R10
@@ -716,7 +717,7 @@ R1
 w1777251463
 8../rtl/huffman_block_parser.v
 F../rtl/huffman_block_parser.v
-!i122 45
+!i122 48
 L0 1 654
 R9
 R10
@@ -738,7 +739,7 @@ R1
 w1776854804
 8../rtl/huffman_builder.v
 F../rtl/huffman_builder.v
-!i122 45
+!i122 48
 L0 1 275
 R9
 R10
@@ -760,7 +761,7 @@ R1
 w1777253267
 8../rtl/HUFFMAN_DECODE_TABLE_IP.v
 F../rtl/HUFFMAN_DECODE_TABLE_IP.v
-!i122 45
+!i122 48
 L0 7 45
 R9
 R10
@@ -775,7 +776,7 @@ R14
 R4
 n@h@u@f@f@m@a@n_@d@e@c@o@d@e_@t@a@b@l@e_@i@p
 vid_stage
-R17
+R16
 !i10b 1
 !s100 >G?5]Zl16jDGoKYn_C9FR2
 IMj3>]6hin6MEM2K]95D]k0
@@ -783,7 +784,7 @@ R1
 w1776155103
 8../rtl/id_stage.v
 F../rtl/id_stage.v
-!i122 45
+!i122 48
 L0 3 260
 R9
 R10
@@ -797,7 +798,7 @@ R13
 R14
 R4
 vif_stage_sync
-R17
+R16
 !i10b 1
 !s100 N36ZHjZDah[7>eLU@I]K>1
 I[UFa1fC3Z=@OE]GbRZ1aG2
@@ -805,7 +806,7 @@ R1
 w1776157222
 8../rtl/if_stage_sync.v
 F../rtl/if_stage_sync.v
-!i122 45
+!i122 48
 L0 8 95
 R9
 R10
@@ -819,7 +820,7 @@ R13
 R14
 R4
 vimem_sync
-R17
+R16
 !i10b 1
 !s100 z1D8H>QcLkY_`b:PQ6P;d0
 Ih0?IoO57BWlWL?`8fCKio3
@@ -827,7 +828,7 @@ R1
 w1776783339
 8../rtl/imem_sync.v
 F../rtl/imem_sync.v
-!i122 45
+!i122 48
 L0 3 40
 R9
 R10
@@ -841,7 +842,7 @@ R13
 R14
 R4
 vinput_collect_unit
-R6
+R16
 !i10b 1
 !s100 eAJg=o2N0AnV21^PBZTKj3
 I`1lcdLhWdnT0D0aQ84N0I2
@@ -849,7 +850,7 @@ R1
 R7
 8../rtl/input_collect_unit.v
 F../rtl/input_collect_unit.v
-!i122 45
+!i122 48
 L0 1 258
 R9
 R10
@@ -863,7 +864,7 @@ R13
 R14
 R4
 vmem_stage_sync
-R17
+R16
 !i10b 1
 !s100 5ZcjJWoBde7Z5D=2XiH2?1
 Ijz=3^28:ViQE?6JzMR4:c3
@@ -871,7 +872,7 @@ R1
 w1776859471
 8../rtl/mem_stage_sync.v
 F../rtl/mem_stage_sync.v
-!i122 45
+!i122 48
 L0 7 263
 R9
 R10
@@ -893,8 +894,8 @@ R1
 w1776235214
 8../rtl/mode_decision_logic.v
 F../rtl/mode_decision_logic.v
-R16
-!i122 45
+R17
+!i122 48
 L0 1 423
 R9
 R10
@@ -916,8 +917,8 @@ R1
 w1776856289
 8../rtl/payload_emitter.v
 F../rtl/payload_emitter.v
-R16
-!i122 45
+R17
+!i122 48
 L0 1 370
 R9
 R10
@@ -931,7 +932,7 @@ R13
 R14
 R4
 vregisters_file
-R17
+R16
 !i10b 1
 !s100 HB6]9S2Jze8NkBWIEHnoK3
 Idm9ID=BTU`KP`<C>6Xz1R3
@@ -939,7 +940,7 @@ R1
 w1776780869
 8../rtl/registers_file.v
 F../rtl/registers_file.v
-!i122 45
+!i122 48
 L0 1 43
 R9
 R10
@@ -953,7 +954,7 @@ R13
 R14
 R4
 vrv32_soc_top
-R6
+R16
 !i10b 1
 !s100 >XHH:b3=U3PJVB17][lP42
 IVn3[V_P4a5CWGiD[D<[Pm1
@@ -961,7 +962,7 @@ R1
 w1777287298
 8../rtl/rv32_soc_top.v
 F../rtl/rv32_soc_top.v
-!i122 45
+!i122 48
 L0 12 723
 R9
 R10
@@ -983,7 +984,7 @@ R1
 R7
 8../rtl/rx_byte_packer_32.v
 F../rtl/rx_byte_packer_32.v
-!i122 45
+!i122 48
 L0 1 144
 R9
 R10
@@ -1005,7 +1006,7 @@ R1
 R7
 8../rtl/stream_output_interface.v
 F../rtl/stream_output_interface.v
-!i122 45
+!i122 48
 L0 1 174
 R9
 R10
@@ -1019,7 +1020,7 @@ R13
 R14
 R4
 vsymbol_list_builder
-R6
+R16
 !i10b 1
 !s100 fl@i3ZQM]YgFH4ZX@KH6]1
 If>7Ga=onjg2MMffKnQ]RV0
@@ -1027,8 +1028,8 @@ R1
 w1777252240
 8../rtl/symbol_list_builder.v
 F../rtl/symbol_list_builder.v
-R16
-!i122 45
+R17
+!i122 48
 L0 1 225
 R9
 R10
@@ -1044,14 +1045,14 @@ R4
 vtest_bench
 R6
 !i10b 1
-!s100 @o3jN1k8zNn:AV2P0[cK=1
-Ia7bzI3g4YE9KVEPO<0COd0
+!s100 B8[<NI4fK73hLEa22=`^62
+I0hN89an[LDD9G4iI[JinF0
 R1
-w1777983322
+w1777991843
 8../tb/tb_rv32_soc_mmio_dma.v
 F../tb/tb_rv32_soc_mmio_dma.v
 Frun_test.v
-!i122 45
+!i122 48
 L0 3 4037
 R9
 R10
@@ -1065,7 +1066,7 @@ R13
 R14
 R4
 vtop_rv32_sync
-R17
+R16
 !i10b 1
 !s100 @bFOI9?gcf_CKeQ6VgaUe1
 IYY1A@zKO3=NEEBh:E2FGH1
@@ -1073,7 +1074,7 @@ R1
 w1776859478
 8../rtl/top_rv32_sync.v
 F../rtl/top_rv32_sync.v
-!i122 45
+!i122 48
 L0 2 306
 R9
 R10
@@ -1095,7 +1096,7 @@ R1
 R7
 8../rtl/wrapper.v
 F../rtl/wrapper.v
-!i122 45
+!i122 48
 L0 1 46
 R9
 R10
@@ -1117,7 +1118,7 @@ R1
 R7
 8../rtl/wrapper_rx.v
 F../rtl/wrapper_rx.v
-!i122 45
+!i122 48
 L0 1 48
 R9
 R10

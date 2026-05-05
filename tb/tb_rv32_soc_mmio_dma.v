@@ -27,9 +27,9 @@ module test_bench;
   localparam [31:0] MODE_TX_COMPRESS_ONLY_WHOLE = 32'h0000000d;
 
   localparam [31:0] INPUT_LEN_ADDR   = 32'h00000040;
-  localparam [31:0] SRC_BASE_ADDR    = 32'h00000400;
-  localparam [31:0] TX_DST_BASE_ADDR = 32'h00002000;
-  localparam [31:0] RX_DST_BASE_ADDR = 32'h00004000;
+  localparam [31:0] SRC_BASE_ADDR    = 32'h00002000;
+  localparam [31:0] TX_DST_BASE_ADDR = 32'h00004000;
+  localparam [31:0] RX_DST_BASE_ADDR = 32'h00006000;
 
   localparam integer SRC_BUFFER_BYTES = TX_DST_BASE_ADDR - SRC_BASE_ADDR;
   localparam integer TX_BUFFER_BYTES  = RX_DST_BASE_ADDR - TX_DST_BASE_ADDR;

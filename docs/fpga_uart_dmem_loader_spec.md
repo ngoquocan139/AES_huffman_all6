@@ -160,7 +160,7 @@ It is a single-shot input loader.
 On a valid frame:
 
 1. payload bytes are written sequentially starting at:
-   - `SRC_BASE_ADDR = 0x0000_0400`
+   - `SRC_BASE_ADDR = 0x0000_2000`
 2. bytes are packed into 32-bit words using byte enables on DMEM Port B
 3. when the full payload is drained, the loader writes:
    - `INPUT_LEN_ADDR = 0x0000_0040`
@@ -186,17 +186,17 @@ So the payload layout inside DMEM is consistent with:
 
 The loader currently accepts at most:
 
-- `7168` bytes
+- `8192` bytes
 
 This matches the practical source buffer window:
 
 ```text
-SRC_BASE_ADDR    = 0x00000400
-TX_DST_BASE_ADDR = 0x00002000
-source bytes     = 0x1C00 = 7168
+SRC_BASE_ADDR    = 0x00002000
+TX_DST_BASE_ADDR = 0x00004000
+source bytes     = 0x2000 = 8192
 ```
 
-If `payload_len == 0` or `payload_len > 7168`, the loader enters the error
+If `payload_len == 0` or `payload_len > 8192`, the loader enters the error
 path and does not release the SoC reset.
 
 ## 6. ACK / Error Contract

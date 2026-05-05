@@ -47,27 +47,27 @@ Result: all 3 SOC 4.5 tests PASS
 ```mermaid
 flowchart LR
   TXT["input .txt file"] --> TB["test_bench loader"]
-  TB --> SRC["DMEM source @ 0x00000400"]
+  TB --> SRC["DMEM source @ 0x00002000"]
   CPU["RV32I test_mmio_dma.c"] --> REG["DMA regfile via CPU MMIO -> APB bridge"]
   REG --> TXDMA["dma_tx_engine"]
   SRC --> TXDMA
   TXDMA --> TX["TX accelerator\nwhole-file Huffman + AES-CBC"]
-  TX --> CT["DMEM ciphertext @ 0x00002000"]
+  TX --> CT["DMEM ciphertext @ 0x00004000"]
   CPU --> RXDMA["dma_rx_engine"]
   CT --> RXDMA
   RXDMA --> RX["RX accelerator\nAES-CBC decrypt + Huffman decode"]
-  RX --> OUT["DMEM plaintext @ 0x00004000"]
+  RX --> OUT["DMEM plaintext @ 0x00006000"]
   OUT --> CMP["TB compare RX vs input"]
 ```
 
 Step-by-step:
 
-1. Testbench load input text vao `DMEM` source region `0x00000400`.
+1. Testbench load input text vao `DMEM` source region `0x00002000`.
 2. CPU RV32I doc `input_len` tu DMEM, tao IV demo, va ghi `DMA_IV0..3`.
-3. CPU cau hinh TX: `SRC=0x00000400`, `DST=0x00002000`, `LEN=input_len`, `MODE=0x9`, `BLOCK=0x20`, roi start DMA.
+3. CPU cau hinh TX: `SRC=0x00002000`, `DST=0x00004000`, `LEN=input_len`, `MODE=0x9`, `BLOCK=0x20`, roi start DMA.
 4. `dma_tx_engine` doc plaintext tu DMEM, nap TX accelerator qua private APB.
 5. TX accelerator tao dynamic Huffman codebook cho whole file, pack thanh transport word 128-bit, AES-CBC encrypt, va ghi ciphertext ve DMEM TX region.
-6. CPU polling TX done, doc `tx_bytes_done`, sau do cau hinh RX: `SRC=0x00002000`, `DST=0x00004000`, `LEN=tx_bytes_done`, `MODE=0x2`.
+6. CPU polling TX done, doc `tx_bytes_done`, sau do cau hinh RX: `SRC=0x00004000`, `DST=0x00006000`, `LEN=tx_bytes_done`, `MODE=0x2`.
 7. `dma_rx_engine` doc ciphertext, feed RX accelerator.
 8. RX accelerator AES-CBC decrypt, depack transport, parse Huffman header/codebook, decode plaintext, va ghi RX plaintext ve DMEM.
 9. Testbench dump 3 vung DMEM va compare:
@@ -173,4 +173,3 @@ decryption and Huffman decoding, and writes the restored plaintext to another
 DMEM region. The testbench compares the restored plaintext byte-by-byte with
 the original input and dumps the source, TX, and RX memory regions for review.
 ```
-

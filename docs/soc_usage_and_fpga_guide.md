@@ -80,7 +80,7 @@ clean baseline.
 Trong simulation, C program khong mo file text. Testbench lam viec nay:
 
 1. doc `+INPUT_FILE=<file>` trong thu muc `sim/`;
-2. load bytes vao `DMEM` tai `SRC_BASE_ADDR = 0x00000400`;
+2. load bytes vao `DMEM` tai `SRC_BASE_ADDR = 0x00002000`;
 3. ghi input length vao `INPUT_LEN_ADDR = 0x00000040`;
 4. CPU RV32I doc `INPUT_LEN_ADDR`.
 
@@ -96,9 +96,9 @@ Practical limits:
 |---|---:|
 | DMEM total | 32 KiB |
 | Testbench loader max | 10000 bytes |
-| Main source buffer | 7168 bytes: `0x00000400..0x00001FFF` |
-| TX output region | 8192 bytes: `0x00002000..0x00003FFF` |
-| RX output region | 16384 bytes: `0x00004000..0x00007FFF` |
+| Main source buffer | 8192 bytes: `0x00002000..0x00003FFF` |
+| TX output region | 8192 bytes: `0x00004000..0x00005FFF` |
+| RX output region | 8192 bytes: `0x00006000..0x00007FFF` |
 
 ## 6. DMA Mode Selection
 
@@ -306,7 +306,7 @@ make vivado_report VIVADO_PROJECT=rv32_soc_synth_rx
 flowchart LR
   PC["Host PC"] -->|"LOAD + len_le32 + payload"| UART["UART pins"]
   UART --> LDR["uart_dmem_loader"]
-  LDR -->|"write payload"| SRC["DMEM @ 0x00000400"]
+  LDR -->|"write payload"| SRC["DMEM @ 0x00002000"]
   LDR -->|"write length"| LEN["DMEM @ 0x00000040"]
   LDR -->|"release reset"| CPU["RV32I starts"]
 ```

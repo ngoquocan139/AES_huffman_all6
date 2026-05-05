@@ -23,6 +23,7 @@ Current baseline:
 | Closed DUT coverage | `95.59%` |
 | Usage guide | [soc_usage_and_fpga_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_usage_and_fpga_guide.md) |
 | SOC 4.5 report | [soc_4_5_end_to_end_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_4_5_end_to_end_report.md) |
+| Presentation guide | [report_presentation_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/report_presentation_guide.md) |
 
 ## 2. Main Flow
 
@@ -109,6 +110,9 @@ Current baseline:
 28. `27` [soc_4_5_end_to_end_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_4_5_end_to_end_report.md)
     - Focused report for the SoC 4.5 end-to-end cases, including logs, data flow, throughput, compression ratio, and dump paths.
 
+29. `28` [report_presentation_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/report_presentation_guide.md)
+    - Short guide for what to present to the advisor: architecture, key results, main testcase group, coverage, FPGA implementation, and topics to study.
+
 ## 3. Removed Old Specs
 
 These old files were removed because they were debug-only, test-policy-only, or
@@ -155,6 +159,12 @@ For coverage closure:
 
 ```text
 25 -> 26 -> sim/pat.list -> ./run.csh cov -> ./report.csh -> coverage/detail_report.txt
+```
+
+For advisor presentation:
+
+```text
+00 -> 27 -> 26 -> 28
 ```
 
 For day-to-day commands:

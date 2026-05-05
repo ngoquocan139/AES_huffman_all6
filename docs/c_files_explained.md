@@ -108,11 +108,11 @@ Luu y:
 
 Test duong data-plane loopback hien tai:
 
-- testbench load file input text vao `DMEM[0x00000400 ..]`;
+- testbench load file input text vao `DMEM[0x00002000 ..]`;
 - CPU cau hinh DMA TX whole-file Huffman + AES (`MODE = 0x9`);
-- DMA TX doc plaintext 2 pass: pass 1 count/build global table, pass 2 emit compressed AES stream vao `DMEM[0x00002000 ..]`;
+- DMA TX doc plaintext 2 pass: pass 1 count/build global table, pass 2 emit compressed AES stream vao `DMEM[0x00004000 ..]`;
 - CPU doc `DMA_CIPHERTEXT_BYTES_PRODUCED`;
-- CPU cau hinh DMA RX (`MODE = 0x2`) de doc ciphertext vua tao va ghi plaintext ve `DMEM[0x00004000 ..]`;
+- CPU cau hinh DMA RX (`MODE = 0x2`) de doc ciphertext vua tao va ghi plaintext ve `DMEM[0x00006000 ..]`;
 - CPU ghi `signature + error_mask + status + length/result head` ve `DMEM word 0..15`;
 - testbench dump source/TX/RX va compare RX output voi input goc.
 
@@ -133,12 +133,12 @@ Base: `0x4000_0000`
 
 Gia tri config duoc ghi:
 
-- TX: `SRC_ADDR = 0x00000400`
-- TX: `DST_ADDR = 0x00002000`
+- TX: `SRC_ADDR = 0x00002000`
+- TX: `DST_ADDR = 0x00004000`
 - TX: `LEN_BYTES = INPUT_LEN_ADDR`
 - TX: `MODE = 0x00000009`
-- RX: `SRC_ADDR = 0x00002000`
-- RX: `DST_ADDR = 0x00004000`
+- RX: `SRC_ADDR = 0x00004000`
+- RX: `DST_ADDR = 0x00006000`
 - RX: `LEN_BYTES = DMA_CIPHERTEXT_BYTES_PRODUCED`
 - RX: `MODE = 0x00000002`
 - `BLOCK_CFG = 0x20`
@@ -205,8 +205,8 @@ Base: `0x4000_0000`
 
 Gia tri config duoc ghi:
 
-- `SRC_ADDR = 0x00000400`
-- `DST_ADDR = 0x00002000`
+- `SRC_ADDR = 0x00002000`
+- `DST_ADDR = 0x00004000`
 - `LEN_BYTES = INPUT_LEN_ADDR`
 - `MODE = 0x0000000D`
 - `BLOCK_CFG = 0x00000020`

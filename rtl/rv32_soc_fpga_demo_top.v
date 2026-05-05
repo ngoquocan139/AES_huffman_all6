@@ -48,7 +48,7 @@ module rv32_soc_fpga_demo_top (
   uart_dmem_loader #(
     .CLK_HZ          (50000000),
     .BAUD_RATE       (115200),
-    .SRC_BASE_ADDR   (32'h0000_0400),
+    .SRC_BASE_ADDR   (32'h0000_2000),
     .INPUT_LEN_ADDR  (32'h0000_0040),
     .MAX_INPUT_BYTES (7168)
   ) u_uart_dmem_loader (

@@ -17,9 +17,9 @@ typedef unsigned int uint32_t;
 #define DMA_IV3             (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x34u))
 
 #define INPUT_LEN_ADDR      (*(volatile uint32_t *)(0x00000040u))
-#define SRC_BASE_ADDR       0x00000400u
-#define TX_DST_BASE_ADDR    0x00002000u
-#define RX_DST_BASE_ADDR    0x00004000u
+#define SRC_BASE_ADDR       0x00002000u
+#define TX_DST_BASE_ADDR    0x00004000u
+#define RX_DST_BASE_ADDR    0x00006000u
 #define RESULT_BASE_ADDR    0x00000000u
 #define RESULT_WORD(idx)    (*(volatile uint32_t *)(RESULT_BASE_ADDR + ((idx) * 4u)))
 

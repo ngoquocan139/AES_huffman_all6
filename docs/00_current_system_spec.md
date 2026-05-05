@@ -133,9 +133,9 @@ Current software/testbench regions:
 | Address | Name | Meaning |
 |---:|---|---|
 | `0x0000_0040` | `INPUT_LEN_ADDR` | Input byte count written by testbench or UART loader |
-| `0x0000_0400` | `SRC_BASE_ADDR` | Source plaintext/input region |
-| `0x0000_2000` | `TX_DST_BASE_ADDR` | TX output ciphertext/transport region |
-| `0x0000_4000` | `RX_DST_BASE_ADDR` | RX output plaintext region |
+| `0x0000_2000` | `SRC_BASE_ADDR` | Source plaintext/input region |
+| `0x0000_4000` | `TX_DST_BASE_ADDR` | TX output ciphertext/transport region |
+| `0x0000_6000` | `RX_DST_BASE_ADDR` | RX output plaintext region |
 
 ## 6. DMA Register Map
 
@@ -430,7 +430,7 @@ The testbench does it:
 flowchart LR
   TXT["input*.txt"] --> TB["testbench file loader"]
   TB -->|"pack bytes into 32-bit words"| AUX["aux DMEM Port B"]
-  AUX --> SRC["DMEM @ 0x00000400"]
+  AUX --> SRC["DMEM @ 0x00002000"]
   TB --> LEN["DMEM INPUT_LEN_ADDR @ 0x00000040"]
   CPU["RV32I program"] -->|"read input length"| LEN
 ```
@@ -450,7 +450,7 @@ On FPGA, there is no testbench. Runtime input loading is handled by
 flowchart LR
   PC["Host PC"] -->|"LOAD + len_le32 + payload"| UART["UART pins"]
   UART --> LDR["uart_dmem_loader"]
-  LDR -->|"write payload"| SRC["DMEM @ 0x00000400"]
+  LDR -->|"write payload"| SRC["DMEM @ 0x00002000"]
   LDR -->|"write payload length"| LEN["DMEM @ 0x00000040"]
   LDR -->|"loader_done"| RST["release SoC reset"]
   RST --> CPU["RV32I starts program"]
@@ -528,9 +528,9 @@ make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
 | Item | Current limit/status |
 |---|---|
 | DMEM size | 32 KiB |
-| Main source buffer | `0x00000400..0x00001FFF`, 7168 bytes practical limit |
-| TX output buffer | starts at `0x00002000` |
-| RX output buffer | starts at `0x00004000` |
+| Main source buffer | `0x00002000..0x00003FFF`, 8192 bytes practical limit |
+| TX output buffer | starts at `0x00004000` |
+| RX output buffer | starts at `0x00006000` |
 | TX block size | current main software uses `32` |
 | RX input length | must be ciphertext length and 16-byte aligned |
 | Huffman alphabet | newline + printable ASCII |

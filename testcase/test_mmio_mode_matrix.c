@@ -50,8 +50,8 @@ int main(void) {
     uint32_t status_3;
     uint32_t status_reserved;
 
-    DMA_SRC_ADDR = 0x00000400u;
-    DMA_DST_ADDR = 0x00002000u;
+    DMA_SRC_ADDR = 0x00002000u;
+    DMA_DST_ADDR = 0x00004000u;
     DMA_LEN_BYTES = 0x00000020u;
     DMA_BLOCK_CFG = 0x00000020u;
 

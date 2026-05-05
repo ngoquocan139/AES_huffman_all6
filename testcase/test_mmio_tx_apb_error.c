@@ -11,8 +11,8 @@ typedef unsigned int uint32_t;
 #define DMA_BYTES_DONE      (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x1Cu))
 #define DMA_DEBUG           (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x20u))
 
-#define SRC_BASE_ADDR       0x00000400u
-#define TX_DST_BASE_ADDR    0x00002000u
+#define SRC_BASE_ADDR       0x00002000u
+#define TX_DST_BASE_ADDR    0x00004000u
 #define RESULT_BASE_ADDR    0x00000000u
 #define RESULT_WORD(idx)    (*(volatile uint32_t *)(RESULT_BASE_ADDR + ((idx) * 4u)))
 

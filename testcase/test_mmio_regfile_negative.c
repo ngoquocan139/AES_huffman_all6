@@ -73,8 +73,8 @@ int main(void) {
         error_mask |= (1u << 4);
 
     clear_error();
-    DMA_SRC_ADDR = 0x00000400u;
-    DMA_DST_ADDR = 0x00002000u;
+    DMA_SRC_ADDR = 0x00002000u;
+    DMA_DST_ADDR = 0x00004000u;
     DMA_LEN_BYTES = 0x00000040u;
     DMA_MODE = 0x0000000du;
     DMA_BLOCK_CFG = 0x00000000u;
