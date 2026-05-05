@@ -22,6 +22,7 @@ Current baseline:
 | Raw DUT branch+statement | `94.93%` |
 | Closed DUT coverage | `95.59%` |
 | Usage guide | [soc_usage_and_fpga_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_usage_and_fpga_guide.md) |
+| SOC 4.5 report | [soc_4_5_end_to_end_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_4_5_end_to_end_report.md) |
 
 ## 2. Main Flow
 
@@ -104,6 +105,9 @@ Current baseline:
     - `pat.list`, `run.csh`, `report.csh`, UCDB merge flow, and 100% coverage closure policy.
 27. `26` [coverage_regression_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/coverage_regression_report.md)
     - Current coverage regression result, active testcase list, compression ratios, and remaining closure gaps.
+
+28. `27` [soc_4_5_end_to_end_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_4_5_end_to_end_report.md)
+    - Focused report for the SoC 4.5 end-to-end cases, including logs, data flow, throughput, compression ratio, and dump paths.
 
 ## 3. Removed Old Specs
 

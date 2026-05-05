@@ -38,10 +38,12 @@ VIVADO_REUSE_SYNTH ?= 1
 VIVADO_REUSE_IMPL ?= 1
 VIVADO_BIT_REUSE_SYNTH ?= 0
 VIVADO_CLOCK_MHZ ?= 50
+VIVADO_SYNTH_DIRECTIVE ?= RuntimeOptimized
 VIVADO_TOP ?= $(VIVADO_FPGA_TOP)
 VIVADO_XDC ?= $(VIVADO_BOARD_XDC)
 VIVADO_BIT_DIR ?= vivado_bitstreams
 VIVADO_XPR := H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6\vivado\build\$(VIVADO_PROJECT)\$(VIVADO_PROJECT).xpr
+SUDO_PASS ?=
 
 # Program compile variables
 C_SRC ?= test_mmio_dma.c
@@ -89,6 +91,7 @@ run:
 	@! grep -E "Trouble making server|couldn't open socket|License Issue|Unable to checkout|Failure to obtain|Invalid license|Error loading design" $(TESTNAME).log || (echo "[FAIL] vsim startup failed; see $(TESTNAME).log"; exit 1)
 	cp -rf $(TESTNAME).log sim.log 
 	mv $(TESTNAME).log log/
+	$(MAKE) archive_case_outputs TESTNAME=$(TESTNAME)
 	
 run_cov:
 	mkdir -p log ucdb
@@ -98,6 +101,15 @@ run_cov:
 	cp -rf $(TESTNAME).log sim.log
 	mv $(TESTNAME).log log/
 	mv $(TESTNAME).ucdb ucdb/
+	$(MAKE) archive_case_outputs TESTNAME=$(TESTNAME)
+
+archive_case_outputs:
+	@mkdir -p loopback dmem_dump
+	@if [ -f loopback/tb_rv32_soc_mmio_dma_summary.txt ]; then cp loopback/tb_rv32_soc_mmio_dma_summary.txt loopback/$(TESTNAME)_summary.txt; fi
+	@if [ -f loopback/tb_rv32_soc_mmio_dma_compare.txt ]; then cp loopback/tb_rv32_soc_mmio_dma_compare.txt loopback/$(TESTNAME)_compare.txt; fi
+	@if [ -f dmem_dump/tb_rv32_soc_mmio_dma_src.txt ]; then cp dmem_dump/tb_rv32_soc_mmio_dma_src.txt dmem_dump/$(TESTNAME)_src.txt; fi
+	@if [ -f dmem_dump/tb_rv32_soc_mmio_dma_tx.txt ]; then cp dmem_dump/tb_rv32_soc_mmio_dma_tx.txt dmem_dump/$(TESTNAME)_tx.txt; fi
+	@if [ -f dmem_dump/tb_rv32_soc_mmio_dma_rx.txt ]; then cp dmem_dump/tb_rv32_soc_mmio_dma_rx.txt dmem_dump/$(TESTNAME)_rx.txt; fi
 
 view_cov:
 	vsim -gui -viewcov IP.ucdb &
@@ -166,7 +178,8 @@ uart_load:
 	python3 $(UART_LOADER) --port $(UART_PORT) --input $(UART_INPUT) --baud $(UART_BAUD) --timeout $(UART_TIMEOUT)
 
 vivado_synth:
-	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=synth&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
+	@test -f ../vivado/synth_soc.tcl || (echo "[FAIL] missing ../vivado/synth_soc.tcl"; exit 1)
+	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=synth&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
 
 vivado_synth_full:
 	$(MAKE) vivado_synth VIVADO_PROJECT=rv32_soc_synth_ip VIVADO_BUILD=full VIVADO_TOP=$(VIVADO_RAW_TOP) VIVADO_XDC=
@@ -178,7 +191,8 @@ vivado_synth_rx:
 	$(MAKE) vivado_synth VIVADO_PROJECT=rv32_soc_synth_rx VIVADO_BUILD=rx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
 
 vivado_impl:
-	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=impl&& set VIVADO_REUSE_SYNTH=$(VIVADO_REUSE_SYNTH)&& set VIVADO_REUSE_IMPL=$(VIVADO_REUSE_IMPL)&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
+	@test -f ../vivado/synth_soc.tcl || (echo "[FAIL] missing ../vivado/synth_soc.tcl"; exit 1)
+	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=impl&& set VIVADO_REUSE_SYNTH=$(VIVADO_REUSE_SYNTH)&& set VIVADO_REUSE_IMPL=$(VIVADO_REUSE_IMPL)&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
 
 vivado_impl_tx:
 	$(MAKE) vivado_impl VIVADO_PROJECT=rv32_soc_synth_tx VIVADO_BUILD=tx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
@@ -187,7 +201,8 @@ vivado_impl_rx:
 	$(MAKE) vivado_impl VIVADO_PROJECT=rv32_soc_synth_rx VIVADO_BUILD=rx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
 
 vivado_bit:
-	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=bit&& set VIVADO_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)&& set VIVADO_REUSE_IMPL=$(VIVADO_REUSE_IMPL)&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
+	@test -f ../vivado/synth_soc.tcl || (echo "[FAIL] missing ../vivado/synth_soc.tcl"; exit 1)
+	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=bit&& set VIVADO_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)&& set VIVADO_REUSE_IMPL=$(VIVADO_REUSE_IMPL)&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
 
 vivado_bit_tx:
 	$(MAKE) vivado_bit VIVADO_PROJECT=rv32_soc_synth_tx VIVADO_BUILD=tx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_BIT_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)
@@ -223,28 +238,47 @@ vivado_report:
 
 license:
 	@set -e; \
-	WSL_MAC="$$(ip link show eth0 2>/dev/null | awk '/link\/ether/ {print $$2; exit}')"; \
-	if [ -z "$$WSL_MAC" ]; then \
-		WSL_MAC="$$(ip link 2>/dev/null | awk '/link\/ether/ {print $$2; exit}')"; \
-	fi; \
-	if [ -z "$$WSL_MAC" ]; then \
-		echo "[FAIL] could not detect a WSL MAC address"; \
+	if [ ! -x "$(QUESTA_ROOT)/pubkey_verify" ]; then \
+		echo "[FAIL] missing or non-executable $(QUESTA_ROOT)/pubkey_verify"; \
 		exit 1; \
 	fi; \
-	echo "Using WSL MAC: $$WSL_MAC"; \
-	if cd "$(LICGEN_DIR)" && python3 mgclicgen.py "$$WSL_MAC"; then \
-		echo "[PASS] generated license.dat in $(LICGEN_DIR)"; \
+	if [ -f "$(LICGEN_DIR)/mgclicgen.py" ]; then \
+		WSL_MAC="$$(ip link show eth0 2>/dev/null | awk '/link\/ether/ {print $$2; exit}')"; \
+		if [ -z "$$WSL_MAC" ]; then \
+			WSL_MAC="$$(ip link 2>/dev/null | awk '/link\/ether/ {print $$2; exit}')"; \
+		fi; \
+		if [ -z "$$WSL_MAC" ]; then \
+			echo "[FAIL] could not detect a WSL MAC address"; \
+			exit 1; \
+		fi; \
+		echo "Using WSL MAC: $$WSL_MAC"; \
+		if cd "$(LICGEN_DIR)" && python3 mgclicgen.py "$$WSL_MAC"; then \
+			echo "[PASS] generated license.dat in $(LICGEN_DIR)"; \
+		else \
+			echo "[FAIL] mgclicgen.py failed"; \
+			exit 1; \
+		fi; \
+		if cp "$(LICGEN_DIR)/license.dat" "$(QUESTA_LICENSE)"; then \
+			echo "[PASS] copied license.dat to $(QUESTA_LICENSE)"; \
+		else \
+			echo "[FAIL] could not copy license.dat to $(QUESTA_LICENSE)"; \
+			exit 1; \
+		fi; \
 	else \
-		echo "[FAIL] mgclicgen.py failed"; \
-		exit 1; \
+		echo "[WARN] missing $(LICGEN_DIR)/mgclicgen.py; skip license generation"; \
+		if [ -f "$(QUESTA_LICENSE)" ]; then \
+			echo "[PASS] existing license.dat found: $(QUESTA_LICENSE)"; \
+		else \
+			echo "[FAIL] no generator and no existing license.dat at $(QUESTA_LICENSE)"; \
+			exit 1; \
+		fi; \
 	fi; \
-	if cp "$(LICGEN_DIR)/license.dat" "$(QUESTA_LICENSE)"; then \
-		echo "[PASS] copied license.dat to $(QUESTA_LICENSE)"; \
+	if [ -n "$(SUDO_PASS)" ]; then \
+		SUDO_CMD="printf '%s\n' '$(SUDO_PASS)' | sudo -S ./pubkey_verify -y ."; \
 	else \
-		echo "[FAIL] could not copy license.dat to $(QUESTA_LICENSE)"; \
-		exit 1; \
+		SUDO_CMD="sudo -S ./pubkey_verify -y ."; \
 	fi; \
-	if cd "$(QUESTA_ROOT)" && sudo -S ./pubkey_verify -y .; then \
+	if cd "$(QUESTA_ROOT)" && sh -c "$$SUDO_CMD"; then \
 		echo "[PASS] pubkey_verify completed"; \
 		echo "[PASS] Questa license is ready: $(QUESTA_LICENSE)"; \
 	else \

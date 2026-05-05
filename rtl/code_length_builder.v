@@ -71,9 +71,26 @@ module code_length_builder #(
     reg [NODE_INDEX_WIDTH-1:0]   min2_idx_r;
     reg                          found1_r;
     reg                          found2_r;
+    reg [COUNT_WIDTH-1:0]        min1_weight_r;
+    reg [COUNT_WIDTH-1:0]        min2_weight_r;
+    reg                          min1_is_leaf_r;
+    reg                          min2_is_leaf_r;
+    reg [SYMBOL_WIDTH-1:0]       min1_symbol_r;
+    reg [SYMBOL_WIDTH-1:0]       min2_symbol_r;
+    reg [NODE_INDEX_WIDTH-1:0]   min1_order_r;
+    reg [NODE_INDEX_WIDTH-1:0]   min2_order_r;
+    reg [MAX_SYMBOLS_PER_BLOCK-1:0] min1_mask_r;
+    reg [MAX_SYMBOLS_PER_BLOCK-1:0] min2_mask_r;
     reg [SYMBOL_WIDTH-1:0]       load_symbol_r;
     reg [COUNT_WIDTH-1:0]        load_freq_count_r;
     wire [NODE_INDEX_WIDTH-1:0]  load_node_idx_w;
+
+    wire                         scan_active_w;
+    wire [COUNT_WIDTH-1:0]       scan_weight_w;
+    wire                         scan_is_leaf_w;
+    wire [SYMBOL_WIDTH-1:0]      scan_symbol_w;
+    wire [NODE_INDEX_WIDTH-1:0]  scan_order_w;
+    wire [MAX_SYMBOLS_PER_BLOCK-1:0] scan_mask_w;
 
     integer i;
     localparam [7:0] ASCII_MAX = 8'h7E;
@@ -89,6 +106,13 @@ module code_length_builder #(
     endfunction
 
     assign load_node_idx_w = widen_symbol_index(load_index);
+
+    assign scan_active_w  = node_active[scan_node_idx];
+    assign scan_weight_w  = node_weight[scan_node_idx];
+    assign scan_is_leaf_w = node_is_leaf[scan_node_idx];
+    assign scan_symbol_w  = node_symbol[scan_node_idx];
+    assign scan_order_w   = node_order[scan_node_idx];
+    assign scan_mask_w    = node_mask[scan_node_idx];
 
     function better_node;
         input [COUNT_WIDTH-1:0] aw;
@@ -234,6 +258,16 @@ module code_length_builder #(
             min2_idx_r      <= {NODE_INDEX_WIDTH{1'b0}};
             found1_r        <= 1'b0;
             found2_r        <= 1'b0;
+            min1_weight_r   <= {COUNT_WIDTH{1'b0}};
+            min2_weight_r   <= {COUNT_WIDTH{1'b0}};
+            min1_is_leaf_r  <= 1'b0;
+            min2_is_leaf_r  <= 1'b0;
+            min1_symbol_r   <= {SYMBOL_WIDTH{1'b0}};
+            min2_symbol_r   <= {SYMBOL_WIDTH{1'b0}};
+            min1_order_r    <= {NODE_INDEX_WIDTH{1'b0}};
+            min2_order_r    <= {NODE_INDEX_WIDTH{1'b0}};
+            min1_mask_r     <= {MAX_SYMBOLS_PER_BLOCK{1'b0}};
+            min2_mask_r     <= {MAX_SYMBOLS_PER_BLOCK{1'b0}};
             load_symbol_r   <= {SYMBOL_WIDTH{1'b0}};
             load_freq_count_r <= {COUNT_WIDTH{1'b0}};
 
@@ -274,6 +308,16 @@ module code_length_builder #(
                     min2_idx_r      <= {NODE_INDEX_WIDTH{1'b0}};
                     found1_r        <= 1'b0;
                     found2_r        <= 1'b0;
+                    min1_weight_r   <= {COUNT_WIDTH{1'b0}};
+                    min2_weight_r   <= {COUNT_WIDTH{1'b0}};
+                    min1_is_leaf_r  <= 1'b0;
+                    min2_is_leaf_r  <= 1'b0;
+                    min1_symbol_r   <= {SYMBOL_WIDTH{1'b0}};
+                    min2_symbol_r   <= {SYMBOL_WIDTH{1'b0}};
+                    min1_order_r    <= {NODE_INDEX_WIDTH{1'b0}};
+                    min2_order_r    <= {NODE_INDEX_WIDTH{1'b0}};
+                    min1_mask_r     <= {MAX_SYMBOLS_PER_BLOCK{1'b0}};
+                    min2_mask_r     <= {MAX_SYMBOLS_PER_BLOCK{1'b0}};
                     load_symbol_r   <= {SYMBOL_WIDTH{1'b0}};
                     load_freq_count_r <= {COUNT_WIDTH{1'b0}};
 
@@ -340,44 +384,79 @@ module code_length_builder #(
                     min2_idx_r    <= {NODE_INDEX_WIDTH{1'b0}};
                     found1_r      <= 1'b0;
                     found2_r      <= 1'b0;
+                    min1_weight_r <= {COUNT_WIDTH{1'b0}};
+                    min2_weight_r <= {COUNT_WIDTH{1'b0}};
+                    min1_is_leaf_r <= 1'b0;
+                    min2_is_leaf_r <= 1'b0;
+                    min1_symbol_r <= {SYMBOL_WIDTH{1'b0}};
+                    min2_symbol_r <= {SYMBOL_WIDTH{1'b0}};
+                    min1_order_r  <= {NODE_INDEX_WIDTH{1'b0}};
+                    min2_order_r  <= {NODE_INDEX_WIDTH{1'b0}};
+                    min1_mask_r   <= {MAX_SYMBOLS_PER_BLOCK{1'b0}};
+                    min2_mask_r   <= {MAX_SYMBOLS_PER_BLOCK{1'b0}};
                 end
 
                 ST_FIND_SCAN: begin
-                    if (node_active[scan_node_idx]) begin
+                    if (scan_active_w) begin
                         if (!found1_r) begin
-                            found1_r   <= 1'b1;
-                            min1_idx_r <= scan_node_idx;
+                            found1_r      <= 1'b1;
+                            min1_idx_r    <= scan_node_idx;
+                            min1_weight_r <= scan_weight_w;
+                            min1_is_leaf_r <= scan_is_leaf_w;
+                            min1_symbol_r <= scan_symbol_w;
+                            min1_order_r  <= scan_order_w;
+                            min1_mask_r   <= scan_mask_w;
                         end
                         else if (better_node(
-                                    node_weight[scan_node_idx],
-                                    node_is_leaf[scan_node_idx],
-                                    node_symbol[scan_node_idx],
-                                    node_order[scan_node_idx],
-                                    node_weight[min1_idx_r],
-                                    node_is_leaf[min1_idx_r],
-                                    node_symbol[min1_idx_r],
-                                    node_order[min1_idx_r]
+                                    scan_weight_w,
+                                    scan_is_leaf_w,
+                                    scan_symbol_w,
+                                    scan_order_w,
+                                    min1_weight_r,
+                                    min1_is_leaf_r,
+                                    min1_symbol_r,
+                                    min1_order_r
                                  )) begin
-                            found2_r   <= found1_r;
-                            min2_idx_r <= min1_idx_r;
-                            found1_r   <= 1'b1;
-                            min1_idx_r <= scan_node_idx;
+                            found2_r      <= found1_r;
+                            min2_idx_r    <= min1_idx_r;
+                            min2_weight_r <= min1_weight_r;
+                            min2_is_leaf_r <= min1_is_leaf_r;
+                            min2_symbol_r <= min1_symbol_r;
+                            min2_order_r  <= min1_order_r;
+                            min2_mask_r   <= min1_mask_r;
+                            found1_r      <= 1'b1;
+                            min1_idx_r    <= scan_node_idx;
+                            min1_weight_r <= scan_weight_w;
+                            min1_is_leaf_r <= scan_is_leaf_w;
+                            min1_symbol_r <= scan_symbol_w;
+                            min1_order_r  <= scan_order_w;
+                            min1_mask_r   <= scan_mask_w;
                         end
                         else if (!found2_r) begin
-                            found2_r   <= 1'b1;
-                            min2_idx_r <= scan_node_idx;
+                            found2_r      <= 1'b1;
+                            min2_idx_r    <= scan_node_idx;
+                            min2_weight_r <= scan_weight_w;
+                            min2_is_leaf_r <= scan_is_leaf_w;
+                            min2_symbol_r <= scan_symbol_w;
+                            min2_order_r  <= scan_order_w;
+                            min2_mask_r   <= scan_mask_w;
                         end
                         else if (better_node(
-                                    node_weight[scan_node_idx],
-                                    node_is_leaf[scan_node_idx],
-                                    node_symbol[scan_node_idx],
-                                    node_order[scan_node_idx],
-                                    node_weight[min2_idx_r],
-                                    node_is_leaf[min2_idx_r],
-                                    node_symbol[min2_idx_r],
-                                    node_order[min2_idx_r]
+                                    scan_weight_w,
+                                    scan_is_leaf_w,
+                                    scan_symbol_w,
+                                    scan_order_w,
+                                    min2_weight_r,
+                                    min2_is_leaf_r,
+                                    min2_symbol_r,
+                                    min2_order_r
                                  )) begin
-                            min2_idx_r <= scan_node_idx;
+                            min2_idx_r    <= scan_node_idx;
+                            min2_weight_r <= scan_weight_w;
+                            min2_is_leaf_r <= scan_is_leaf_w;
+                            min2_symbol_r <= scan_symbol_w;
+                            min2_order_r  <= scan_order_w;
+                            min2_mask_r   <= scan_mask_w;
                         end
                     end
 
@@ -393,7 +472,7 @@ module code_length_builder #(
                         end
                         else begin
                             for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1) begin
-                                if (node_mask[min1_idx_r][i] || node_mask[min2_idx_r][i])
+                                if (min1_mask_r[i] || min2_mask_r[i])
                                     leaf_code_len[i] <= leaf_code_len[i] +
                                                         {{(CODE_LEN_WIDTH-1){1'b0}},1'b1};
                             end
@@ -401,8 +480,8 @@ module code_length_builder #(
                             node_active[min1_idx_r] <= 1'b0;
                             node_active[min2_idx_r] <= 1'b0;
 
-                            node_weight[next_free_index]  <= node_weight[min1_idx_r] + node_weight[min2_idx_r];
-                            node_mask[next_free_index]    <= node_mask[min1_idx_r] | node_mask[min2_idx_r];
+                            node_weight[next_free_index]  <= min1_weight_r + min2_weight_r;
+                            node_mask[next_free_index]    <= min1_mask_r | min2_mask_r;
                             node_active[next_free_index]  <= 1'b1;
                             node_is_leaf[next_free_index] <= 1'b0;
                             node_symbol[next_free_index]  <= {SYMBOL_WIDTH{1'b0}};

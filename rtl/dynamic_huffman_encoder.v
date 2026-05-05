@@ -72,6 +72,7 @@ module dynamic_huffman_encoder #(
     wire        ctrl_done_w;
     wire        ctrl_error_flag_w;
     wire [3:0]  ctrl_state_w;
+    wire        whole_file_mode_w;
 
     // ------------------------------------------------------------
     // input_collect_unit wires
@@ -145,6 +146,12 @@ module dynamic_huffman_encoder #(
     // ------------------------------------------------------------
     wire unused_debug_w;
 
+`ifdef SYNTHESIS
+    assign whole_file_mode_w = 1'b1;
+`else
+    assign whole_file_mode_w = whole_file_enable;
+`endif
+
     assign unused_debug_w =
         ^normalized_byte_w ^
         ^raw_total_bits_w ^
@@ -175,7 +182,7 @@ module dynamic_huffman_encoder #(
     // symbol_list read consumer:
     //   emit_backend only during EMIT phase
     always @(*) begin
-        if ((ctrl_start_emit_w || emit_busy_w) && !whole_file_enable)
+        if ((ctrl_start_emit_w || emit_busy_w) && !whole_file_mode_w)
             hb_symbol_read_addr_mux_w = emit_symbol_read_addr_w;
         else
             hb_symbol_read_addr_mux_w = {SYMBOL_COUNT_WIDTH{1'b0}};
@@ -187,7 +194,7 @@ module dynamic_huffman_encoder #(
     always @(*) begin
         if (ctrl_start_mode_w || mode_busy_w)
             hb_code_len_read_index_mux_w = mdl_code_len_read_index_w;
-        else if ((ctrl_start_emit_w || emit_busy_w) && !whole_file_enable)
+        else if ((ctrl_start_emit_w || emit_busy_w) && !whole_file_mode_w)
             hb_code_len_read_index_mux_w = emit_code_len_read_index_w;
         else
             hb_code_len_read_index_mux_w = {SYMBOL_INDEX_WIDTH{1'b0}};
@@ -196,32 +203,32 @@ module dynamic_huffman_encoder #(
     // code_table read consumer:
     //   emit_backend only during EMIT phase
     always @(*) begin
-        if ((ctrl_start_emit_w || emit_busy_w) && !whole_file_enable)
+        if ((ctrl_start_emit_w || emit_busy_w) && !whole_file_mode_w)
             hb_code_read_index_mux_w = emit_code_read_index_w;
         else
             hb_code_read_index_mux_w = {SYMBOL_INDEX_WIDTH{1'b0}};
     end
 
     assign external_symbol_read_addr =
-        (whole_file_enable && (ctrl_start_emit_w || emit_busy_w)) ?
+        (whole_file_mode_w && (ctrl_start_emit_w || emit_busy_w)) ?
         emit_symbol_read_addr_w : {SYMBOL_COUNT_WIDTH{1'b0}};
     assign external_code_len_read_index =
-        (whole_file_enable && (ctrl_start_emit_w || emit_busy_w)) ?
+        (whole_file_mode_w && (ctrl_start_emit_w || emit_busy_w)) ?
         emit_code_len_read_index_w : {SYMBOL_INDEX_WIDTH{1'b0}};
     assign external_code_read_index =
-        (whole_file_enable && (ctrl_start_emit_w || emit_busy_w)) ?
+        (whole_file_mode_w && (ctrl_start_emit_w || emit_busy_w)) ?
         emit_code_read_index_w : {SYMBOL_INDEX_WIDTH{1'b0}};
 
     assign emit_symbol_count_w =
-        whole_file_enable ? (whole_file_emit_table ? external_symbol_count :
+        whole_file_mode_w ? (whole_file_emit_table ? external_symbol_count :
                                                     {SYMBOL_COUNT_WIDTH{1'b0}}) :
                             hb_symbol_count_w;
     assign emit_symbol_read_data_w =
-        whole_file_enable ? external_symbol_read_data : hb_symbol_read_data_w;
+        whole_file_mode_w ? external_symbol_read_data : hb_symbol_read_data_w;
     assign emit_code_len_read_data_w =
-        whole_file_enable ? external_code_len_read_data : hb_code_len_read_data_w;
+        whole_file_mode_w ? external_code_len_read_data : hb_code_len_read_data_w;
     assign emit_code_read_data_w =
-        whole_file_enable ? external_code_read_data : hb_code_read_data_w;
+        whole_file_mode_w ? external_code_read_data : hb_code_read_data_w;
 
     // ------------------------------------------------------------
     // input_collect_unit
@@ -268,6 +275,16 @@ module dynamic_huffman_encoder #(
     // ------------------------------------------------------------
     // huffman_builder
     // ------------------------------------------------------------
+`ifdef SYNTHESIS
+    assign hb_freq_read_index_w      = {SYMBOL_INDEX_WIDTH{1'b0}};
+    assign hb_symbol_read_data_w     = {SYMBOL_WIDTH{1'b0}};
+    assign hb_symbol_count_w         = {SYMBOL_COUNT_WIDTH{1'b0}};
+    assign hb_code_len_read_data_w   = {CODE_LEN_WIDTH{1'b0}};
+    assign hb_code_read_data_w       = {CODE_WIDTH{1'b0}};
+    assign build_busy_w              = 1'b0;
+    assign build_done_w              = 1'b0;
+    assign build_error_w             = 1'b0;
+`else
     huffman_builder #(
         .ALPHABET_SIZE         (HUFFMAN_ALPHABET_SIZE),
         .SYMBOL_WIDTH          (SYMBOL_WIDTH),
@@ -303,10 +320,24 @@ module dynamic_huffman_encoder #(
         .code_read_index     (hb_code_read_index_mux_w),
         .code_read_data      (hb_code_read_data_w)
     );
+`endif
 
     // ------------------------------------------------------------
     // mode_decision_logic
     // ------------------------------------------------------------
+`ifdef SYNTHESIS
+    assign mdl_buffer_read_addr_w      = {BUFFER_ADDR_WIDTH{1'b0}};
+    assign mdl_code_len_read_index_w   = {SYMBOL_INDEX_WIDTH{1'b0}};
+    assign mode_busy_w                 = 1'b0;
+    assign mode_done_w                 = 1'b0;
+    assign mode_error_w                = 1'b0;
+    assign mode_selected_w             = 2'b10;
+    assign raw_total_bits_w            = {TOTAL_BITS_WIDTH{1'b0}};
+    assign compressed_header_bits_w    = {TOTAL_BITS_WIDTH{1'b0}};
+    assign compressed_payload_bits_w   = {TOTAL_BITS_WIDTH{1'b0}};
+    assign compressed_total_bits_w     = {TOTAL_BITS_WIDTH{1'b0}};
+    assign one_symbol_total_bits_w     = {TOTAL_BITS_WIDTH{1'b0}};
+`else
     mode_decision_logic #(
         .BLOCK_SIZE_WIDTH   (BLOCK_SIZE_WIDTH),
         .BUFFER_ADDR_WIDTH  (BUFFER_ADDR_WIDTH),
@@ -342,6 +373,7 @@ module dynamic_huffman_encoder #(
         .compressed_total_bits  (compressed_total_bits_w),
         .one_symbol_total_bits  (one_symbol_total_bits_w)
     );
+`endif
 
     // ------------------------------------------------------------
     // emit_backend
@@ -402,7 +434,7 @@ module dynamic_huffman_encoder #(
         .rst_n                  (rst_n),
 
         .start_block            (start_block),
-        .whole_file_enable      (whole_file_enable),
+        .whole_file_enable      (whole_file_mode_w),
         .whole_file_table_valid (whole_file_table_valid),
 
         .collect_done           (collect_done_w),
