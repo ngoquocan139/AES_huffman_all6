@@ -1,0 +1,128 @@
+name: Local Self-Hosted Flow
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_sim:
+        description: Run Questa simulation flow on the local self-hosted runner
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      run_vivado:
+        description: Run Vivado TX/RX split flow on the local self-hosted runner
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      c_src:
+        description: C source under testcase/
+        required: true
+        default: test_mmio_dma.c
+      testname:
+        description: Verilog testcase wrapper under testcase/
+        required: true
+        default: dma_compress_aes_input1
+      run_args:
+        description: Plusargs passed to make all
+        required: true
+        default: "+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
+
+jobs:
+  local-sim:
+    name: Local Questa Simulation
+    if: ${{ inputs.run_sim == 'true' }}
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - wsl
+      - questa
+
+    env:
+      QUESTA_ROOT: /mnt/h/Academic/senior_project/DATN/work/luc/questasim
+      QUESTA_BIN: /mnt/h/Academic/senior_project/DATN/work/luc/questasim/linux_x86_64
+      QUESTA_LICENSE: /mnt/h/Academic/senior_project/DATN/work/luc/questasim/license.dat
+      MGLS_LICENSE_FILE: /mnt/h/Academic/senior_project/DATN/work/luc/questasim/license.dat
+      LM_LICENSE_FILE: /mnt/h/Academic/senior_project/DATN/work/luc/questasim/license.dat
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add local tool paths
+        run: |
+          echo "/home/htk19/.local/bin" >> "$GITHUB_PATH"
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+          echo "$QUESTA_BIN" >> "$GITHUB_PATH"
+
+      - name: Show local tool versions
+        working-directory: sim
+        run: |
+          riscv64-unknown-elf-gcc --version | head -1
+          verilator --version
+          vsim -version
+
+      - name: Compile RV32I program
+        working-directory: sim
+        run: make compile C_SRC="${{ inputs.c_src }}"
+
+      - name: Run Verilator DRC
+        working-directory: sim
+        run: make drc
+
+      - name: Run Questa simulation
+        working-directory: sim
+        run: make all TESTNAME="${{ inputs.testname }}" RUN_ARGS="${{ inputs.run_args }}"
+
+      - name: Upload simulation outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-sim-${{ inputs.testname }}
+          path: |
+            sim/sim.log
+            sim/log/
+            sim/loopback/
+            sim/dmem_dump/
+          if-no-files-found: ignore
+
+  local-vivado:
+    name: Local Vivado Split Flow
+    if: ${{ inputs.run_vivado == 'true' }}
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - wsl
+      - vivado
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add local tool paths
+        run: |
+          echo "/home/htk19/.local/bin" >> "$GITHUB_PATH"
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+
+      - name: Run TX/RX Vivado split flow
+        working-directory: sim
+        run: make vivado_flow_split VIVADO_CLOCK_MHZ=50
+
+      - name: Upload Vivado reports and bitstreams
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-vivado-split
+          path: |
+            sim/vivado_reports/
+            sim/vivado_bitstreams/
+            vivado/build/*/*.runs/*/*.rpt
+            vivado/build/*/*.runs/*/*.bit
+          if-no-files-found: ignore
+
