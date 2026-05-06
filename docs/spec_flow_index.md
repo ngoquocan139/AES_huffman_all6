@@ -100,21 +100,24 @@ Current baseline:
 24. `23` [soc_usage_and_fpga_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_usage_and_fpga_guide.md)
     - practical usage guide: choose mode, choose C file, choose input txt, run simulation, and prepare FPGA bring-up.
 
-25. `24` [fpga_uart_dmem_loader_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/fpga_uart_dmem_loader_spec.md)
+25. `24` [github_sync_and_self_hosted_runner_usage_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/github_sync_and_self_hosted_runner_usage_spec.md)
+    - Git/GitHub sync flow, GitHub-hosted DRC CI, and local self-hosted runner usage for Questa/Vivado.
+
+26. `25` [fpga_uart_dmem_loader_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/fpga_uart_dmem_loader_spec.md)
     - runtime UART input loader for FPGA demo top, protocol, wiring, and loader reset flow.
 
-26. `25` [coverage_test_plan_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/coverage_test_plan_spec.md)
+27. `26` [coverage_test_plan_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/coverage_test_plan_spec.md)
     - `pat.list`, `run.csh`, `report.csh`, UCDB merge flow, and 100% coverage closure policy.
-27. `26` [coverage_regression_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/coverage_regression_report.md)
+28. `27` [coverage_regression_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/coverage_regression_report.md)
     - Current coverage regression result, active testcase list, compression ratios, and remaining closure gaps.
 
-28. `27` [soc_4_5_end_to_end_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_4_5_end_to_end_report.md)
+29. `28` [soc_4_5_end_to_end_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_4_5_end_to_end_report.md)
     - Focused report for the SoC 4.5 end-to-end cases, including logs, data flow, throughput, compression ratio, and dump paths.
 
-29. `28` [report_presentation_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/report_presentation_guide.md)
+30. `29` [report_presentation_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/report_presentation_guide.md)
     - Short guide for what to present to the advisor: architecture, key results, main testcase group, coverage, FPGA implementation, and topics to study.
 
-30. `29` [29_defense_qa_code_focus_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/29_defense_qa_code_focus_spec.md)
+31. `30` [29_defense_qa_code_focus_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/29_defense_qa_code_focus_spec.md)
     - Oral defense backup: what code to know best, detailed diagrams including register/mux view, and short answers for likely questions.
 
 ## 3. Removed Old Specs
@@ -175,4 +178,10 @@ For day-to-day commands:
 
 ```text
 23 -> make compile C_SRC=... -> make drc -> make all TESTNAME=... RUN_ARGS=...
+```
+
+For GitHub/self-hosted runner:
+
+```text
+24 -> git push -> Actions -> Local Self-Hosted Flow
 ```
