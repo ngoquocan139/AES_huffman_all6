@@ -1,0 +1,29 @@
+name: RTL CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  verilator-drc:
+    name: Verilator DRC
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Verilator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends verilator make
+
+      - name: Run RTL lint/DRC
+        working-directory: sim
+        run: make drc
+
