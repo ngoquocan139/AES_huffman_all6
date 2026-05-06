@@ -10,7 +10,7 @@ Coverage Report Summary Data by instance
     Conditions                       5         3         2    60.00%
     Expressions                      6         5         1    83.33%
     Statements                      33        32         1    96.96%
-    Toggles                        980       602       378    61.42%
+    Toggles                        980       616       364    62.85%
 
 =================================================================================
 === Instance: /test_bench/dut/u_cpu/u_id_stage
@@ -46,7 +46,7 @@ Coverage Report Summary Data by instance
     Conditions                      14        12         2    85.71%
     Expressions                      4         4         0   100.00%
     Statements                     139       134         5    96.40%
-    Toggles                        954       803       151    84.17%
+    Toggles                        954       898        56    94.12%
 
 =================================================================================
 === Instance: /test_bench/dut/u_cpu/u_forwarding
@@ -55,10 +55,10 @@ Coverage Report Summary Data by instance
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
     Branches                        48        48         0   100.00%
-    Conditions                      36        35         1    97.22%
+    Conditions                      36        36         0   100.00%
     Expressions                     12        12         0   100.00%
     Statements                       8         8         0   100.00%
-    Toggles                        716       696        20    97.20%
+    Toggles                        716       716         0   100.00%
 
 =================================================================================
 === Instance: /test_bench/dut/u_cpu
@@ -70,7 +70,7 @@ Coverage Report Summary Data by instance
     Conditions                       9         9         0   100.00%
     Expressions                     20        20         0   100.00%
     Statements                      11        11         0   100.00%
-    Toggles                       2092      1919       173    91.73%
+    Toggles                       2092      1964       128    93.88%
 
 =================================================================================
 === Instance: /test_bench/dut/u_reg_file
@@ -111,7 +111,7 @@ Coverage Report Summary Data by instance
     ----------------              ----      ----    ------  --------
     Expressions                      4         3         1    75.00%
     Statements                       3         3         0   100.00%
-    Toggles                        460       422        38    91.73%
+    Toggles                        460       452         8    98.26%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_apb_huffman_tx_if
@@ -121,7 +121,7 @@ Coverage Report Summary Data by instance
     ----------------              ----      ----    ------  --------
     Branches                        95        94         1    98.94%
     Conditions                      24        18         6    75.00%
-    Expressions                     51        41        10    80.39%
+    Expressions                     51        42         9    82.35%
     Statements                     217       217         0   100.00%
     Toggles                        636       509       127    80.03%
 
@@ -135,7 +135,7 @@ Coverage Report Summary Data by instance
     Conditions                       4         2         2    50.00%
     Expressions                      3         2         1    66.66%
     Statements                      27        24         3    88.88%
-    Toggles                        196       114        82    58.16%
+    Toggles                        196       124        72    63.26%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_symbol_list_builder
@@ -143,13 +143,13 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                        36        29         7    80.55%
+    Branches                        36        30         6    83.33%
     Conditions                      10         8         2    80.00%
     Expressions                      9         5         4    55.55%
     FSM States                       4         4         0   100.00%
-    FSM Transitions                  7         4         3    57.14%
-    Statements                      49        40         9    81.63%
-    Toggles                        218       131        87    60.09%
+    FSM Transitions                  7         6         1    85.71%
+    Statements                      49        41         8    83.67%
+    Toggles                        218       141        77    64.67%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_code_length_builder
@@ -161,9 +161,9 @@ Coverage Report Summary Data by instance
     Conditions                      34        28         6    82.35%
     Expressions                     16        12         4    75.00%
     FSM States                      10        10         0   100.00%
-    FSM Transitions                 25        13        12    52.00%
-    Statements                     157       155         2    98.72%
-    Toggles                        378       285        93    75.39%
+    FSM Transitions                 25        15        10    60.00%
+    Statements                     218       216         2    99.08%
+    Toggles                        950       833       117    87.68%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_canonical_code_generator
@@ -171,13 +171,13 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                        61        54         7    88.52%
-    Conditions                      26        21         5    80.76%
+    Branches                        61        56         5    91.80%
+    Conditions                      26        22         4    84.61%
     Expressions                     10         7         3    70.00%
     FSM States                       6         6         0   100.00%
-    FSM Transitions                 13         7         6    53.84%
-    Statements                     102        95         7    93.13%
-    Toggles                        418       258       160    61.72%
+    FSM Transitions                 13         8         5    61.53%
+    Statements                     102        96         6    94.11%
+    Toggles                        418       300       118    71.77%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder
@@ -186,12 +186,12 @@ Coverage Report Summary Data by instance
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
     Branches                        35        33         2    94.28%
-    Conditions                      11         9         2    81.81%
+    Conditions                      11        10         1    90.90%
     Expressions                     14        14         0   100.00%
     FSM States                       8         8         0   100.00%
     FSM Transitions                 15         7         8    46.66%
     Statements                      36        34         2    94.44%
-    Toggles                        506       381       125    75.29%
+    Toggles                        506       473        33    93.47%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit/u_block_buffer
@@ -203,7 +203,7 @@ Coverage Report Summary Data by instance
     Conditions                       2         2         0   100.00%
     Expressions                      2         2         0   100.00%
     Statements                      20        20         0   100.00%
-    Toggles                        144        76        68    52.77%
+    Toggles                        144        78        66    54.16%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_input_collect_unit/u_frequency_counter
@@ -227,9 +227,9 @@ Coverage Report Summary Data by instance
     Conditions                       8         8         0   100.00%
     Expressions                      9         9         0   100.00%
     FSM States                       4         4         0   100.00%
-    FSM Transitions                  8         5         3    62.50%
+    FSM Transitions                  8         6         2    75.00%
     Statements                      40        34         6    85.00%
-    Toggles                        178       174         4    97.75%
+    Toggles                        178       176         2    98.87%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_symbol_list_builder
@@ -241,9 +241,9 @@ Coverage Report Summary Data by instance
     Conditions                      10         7         3    70.00%
     Expressions                      9         6         3    66.66%
     FSM States                       4         4         0   100.00%
-    FSM Transitions                  7         5         2    71.42%
+    FSM Transitions                  7         6         1    85.71%
     Statements                      49        43         6    87.75%
-    Toggles                        198       114        84    57.57%
+    Toggles                        198       116        82    58.58%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_code_length_builder
@@ -255,9 +255,9 @@ Coverage Report Summary Data by instance
     Conditions                      34        23        11    67.64%
     Expressions                     16        10         6    62.50%
     FSM States                      10        10         0   100.00%
-    FSM Transitions                 25        14        11    56.00%
-    Statements                     157       149         8    94.90%
-    Toggles                        326       178       148    54.60%
+    FSM Transitions                 25        15        10    60.00%
+    Statements                     218       205        13    94.03%
+    Toggles                        646       363       283    56.19%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder/u_canonical_code_generator
@@ -269,9 +269,9 @@ Coverage Report Summary Data by instance
     Conditions                      26        19         7    73.07%
     Expressions                     10         7         3    70.00%
     FSM States                       6         6         0   100.00%
-    FSM Transitions                 13         8         5    61.53%
+    FSM Transitions                 13         9         4    69.23%
     Statements                     105        97         8    92.38%
-    Toggles                        410       142       268    34.63%
+    Toggles                        410       214       196    52.19%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_huffman_builder
@@ -280,12 +280,12 @@ Coverage Report Summary Data by instance
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
     Branches                        35        34         1    97.14%
-    Conditions                      11         9         2    81.81%
+    Conditions                      11        10         1    90.90%
     Expressions                     14        14         0   100.00%
     FSM States                       8         8         0   100.00%
-    FSM Transitions                 15         8         7    53.33%
+    FSM Transitions                 15         9         6    60.00%
     Statements                      36        35         1    97.22%
-    Toggles                        466       278       188    59.65%
+    Toggles                        466       416        50    89.27%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_mode_decision_logic
@@ -295,11 +295,11 @@ Coverage Report Summary Data by instance
     ----------------              ----      ----    ------  --------
     Branches                        74        67         7    90.54%
     Conditions                      36        30         6    83.33%
-    Expressions                     11        10         1    90.90%
+    Expressions                     11        11         0   100.00%
     FSM States                       5         5         0   100.00%
     FSM Transitions                 10         7         3    70.00%
     Statements                      93        86         7    92.47%
-    Toggles                        534       305       229    57.11%
+    Toggles                        534       320       214    59.92%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_header_formatter
@@ -307,13 +307,13 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                        67        62         5    92.53%
-    Conditions                      26        19         7    73.07%
-    Expressions                     19        19         0   100.00%
-    FSM States                      10        10         0   100.00%
-    FSM Transitions                 23        15         8    65.21%
-    Statements                     143       138         5    96.50%
-    Toggles                        636       422       214    66.35%
+    Branches                        79        66        13    83.54%
+    Conditions                      24        17         7    70.83%
+    Expressions                     24        24         0   100.00%
+    FSM States                      11        11         0   100.00%
+    FSM Transitions                 26        17         9    65.38%
+    Statements                     167       152        15    91.01%
+    Toggles                        518       504        14    97.29%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_payload_emitter
@@ -322,12 +322,12 @@ Coverage Report Summary Data by instance
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
     Branches                        52        46         6    88.46%
-    Conditions                      25        13        12    52.00%
-    Expressions                     17        16         1    94.11%
+    Conditions                      25        16         9    64.00%
+    Expressions                     17        17         0   100.00%
     FSM States                       7         7         0   100.00%
-    FSM Transitions                 18        11         7    61.11%
+    FSM Transitions                 18        12         6    66.66%
     Statements                     108       102         6    94.44%
-    Toggles                        390       260       130    66.66%
+    Toggles                        390       302        88    77.43%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_emit_backend/u_stream_output_interface
@@ -337,9 +337,9 @@ Coverage Report Summary Data by instance
     ----------------              ----      ----    ------  --------
     Branches                        32        29         3    90.62%
     Conditions                      17        11         6    64.70%
-    Expressions                     10         8         2    80.00%
+    Expressions                     10         7         3    70.00%
     FSM States                       4         4         0   100.00%
-    FSM Transitions                  8         5         3    62.50%
+    FSM Transitions                  8         6         2    75.00%
     Statements                      43        40         3    93.02%
     Toggles                        276       230        46    83.33%
 
@@ -355,7 +355,7 @@ Coverage Report Summary Data by instance
     FSM States                       5         5         0   100.00%
     FSM Transitions                  8         6         2    75.00%
     Statements                      34        32         2    94.11%
-    Toggles                        648       556        92    85.80%
+    Toggles                        648       600        48    92.59%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_dynamic_huffman_encoder/u_control_fsm
@@ -365,7 +365,7 @@ Coverage Report Summary Data by instance
     ----------------              ----      ----    ------  --------
     Branches                        52        52         0   100.00%
     Conditions                      23        22         1    95.65%
-    Expressions                      6         5         1    83.33%
+    Expressions                      6         6         0   100.00%
     FSM States                      11        11         0   100.00%
     FSM Transitions                 24        15         9    62.50%
     Statements                      58        58         0   100.00%
@@ -381,7 +381,7 @@ Coverage Report Summary Data by instance
     Conditions                      24        24         0   100.00%
     Expressions                      6         6         0   100.00%
     Statements                      19        19         0   100.00%
-    Toggles                        838       621       217    74.10%
+    Toggles                        840       774        66    92.14%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_bit_packer_128
@@ -390,10 +390,10 @@ Coverage Report Summary Data by instance
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
     Branches                        29        29         0   100.00%
-    Conditions                      17        17         0   100.00%
+    Conditions                      17        16         1    94.11%
     Expressions                      3         1         2    33.33%
     Statements                     113       113         0   100.00%
-    Toggles                       2174      1798       376    82.70%
+    Toggles                       2174      1800       374    82.79%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top/u_aes_input_wrapper
@@ -404,7 +404,7 @@ Coverage Report Summary Data by instance
     Branches                         4         4         0   100.00%
     Expressions                      2         2         0   100.00%
     Statements                       7         7         0   100.00%
-    Toggles                       1080       524       556    48.51%
+    Toggles                       1080      1080         0   100.00%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_huffman_aes_tx_top
@@ -414,9 +414,9 @@ Coverage Report Summary Data by instance
     ----------------              ----      ----    ------  --------
     Branches                        38        36         2    94.73%
     Conditions                      14        10         4    71.42%
-    Expressions                     55        38        17    69.09%
+    Expressions                     55        39        16    70.90%
     Statements                      78        76         2    97.43%
-    Toggles                       2000      1356       644    67.80%
+    Toggles                       2000      1962        38    98.10%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_AES_top_tx/u_aes128_cipher_core
@@ -428,7 +428,7 @@ Coverage Report Summary Data by instance
     Conditions                       4         4         0   100.00%
     Expressions                    147       147         0   100.00%
     Statements                     170       159        11    93.52%
-    Toggles                       3100      2844       256    91.74%
+    Toggles                       3100      3100         0   100.00%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_AES_top_tx/u_aes128_key_expansion
@@ -436,11 +436,11 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                        38        33         5    86.84%
+    Branches                        38        34         4    89.47%
     Conditions                       3         3         0   100.00%
     Expressions                    146       146         0   100.00%
-    Statements                     113       106         7    93.80%
-    Toggles                       1554      1250       304    80.43%
+    Statements                     113       107         6    94.69%
+    Toggles                       1554      1506        48    96.91%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top/u_AES_top_tx
@@ -450,7 +450,7 @@ Coverage Report Summary Data by instance
     ----------------              ----      ----    ------  --------
     Branches                         2         2         0   100.00%
     Statements                       2         2         0   100.00%
-    Toggles                       1554      1298       256    83.52%
+    Toggles                       1554      1554         0   100.00%
 
 =================================================================================
 === Instance: /test_bench/dut/u_tx_top
@@ -458,11 +458,11 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                        43        41         2    95.34%
-    Conditions                       6         5         1    83.33%
-    Expressions                     28        28         0   100.00%
-    Statements                      62        60         2    96.77%
-    Toggles                       4488      3335      1153    74.30%
+    Branches                        43        43         0   100.00%
+    Conditions                       6         6         0   100.00%
+    Expressions                     28        26         2    92.85%
+    Statements                      62        62         0   100.00%
+    Toggles                       4488      4120       368    91.80%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top/u_aes_input_wrapper_rx
@@ -473,7 +473,7 @@ Coverage Report Summary Data by instance
     Branches                         4         4         0   100.00%
     Expressions                      2         2         0   100.00%
     Statements                       7         7         0   100.00%
-    Toggles                       1336       524       812    39.22%
+    Toggles                       1336      1336         0   100.00%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top/u_AES_top_rx/u_aes128_cipher_core_inv
@@ -485,7 +485,7 @@ Coverage Report Summary Data by instance
     Conditions                       4         4         0   100.00%
     Expressions                    148       108        40    72.97%
     Statements                     161       141        20    87.57%
-    Toggles                       3358      3102       256    92.37%
+    Toggles                       3358      3358         0   100.00%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top/u_AES_top_rx/u_aes128_key_expansion_inv
@@ -493,11 +493,11 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                        43        33        10    76.74%
+    Branches                        43        34         9    79.06%
     Conditions                       3         3         0   100.00%
     Expressions                    146       146         0   100.00%
-    Statements                     123       105        18    85.36%
-    Toggles                       1554      1250       304    80.43%
+    Statements                     123       106        17    86.17%
+    Toggles                       1554      1506        48    96.91%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top/u_AES_top_rx
@@ -505,7 +505,7 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Toggles                       1042       786       256    75.43%
+    Toggles                       1042      1042         0   100.00%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top/u_bit_depacker_128
@@ -525,13 +525,13 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                       119       110         9    92.43%
-    Conditions                      94        69        25    73.40%
-    Expressions                     18        14         4    77.77%
+    Branches                       119       112         7    94.11%
+    Conditions                      94        72        22    76.59%
+    Expressions                     18        16         2    88.88%
     FSM States                       7         7         0   100.00%
-    FSM Transitions                 42        19        23    45.23%
+    FSM Transitions                 42        20        22    47.61%
     Statements                     206       203         3    98.54%
-    Toggles                       1262      1126       136    89.22%
+    Toggles                       1262      1132       130    89.69%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top/u_huffman_block_decoder/u_main_decode_table
@@ -541,7 +541,7 @@ Coverage Report Summary Data by instance
     ----------------              ----      ----    ------  --------
     Branches                         8         5         3    62.50%
     Statements                      11        10         1    90.90%
-    Toggles                        240       112       128    46.66%
+    Toggles                        240       114       126    47.50%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top/u_huffman_block_decoder
@@ -549,13 +549,13 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                       170       164         6    96.47%
-    Conditions                      96        81        15    84.37%
+    Branches                       170       166         4    97.64%
+    Conditions                      96        82        14    85.41%
     Expressions                     19        15         4    78.94%
     FSM States                      18        18         0   100.00%
     FSM Transitions                 42        30        12    71.42%
     Statements                     360       358         2    99.44%
-    Toggles                       1064       797       267    74.90%
+    Toggles                       1064       805       259    75.65%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top/u_rx_byte_packer_32
@@ -565,9 +565,9 @@ Coverage Report Summary Data by instance
     ----------------              ----      ----    ------  --------
     Branches                        23        23         0   100.00%
     Conditions                       2         2         0   100.00%
-    Expressions                     14        10         4    71.42%
+    Expressions                     14        14         0   100.00%
     Statements                      47        47         0   100.00%
-    Toggles                        350       328        22    93.71%
+    Toggles                        350       330        20    94.28%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top/u_apb_huffman_rx_if
@@ -579,7 +579,7 @@ Coverage Report Summary Data by instance
     Conditions                       2         2         0   100.00%
     Expressions                     58        58         0   100.00%
     Statements                     159       159         0   100.00%
-    Toggles                       1282       734       548    57.25%
+    Toggles                       1282       878       404    68.48%
 
 =================================================================================
 === Instance: /test_bench/dut/u_rx_top
@@ -591,7 +591,7 @@ Coverage Report Summary Data by instance
     Conditions                       2         0         2     0.00%
     Expressions                     35        34         1    97.14%
     Statements                      43        42         1    97.67%
-    Toggles                       4308      3768       540    87.46%
+    Toggles                       4308      4073       235    94.54%
 
 =================================================================================
 === Instance: /test_bench/dut/u_cpu_mmio_to_apb_bridge
@@ -604,7 +604,7 @@ Coverage Report Summary Data by instance
     FSM States                       2         2         0   100.00%
     FSM Transitions                  2         2         0   100.00%
     Statements                      46        46         0   100.00%
-    Toggles                        840       608       232    72.38%
+    Toggles                        840       632       208    75.23%
 
 =================================================================================
 === Instance: /test_bench/dut/u_dma_regfile
@@ -616,7 +616,7 @@ Coverage Report Summary Data by instance
     Conditions                       3         3         0   100.00%
     Expressions                     28        28         0   100.00%
     Statements                     104       103         1    99.03%
-    Toggles                       1124       690       434    61.38%
+    Toggles                       1124       750       374    66.72%
 
 =================================================================================
 === Instance: /test_bench/dut/u_dma_tx_engine
@@ -630,7 +630,7 @@ Coverage Report Summary Data by instance
     FSM States                      31        31         0   100.00%
     FSM Transitions                 90        61        29    67.77%
     Statements                     244       244         0   100.00%
-    Toggles                       1648       798       850    48.42%
+    Toggles                       1648       959       689    58.19%
 
 =================================================================================
 === Instance: /test_bench/dut/u_dma_rx_engine
@@ -644,7 +644,7 @@ Coverage Report Summary Data by instance
     FSM States                      27        27         0   100.00%
     FSM Transitions                 62        50        12    80.64%
     Statements                     143       143         0   100.00%
-    Toggles                       1724      1172       552    67.98%
+    Toggles                       1724      1200       524    69.60%
 
 =================================================================================
 === Instance: /test_bench/dut
@@ -656,7 +656,7 @@ Coverage Report Summary Data by instance
     Conditions                      13        13         0   100.00%
     Expressions                     21        21         0   100.00%
     Statements                      22        22         0   100.00%
-    Toggles                       4908      3743      1165    76.26%
+    Toggles                       4908      4136       772    84.27%
 
 =================================================================================
 === Instance: /test_bench
@@ -664,12 +664,12 @@ Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                       191       166        25    86.91%
-    Conditions                     108        77        31    71.29%
-    Expressions                     14         4        10    28.57%
-    Statements                    2593      2555        38    98.53%
-    Toggles                       4938      1535      3403    31.08%
+    Branches                       322       245        77    76.08%
+    Conditions                     176        92        84    52.27%
+    Expressions                     28         7        21    25.00%
+    Statements                    4447      4227       220    95.05%
+    Toggles                       5194      1907      3287    36.71%
 
 
-Total Coverage By Instance (filtered view): 85.46%
+Total Coverage By Instance (filtered view): 85.92%
 

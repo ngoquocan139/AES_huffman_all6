@@ -84,6 +84,37 @@ Khi `DMA busy = 1`, software khong duoc:
 
 Neu vi pham, phan cung van co the hoat dong, nhung semantics o muc he thong khong duoc dam bao.
 
+### 3.4 Software storage table convention
+
+Multi-record storage is managed by RV32I software in DMEM, not by a separate
+RTL file system. Current testcase convention:
+
+| Address | Name | Meaning |
+|---:|---|---|
+| `0x0000_0040` | `INPUT_LEN_ADDR` | Length of primary input loaded by TB/UART |
+| `0x0000_0044` | `INPUT2_LEN_ADDR` | Length of secondary input for storage-table testcase |
+| `0x0000_0100` | `STORAGE_TABLE_BASE` | Software metadata table |
+| `0x0000_2000` | `SRC_BASE_ADDR` | Primary plaintext source |
+| `0x0000_3000` | `SRC2_BASE_ADDR` | Secondary plaintext source |
+| `0x0000_4000` | `TX_DST_BASE_ADDR` | Primary ciphertext/transport output |
+| `0x0000_5000` | `TX2_DST_BASE_ADDR` | Secondary ciphertext/transport output |
+| `0x0000_6000` | `RX_DST_BASE_ADDR` | Plaintext restore output |
+
+Record fields are software-defined:
+
+| Field | Required use |
+|---|---|
+| `valid` | record exists |
+| `file_id` | key selected by user/software |
+| `plain_len` | restored plaintext length expectation |
+| `cipher_addr` | DMEM address to feed RX `SRC_ADDR` |
+| `cipher_len` | value to feed RX `LEN_BYTES` |
+| `mode` | original TX policy |
+| `iv0..iv3` | IV words to rewrite before RX |
+
+Hardware contract stays simple: CPU reads metadata from DMEM and writes
+selected values into `dma_regfile`.
+
 ## 4. DMA MMIO register map
 
 Base address:

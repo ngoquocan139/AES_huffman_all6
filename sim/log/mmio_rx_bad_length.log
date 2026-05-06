@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l mmio_rx_bad_length.log -c test_bench "+CASE_NAME=mmio_rx_bad_length" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit mmio_rx_bad_length.ucdb; log -r /*; run -all" 
-# Start time: 14:49:33 on Apr 30,2026
+# Start time: 06:47:44 on May 06,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -78,7 +78,7 @@
 # Sync Istr 2: 0040006f
 # Sync Istr 3: 400007b7
 # Test_result STARTED mmio_rx_bad_length
-# Loaded 2551 byte(s) from input1.txt into DMEM @ 0x00000400
+# Loaded 2551 byte(s) from input1.txt into DMEM @ 0x00002000
 # ===== RV32I SOC MMIO REGFILE CHECK =====
 # input_file=input1.txt input_len=2551
 # dma_active_dir=2 busy=0 done_sticky=0 error_sticky=1
@@ -125,8 +125,8 @@
 # [PASS] rx_bad_len_dma_start_pulse_count | actual=0x00000001 expected=0x00000001
 # SUMMARY: PASS=9 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4005)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4088)
 #    Time: 60516 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 14:50:27 on Apr 30,2026, Elapsed time: 0:00:54
+# End time: 06:48:16 on May 06,2026, Elapsed time: 0:00:32
 # Errors: 0, Warnings: 0

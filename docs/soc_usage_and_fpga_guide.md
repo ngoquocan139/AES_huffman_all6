@@ -70,6 +70,7 @@ make license
 | TX-only log-like benchmark | `test_mmio_tx_only.c` | `tx_compress_only_input4_cov` | `input4_cov.txt` | TX `0xD` |
 | TX symbol overflow error | `test_mmio_tx_encoder_error.c` | `tx_compress_only_ascii_sweep_cov` | `input_cov_ascii_sweep.txt` | expected TX error |
 | MMIO regfile basic | `test_mmio_regfile_basic.c` | `mmio_regfile_basic` | optional | no DMA start |
+| Multi-record storage demo | `test_mmio_dma_storage_table.c` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | TX input1, TX input3, RX selected input1 |
 | Full coverage regression | selected by `run.csh` | from `pat.list` | from `run.csh` | all active cases |
 
 Known debug-only entries are commented in `sim/pat.list`; do not use them as
@@ -154,6 +155,18 @@ make drc
 make all TESTNAME=mmio_regfile_basic RUN_ARGS="+CASE_NAME=mmio_regfile_basic"
 ```
 
+Multi-record storage demo:
+
+```bash
+cd sim
+make compile C_SRC=test_mmio_dma_storage_table.c
+make drc
+make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+```
+
+This case proves that RV32I software can store metadata for two encrypted
+objects and later select the first record for RX restore.
+
 Neu chi doi input file sau khi da build dung C/testcase:
 
 ```bash
@@ -208,11 +221,11 @@ Sau run data-path:
 |---|---|
 | `sim/sim.log` | latest simulation log |
 | `sim/log/<TESTNAME>.log` | per-test log |
-| `sim/loopback/tb_rv32_soc_mmio_dma_summary.txt` | benchmark/saving summary |
-| `sim/loopback/tb_rv32_soc_mmio_dma_compare.txt` | loopback compare |
-| `sim/dmem_dump/tb_rv32_soc_mmio_dma_src.txt` | source DMEM dump |
-| `sim/dmem_dump/tb_rv32_soc_mmio_dma_tx.txt` | TX output/ciphertext dump |
-| `sim/dmem_dump/tb_rv32_soc_mmio_dma_rx.txt` | RX plaintext dump |
+| `sim/loopback/<CASE_NAME>_summary.txt` | benchmark/saving summary |
+| `sim/loopback/<CASE_NAME>_compare.txt` | loopback compare |
+| `sim/dmem_dump/<CASE_NAME>_src.txt` | source DMEM dump |
+| `sim/dmem_dump/<CASE_NAME>_tx.txt` | TX output/ciphertext dump |
+| `sim/dmem_dump/<CASE_NAME>_rx.txt` | RX plaintext dump |
 
 Pass condition chinh:
 

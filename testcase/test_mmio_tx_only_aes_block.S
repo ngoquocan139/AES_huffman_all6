@@ -24,10 +24,10 @@ j main
 main:
 	lw	a4,64(zero)
 	li	a5,1073741824
-	li	a3,1024
+	li	a3,8192
 	sw	a3,8(a5)
 	li	a5,1073741824
-	li	a3,8192
+	li	a3,16384
 	sw	a3,12(a5)
 	li	a5,1073741824
 	sw	a4,16(a5)
@@ -74,15 +74,15 @@ main:
 	li	a5,1073741824
 	addi	a5,a5,36
 	lw	a5,0(a5)
-	li	a5,8192
+	li	a5,16384
 	lw	a5,0(a5)
-	li	a5,8192
+	li	a5,16384
 	addi	a5,a5,4
 	lw	a5,0(a5)
-	li	a5,8192
+	li	a5,16384
 	addi	a5,a5,8
 	lw	a5,0(a5)
-	li	a5,8192
+	li	a5,16384
 	addi	a5,a5,12
 	lw	a5,0(a5)
 	sw	zero,0(zero)

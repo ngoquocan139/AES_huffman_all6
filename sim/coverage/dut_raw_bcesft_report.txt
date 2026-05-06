@@ -1,8 +1,3 @@
-QuestaSim-64 vcover 2021.2_1 Coverage Utility 2021.05 May 15 2021
-Start time: 17:01:00 on Apr 30,2026
-vcover report -instance=/test_bench/dut -recursive -code bcesft IP.ucdb 
-** Note: (vcover-19063) Please note that '-recursive' option's functionality is changed. For more information, please refer 
-to the reference manual.
 Recursive Coverage Report Summary Data by instance
 
 =================================================================================
@@ -11,16 +6,14 @@ Recursive Coverage Report Summary Data by instance
 =================================================================================
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Branches                      2320      2169       151    93.49%
-    Conditions                     809       665       144    82.20%
-    Expressions                   1274      1156       118    90.73%
-    FSM States                     187       187         0   100.00%
-    FSM Transitions                457       292       165    63.89%
-    Statements                    4178      4027       151    96.38%
-    Toggles                      39768     31193      8575    78.43%
+    Branches                      2332      2184       148    93.65%
+    Conditions                     807       674       133    83.51%
+    Expressions                   1279      1169       110    91.39%
+    FSM States                     188       188         0   100.00%
+    FSM Transitions                460       307       153    66.73%
+    Statements                    4324      4164       160    96.29%
+    Toggles                      40544     34541      6003    85.19%
 
 
-Total Coverage By Instance (filtered view): 86.44%
+Total Coverage By Instance (filtered view): 88.11%
 
-End time: 17:01:10 on Apr 30,2026, Elapsed time: 0:00:10
-Errors: 0, Warnings: 0

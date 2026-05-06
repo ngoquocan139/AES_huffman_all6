@@ -23,10 +23,10 @@ j main
 	.type	main, @function
 main:
 	li	a5,1073741824
-	li	a4,1024
+	li	a4,8192
 	sw	a4,8(a5)
 	li	a5,1073741824
-	li	a4,8192
+	li	a4,16384
 	sw	a4,12(a5)
 	li	a5,1073741824
 	li	a4,576

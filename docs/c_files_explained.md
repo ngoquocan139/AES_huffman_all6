@@ -8,6 +8,7 @@ Repo hien tai co nhom chuong trinh C phuc vu RV32I simulation/coverage:
 |---|---|---|
 | `testcase/test.c` | smoke program cu cho core sync | reference only |
 | `testcase/test_mmio_dma.c` | main DMA loopback: TX `COMPRESS_AES + whole_file` roi RX decode ve DMEM | yes |
+| `testcase/test_mmio_dma_storage_table.c` | software storage table demo: TX input1, TX input3, then RX selected input1 by metadata | yes |
 | `testcase/test_mmio_tx_only.c` | TX-only `COMPRESS_ONLY + whole_file` de do saving truc tiep | yes |
 | `testcase/test_mmio_tx_only_aes_block.c` | TX-only `COMPRESS_AES` per-block 32B | coverage |
 | `testcase/test_mmio_tx_only_compress_block.c` | TX-only `COMPRESS_ONLY` per-block 32B | coverage |
@@ -36,14 +37,17 @@ flowchart TD
   A["Choose what to verify"] --> B{"Goal"}
   B -->|"core smoke"| C["test.c"]
   B -->|"full TX/RX loopback"| D["test_mmio_dma.c"]
+  B -->|"multi-record storage"| S["test_mmio_dma_storage_table.c"]
   B -->|"TX-only saving"| E["test_mmio_tx_only.c"]
   B -->|"MMIO/CPU coverage"| F["test_mmio_regfile_basic.c / test_cpu_*.c"]
   C --> G["make compile C_SRC=test.c"]
   D --> H["make compile C_SRC=test_mmio_dma.c"]
+  S --> HS["make compile C_SRC=test_mmio_dma_storage_table.c"]
   E --> I["make compile C_SRC=test_mmio_tx_only.c"]
   F --> J["make compile C_SRC=<coverage>.c"]
   G --> K["make all TESTNAME=... RUN_ARGS=..."]
   H --> K
+  HS --> K
   I --> K
   J --> K
 ```
@@ -173,9 +177,76 @@ Pass condition:
 
 ---
 
-## 5. `testcase/test_mmio_tx_only.c` (COMPRESS_ONLY TX-Only Benchmark)
+## 5. `testcase/test_mmio_dma_storage_table.c` (Multi-Record Storage Demo)
 
 ### 5.1 Muc tieu test
+
+Test nay chung minh phan mem RV32I co the quan ly nhieu ban ghi du lieu da
+compressed/encrypted:
+
+- testbench load `input1.txt` vao `DMEM[0x00002000 ..]`;
+- CPU TX `input1` voi `MODE=0x9`, output vao `DMEM[0x00004000 ..]`;
+- CPU tao metadata record 0 cho `file_id=1`;
+- testbench load `input3.txt` vao `DMEM[0x00003000 ..]`;
+- CPU TX `input3` voi `MODE=0x9`, output vao `DMEM[0x00005000 ..]`;
+- CPU tao metadata record 1 cho `file_id=3`;
+- CPU chon lai record `file_id=1`, ghi RX config/IV tu metadata, roi RX ve `DMEM[0x00006000 ..]`;
+- testbench compare RX output voi `input1.txt`.
+
+### 5.2 DMEM metadata layout
+
+Base:
+
+```text
+STORAGE_TABLE_BASE = 0x00000100
+RECORD_STRIDE      = 64 bytes
+```
+
+Moi record la software-owned structure trong DMEM:
+
+| Field | Meaning |
+|---|---|
+| `valid` | Record hop le |
+| `file_id` | ID phan mem dung de chon lai du lieu |
+| `plain_addr` | Dia chi plaintext source ban dau |
+| `plain_len` | So byte plaintext ban dau |
+| `cipher_addr` | Dia chi ciphertext/transport trong DMEM |
+| `cipher_len` | So byte ciphertext/transport do TX tao |
+| `mode` | TX mode da dung, hien la `0x9` |
+| `iv0..iv3` | IV phai dung lai khi RX |
+
+### 5.3 Result layout
+
+- `word0` = signature `0x53544f52`
+- `word1` = error mask
+- `word2..6` = TX1 status/bytes/polls
+- `word7..11` = RX1 status/bytes/debug/polls
+- `word12` = TX2 ciphertext length
+- `word13` = input2 length echo
+- `word14` = selected file id, expected `1`
+- `word15` = total records, expected `2`
+
+Pass condition:
+
+- `SUMMARY: PASS=22 FAIL=0`
+- `storage_selected_file_id == 1`
+- `storage_total_records == 2`
+- `storage_dma_start_pulse_count == 3`
+- RX output khop `input1.txt`
+
+Run command:
+
+```bash
+cd sim
+make compile C_SRC=test_mmio_dma_storage_table.c
+make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+```
+
+---
+
+## 6. `testcase/test_mmio_tx_only.c` (COMPRESS_ONLY TX-Only Benchmark)
+
+### 6.1 Muc tieu test
 
 Test rieng nhanh `COMPRESS_ONLY` de do saving truc tiep o phia TX:
 
@@ -188,7 +259,7 @@ Test rieng nhanh `COMPRESS_ONLY` de do saving truc tiep o phia TX:
 - testbench chi check TX output va benchmark saving, khong chay RX.
 - flow dung cho nhom input "chi can nen", mac dinh la `input1.txt`.
 
-### 5.2 DMA MMIO map su dung trong test
+### 6.2 DMA MMIO map su dung trong test
 
 Base: `0x4000_0000`
 
@@ -212,7 +283,7 @@ Gia tri config duoc ghi:
 - `BLOCK_CFG = 0x00000020`
 - `CONTROL = 0x1` (start)
 
-### 5.3 Result layout trong DMEM (word offset)
+### 6.3 Result layout trong DMEM (word offset)
 
 - `word0`  = signature `0x44545843`
 - `word1`  = `error_mask`
@@ -229,7 +300,7 @@ Gia tri config duoc ghi:
 - `word12` = TX output word 2
 - `word13` = TX output word 3
 
-### 5.4 Expected state
+### 6.4 Expected state
 
 - `word0 = 0x44545843`
 - `word1 = 0`
@@ -242,15 +313,15 @@ Gia tri config duoc ghi:
 - `word8 = 0x0000000D`
 - vung `TX_DST_BASE_ADDR` khong duoc all-zero
 
-### 5.5 Input policy
+### 6.5 Input policy
 
 - `input1.txt` va cac file text thuong: chay `test_mmio_tx_only.c` + `test_bench`
 - mode DMA: `COMPRESS_ONLY`
 - du lieu di theo duong `DMEM -> Huffman TX -> DMEM`
 
-## 6. Disassembly Notes for `testcase/test_mmio_dma.c`
+## 7. Disassembly Notes for `testcase/test_mmio_dma.c`
 
-### 6.1 Boot
+### 7.1 Boot
 
 | PC    | Hex      | Mnemonic |
 |-------|----------|----------|
@@ -258,7 +329,7 @@ Gia tri config duoc ghi:
 | 0x004 | f0010113 | `addi sp,sp,-256` |
 | 0x008 | 0040006f | `j 0x00c` |
 
-### 6.2 Write DMA config
+### 7.2 Write DMA config
 
 Generated assembly co the thay doi theo option compile, nhung instruction
 class chinh van la RV32I co ban:
@@ -270,7 +341,7 @@ class chinh van la RV32I co ban:
   `CONTROL.start`
 - `andi`, `beq`, `bne`, `bltu` de poll status va check timeout
 
-### 6.3 Poll / collect result
+### 7.3 Poll / collect result
 
 Sau khi ghi `CONTROL.start`, chuong trinh:
 
@@ -300,7 +371,7 @@ Sau khi ghi `CONTROL.start`, chuong trinh:
 - bit11: `CIPHERTEXT_BYTES_PRODUCED != TX_BYTES_DONE`
 - bit12: input length bang 0
 
-### 6.4 Write result words to DMEM[0..15]
+### 7.4 Write result words to DMEM[0..15]
 
 | PC    | Hex      | Mnemonic |
 |-------|----------|----------|
@@ -319,7 +390,7 @@ roi nhay vao vong lap vo han de giu trang thai.
 
 ---
 
-## 7. Checklist khi doi bai test
+## 8. Checklist khi doi bai test
 
 De tranh chay nham chuong trinh:
 
@@ -334,7 +405,7 @@ De tranh chay nham chuong trinh:
    - MMIO test: bat dau bang `00008137`
    - Smoke sync: bat dau bang `00500093`
 
-## 8. Flow khuyen nghi theo loai input
+## 9. Flow khuyen nghi theo loai input
 
 - `input1.txt` full loopback:
   - compile: `make compile C_SRC=test_mmio_dma.c`

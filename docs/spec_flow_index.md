@@ -19,11 +19,12 @@ Current baseline:
 | Coverage runner | `cd sim && ./run.csh cov` |
 | Latest pass/fail | `32/32` PASS |
 | Raw DUT full coverage | `86.44%` |
-| Raw DUT branch+statement | `94.93%` |
+| Raw DUT branches / statements | `93.49% / 96.38%` |
 | Closed DUT coverage | `95.59%` |
 | Usage guide | [soc_usage_and_fpga_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_usage_and_fpga_guide.md) |
 | SOC 4.5 report | [soc_4_5_end_to_end_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_4_5_end_to_end_report.md) |
 | Presentation guide | [report_presentation_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/report_presentation_guide.md) |
+| Defense Q&A guide | [29_defense_qa_code_focus_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/29_defense_qa_code_focus_spec.md) |
 
 ## 2. Main Flow
 
@@ -113,6 +114,9 @@ Current baseline:
 29. `28` [report_presentation_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/report_presentation_guide.md)
     - Short guide for what to present to the advisor: architecture, key results, main testcase group, coverage, FPGA implementation, and topics to study.
 
+30. `29` [29_defense_qa_code_focus_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/29_defense_qa_code_focus_spec.md)
+    - Oral defense backup: what code to know best, detailed diagrams including register/mux view, and short answers for likely questions.
+
 ## 3. Removed Old Specs
 
 These old files were removed because they were debug-only, test-policy-only, or
@@ -164,7 +168,7 @@ For coverage closure:
 For advisor presentation:
 
 ```text
-00 -> 27 -> 26 -> 28
+00 -> 27 -> 26 -> 28 -> 29
 ```
 
 For day-to-day commands:

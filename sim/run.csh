@@ -29,6 +29,11 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             set c_src = "test_mmio_dma.c"
             set run_args = "+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
             breaksw
+        case dma_storage_table_input1_then_input3:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_dma_storage_table.c"
+            set run_args = "+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+            breaksw
         case dma_compress_aes_one_symbol_cov:
             set tb_name = "test_bench"
             set c_src = "test_mmio_dma.c"
@@ -183,6 +188,11 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             set tb_name = "test_bench"
             set c_src = "test_mmio_regfile_basic.c"
             set run_args = "+CASE_NAME=dma_bridge_direct_cov +INPUT_FILE=input1.txt +DMA_BRIDGE_DIRECT_COV"
+            breaksw
+        case raw_dut_stress_cov:
+            set tb_name = "test_bench"
+            set c_src = "test_mmio_regfile_basic.c"
+            set run_args = "+CASE_NAME=raw_dut_stress_cov +INPUT_FILE=input1.txt +SIDEBAND_COV +TX_IF_DIRECT_COV +TX_ENCODER_DIRECT_COV +TX_BUILDER_PACKER_DIRECT_COV +RX_IF_DIRECT_COV +RX_PARSE_DECODE_COV +RX_DECODER_DIRECT_COV +RX_DEPACKER_PACKER_DIRECT_COV +RX_PARSE_DECODE_ERROR_DIRECT_COV +CPU_FORWARD_DIRECT_COV +DMA_BRIDGE_DIRECT_COV +RAW_DUT_STRESS_COV"
             breaksw
         default:
             echo "[FAIL] unknown pattern in pat.list: $pat"

@@ -10,6 +10,7 @@ cho bao cao:
 | SOC-01 | `dma_compress_aes_input1` | `input1.txt` | Main secure-storage loopback |
 | SOC-02 | `dma_compress_aes_input3` | `input3.txt` | Small/repeated input loopback |
 | SOC-03 | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | Max-valid-symbol stress loopback |
+| SOC-04 | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | Software-managed storage table demo |
 
 Tat ca testcase dung cung software:
 
@@ -31,6 +32,8 @@ make compile C_SRC=test_mmio_dma.c
 make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
 make all TESTNAME=dma_compress_aes_input3 RUN_ARGS="+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
 make all TESTNAME=dma_compress_aes_alnum63_cov RUN_ARGS="+CASE_NAME=dma_compress_aes_alnum63_cov +INPUT_FILE=input_cov_alnum63.txt"
+make compile C_SRC=test_mmio_dma_storage_table.c
+make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
 ./report.csh
 ```
 
@@ -39,7 +42,7 @@ Latest run:
 ```text
 Date: 2026-05-05
 Clock used by TB benchmark: 10 ns period, 100 MHz
-Result: all 3 SOC 4.5 tests PASS
+Result: 3 main loopback tests PASS; storage-table demo PASS individually
 ```
 
 ## 3. Data Flow Under Test
@@ -98,6 +101,7 @@ Moi SOC testcase pass khi:
 | `dma_compress_aes_input1` | PASS | 2551 | 992 | 2551 | 36.32% | 63.68% | 38.89% | 61.11% |
 | `dma_compress_aes_input3` | PASS | 242 | 112 | 242 | 40.81% | 59.19% | 46.28% | 53.72% |
 | `dma_compress_aes_alnum63_cov` | PASS | 504 | 544 | 504 | 100.67% | -0.67% | 107.94% | -7.94% |
+| `dma_storage_table_input1_then_input3` | PASS | 2551 + 242 | TX1 992 | RX1 2551 | 40.19% | 59.81% | 38.89% | 61.11% |
 
 Interpretation:
 
@@ -106,6 +110,7 @@ Interpretation:
 | `dma_compress_aes_input1` | Nen tot, storage saving `61.11%`, loopback dung. |
 | `dma_compress_aes_input3` | Input ngan/lap lai cao, storage saving `53.72%`, loopback dung. |
 | `dma_compress_aes_alnum63_cov` | Input gan uniform voi 63 symbol, header/codebook overhead lon hon payload saving, nen storage saving am. Day la stress functional, khong phai case toi uu nen. |
+| `dma_storage_table_input1_then_input3` | Chung minh software RV32I co the luu 2 ciphertext record, sau do chon lai input1 bang metadata va RX dung. |
 
 ## 6. Throughput Benchmark
 
@@ -135,6 +140,7 @@ Per-test logs:
 | `dma_compress_aes_input1` | `sim/log/dma_compress_aes_input1.log` |
 | `dma_compress_aes_input3` | `sim/log/dma_compress_aes_input3.log` |
 | `dma_compress_aes_alnum63_cov` | `sim/log/dma_compress_aes_alnum63_cov.log` |
+| `dma_storage_table_input1_then_input3` | `sim/log/dma_storage_table_input1_then_input3.log` |
 
 Per-test loopback summaries:
 
@@ -143,6 +149,7 @@ Per-test loopback summaries:
 | `dma_compress_aes_input1` | `sim/loopback/dma_compress_aes_input1_summary.txt` | `sim/loopback/dma_compress_aes_input1_compare.txt` |
 | `dma_compress_aes_input3` | `sim/loopback/dma_compress_aes_input3_summary.txt` | `sim/loopback/dma_compress_aes_input3_compare.txt` |
 | `dma_compress_aes_alnum63_cov` | `sim/loopback/dma_compress_aes_alnum63_cov_summary.txt` | `sim/loopback/dma_compress_aes_alnum63_cov_compare.txt` |
+| `dma_storage_table_input1_then_input3` | `sim/loopback/dma_storage_table_input1_then_input3_summary.txt` | `sim/loopback/dma_storage_table_input1_then_input3_compare.txt` |
 
 Per-test DMEM dumps:
 
@@ -151,6 +158,7 @@ Per-test DMEM dumps:
 | `dma_compress_aes_input1` | `sim/dmem_dump/dma_compress_aes_input1_src.txt` | `sim/dmem_dump/dma_compress_aes_input1_tx.txt` | `sim/dmem_dump/dma_compress_aes_input1_rx.txt` |
 | `dma_compress_aes_input3` | `sim/dmem_dump/dma_compress_aes_input3_src.txt` | `sim/dmem_dump/dma_compress_aes_input3_tx.txt` | `sim/dmem_dump/dma_compress_aes_input3_rx.txt` |
 | `dma_compress_aes_alnum63_cov` | `sim/dmem_dump/dma_compress_aes_alnum63_cov_src.txt` | `sim/dmem_dump/dma_compress_aes_alnum63_cov_tx.txt` | `sim/dmem_dump/dma_compress_aes_alnum63_cov_rx.txt` |
+| `dma_storage_table_input1_then_input3` | `sim/dmem_dump/dma_storage_table_input1_then_input3_src.txt` | `sim/dmem_dump/dma_storage_table_input1_then_input3_tx.txt` | `sim/dmem_dump/dma_storage_table_input1_then_input3_rx.txt` |
 
 `sim/rep.log` also has a dedicated section:
 

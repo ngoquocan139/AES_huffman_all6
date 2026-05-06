@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l mmio_mode_matrix.log -c test_bench "+CASE_NAME=mmio_mode_matrix" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit mmio_mode_matrix.ucdb; log -r /*; run -all" 
-# Start time: 14:46:35 on Apr 30,2026
+# Start time: 06:46:13 on May 06,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -78,11 +78,11 @@
 # Sync Istr 2: 0040006f
 # Sync Istr 3: 400007b7
 # Test_result STARTED mmio_mode_matrix
-# Loaded 2551 byte(s) from input1.txt into DMEM @ 0x00000400
+# Loaded 2551 byte(s) from input1.txt into DMEM @ 0x00002000
 # ===== RV32I SOC MMIO REGFILE CHECK =====
 # input_file=input1.txt input_len=2551
 # dma_active_dir=0 busy=0 done_sticky=0 error_sticky=1
-# dma_cfg src=0x00000400 dst=0x00002000 len=0x00000020 dir=0x3 block=0x20
+# dma_cfg src=0x00002000 dst=0x00004000 len=0x00000020 dir=0x3 block=0x20
 # tx_dma state=0 busy=0 done=0 err=0 bytes=0x00000000 last_err=0x00
 # rx_dma state=0 busy=0 done=0 err=0 bytes=0x00000000 last_err=0x00
 # tx_dst_head = 00000000 00000000 00000000 00000000
@@ -92,8 +92,8 @@
 # DEBUG first_tx_dma_word_write=0 count=0 data=00000000
 # DEBUG first_tx_dma_read=0 count=0 addr=00000000 data=00000000
 # DEBUG first_tx_start=0 src=00000000 dst=00000000 len=00000000 dir=0 blk=0
-# DEBUG mmio_write[0] addr=40000008 data=00000400
-# DEBUG mmio_write[1] addr=4000000c data=00002000
+# DEBUG mmio_write[0] addr=40000008 data=00002000
+# DEBUG mmio_write[1] addr=4000000c data=00004000
 # DEBUG mmio_write[2] addr=40000010 data=00000020
 # DEBUG mmio_write[3] addr=40000018 data=00000020
 # DEBUG mmio_write[4] addr=40000014 data=00000001
@@ -127,8 +127,8 @@
 # [PASS] mode_matrix_no_dma_start | actual=0x00000000 expected=0x00000000
 # SUMMARY: PASS=11 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4005)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4088)
 #    Time: 64856 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 14:47:29 on Apr 30,2026, Elapsed time: 0:00:54
+# End time: 06:46:42 on May 06,2026, Elapsed time: 0:00:29
 # Errors: 0, Warnings: 0

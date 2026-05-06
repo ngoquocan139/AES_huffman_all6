@@ -16,6 +16,7 @@ Trang thai cap nhat hien tai:
 | Closed DUT coverage | `95.59%` sau `sim/coverage_close.do` |
 | Lint/DRC | `make drc` PASS voi Verilator |
 | Main simulation flow | `test_mmio_dma.c` + `dma_compress_aes_input1/input3/...` testcase wrappers |
+| Multi-record storage demo | `test_mmio_dma_storage_table.c` + `dma_storage_table_input1_then_input3` PASS |
 | FPGA flow | TX-only va RX-only split bitstreams la huong demo thuc dung |
 
 Muc tieu he thong:
@@ -133,8 +134,12 @@ Current software/testbench regions:
 | Address | Name | Meaning |
 |---:|---|---|
 | `0x0000_0040` | `INPUT_LEN_ADDR` | Input byte count written by testbench or UART loader |
+| `0x0000_0044` | `INPUT2_LEN_ADDR` | Secondary input byte count for storage-table testcase |
+| `0x0000_0100` | `STORAGE_TABLE_BASE` | Software metadata table used by multi-record testcase |
 | `0x0000_2000` | `SRC_BASE_ADDR` | Source plaintext/input region |
+| `0x0000_3000` | `SRC2_BASE_ADDR` | Secondary source plaintext/input region |
 | `0x0000_4000` | `TX_DST_BASE_ADDR` | TX output ciphertext/transport region |
+| `0x0000_5000` | `TX2_DST_BASE_ADDR` | Secondary TX output ciphertext/transport region |
 | `0x0000_6000` | `RX_DST_BASE_ADDR` | RX output plaintext region |
 
 ## 6. DMA Register Map
@@ -304,14 +309,14 @@ sequenceDiagram
 flowchart TD
   A["Start RV32I program"] --> B["Read INPUT_LEN_ADDR from DMEM"]
   B --> C["Generate demo IV in software"]
-  C --> D["Write TX config\nSRC=0x400, DST=0x2000, LEN=input_len"]
+  C --> D["Write TX config\nSRC=0x2000, DST=0x4000, LEN=input_len"]
   D --> E["Write MODE=0x9, BLOCK_CFG=32, IV0..IV3"]
   E --> F["Write CONTROL.start"]
   F --> G{"Poll STATUS"}
   G -->|"busy"| G
   G -->|"error_sticky"| H["Record error result"]
   G -->|"done_sticky"| I["Read CIPHERTEXT_BYTES_PRODUCED"]
-  I --> J["Write RX config\nSRC=0x2000, DST=0x4000, LEN=tx_cipher_len"]
+  I --> J["Write RX config\nSRC=0x4000, DST=0x6000, LEN=tx_cipher_len"]
   J --> K["Keep same IV0..IV3\nWrite MODE=0x2"]
   K --> L["Write CONTROL.start"]
   L --> M{"Poll STATUS"}
@@ -322,6 +327,37 @@ flowchart TD
   H --> P["Publish fail signature"]
   O --> Q["Publish pass/fail signature"]
 ```
+
+## 11.1 Software Multi-Record Storage Flow
+
+This flow answers the storage question: a user can compress/encrypt input1,
+store another input, then later select input1 for RX if software keeps metadata
+for each stored object.
+
+```mermaid
+flowchart TD
+  A["Load input1 to DMEM @ 0x2000"] --> B["TX input1\nSRC=0x2000 DST=0x4000 MODE=0x9"]
+  B --> C["Read TX1 ciphertext length\nand keep IV0..IV3"]
+  C --> D["Write record 0 in storage table\nfile_id=1, plain_len, cipher_addr, cipher_len, IV"]
+  D --> E["Load input3 to DMEM @ 0x3000"]
+  E --> F["TX input3\nSRC=0x3000 DST=0x5000 MODE=0x9"]
+  F --> G["Write record 1 in storage table\nfile_id=3, plain_len, cipher_addr, cipher_len, IV"]
+  G --> H["User requests file_id=1"]
+  H --> I["Software selects record 0"]
+  I --> J["Restore IV0..IV3 and RX config from record"]
+  J --> K["RX input1\nSRC=record.cipher_addr DST=0x6000 LEN=record.cipher_len"]
+  K --> L["TB compares DMEM @ 0x6000 with input1.txt"]
+```
+
+Current testcase:
+
+| Testcase | C file | Input files | Result |
+|---|---|---|---|
+| `dma_storage_table_input1_then_input3` | `test_mmio_dma_storage_table.c` | `input1.txt`, `input3.txt` | `SUMMARY: PASS=22 FAIL=0` |
+
+The metadata table is a software-owned DMEM structure. RTL only provides DMEM,
+MMIO registers, DMA engines, TX/RX accelerators and IV registers; record
+selection is intentionally done by RV32I software.
 
 ## 12. TX DMA Flow Chart
 
@@ -531,7 +567,7 @@ make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
 | Main source buffer | `0x00002000..0x00003FFF`, 8192 bytes practical limit |
 | TX output buffer | starts at `0x00004000` |
 | RX output buffer | starts at `0x00006000` |
-| TX block size | current main software uses `32` |
+| TX block size | software writes valid `32`; whole-file mode does not split the file by this value |
 | RX input length | must be ciphertext length and 16-byte aligned |
 | Huffman alphabet | newline + printable ASCII |
 | AES key | fixed RTL key in prototype |

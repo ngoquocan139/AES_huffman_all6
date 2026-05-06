@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l mmio_regfile_negative.log -c test_bench "+CASE_NAME=mmio_regfile_negative" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit mmio_regfile_negative.ucdb; log -r /*; run -all" 
-# Start time: 14:48:05 on Apr 30,2026
+# Start time: 06:47:00 on May 06,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -78,11 +78,11 @@
 # Sync Istr 2: 0040006f
 # Sync Istr 3: 400006b7
 # Test_result STARTED mmio_regfile_negative
-# Loaded 2551 byte(s) from input1.txt into DMEM @ 0x00000400
+# Loaded 2551 byte(s) from input1.txt into DMEM @ 0x00002000
 # ===== RV32I SOC MMIO REGFILE CHECK =====
 # input_file=input1.txt input_len=2551
 # dma_active_dir=0 busy=0 done_sticky=0 error_sticky=1
-# dma_cfg src=0x00000400 dst=0x00002000 len=0x00000040 dir=0x1 block=0x20
+# dma_cfg src=0x00002000 dst=0x00004000 len=0x00000040 dir=0x1 block=0x20
 # tx_dma state=0 busy=0 done=0 err=0 bytes=0x00000000 last_err=0x00
 # rx_dma state=0 busy=0 done=0 err=0 bytes=0x00000000 last_err=0x00
 # tx_dst_head = 00000000 00000000 00000000 00000000
@@ -122,8 +122,8 @@
 # [PASS] negative_clear_error_pulses_seen
 # SUMMARY: PASS=6 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4005)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4088)
 #    Time: 60896 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 14:48:58 on Apr 30,2026, Elapsed time: 0:00:53
+# End time: 06:47:29 on May 06,2026, Elapsed time: 0:00:29
 # Errors: 0, Warnings: 0

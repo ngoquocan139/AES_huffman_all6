@@ -1,5 +1,6 @@
 dma_compress_aes_input1
 dma_compress_aes_input3
+dma_storage_table_input1_then_input3
 dma_compress_aes_one_symbol_cov
 dma_compress_aes_alnum63_cov
 tx_compress_only_input1
@@ -30,6 +31,7 @@ cpu_instruction_cov
 cpu_mem_forward_cov
 cpu_forward_direct_cov
 dma_bridge_direct_cov
+raw_dut_stress_cov
 
 # Known failing / not in clean baseline yet:
 # dma_compress_aes_input2_debug      # TX error on current input2.txt, keep for debug closure

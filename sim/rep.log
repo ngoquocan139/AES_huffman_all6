@@ -49,23 +49,25 @@
 |---------------------------------------------------------------------------------------------------------------|
 | rx_if_direct_cov                | DONE                          | PASSED              | log/rx_if_direct_cov.log |
 |---------------------------------------------------------------------------------------------------------------|
-| rx_parser_decoder_cov           | DONE                          | PASSED              | log/rx_parser_decoder_cov.log |
+| rx_parser_decoder_cov           | NA                            | NA                  | log/rx_parser_decoder_cov.log |
 |---------------------------------------------------------------------------------------------------------------|
-| rx_decoder_direct_cov           | DONE                          | PASSED              | log/rx_decoder_direct_cov.log |
+| rx_decoder_direct_cov           | NA                            | NA                  | log/rx_decoder_direct_cov.log |
 |---------------------------------------------------------------------------------------------------------------|
-| rx_depacker_packer_direct_cov   | DONE                          | PASSED              | log/rx_depacker_packer_direct_cov.log |
+| rx_depacker_packer_direct_cov   | NA                            | NA                  | log/rx_depacker_packer_direct_cov.log |
 |---------------------------------------------------------------------------------------------------------------|
-| rx_parser_decoder_error_direct_cov | DONE                          | PASSED              | log/rx_parser_decoder_error_direct_cov.log |
+| rx_parser_decoder_error_direct_cov | NA                            | NA                  | log/rx_parser_decoder_error_direct_cov.log |
 |---------------------------------------------------------------------------------------------------------------|
-| cpu_instruction_cov             | DONE                          | PASSED              | log/cpu_instruction_cov.log |
+| cpu_instruction_cov             | NA                            | NA                  | log/cpu_instruction_cov.log |
 |---------------------------------------------------------------------------------------------------------------|
-| cpu_mem_forward_cov             | DONE                          | PASSED              | log/cpu_mem_forward_cov.log |
+| cpu_mem_forward_cov             | NA                            | NA                  | log/cpu_mem_forward_cov.log |
 |---------------------------------------------------------------------------------------------------------------|
-| cpu_forward_direct_cov          | DONE                          | PASSED              | log/cpu_forward_direct_cov.log |
+| cpu_forward_direct_cov          | NA                            | NA                  | log/cpu_forward_direct_cov.log |
 |---------------------------------------------------------------------------------------------------------------|
-| dma_bridge_direct_cov           | DONE                          | PASSED              | log/dma_bridge_direct_cov.log |
+| dma_bridge_direct_cov           | NA                            | NA                  | log/dma_bridge_direct_cov.log |
 |---------------------------------------------------------------------------------------------------------------|
-TOTAL/PASSED/REMAIN:32/32/0
+| raw_dut_stress_cov              | NA                            | NA                  | log/raw_dut_stress_cov.log |
+|---------------------------------------------------------------------------------------------------------------|
+TOTAL/PASSED/REMAIN:33/24/9
 
 |---------------------------------------------------------------------------------------------------------------|
 | SOC 4.5 END-TO-END MAIN TESTCASES                                                                            |
@@ -74,19 +76,19 @@ TOTAL/PASSED/REMAIN:32/32/0
 |---------------------------------------------------------------------------------------------------------------|
 | dma_compress_aes_input1         | PASSED    | log=log/dma_compress_aes_input1.log                                  |
 |                                  |            | input_file=input1.txt input_len=2551 |
-|                                  |            | BENCHMARK tx_cycles=32533 rx_cycles=14904 tx_cipher_bytes=992 rx_plain_bytes=2551 |
-|                                  |            | THROUGHPUT tx_in=7.841 MB/s tx_out=3.049 MB/s rx_in=6.656 MB/s rx_out=17.116 MB/s |
+|                                  |            | BENCHMARK tx_cycles=34045 rx_cycles=14904 tx_cipher_bytes=992 rx_plain_bytes=2551 |
+|                                  |            | THROUGHPUT tx_in=7.493 MB/s tx_out=2.914 MB/s rx_in=6.656 MB/s rx_out=17.116 MB/s |
 |                                  |            | PAYLOAD compressed_bits=7412 compressed_bytes_ceil=927 ratio=36.32% space_saving=63.68% |
 |                                  |            | STORAGE ratio=38.89% space_saving=61.11% |
-|                                  |            | LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=991 |
+|                                  |            | LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=989 |
 |                                  |            | SUMMARY: PASS=18 FAIL=0 |
 |                                  |            | FILES summary=loopback/tb_rv32_soc_mmio_dma_summary.txt compare=loopback/tb_rv32_soc_mmio_dma_compare.txt src_dump=dmem_dump/tb_rv32_soc_mmio_dma_src.txt tx_dump=dmem_dump/tb_rv32_soc_mmio_dma_tx.txt rx_dump=dmem_dump/tb_rv32_soc_mmio_dma_rx.txt |
 |                                  |            | archived=loopback/dma_compress_aes_input1_summary.txt dmem_dump/dma_compress_aes_input1_{src,tx,rx}.txt |
 |---------------------------------------------------------------------------------------------------------------|
 | dma_compress_aes_input3         | PASSED    | log=log/dma_compress_aes_input3.log                                  |
 |                                  |            | input_file=input3.txt input_len=242 |
-|                                  |            | BENCHMARK tx_cycles=4341 rx_cycles=5202 tx_cipher_bytes=112 rx_plain_bytes=242 |
-|                                  |            | THROUGHPUT tx_in=5.575 MB/s tx_out=2.580 MB/s rx_in=2.153 MB/s rx_out=4.652 MB/s |
+|                                  |            | BENCHMARK tx_cycles=4549 rx_cycles=5202 tx_cipher_bytes=112 rx_plain_bytes=242 |
+|                                  |            | THROUGHPUT tx_in=5.320 MB/s tx_out=2.462 MB/s rx_in=2.153 MB/s rx_out=4.652 MB/s |
 |                                  |            | PAYLOAD compressed_bits=790 compressed_bytes_ceil=99 ratio=40.81% space_saving=59.19% |
 |                                  |            | STORAGE ratio=46.28% space_saving=53.72% |
 |                                  |            | LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=112 |
@@ -96,11 +98,11 @@ TOTAL/PASSED/REMAIN:32/32/0
 |---------------------------------------------------------------------------------------------------------------|
 | dma_compress_aes_alnum63_cov    | PASSED    | log=log/dma_compress_aes_alnum63_cov.log                             |
 |                                  |            | input_file=input_cov_alnum63.txt input_len=504 |
-|                                  |            | BENCHMARK tx_cycles=17313 rx_cycles=8475 tx_cipher_bytes=544 rx_plain_bytes=504 |
-|                                  |            | THROUGHPUT tx_in=2.911 MB/s tx_out=3.142 MB/s rx_in=6.419 MB/s rx_out=5.947 MB/s |
+|                                  |            | BENCHMARK tx_cycles=18129 rx_cycles=8475 tx_cipher_bytes=544 rx_plain_bytes=504 |
+|                                  |            | THROUGHPUT tx_in=2.780 MB/s tx_out=3.001 MB/s rx_in=6.419 MB/s rx_out=5.947 MB/s |
 |                                  |            | PAYLOAD compressed_bits=4059 compressed_bytes_ceil=508 ratio=100.67% space_saving=-0.67% |
 |                                  |            | STORAGE ratio=107.94% space_saving=-7.94% |
-|                                  |            | LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=540 |
+|                                  |            | LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=541 |
 |                                  |            | SUMMARY: PASS=18 FAIL=0 |
 |                                  |            | FILES summary=loopback/tb_rv32_soc_mmio_dma_summary.txt compare=loopback/tb_rv32_soc_mmio_dma_compare.txt src_dump=dmem_dump/tb_rv32_soc_mmio_dma_src.txt tx_dump=dmem_dump/tb_rv32_soc_mmio_dma_tx.txt rx_dump=dmem_dump/tb_rv32_soc_mmio_dma_rx.txt |
 |                                  |            | archived=loopback/dma_compress_aes_alnum63_cov_summary.txt dmem_dump/dma_compress_aes_alnum63_cov_{src,tx,rx}.txt |

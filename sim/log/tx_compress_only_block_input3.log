@@ -1,5 +1,5 @@
 # vsim -debugDB -coverage -l tx_compress_only_block_input3.log -c test_bench "+CASE_NAME=tx_compress_only_block_input3" "+INPUT_FILE=input3.txt" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit tx_compress_only_block_input3.ucdb; log -r /*; run -all" 
-# Start time: 14:43:20 on Apr 30,2026
+# Start time: 06:44:17 on May 06,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -79,11 +79,11 @@
 # Sync Istr 2: 0040006f
 # Sync Istr 3: 04002303
 # Test_result STARTED tx_compress_only_block_input3
-# Loaded 242 byte(s) from input3.txt into DMEM @ 0x00000400
+# Loaded 242 byte(s) from input3.txt into DMEM @ 0x00002000
 # ===== RV32I SOC DMA TX-ONLY CHECK =====
 # input_file=input3.txt input_len=242
 # dma_active_dir=1 busy=0 done_sticky=1 error_sticky=0
-# dma_cfg src=0x00000400 dst=0x00002000 len=0x000000f2 dir=0x1 block=0x20
+# dma_cfg src=0x00002000 dst=0x00004000 len=0x000000f2 dir=0x1 block=0x20
 # tx_dma state=0 busy=0 done=0 err=0 bytes=0x00000050 last_err=0x00
 # rx_dma state=0 busy=0 done=0 err=0 bytes=0x00000000 last_err=0x00
 # tx_dst_head = 48584282 0000010b 82618300 78088283
@@ -91,10 +91,10 @@
 # DEBUG first_tx_transport_valid=1 count=5 word=78088283826183000000010b48584282
 # DEBUG first_tx_word_in_valid=1 count=61 data=61616169
 # DEBUG first_tx_dma_word_write=1 count=61 data=61616169
-# DEBUG first_tx_dma_read=1 count=61 addr=00000400 data=61616169
-# DEBUG first_tx_start=1 src=00000400 dst=00002000 len=000000f2 dir=1 blk=32
-# DEBUG mmio_write[0] addr=40000008 data=00000400
-# DEBUG mmio_write[1] addr=4000000c data=00002000
+# DEBUG first_tx_dma_read=1 count=61 addr=00002000 data=61616169
+# DEBUG first_tx_start=1 src=00002000 dst=00004000 len=000000f2 dir=1 blk=32
+# DEBUG mmio_write[0] addr=40000008 data=00002000
+# DEBUG mmio_write[1] addr=4000000c data=00004000
 # DEBUG mmio_write[2] addr=40000010 data=000000f2
 # DEBUG mmio_write[3] addr=40000014 data=00000005
 # DEBUG mmio_write[4] addr=40000018 data=00000020
@@ -109,8 +109,8 @@
 # DEBUG rx_stage_state parser=0 decoder=0 packer_busy=0 fifo_count=0 block_done=0 frame_done=0
 # DEBUG rx_decoder_error code=0x00 state=0 bytes_left=0 payload_len=0
 # DEBUG rx_decoder_meta mode=0 block_size=0 symbol_count=0 one_symbol=0x00 parser_mode=0 parser_block_size=0 parser_symbol_count=0
-# BENCHMARK tx_cycles=4253 rx_cycles=0 tx_cipher_bytes=80 rx_plain_bytes=242
-# THROUGHPUT tx_in=5.690 MB/s tx_out=1.881 MB/s rx_in=0.000 MB/s rx_out=0.000 MB/s
+# BENCHMARK tx_cycles=4557 rx_cycles=0 tx_cipher_bytes=80 rx_plain_bytes=242
+# THROUGHPUT tx_in=5.311 MB/s tx_out=1.756 MB/s rx_in=0.000 MB/s rx_out=0.000 MB/s
 # PAYLOAD compressed_bits=553 compressed_bytes_ceil=70 ratio=28.56% space_saving=71.44%
 # STORAGE ratio=33.06% space_saving=66.94%
 # LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=64
@@ -132,8 +132,8 @@
 # [PASS] dma_start_pulse_count | actual=0x00000001 expected=0x00000001
 # SUMMARY: PASS=15 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4005)
-#    Time: 52486 ns  Iteration: 0  Instance: /test_bench
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4088)
+#    Time: 55486 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 14:44:19 on Apr 30,2026, Elapsed time: 0:00:59
+# End time: 06:44:55 on May 06,2026, Elapsed time: 0:00:38
 # Errors: 0, Warnings: 0

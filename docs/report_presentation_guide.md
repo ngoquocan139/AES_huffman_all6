@@ -10,10 +10,11 @@ Dung cac spec theo thu tu nay khi on bao cao:
 | 2 | `soc_4_5_end_to_end_report.md` | Ket qua testcase end-to-end chinh |
 | 3 | `coverage_regression_report.md` | Coverage/testplan va cac testcase da chay |
 | 4 | `soc_usage_and_fpga_guide.md` | Lenh chay, cach doi input/C file, FPGA next step |
-| 5 | `tx_path_end_to_end_spec.md` | Giai thich rieng TX khi bi hoi sau |
-| 6 | `rx_path_end_to_end_spec.md` | Giai thich rieng RX khi bi hoi sau |
-| 7 | `memory_map_dma_software_contract.md` | Bang dia chi MMIO/DMEM |
-| 8 | `iv_generation_and_cbc_contract_spec.md` | Giai thich IV va AES-CBC |
+| 5 | `29_defense_qa_code_focus_spec.md` | Ban on nhanh de tra loi luc bi hoi code |
+| 6 | `tx_path_end_to_end_spec.md` | Giai thich rieng TX khi bi hoi sau |
+| 7 | `rx_path_end_to_end_spec.md` | Giai thich rieng RX khi bi hoi sau |
+| 8 | `memory_map_dma_software_contract.md` | Bang dia chi MMIO/DMEM |
+| 9 | `iv_generation_and_cbc_contract_spec.md` | Giai thich IV va AES-CBC |
 
 Khong can trinh bay tung spec module con tren slide. Cac file nhu
 `dma_tx_engine_spec.md`, `dynamic_huffman_encoder_spec.md`,
@@ -169,14 +170,14 @@ Bao cao coverage dung so nay:
 | Active testcase | 32 |
 | Passed testcase | 32 |
 | Raw DUT full `bcesft` | 86.44% |
-| Raw DUT branch+statement | 94.93% |
+| Raw DUT branches / statements | 93.49% / 96.38% |
 | Closed DUT coverage | 95.59% |
 
 Can noi ro:
 
 - Khong noi raw full coverage la 100%.
 - Closed coverage 95.59% la sau exclusion/closure co reason.
-- Branch+statement 94.93% moi la so dep va de giai thich functional hon.
+- Neu thay hoi theo goc functional, dua so `Branches 93.49%` va `Statements 96.38%` thay vi co gang gom thanh 1 so duy nhat.
 
 ### 5.4 Vivado implementation
 
@@ -204,6 +205,43 @@ Khong can liet ke ca 32 testcase tren slide. Chi can nhom:
 | TX | Kiem tra compress-only, compress+AES, error path, max symbols | `tx_compress_only_input1`, `tx_compress_only_input4_cov` |
 | RX | Kiem tra decrypt/decode, malformed frame, backpressure | `dma_compress_aes_input1`, `rx_backpressure_cov` |
 | SoC E2E | Kiem tra full TX -> RX loopback | `dma_compress_aes_input1`, `dma_compress_aes_input3` |
+| Storage table | Kiem tra RV32I quan ly nhieu ciphertext record va chon lai file cu de RX | `dma_storage_table_input1_then_input3` |
+
+## 6.1 How To Explain The PASS Lines
+
+Co the dua bang nay vao phu luc hoac 1 slide backup de giai thich log
+end-to-end:
+
+| Check name | Y nghia bao cao |
+|---|---|
+| `mem_err_o_should_be_zero` | Toan he thong khong phat sinh loi truy cap memory/bus trong suot testcase. |
+| `cpu_should_publish_known_signature` | CPU da chay den cuoi chuong trinh test va ghi ket qua ra vung result trong DMEM. |
+| `result_signature` | Xac nhan dung chuong trinh `test_mmio_dma.c` da hoan tat; `0x44525831` la ma nhan dang cua testcase TX->RX loopback. |
+| `cpu_error_mask_should_be_zero` | Tu goc nhin phan mem RV32I, khong co loi nao trong flow cau hinh DMA, polling status, kiem tra TX/RX. |
+| `tx_status_before_start` | Truoc khi start, TX dang o trang thai idle hop le va cau hinh mode da dung. |
+| `tx_status_after_done` | Sau khi hoan tat, TX set `done_sticky` dung va khong bao loi. |
+| `tx_bytes_done_should_be_transport_aligned` | Dau ra TX duoc can chinh dung theo transport/AES block, tuc chieu dai output hop le ve mat giao thuc. |
+| `tx_ciphertext_bytes_produced_should_match_tx_bytes_done` | Hai nguon bao cao do dai ciphertext cua TX khop nhau, chung to DMA TX va DMA regfile dong bo. |
+| `tx_poll_count_should_be_nonzero` | CPU thuc su polling trang thai TX, dung voi co che dieu khien polling da thiet ke. |
+| `rx_status_before_start_should_be_idle_or_done_sticky` | RX bat dau tu trang thai hop le, khong bi loi hoac trang thai rac truoc khi nhan du lieu. |
+| `rx_status_after_done` | Sau khi hoan tat, RX set `done_sticky` dung va khong bao loi. |
+| `rx_bytes_done_should_match_input_len` | So byte plaintext sau RX dung bang so byte input ban dau. |
+| `rx_debug_after_done` | Khong co loi noi bo nao o path RX nhu depacker, parser, decoder hoac AES path. |
+| `rx_poll_count_should_be_nonzero` | CPU thuc su polling trang thai RX, dung voi software contract. |
+| `source_dmem_should_match_input_file` | Vung source DMEM sau khi loader nap khop tuyet doi voi file input. |
+| `loopback_rx_should_match_input_file` | Du lieu plaintext sau RX khop tuyet doi voi input goc, xac nhan loopback end-to-end chinh xac. |
+| `tx_ciphertext_region_should_not_be_all_zero` | TX thuc su sinh ciphertext/transport data va DMA thuc su ghi du lieu ra vung dich. |
+| `dma_start_pulse_count` | Co dung 2 lan start DMA: mot lan cho TX va mot lan cho RX, dung flow kien truc. |
+| `SUMMARY: PASS=18 FAIL=0` | Tat ca dieu kien kiem tra o muc software, DMA, TX, RX va data integrity deu dat. |
+
+Mot cau noi gon co the dung khi trinh bay:
+
+```text
+Bo self-check nay chung minh SoC khong chi chay het mo phong, ma con thoa
+toan bo hop dong kien truc: CPU cau hinh dung DMA, TX tao ciphertext hop le,
+RX khoi phuc dung du lieu, va plaintext cuoi cung khop tuyet doi voi input ban
+dau.
+```
 
 ## 7. What To Study Before Reporting
 
@@ -219,6 +257,7 @@ Can nam chac cac phan nay:
 7. Testbench: load input txt vao DMEM, dump 3 vung DMEM, compare loopback.
 8. Coverage: phan biet raw coverage, branch+statement coverage va closed coverage.
 9. Vivado: hieu WNS duong la timing pass, power vectorless chi la estimate.
+10. Software storage table: cach RV32I luu metadata `file_id/cipher_addr/cipher_len/IV` de lay lai du lieu da luu.
 
 ## 8. Suggested Slide Order
 

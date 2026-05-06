@@ -1,0 +1,1514 @@
+# vsim -debugDB -coverage -l raw_dut_stress_cov.log -c test_bench "+CASE_NAME=raw_dut_stress_cov" "+INPUT_FILE=input1.txt" "+SIDEBAND_COV" "+TX_IF_DIRECT_COV" "+TX_ENCODER_DIRECT_COV" "+TX_BUILDER_PACKER_DIRECT_COV" "+RX_IF_DIRECT_COV" "+RX_PARSE_DECODE_COV" "+RX_DECODER_DIRECT_COV" "+RX_DEPACKER_PACKER_DIRECT_COV" "+RX_PARSE_DECODE_ERROR_DIRECT_COV" "+CPU_FORWARD_DIRECT_COV" "+DMA_BRIDGE_DIRECT_COV" "+RAW_DUT_STRESS_COV" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit raw_dut_stress_cov.ucdb; log -r /*; run -all" 
+# Start time: 08:04:02 on May 06,2026
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vsim-8611) Generating debug db.
+# ** Warning: (vopt-4308) Enabling visibility using +acc is recommended with debug flow.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4305): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4306): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4307): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4308): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4309): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4310): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4311): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4314): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4315): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4316): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4317): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4318): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4319): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4320): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4321): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4322): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4323): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4324): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4328): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4329): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4330): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4331): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4332): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4333): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4334): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4335): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4336): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4337): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4338): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4339): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4374): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4375): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4376): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4377): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4378): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4379): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4150): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4152): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4154): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4156): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4159): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4161): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4163): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4167): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4169): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4171): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4173): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4175): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4177): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4179): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4181): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4183): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4185): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4187): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4192): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4194): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4196): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4198): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4200): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4202): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4204): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4206): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4208): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4210): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4212): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4214): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4228): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4230): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4232): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4234): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4236): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4238): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4240): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4244): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4246): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4248): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4250): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4252): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4254): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4256): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4258): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4260): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4262): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4264): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4269): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4271): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4273): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4275): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4277): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4279): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4281): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4283): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4285): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4287): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4289): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4291): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4346): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4348): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4350): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4352): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4354): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4356): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4360): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4362): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4364): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4366): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4368): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4370): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4305): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4306): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4307): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4308): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4309): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4310): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4311): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4314): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4315): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4316): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4317): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4318): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4319): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4320): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4321): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4322): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4323): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4324): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4328): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4329): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4330): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4331): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4332): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4333): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4334): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4335): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4336): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4337): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4338): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4339): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4374): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4375): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4376): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4377): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4378): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Warning: ../tb/tb_rv32_soc_mmio_dma.v(4379): (vopt-13286) Force of a variable select having non-constant indices may produce unexpected results.
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=145.
+# //  Questa Sim-64
+# //  Version 2021.2_1 linux_x86_64 May 15 2021
+# //
+# //  Copyright 1991-2021 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading work.test_bench(fast)
+# Loading work.rv32_soc_top(fast)
+# Loading work.top_rv32_sync(fast)
+# Loading work.if_stage_sync(fast)
+# Loading work.id_stage(fast)
+# Loading work.ex_stage(fast)
+# Loading work.mem_stage_sync(fast)
+# Loading work.forwarding(fast)
+# Loading work.registers_file(fast)
+# Loading work.imem_sync(fast)
+# Loading work.dmem_ip_wrapper(fast)
+# Loading work.DMEM_ip(fast)
+# Loading work.apb_huffman_aes_tx_top(fast)
+# Loading work.apb_huffman_tx_if(fast)
+# Loading work.huffman_aes_tx_top(fast)
+# Loading work.frequency_counter(fast)
+# Loading work.huffman_builder(fast)
+# Loading work.symbol_list_builder(fast)
+# Loading work.code_length_builder(fast)
+# Loading work.canonical_code_generator(fast)
+# Loading work.dynamic_huffman_encoder(fast)
+# Loading work.input_collect_unit(fast)
+# Loading work.block_buffer(fast)
+# Loading work.frequency_counter(fast__1)
+# Loading work.huffman_builder(fast__1)
+# Loading work.symbol_list_builder(fast__1)
+# Loading work.code_length_builder(fast__1)
+# Loading work.canonical_code_generator(fast__1)
+# Loading work.mode_decision_logic(fast)
+# Loading work.emit_backend(fast)
+# Loading work.header_formatter(fast)
+# Loading work.payload_emitter(fast)
+# Loading work.stream_output_interface(fast)
+# Loading work.control_fsm(fast)
+# Loading work.bit_packer_128(fast)
+# Loading work.wrapper(fast)
+# Loading work.aes128_cipher_top(fast)
+# Loading work.aes128_cipher_core(fast)
+# Loading work.aes128_key_expansion(fast)
+# Loading work.apb_huffman_aes_rx_top(fast)
+# Loading work.wrapper_rx(fast)
+# Loading work.aes128_cipher_inv_top(fast)
+# Loading work.aes128_cipher_core_inv(fast)
+# Loading work.aes128_key_expansion_inv(fast)
+# Loading work.bit_depacker_128(fast)
+# Loading work.huffman_block_parser(fast)
+# Loading work.huffman_block_decoder(fast)
+# Loading work.HUFFMAN_DECODE_TABLE_IP(fast)
+# Loading work.rx_byte_packer_32(fast)
+# Loading work.apb_huffman_rx_if(fast)
+# Loading work.cpu_mmio_to_apb_bridge(fast)
+# Loading work.dma_regfile(fast)
+# Loading work.dma_tx_engine(fast)
+# Loading work.dma_rx_engine(fast)
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4397
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4397
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4397
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4397
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4397
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4397
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4396
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4396
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4396
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4396
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4396
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4396
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4395
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4395
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4395
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4395
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4395
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4395
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4394
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4394
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4394
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4394
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4394
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4394
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4393
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4392
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4391
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4390
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4389
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4388
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4387
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4386
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4385
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4384
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4383
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4382
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4370
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4368
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4366
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4364
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4362
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4360
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4356
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4354
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4352
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4350
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4348
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4346
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4291
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4289
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4287
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4285
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4283
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4281
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4279
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4277
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4275
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4273
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4271
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4269
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4264
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4262
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4260
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4258
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4256
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4254
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4252
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4250
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4248
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4246
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4244
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4240
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4238
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4236
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4234
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4232
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4230
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4228
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4214
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4212
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4210
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4208
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4206
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4204
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4202
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4200
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4198
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4196
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4194
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4192
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4187
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4185
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4183
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4181
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4179
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4177
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4175
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4173
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4171
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4169
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4167
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4163
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4161
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4159
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4156
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4154
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4152
+# ** Warning: (vsim-12070) Force of a variable select from a non-constant rhs may produce unexpected results.
+#    Time: 0 ps  Iteration: 0  Instance: /test_bench File: ../tb/tb_rv32_soc_mmio_dma.v Line: 4150
+# ** Note: (vsim-8900) Creating design debug database vsim.dbg.
+# coverage save -onexit raw_dut_stress_cov.ucdb
+#  log -r /*
+#  run -all
+# INPUT_FILE override: input1.txt
+# Sync Istr 0: 00008137
+# Sync Istr 1: f0010113
+# Sync Istr 2: 0040006f
+# Sync Istr 3: 40000837
+# Test_result STARTED raw_dut_stress_cov
+# Loaded 2551 byte(s) from input1.txt into DMEM @ 0x00002000
+# SIDEBAND_COV: pulse cpu_stall/cpu_if_flush and aux high-bit activity
+# SIDEBAND_COV: scratch_read=0xffffffff
+# RX_IF_DIRECT_COV: exercise APB RX IF empty/full/error/wait-state branches
+# RX_IF_DIRECT_COV: done scratch=0x00000000
+# ===== RV32I SOC MMIO REGFILE CHECK =====
+# input_file=input1.txt input_len=2551
+# dma_active_dir=0 busy=0 done_sticky=0 error_sticky=0
+# dma_cfg src=0x00000000 dst=0x00000000 len=0x00000000 dir=0x0 block=0x20
+# tx_dma state=0 busy=0 done=0 err=0 bytes=0x00000000 last_err=0x00
+# rx_dma state=0 busy=0 done=0 err=0 bytes=0x00000000 last_err=0x00
+# tx_dst_head = 00000000 00000000 00000000 00000000
+# rx_dst_head = 00000000 00000000 00000000 00000000
+# DEBUG first_tx_transport_valid=0 count=0 word=00000000000000000000000000000000
+# DEBUG first_tx_word_in_valid=0 count=0 data=00000000
+# DEBUG first_tx_dma_word_write=0 count=0 data=00000000
+# DEBUG first_tx_dma_read=0 count=0 addr=00000000 data=00000000
+# DEBUG first_tx_start=0 src=00000000 dst=00000000 len=00000000 dir=0 blk=0
+# DEBUG mmio_write[0] addr=40000008 data=00002000
+# DEBUG mmio_write[1] addr=4000000c data=00004000
+# DEBUG mmio_write[2] addr=40000010 data=00000040
+# DEBUG mmio_write[3] addr=40000014 data=0000000d
+# DEBUG mmio_write[4] addr=40000018 data=00000020
+# DEBUG mmio_write[5] addr=40000028 data=11223344
+# DEBUG mmio_write[6] addr=4000002c data=55667788
+# DEBUG mmio_write[7] addr=40000030 data=99aabbcc
+# DEBUG first_tx_ciphertext_dmem_valid=0 word=00000000000000000000000000000000
+# DEBUG first_rx_ciphertext_feed_valid=0 count=0 word=00000000000000000000000000000000
+# DEBUG first_rx_transport_valid=1 count=1 word=f630ce9114a283104277893e5cb66f42
+# DEBUG first_rx_word_valid=1 count=20 data=deadbeef bytes=0 last_blk=0 last_frm=0
+# DEBUG rx_stage_error depacker=0 parser=1 decoder=0 packer=0 aes_path=0
+# DEBUG rx_stage_state parser=0 decoder=6 packer_busy=0 fifo_count=0 block_done=0 frame_done=0
+# DEBUG rx_decoder_error code=0x00 state=0 bytes_left=0 payload_len=0
+# DEBUG rx_decoder_meta mode=2 block_size=16 symbol_count=47 one_symbol=0x00 parser_mode=2 parser_block_size=16 parser_symbol_count=47
+# BENCHMARK tx_cycles=0 rx_cycles=0 tx_cipher_bytes=13 rx_plain_bytes=-1716864052
+# THROUGHPUT tx_in=0.000 MB/s tx_out=0.000 MB/s rx_in=0.000 MB/s rx_out=0.000 MB/s
+# PAYLOAD compressed_bits=0 compressed_bytes_ceil=0 ratio=0.00% space_saving=100.00%
+# STORAGE ratio=0.51% space_saving=99.49%
+# LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=0
+# FILES summary=loopback/tb_rv32_soc_mmio_dma_summary.txt compare=loopback/tb_rv32_soc_mmio_dma_compare.txt src_dump=dmem_dump/tb_rv32_soc_mmio_dma_src.txt tx_dump=dmem_dump/tb_rv32_soc_mmio_dma_tx.txt rx_dump=dmem_dump/tb_rv32_soc_mmio_dma_rx.txt
+# [PASS] mem_err_o_should_be_zero | actual=0 expected=0
+# [PASS] cpu_should_publish_known_signature
+# [PASS] cpu_error_mask_should_be_zero | actual=0x00000000 expected=0x00000000
+# [PASS] basic_status_after_config | actual=0x000000d8 expected=0x000000d8
+# [PASS] basic_mode_readback | actual=0x0000000d expected=0x0000000d
+# [PASS] basic_block_readback | actual=0x00000020 expected=0x00000020
+# [PASS] basic_soft_reset_pulse_seen
+# [PASS] basic_status_after_soft_reset | actual=0x00000000 expected=0x00000000
+# [PASS] basic_no_dma_start | actual=0x00000000 expected=0x00000000
+# RX_PARSE_DECODE_COV: exercise parser/decoder raw/one-symbol/compressed/malformed frames
+# RX_PARSE_DECODE_COV: done
+# RX_DECODER_DIRECT_COV: exercise decoder fallback and entry-error paths
+# RX_DECODER_DIRECT_COV: done
+# RX_DEPACKER_PACKER_DIRECT_COV: exercise malformed transport and packer backpressure/error branches
+# RX_DEPACKER_PACKER_DIRECT_COV: done
+# RX_PARSE_DECODE_ERROR_DIRECT_COV: exercise parser/decoder defensive branches
+# RX_PARSE_DECODE_ERROR_DIRECT_COV: done append_dummy=11111111111111111111111111111111
+# TX_IF_DIRECT_COV: exercise APB TX IF empty/full/error/status branches
+# TX_IF_DIRECT_COV: done scratch=0x00000204
+# TX_ENCODER_DIRECT_COV: exercise TX dynamic-Huffman mode/header/payload defensive branches
+# TX_ENCODER_DIRECT_COV: done tx_words_dummy=0x001 reversed_dummy=0x55555554
+# TX_BUILDER_PACKER_DIRECT_COV: exercise TX builder, packer, and control-FSM defensive branches
+# TX_BUILDER_PACKER_DIRECT_COV: done symbol_dummy=0x27 index_dummy=0x22 code_dummy=0x00000009 better=0
+# CPU_FORWARD_DIRECT_COV: exercise forwarding mux rs1/rs2 exmem/memwb paths
+# [PASS] cpu_forward_direct_mix_nonzero
+# CPU_FORWARD_DIRECT_COV: done mix=0xffff3337
+# DMA_BRIDGE_DIRECT_COV: exercise DMA regfile, bridge, and DMA engine defensive branches
+# APB_IF_WRAPPER_DIRECT_COV: done words_dummy=0x9 scratch=0x0000001c
+# DMA_BRIDGE_DIRECT_COV: done scratch=0x00000eea
+# RAW_DUT_STRESS_COV: begin targeted FSM/toggle sweep
+# RAW_DUT_STRESS_COV: done
+# SUMMARY: PASS=10 FAIL=0
+# [PASS] rv32_soc_unified_test
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4879)
+#    Time: 125855 ns  Iteration: 1  Instance: /test_bench
+# Saving coverage database on exit...
+# End time: 08:04:39 on May 06,2026, Elapsed time: 0:00:37
+# Errors: 0, Warnings: 749
