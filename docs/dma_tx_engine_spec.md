@@ -17,7 +17,7 @@ Current verification status:
 | `tx_apb_wait_cov` | Private APB wait-state giua DMA TX va TX accelerator |
 | `tx_apb_error_cov` | Private APB error path va `last_error_code_o` |
 | `dma_bridge_direct_cov` | Defensive config/error branches cua DMA/APB path |
-| Full coverage regression | Included in `32/32` PASS baseline |
+| Full coverage regression | Included in `34/34` PASS baseline |
 
 ## 1.1 Flow Chart
 

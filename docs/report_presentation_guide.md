@@ -156,8 +156,8 @@ Theo simulation TB 100 MHz:
 | Testcase | TX input throughput | RX output throughput |
 |---|---:|---:|
 | `dma_compress_aes_input1` | 7.493 MB/s | 17.116 MB/s |
-| `dma_compress_aes_input3` | 5.575 MB/s | 4.652 MB/s |
-| `dma_compress_aes_alnum63_cov` | 2.911 MB/s | 5.947 MB/s |
+| `dma_compress_aes_input3` | 5.320 MB/s | 4.652 MB/s |
+| `dma_compress_aes_alnum63_cov` | 2.780 MB/s | 5.947 MB/s |
 
 Neu noi ve FPGA demo 50 MHz, throughput ly thuyet xap xi mot nua so tren.
 
@@ -167,17 +167,17 @@ Bao cao coverage dung so nay:
 
 | Metric | Value |
 |---|---:|
-| Active testcase | 32 |
-| Passed testcase | 32 |
-| Raw DUT full `bcesft` | 86.44% |
-| Raw DUT branches / statements | 93.49% / 96.38% |
-| Closed DUT coverage | 95.59% |
+| Active testcase | 34 |
+| Passed testcase | 34 |
+| Raw DUT full `bcesft` | 93.72% |
+| Raw DUT branches / statements | 93.85% / 96.39% |
+| Closed DUT coverage | 95.90% |
 
 Can noi ro:
 
 - Khong noi raw full coverage la 100%.
-- Closed coverage 95.59% la sau exclusion/closure co reason.
-- Neu thay hoi theo goc functional, dua so `Branches 93.49%` va `Statements 96.38%` thay vi co gang gom thanh 1 so duy nhat.
+- Closed coverage 95.90% la sau exclusion/closure co reason.
+- Neu thay hoi theo goc functional, dua so `Branches 93.85%` va `Statements 96.39%` thay vi co gang gom thanh 1 so duy nhat.
 
 ### 5.4 Vivado implementation
 
@@ -196,7 +196,7 @@ Can noi ro:
 
 ## 6. Testcase Groups To Mention
 
-Khong can liet ke ca 32 testcase tren slide. Chi can nhom:
+Khong can liet ke ca 34 testcase tren slide. Chi can nhom:
 
 | Group | Purpose | Example |
 |---|---|---|
@@ -207,7 +207,24 @@ Khong can liet ke ca 32 testcase tren slide. Chi can nhom:
 | SoC E2E | Kiem tra full TX -> RX loopback | `dma_compress_aes_input1`, `dma_compress_aes_input3` |
 | Storage table | Kiem tra RV32I quan ly nhieu ciphertext record va chon lai file cu de RX | `dma_storage_table_input1_then_input3` |
 
-## 6.1 How To Explain The PASS Lines
+### 6.1 CPU Instruction Coverage Log
+
+Neu thầy hỏi CPU RV32I đã cover instruction nào, dùng `cpu_instruction_cov`.
+Log nay khong phai DMA test; no la CPU program rieng ghi signature `CPUC` vao
+DMEM:
+
+| Result word | Expected | Meaning |
+|---:|---:|---|
+| `word0` | `0x43505543` | signature `CPUC` |
+| `word1` | `0x00000000` | error mask, bit0..5 tuong ung R-type/I-type/branch/memory/LUI/JALR |
+| `word2` | `0xcd79bdff` | R-type ALU mix |
+| `word3` | `0x0000e595` | memory load/store mix |
+| `word4` | `0x0000003f` | 6 branch types all hit |
+| `word5` | `0x00000874` | I-type ALU mix |
+
+Ket qua moi nhat: `SUMMARY: PASS=8 FAIL=0`.
+
+### 6.2 How To Explain The PASS Lines
 
 Co the dua bang nay vao phu luc hoac 1 slide backup de giai thich log
 end-to-end:

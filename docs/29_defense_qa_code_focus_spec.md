@@ -361,7 +361,10 @@ Trong flow hien tai, CPU tinh IV bang phan mem RV32I roi ghi vao MMIO. Nghia la 
 
 **Tra loi ngan:**
 
-Vi mot so nhanh va toggle noi bo chi xuat hien o tinh huong rat hiem, dac biet parser/decode error path, fallback decode, va cac memory-array toggle cua builder. Tuy nhien nhung testcase chinh da pass, branch/statement da cao, va closed coverage cao hon.
+Vi mot so condition/expression va toggle noi bo chi xuat hien o tinh huong rat
+hiem, dac biet parser/decode error path, fallback decode, bus AES/Huffman
+rong va memory-array toggle cua builder. Tuy nhien nhung testcase chinh da pass,
+raw DUT da tren 90%, branch/statement da cao, va closed coverage cao hon.
 
 ### Q14. Ket qua end-to-end chung minh cai gi?
 
@@ -433,7 +436,7 @@ Neu con it thoi gian, doc dung thu tu nay:
 
 ## 8. Latest Numbers To Remember
 
-Latest checked date: **May 6, 2026**.
+Latest checked date: **May 7, 2026**.
 
 De de nho khi bi hoi nhanh:
 
@@ -441,13 +444,13 @@ De de nho khi bi hoi nhanh:
 |---|---:|
 | Main end-to-end evidence | `SUMMARY: PASS=18 FAIL=0` cho testcase SoC TX->RX chinh |
 | Multi-record storage evidence | `SUMMARY: PASS=22 FAIL=0` cho `dma_storage_table_input1_then_input3` |
-| Raw DUT full coverage | `86.44%` |
-| Closed DUT coverage | `95.59%` sau coverage closure |
-| Main weak raw areas | RX parser transitions, decode-table branch/toggle, dynamic builder toggles |
+| Raw DUT full coverage | `93.72%` |
+| Closed DUT coverage | `95.90%` sau coverage closure |
+| Main weak raw areas | RX parser/decoder condition/expression, AES/Huffman wide-bus toggles, dynamic builder memory-array toggles |
 
 Neu thay hoi "tai sao khong 100% coverage", dung noi:
 
-> Functional end-to-end, MMIO, DMA, TX, RX, error path chinh da pass. Phan con thieu chu yeu la cac transition/toggle noi bo hiem trong parser/decode table va memory-array activity, khong phai cac luong chinh cua secure-storage SoC.
+> Functional end-to-end, MMIO, DMA, TX, RX, error path chinh da pass. Phan con thieu chu yeu la cac condition/expression va toggle noi bo hiem trong parser/decode table, AES/Huffman wide bus va memory-array activity, khong phai cac luong chinh cua secure-storage SoC.
 
 ---
 

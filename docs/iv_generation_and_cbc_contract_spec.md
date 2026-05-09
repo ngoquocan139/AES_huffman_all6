@@ -19,7 +19,7 @@ Current verification status:
 | `tx_compress_aes_block_input3` | TX-only AES-CBC path with software-provided IV |
 | `mmio_regfile_basic` | CPU read/write coverage for `IV0..IV3` registers |
 | `mmio_regfile_negative` | Invalid MMIO/error behavior around DMA config path |
-| Full coverage regression | Included in `32/32` PASS baseline |
+| Full coverage regression | Included in `34/34` PASS baseline |
 
 ## 1.1 IV And CBC Flow Chart
 

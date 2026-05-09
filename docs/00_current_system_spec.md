@@ -10,10 +10,10 @@ Trang thai cap nhat hien tai:
 | Item | Current status |
 |---|---|
 | Simulation top | Mot top duy nhat: `test_bench` trong `tb/tb_rv32_soc_mmio_dma.v` |
-| Active coverage regression | `32/32` testcase PASS bang `cd sim && ./run.csh cov` |
-| Raw DUT full coverage | `86.44%` voi `-code bcesft` |
-| Raw DUT branch+statement | `94.93%` voi `-code bs` |
-| Closed DUT coverage | `95.59%` sau `sim/coverage_close.do` |
+| Active coverage regression | `34/34` testcase PASS bang `cd sim && ./run.csh cov` |
+| Raw DUT full coverage | `93.72%` voi `-code bcesft` |
+| Raw DUT branch+statement | `95.12%` voi `-code bs` |
+| Closed DUT coverage | `95.90%` sau `sim/coverage_close.do` |
 | Lint/DRC | `make drc` PASS voi Verilator |
 | Main simulation flow | `test_mmio_dma.c` + `dma_compress_aes_input1/input3/...` testcase wrappers |
 | Multi-record storage demo | `test_mmio_dma_storage_table.c` + `dma_storage_table_input1_then_input3` PASS |
@@ -567,13 +567,13 @@ make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
 | Main source buffer | `0x00002000..0x00003FFF`, 8192 bytes practical limit |
 | TX output buffer | starts at `0x00004000` |
 | RX output buffer | starts at `0x00006000` |
-| TX block size | software writes valid `32`; whole-file mode does not split the file by this value |
+| TX block size | software writes valid `32`; whole-file mode builds one global codebook, then emits payload as 1..32 byte transport chunks |
 | RX input length | must be ciphertext length and 16-byte aligned |
 | Huffman alphabet | newline + printable ASCII |
 | AES key | fixed RTL key in prototype |
 | IV source | RV32I software demo IV |
 | FPGA runtime output readback | not complete yet |
-| Coverage closure | Branch+statement va closed DUT da vuot 90%; raw full con bi gioi han boi toggle/FSM-transition bins |
+| Coverage closure | Raw DUT, branch+statement va closed DUT deu da vuot 90%; raw full con bi gioi han chu yeu boi toggle va condition/expression bins |
 
 ## 21. Detailed Specs
 

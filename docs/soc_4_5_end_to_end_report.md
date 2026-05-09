@@ -12,11 +12,14 @@ cho bao cao:
 | SOC-03 | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | Max-valid-symbol stress loopback |
 | SOC-04 | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | Software-managed storage table demo |
 
-Tat ca testcase dung cung software:
+Ba testcase loopback dau dung software:
 
 ```text
 testcase/test_mmio_dma.c
 ```
+
+`dma_storage_table_input1_then_input3` dung `testcase/test_mmio_dma_storage_table.c`
+vi no can quan ly hai metadata record trong DMEM.
 
 `TESTNAME` chon file testcase Verilog trong `testcase/`. `CASE_NAME` la
 plusarg de testbench in ten case vao log va gan report/dump voi dung testcase.
@@ -40,9 +43,9 @@ make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_
 Latest run:
 
 ```text
-Date: 2026-05-05
+Date: 2026-05-07
 Clock used by TB benchmark: 10 ns period, 100 MHz
-Result: 3 main loopback tests PASS; storage-table demo PASS individually
+Result: 3 main loopback tests PASS; storage-table demo PASS; all are in the 34/34 clean baseline
 ```
 
 ## 3. Data Flow Under Test
@@ -127,9 +130,9 @@ duoi.
 
 | Testname | TX cycles | RX cycles | TX input MB/s | TX output MB/s | RX input MB/s | RX output MB/s |
 |---|---:|---:|---:|---:|---:|---:|
-| `dma_compress_aes_input1` | 32533 | 14904 | 7.841 | 3.049 | 6.656 | 17.116 |
-| `dma_compress_aes_input3` | 4341 | 5202 | 5.575 | 2.580 | 2.153 | 4.652 |
-| `dma_compress_aes_alnum63_cov` | 17313 | 8475 | 2.911 | 3.142 | 6.419 | 5.947 |
+| `dma_compress_aes_input1` | 34045 | 14904 | 7.493 | 2.914 | 6.656 | 17.116 |
+| `dma_compress_aes_input3` | 4549 | 5202 | 5.320 | 2.462 | 2.153 | 4.652 |
+| `dma_compress_aes_alnum63_cov` | 18129 | 8475 | 2.780 | 3.001 | 6.419 | 5.947 |
 
 ## 7. Output Files
 

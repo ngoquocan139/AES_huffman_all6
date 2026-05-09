@@ -35,7 +35,7 @@ Verification status hien tai:
 | `mmio_regfile_negative` | invalid start, readonly write, bad address, reserved bits |
 | `mmio_mode_matrix` | all supported mode encodings and invalid mode cases |
 | `dma_bridge_direct_cov` | APB wait/error/defensive regfile branches |
-| Full regression | included in `32/32` PASS coverage baseline |
+| Full regression | included in `34/34` PASS coverage baseline |
 
 ## 3. So do khoi
 

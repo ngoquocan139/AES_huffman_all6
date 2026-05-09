@@ -19,7 +19,7 @@ Current verification status:
 | Active RX testcase examples | `dma_compress_aes_input1`, `dma_compress_aes_input3`, `dma_compress_aes_alnum63_cov` |
 | Error/backpressure cases | `mmio_rx_bad_length`, `rx_backpressure_cov` |
 | Coverage hooks | `rx_if_direct_cov`, `rx_parser_decoder_cov`, `rx_decoder_direct_cov`, `rx_depacker_packer_direct_cov`, `rx_parser_decoder_error_direct_cov` |
-| Latest regression | included in `32/32` PASS coverage baseline |
+| Latest regression | included in `34/34` PASS coverage baseline |
 
 ## 2. RX Goal
 
@@ -326,7 +326,7 @@ CPU reads CIPHERTEXT_BYTES_PRODUCED
 - `LEN_BYTES` phai la multiple of `16`
 - IV khong di trong ciphertext payload; software phai giu va reuse dung IV
 - RX top khong dung `AES_top.v` da-mode; chi dung `aes128_cipher_inv_top` + CBC wrapper nho
-- parser/decoder raw full coverage con bi anh huong boi condition/FSM-transition/toggle bins; functional loopback va malformed/error coverage da pass trong regression chung
+- parser/decoder raw full coverage con bi anh huong boi condition/expression/toggle bins; functional loopback va malformed/error coverage da pass trong regression chung
 
 ## 13. Source Files
 

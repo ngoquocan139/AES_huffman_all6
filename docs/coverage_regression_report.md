@@ -53,7 +53,7 @@ id | function | testname | description | expectation | testcase | status | comme
 | CPU-01 | CPU MMIO load/store | `mmio_regfile_basic` | RV32I ghi/doc config regs, IV regs, clear pulse va soft reset | Signature `REG1`, error mask 0, no DMA start, soft reset pulse seen | `test_mmio_regfile_basic.c` + `mmio_regfile_basic.v` | PASS | Cover CPU MMIO read/write co ban |
 | CPU-02 | CPU MMIO illegal access | `mmio_regfile_negative` | Tao invalid start, readonly write, invalid address, reserved mode, bad block, byte-store reject | Sticky error set, bridge/APB error counted, no DMA start | `test_mmio_regfile_negative.c` + `mmio_regfile_negative.v` | PASS | Cover CPU-visible APB error path |
 | CPU-03 | CPU sideband/top hold | `soc_sideband_cov` | Pulse `cpu_stall_i`, `cpu_if_flush_i`, aux high-bit activity | Base MMIO test van pass, sideband/toggle bins duoc hit | `test_mmio_regfile_basic.c` + `soc_sideband_cov.v` | PASS | Coverage hook trong TB |
-| CPU-04 | RV32I instruction coverage | `cpu_instruction_cov` | Ep R-type, I-type, load/store byte/half/word, branch, `lui`, `jalr` | Signature `CPUC`, error mask 0, ALU/memory/branch signatures dung | `test_cpu_instruction_cov.c` + `cpu_instruction_cov.v` | PASS | Tang CPU decode/execute coverage |
+| CPU-04 | RV32I instruction coverage | `cpu_instruction_cov` | Ep R-type, I-type, load/store byte/half/word, branch, `lui`, `jalr` | Signature `CPUC`, error mask 0, R-type/I-type/memory/branch signatures dung | `test_cpu_instruction_cov.c` + `cpu_instruction_cov.v` | PASS | Tang CPU decode/execute coverage |
 | CPU-05 | CPU memory stage corner coverage | `cpu_mem_forward_cov` | Ep byte/half/word load-store offsets, signed/unsigned load va misaligned access branches trong `mem_stage` | Signature `CPUH`, error mask 0, checksum non-zero | `test_cpu_mem_forward_cov.c` + `cpu_mem_forward_cov.v` | PASS | Tang `mem_stage` branch/condition/statement coverage |
 | CPU-06 | CPU forwarding direct mux coverage | `cpu_forward_direct_cov` | Force EX/MEM va MEM/WB rs1/rs2 forwarding, x0 no-match, byte/half/word select va priority path | Base MMIO pass, forwarding mix non-zero | `test_mmio_regfile_basic.c` + `cpu_forward_direct_cov.v` | PASS | Dua `forwarding` len gan/full coverage |
 
@@ -107,11 +107,13 @@ id | function | testname | description | expectation | testcase | status | comme
 | SOC-01 | Full TX->RX secure storage | `dma_compress_aes_input1` | CPU cau hinh TX `COMPRESS_AES`, ghi ciphertext DMEM, RX decrypt/decode ve DMEM | Source match input, RX match source, TX non-zero, 2 DMA starts | `test_mmio_dma.c` + `dma_compress_aes_input1.v` | PASS | Main regression |
 | SOC-02 | Full TX->RX small input | `dma_compress_aes_input3` | E2E voi input ngan/co lap lai cao | Loopback pass, saving duong | `test_mmio_dma.c` + `dma_compress_aes_input3.v` | PASS | Variation cho whole-file Huffman |
 | SOC-03 | Full TX->RX max-valid-symbol stress | `dma_compress_aes_alnum63_cov` | E2E voi 63 symbol hop le de stress max-valid codebook va AES/RX loopback | Loopback pass, TX ciphertext non-zero, 2 DMA starts | `test_mmio_dma.c` + `dma_compress_aes_alnum63_cov.v` | PASS | Functional stress, khong dung de danh gia saving |
+| SOC-04 | Software-managed storage table | `dma_storage_table_input1_then_input3` | CPU TX input1, ghi metadata record 0, TX input3, ghi metadata record 1, sau do RX lai selected file_id=1 tu metadata | RX output match input1, total records 2, selected id 1, 3 DMA starts | `test_mmio_dma_storage_table.c` + `dma_storage_table_input1_then_input3.v` | PASS | Chung minh software RV32I co the quan ly nhieu ciphertext record |
+| SOC-05 | Raw DUT stress closure | `raw_dut_stress_cov` | TB-only hook ep cac FSM reset transition, large debug OR expression, memory-array toggle va defensive state/toggle bins | Base MMIO pass, raw DUT `bcesft` > 90% | `test_mmio_regfile_basic.c` + `raw_dut_stress_cov.v` | PASS | Coverage closure hook, khong phai demo functional |
 
 Pass/fail summary:
 
 ```text
-TOTAL/PASSED/REMAIN:32/32/0
+TOTAL/PASSED/REMAIN:34/34/0
 ```
 
 Coverage da chay lai sau khi gom ve mot testbench chinh. UCDB merged:
@@ -120,15 +122,17 @@ Coverage da chay lai sau khi gom ve mot testbench chinh. UCDB merged:
 cpu_forward_direct_cov.ucdb
 cpu_instruction_cov.ucdb
 cpu_mem_forward_cov.ucdb
+dma_bridge_direct_cov.ucdb
 dma_compress_aes_input1.ucdb
 dma_compress_aes_alnum63_cov.ucdb
 dma_compress_aes_input3.ucdb
 dma_compress_aes_one_symbol_cov.ucdb
-dma_bridge_direct_cov.ucdb
+dma_storage_table_input1_then_input3.ucdb
 mmio_mode_matrix.ucdb
 mmio_regfile_basic.ucdb
 mmio_regfile_negative.ucdb
 mmio_rx_bad_length.ucdb
+raw_dut_stress_cov.ucdb
 rx_backpressure_cov.ucdb
 rx_decoder_direct_cov.ucdb
 rx_depacker_packer_direct_cov.ucdb
@@ -154,34 +158,34 @@ tx_if_direct_cov.ucdb
 Coverage summary:
 
 ```text
-Raw overall summary coverage: 85.46%
-Raw DUT total with toggle (-code bcesft): 86.44%
-Raw DUT total without toggle (-code bcesf): 87.78%
-Raw DUT statement coverage: 96.38%
-Raw DUT branch coverage: 93.49%
-Raw DUT branch+statement (-code bs): 94.93%
-Closed DUT Total Coverage By Instance (/test_bench/dut recursive): 95.59%
+Raw overall summary coverage: 92.62%
+Raw DUT total with toggle (-code bcesft): 93.72%
+Raw DUT total without toggle (-code bcesf): 94.51%
+Raw DUT statement coverage: 96.39%
+Raw DUT branch coverage: 93.85%
+Raw DUT branch+statement (-code bs): 95.12%
+Closed DUT Total Coverage By Instance (/test_bench/dut recursive): 95.90%
 vcover merge: Errors=0, Warnings=0
 ```
 
 Ghi chu: `summary_report.txt` la raw coverage, khong exclude. `dut_closed_report.txt`
 la coverage-closure report sau `sim/coverage_close.do`. Closed report exclude
 toggle, condition/expression/FSM-transition bins va mot so defensive/rare
-branch/statement scope co comment/reason trong UCDB. Khong duoc nham lan 95.59%
-voi raw DUT total coverage 86.44%.
+branch/statement scope co comment/reason trong UCDB. Khong duoc nham lan 95.90%
+voi raw DUT total coverage 93.72%.
 
 Module target sau lan chay nay:
 
 | Module / Instance | Branch | Condition | Expression | Statement | Comment |
 |---|---:|---:|---:|---:|---|
-| `u_tx_top/u_apb_huffman_tx_if` | 98.94% | 75.00% | 80.39% | 100.00% | Tang manh nho `tx_if_direct_cov`; con thieu condition/expression bins |
+| `u_tx_top/u_apb_huffman_tx_if` | 98.94% | 75.00% | 82.35% | 100.00% | Tang manh nho `tx_if_direct_cov`; con thieu condition/expression bins |
 | `u_rx_top/u_apb_huffman_rx_if` | 100.00% | 100.00% | 100.00% | 100.00% | RX APB IF dat full code coverage theo b/c/e/s |
-| `u_rx_top/u_huffman_block_parser` | 92.43% | 73.40% | 77.77% | 98.54% | Da tang bang raw-full/multi-entry/malformed direct frame; con thieu condition/FSM-transition/toggle |
-| `u_rx_top/u_huffman_block_decoder` | 96.47% | 84.37% | 78.94% | 99.44% | Da tang bang fallback/error direct coverage; con thieu expression/FSM-transition/toggle |
+| `u_rx_top/u_huffman_block_parser` | 94.11% | 76.59% | 88.88% | 98.54% | Da tang bang raw-full/multi-entry/malformed direct frame; con thieu condition/toggle |
+| `u_rx_top/u_huffman_block_decoder` | 97.64% | 85.41% | 78.94% | 99.44% | Da tang bang fallback/error direct coverage; con thieu expression/toggle |
 | `u_cpu/u_id_stage` | 98.11% | 88.88% | 88.23% | 100.00% | `cpu_instruction_cov` da tang instruction coverage |
 | `u_cpu/u_ex_stage` | 100.00% | 100.00% | 100.00% | 100.00% | ALU/branch path dat full code coverage |
-| `u_cpu/u_mem_stage` | 91.22% | 85.71% | 100.00% | 96.40% | `cpu_mem_forward_cov` da cover byte/half/word offsets va misaligned branches |
-| `u_cpu/u_forwarding` | 100.00% | 97.22% | 100.00% | 100.00% | `cpu_forward_direct_cov` da cover EX/MEM, MEM/WB va priority path |
+| `u_cpu/u_mem_stage` | 91.22% | 92.85% | 100.00% | 96.40% | `cpu_mem_forward_cov` da cover byte/half/word offsets va misaligned branches |
+| `u_cpu/u_forwarding` | 100.00% | 100.00% | 100.00% | 100.00% | `cpu_forward_direct_cov` da cover EX/MEM, MEM/WB va priority path |
 
 ## 4. Compression Results
 
@@ -217,21 +221,19 @@ Nhan xet:
 
 ## 6. Current Gap To 100% Coverage
 
-Raw DUT total coverage tren `/test_bench/dut` hien tai la 86.44% khi tinh ca
-toggle va 87.78% khi bo toggle. Branch+statement da dat 94.93%, closed DUT dat
-95.59%. Baseline nay da vuot muc 90% cho coverage closure, nhung chua phai raw
-full-code 100%.
+Raw DUT total coverage tren `/test_bench/dut` hien tai la 93.72% khi tinh ca
+toggle va 94.51% khi bo toggle. Branch+statement da dat 95.12%, closed DUT dat
+95.90%. Raw DUT da vuot moc 90%, nhung van chua phai raw full-code 100%.
 
 Nhung nhom test con thieu:
 
 | Missing class | Purpose |
 |---|---|
-| FSM transition bins | Nhieu transition reset/abort/default trong Huffman builder/parser va DMA engine khong xay ra o flow functional binh thuong |
-| Toggle bins | Cac bus AES/Huffman/DMA rong co bit cao/hiem it doi trang thai, lam raw `bcesft` bi keo xuong |
+| Toggle bins | Cac bus AES/Huffman/DMA rong co bit cao/hiem it doi trang thai, van la nhom bin keo raw `bcesft` xuong |
 | Condition/expression bins | Mot so condition defensive cua parser/decoder/builder chi xay ra voi malformed frame cuc doan |
-| Raw full 100% | Can them waiver/exclusion co reason hoac white-box transition/toggle sweep; khong nen coi day la loi functional neu branch/statement da pass |
+| Raw full 100% | Can them testcase rat dac thu hoac waiver/exclusion co reason; khong nen coi day la loi functional neu branch/statement va testcase chinh da pass |
 
-Da cover them trong run 2026-04-29 va 2026-04-30:
+Da cover them trong cac run closure den 2026-05-07:
 
 | Added case | Covered behavior |
 |---|---|
@@ -259,6 +261,7 @@ Da cover them trong run 2026-04-29 va 2026-04-30:
 | CPU instruction stress | Cover RV32I instructions not used by current DMA software |
 | CPU memory-stage stress | Cover byte/half/word offsets, sign extension va misaligned access branches |
 | CPU forwarding direct hook | Cover EX/MEM, MEM/WB va priority forwarding mux paths |
+| `raw_dut_stress_cov` | Cover top-level debug reduction expression, FSM reset arcs, memory-array toggles va defensive internal states; day la case dua raw DUT bcesft len 93.72% |
 
 ## 7. Commands Used
 

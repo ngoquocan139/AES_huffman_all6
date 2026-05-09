@@ -13,10 +13,10 @@ Trang thai hien tai:
 | Testbench file | `tb/tb_rv32_soc_mmio_dma.v` |
 | Testcase wrapper | `testcase/<TESTNAME>.v`, duoc Makefile copy thanh `sim/run_test.v` |
 | Coverage regression | `cd sim && ./run.csh cov` |
-| Latest pass/fail | `32/32` PASS |
-| Raw DUT full coverage | `86.44%` |
-| Raw DUT branch+statement | `94.93%` |
-| Closed DUT coverage | `95.59%` |
+| Latest pass/fail | `34/34` PASS |
+| Raw DUT full coverage | `93.72%` |
+| Raw DUT branch+statement | `95.12%` |
+| Closed DUT coverage | `95.90%` |
 
 Khong con dung `tb_rv32_soc_tx_only` hay `tb_rv32_log_preprocess` trong clean
 baseline. TX-only, RX, DMA, CPU va coverage hooks deu chay qua `test_bench`.
@@ -196,12 +196,12 @@ Ket qua moi nhat:
 
 | Metric | Value |
 |---|---:|
-| Active testcase count | 32 |
-| Passed testcase count | 32 |
-| Raw DUT full `bcesft` | 86.44% |
-| Raw DUT no-toggle `bcesf` | 87.78% |
-| Raw DUT branch+statement `bs` | 94.93% |
-| Closed DUT coverage | 95.59% |
+| Active testcase count | 34 |
+| Passed testcase count | 34 |
+| Raw DUT full `bcesft` | 93.72% |
+| Raw DUT no-toggle `bcesf` | 94.51% |
+| Raw DUT branch+statement `bs` | 95.12% |
+| Closed DUT coverage | 95.90% |
 
 Report files:
 
@@ -360,7 +360,7 @@ Da co loader input, nhung demo board thuc dung van can:
 
 Thu tu hop ly:
 
-1. giu simulation regression `32/32` PASS lam baseline;
+1. giu simulation regression `34/34` PASS lam baseline;
 2. neu can bao cao coverage, dung `coverage_regression_report.md`;
 3. chot demo FPGA la TX-only hay RX-only;
 4. build lai `instruction.mem` tu dung file C;

@@ -18,10 +18,11 @@ Regression baseline hien tai:
 
 | Metric | Value |
 |---|---:|
-| Active testcase count | 32 |
-| Passed testcase count | 32 |
-| Raw DUT branch+statement | 94.93% |
-| Closed DUT coverage | 95.59% |
+| Active testcase count | 34 |
+| Passed testcase count | 34 |
+| Raw DUT full `bcesft` | 93.72% |
+| Raw DUT branch+statement | 95.12% |
+| Closed DUT coverage | 95.90% |
 
 ## 1.1 Software Contract Flow Chart
 

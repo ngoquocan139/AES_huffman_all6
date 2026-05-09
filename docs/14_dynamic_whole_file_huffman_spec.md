@@ -251,10 +251,11 @@ Ket qua max-valid-symbol stress voi `input_cov_alnum63.txt`:
 
 Regression coverage hien tai:
 
-- active testcase: `32`
-- pass: `32`
-- raw DUT branch+statement: `94.93%`
-- closed DUT coverage: `95.59%`
+- active testcase: `34`
+- pass: `34`
+- raw DUT full `bcesft`: `93.72%`
+- raw DUT branch+statement: `95.12%`
+- closed DUT coverage: `95.90%`
 
 ## 9. Tradeoff
 

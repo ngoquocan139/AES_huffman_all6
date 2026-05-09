@@ -17,10 +17,11 @@ Current baseline:
 | Main simulation top | `test_bench` only |
 | Active testcase source | `sim/pat.list` |
 | Coverage runner | `cd sim && ./run.csh cov` |
-| Latest pass/fail | `32/32` PASS |
-| Raw DUT full coverage | `86.44%` |
-| Raw DUT branches / statements | `93.49% / 96.38%` |
-| Closed DUT coverage | `95.59%` |
+| Latest pass/fail | `34/34` PASS |
+| Raw DUT full coverage | `93.72%` |
+| Raw DUT branches / statements | `93.85% / 96.39%` |
+| Raw DUT branch+statement | `95.12%` |
+| Closed DUT coverage | `95.90%` |
 | Usage guide | [soc_usage_and_fpga_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_usage_and_fpga_guide.md) |
 | SOC 4.5 report | [soc_4_5_end_to_end_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_4_5_end_to_end_report.md) |
 | Presentation guide | [report_presentation_guide.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/report_presentation_guide.md) |

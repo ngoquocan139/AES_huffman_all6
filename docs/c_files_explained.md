@@ -319,9 +319,81 @@ Gia tri config duoc ghi:
 - mode DMA: `COMPRESS_ONLY`
 - du lieu di theo duong `DMEM -> Huffman TX -> DMEM`
 
-## 7. Disassembly Notes for `testcase/test_mmio_dma.c`
+## 7. `testcase/test_cpu_instruction_cov.c` (RV32I Instruction Coverage)
 
-### 7.1 Boot
+### 7.1 Muc tieu test
+
+Test nay khong cau hinh DMA. Muc tieu la ep CPU RV32I chay that cac nhom
+instruction khong xuat hien day du trong software DMA binh thuong:
+
+- R-type ALU: `add`, `sub`, `sll`, `slt`, `sltu`, `xor`, `srl`, `sra`, `or`, `and`
+- I-type ALU: `addi`, `slti`, `sltiu`, `xori`, `ori`, `andi`, `slli`, `srli`, `srai`
+- Memory: `sw`, `sh`, `sb`, `lbu`, `lb`, `lhu`, `lh`
+- Branch/jump: `beq`, `bne`, `blt`, `bge`, `bltu`, `bgeu`, `jalr`
+- Upper immediate: `lui`
+
+### 7.2 Result layout
+
+`test_cpu_instruction_cov.c` ghi ket qua vao DMEM word 0..5:
+
+| Word | Field | Expected | Meaning |
+|---:|---|---:|---|
+| 0 | signature | `0x43505543` | ASCII-like tag `CPUC` |
+| 1 | error_mask | `0x00000000` | bitwise fail mask |
+| 2 | r_type_mix | `0xcd79bdff` | XOR/mix result of R-type ALU group |
+| 3 | mem_mix | `0x0000e595` | load/store byte/half/word check result |
+| 4 | branch_score | `0x0000003f` | all 6 branch types observed as expected |
+| 5 | i_type_mix | `0x00000874` | XOR/mix result of I-type ALU group |
+
+`error_mask` bit map:
+
+| Bit | Meaning |
+|---:|---|
+| 0 | R-type mix mismatch |
+| 1 | I-type mix invalid |
+| 2 | branch score mismatch |
+| 3 | load/store result mismatch |
+| 4 | `lui` result mismatch |
+| 5 | `jalr` control-flow mismatch |
+
+`branch_score` bit map:
+
+| Bit | Branch |
+|---:|---|
+| 0 | `beq` |
+| 1 | `bne` |
+| 2 | `blt` |
+| 3 | `bge` |
+| 4 | `bltu` |
+| 5 | `bgeu` |
+
+### 7.3 Log block de bao cao
+
+Sau khi cap nhat TB, `cpu_instruction_cov` in rieng block:
+
+```text
+# ===== CPU INSTRUCTION COVERAGE REPORT =====
+# covered_groups: R-type ALU, I-type ALU, load/store byte-half-word, signed/unsigned load, branch, LUI, JALR
+#   word0 signature      actual=0x43505543 expected=0x43505543 meaning='CPUC'
+#   word1 error_mask     actual=0x00000000 expected=0x00000000
+#   word2 r_type_mix     actual=0xcd79bdff expected=0xcd79bdff
+#   word3 mem_mix        actual=0x0000e595 expected=0x0000e595
+#   word4 branch_score   actual=0x0000003f expected=0x0000003f
+#   word5 i_type_mix     actual=0x00000874 expected=0x00000874
+# SUMMARY: PASS=8 FAIL=0
+```
+
+Run dung:
+
+```bash
+cd sim
+make compile C_SRC=test_cpu_instruction_cov.c
+make all TESTNAME=cpu_instruction_cov RUN_ARGS="+CASE_NAME=cpu_instruction_cov +INPUT_FILE=input1.txt"
+```
+
+## 8. Disassembly Notes for `testcase/test_mmio_dma.c`
+
+### 8.1 Boot
 
 | PC    | Hex      | Mnemonic |
 |-------|----------|----------|
@@ -329,7 +401,7 @@ Gia tri config duoc ghi:
 | 0x004 | f0010113 | `addi sp,sp,-256` |
 | 0x008 | 0040006f | `j 0x00c` |
 
-### 7.2 Write DMA config
+### 8.2 Write DMA config
 
 Generated assembly co the thay doi theo option compile, nhung instruction
 class chinh van la RV32I co ban:
@@ -341,7 +413,7 @@ class chinh van la RV32I co ban:
   `CONTROL.start`
 - `andi`, `beq`, `bne`, `bltu` de poll status va check timeout
 
-### 7.3 Poll / collect result
+### 8.3 Poll / collect result
 
 Sau khi ghi `CONTROL.start`, chuong trinh:
 
@@ -371,7 +443,7 @@ Sau khi ghi `CONTROL.start`, chuong trinh:
 - bit11: `CIPHERTEXT_BYTES_PRODUCED != TX_BYTES_DONE`
 - bit12: input length bang 0
 
-### 7.4 Write result words to DMEM[0..15]
+### 8.4 Write result words to DMEM[0..15]
 
 | PC    | Hex      | Mnemonic |
 |-------|----------|----------|
@@ -390,7 +462,7 @@ roi nhay vao vong lap vo han de giu trang thai.
 
 ---
 
-## 8. Checklist khi doi bai test
+## 9. Checklist khi doi bai test
 
 De tranh chay nham chuong trinh:
 
@@ -405,7 +477,7 @@ De tranh chay nham chuong trinh:
    - MMIO test: bat dau bang `00008137`
    - Smoke sync: bat dau bang `00500093`
 
-## 9. Flow khuyen nghi theo loai input
+## 10. Flow khuyen nghi theo loai input
 
 - `input1.txt` full loopback:
   - compile: `make compile C_SRC=test_mmio_dma.c`
@@ -424,4 +496,4 @@ De tranh chay nham chuong trinh:
 
 - Full coverage:
   - command: `cd sim && ./run.csh cov && ./report.csh`
-  - result hien tai: `32/32` PASS, closed DUT `95.59%`.
+  - result hien tai: `34/34` PASS, closed DUT `95.90%`.
