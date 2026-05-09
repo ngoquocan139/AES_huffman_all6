@@ -1,0 +1,14 @@
+Recursive Coverage Report Summary Data by instance
+
+=================================================================================
+=== Instance: /test_bench/dut
+=== Design Unit: work.rv32_soc_top
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                      2326      2183       143    93.85%
+    Statements                    4352      4195       157    96.39%
+
+
+Total Coverage By Instance (filtered view): 95.12%
+

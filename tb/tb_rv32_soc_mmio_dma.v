@@ -705,13 +705,33 @@ module test_bench;
       release dut.u_dma_tx_engine.tx_pready_i;
       release dut.u_dma_tx_engine.tx_pslverr_i;
       release dut.u_dma_tx_engine.state_r;
+      release dut.u_dma_tx_engine.apb_resume_state_r;
+      release dut.u_dma_tx_engine.apb_write_r;
+      release dut.u_dma_tx_engine.apb_addr_r;
+      release dut.u_dma_tx_engine.apb_wdata_r;
       release dut.u_dma_tx_engine.apb_rdata_r;
+      release dut.u_dma_tx_engine.src_ptr_r;
+      release dut.u_dma_tx_engine.dst_ptr_r;
+      release dut.u_dma_tx_engine.src_base_r;
+      release dut.u_dma_tx_engine.dst_base_r;
+      release dut.u_dma_tx_engine.len_bytes_r;
       release dut.u_dma_tx_engine.current_block_continue_r;
       release dut.u_dma_tx_engine.current_block_bytes_r;
       release dut.u_dma_tx_engine.bytes_remaining_r;
+      release dut.u_dma_tx_engine.cfg_block_size_r;
+      release dut.u_dma_tx_engine.words_remaining_r;
       release dut.u_dma_tx_engine.final_drain_r;
       release dut.u_dma_tx_engine.drain_during_block_r;
+      release dut.u_dma_tx_engine.whole_file_r;
+      release dut.u_dma_tx_engine.count_phase_r;
+      release dut.u_dma_tx_engine.compress_only_r;
       release dut.u_dma_tx_engine.final_empty_polls_r;
+      release dut.u_dma_tx_engine.output_word_r;
+      release dut.u_dma_tx_engine.tx_meta_r;
+      release dut.u_dma_tx_engine.dma_done_o;
+      release dut.u_dma_tx_engine.dma_error_o;
+      release dut.u_dma_tx_engine.bytes_done_o;
+      release dut.u_dma_tx_engine.last_error_code_o;
 
       release dut.u_dma_rx_engine.start_i;
       release dut.u_dma_rx_engine.soft_reset_i;
@@ -727,12 +747,551 @@ module test_bench;
       release dut.u_dma_rx_engine.rx_pready_i;
       release dut.u_dma_rx_engine.rx_pslverr_i;
       release dut.u_dma_rx_engine.state_r;
+      release dut.u_dma_rx_engine.apb_resume_state_r;
+      release dut.u_dma_rx_engine.apb_write_r;
+      release dut.u_dma_rx_engine.apb_addr_r;
+      release dut.u_dma_rx_engine.apb_wdata_r;
       release dut.u_dma_rx_engine.apb_rdata_r;
+      release dut.u_dma_rx_engine.src_ptr_r;
+      release dut.u_dma_rx_engine.dst_ptr_r;
       release dut.u_dma_rx_engine.ctxt_bytes_remaining_r;
+      release dut.u_dma_rx_engine.ctxt_w0_r;
+      release dut.u_dma_rx_engine.ctxt_w1_r;
+      release dut.u_dma_rx_engine.ctxt_w2_r;
+      release dut.u_dma_rx_engine.ctxt_w3_r;
       release dut.u_dma_rx_engine.stream_pending_r;
       release dut.u_dma_rx_engine.meta_r;
+      release dut.u_dma_rx_engine.output_word_r;
+      release dut.u_dma_rx_engine.dma_done_o;
+      release dut.u_dma_rx_engine.dma_error_o;
+      release dut.u_dma_rx_engine.bytes_done_o;
+      release dut.u_dma_rx_engine.last_error_code_o;
       @(posedge clk);
       #1;
+    end
+  endtask
+
+  task force_soc_debug_unused_zero;
+    begin
+      force dut.imem_addr_w = 32'h00000000;
+      force dut.bridge_mmio_done_w = 1'b0;
+      force dut.bridge_mmio_error_w = 1'b0;
+      force dut.bridge_mmio_busy_w = 1'b0;
+      force dut.dma_src_addr_w = 32'h00000000;
+      force dut.dma_dst_addr_w = 32'h00000000;
+      force dut.dma_len_bytes_w = 32'h00000000;
+      force dut.dma_direction_w = 2'b00;
+      force dut.dma_compress_only_w = 1'b0;
+      force dut.dma_whole_file_w = 1'b0;
+      force dut.dma_iv_w = 128'h0;
+      force dut.dma_block_size_w = 6'h00;
+      force dut.dma_start_pulse_w = 1'b0;
+      force dut.dma_soft_reset_pulse_w = 1'b0;
+      force dut.dma_clear_done_pulse_w = 1'b0;
+      force dut.dma_clear_error_pulse_w = 1'b0;
+      force dut.tx_psel_w = 1'b0;
+      force dut.tx_penable_w = 1'b0;
+      force dut.tx_pwrite_w = 1'b0;
+      force dut.tx_paddr_w = 32'h00000000;
+      force dut.tx_pwdata_w = 32'h00000000;
+      force dut.tx_prdata_w = 32'h00000000;
+      force dut.tx_pready_w = 1'b0;
+      force dut.tx_pslverr_w = 1'b0;
+      force dut.tx_aes_data_out_w = 128'h0;
+      force dut.tx_aes_ready_out_w = 1'b0;
+      force dut.tx_busy_dbg_w = 1'b0;
+      force dut.tx_done_dbg_w = 1'b0;
+      force dut.tx_error_dbg_w = 1'b0;
+      force dut.tx_encoder_busy_w = 1'b0;
+      force dut.tx_encoder_done_w = 1'b0;
+      force dut.tx_encoder_error_w = 1'b0;
+      force dut.tx_selected_mode_w = 2'b00;
+      force dut.tx_fsm_state_w = 4'h0;
+      force dut.tx_packer_busy_w = 1'b0;
+      force dut.tx_packer_done_w = 1'b0;
+      force dut.tx_packer_error_w = 1'b0;
+      force dut.tx_transport_word_dbg_w = 128'h0;
+      force dut.tx_transport_word_valid_dbg_w = 1'b0;
+      force dut.tx_adapter_error_dbg_w = 1'b0;
+      force dut.tx_apb_start_block_dbg_w = 1'b0;
+      force dut.tx_apb_block_size_dbg_w = 6'h00;
+      force dut.tx_apb_word_in_dbg_w = 32'h00000000;
+      force dut.tx_apb_word_valid_dbg_w = 1'b0;
+      force dut.tx_apb_word_ready_dbg_w = 1'b0;
+      force dut.tx_cipher_en_dbg_w = 1'b0;
+      force dut.tx_decipher_en_dbg_w = 1'b0;
+      force dut.tx_chain_en_dbg_w = 1'b0;
+      force dut.tx_data_in_dbg_w = 128'h0;
+      force dut.tx_key_dbg_w = 128'h0;
+      force dut.tx_mode_dbg_w = 4'h0;
+      force dut.tx_init_vector_dbg_w = 128'h0;
+      force dut.tx_segment_len_dbg_w = 16'h0000;
+      force dut.rx_psel_w = 1'b0;
+      force dut.rx_penable_w = 1'b0;
+      force dut.rx_pwrite_w = 1'b0;
+      force dut.rx_paddr_w = 32'h00000000;
+      force dut.rx_pwdata_w = 32'h00000000;
+      force dut.rx_prdata_w = 32'h00000000;
+      force dut.rx_pready_w = 1'b0;
+      force dut.rx_pslverr_w = 1'b0;
+      force dut.rx_busy_dbg_w = 1'b0;
+      force dut.rx_done_dbg_w = 1'b0;
+      force dut.rx_error_dbg_w = 1'b0;
+      force dut.rx_aes_ready_out_w = 1'b0;
+      force dut.rx_depacker_busy_w = 1'b0;
+      force dut.rx_depacker_done_w = 1'b0;
+      force dut.rx_depacker_error_w = 1'b0;
+      force dut.rx_parser_busy_w = 1'b0;
+      force dut.rx_parser_block_done_w = 1'b0;
+      force dut.rx_parser_frame_done_w = 1'b0;
+      force dut.rx_parser_error_w = 1'b0;
+      force dut.rx_decoder_busy_w = 1'b0;
+      force dut.rx_decoder_block_done_w = 1'b0;
+      force dut.rx_decoder_frame_done_w = 1'b0;
+      force dut.rx_decoder_error_w = 1'b0;
+      force dut.rx_word_packer_busy_w = 1'b0;
+      force dut.rx_word_packer_block_done_w = 1'b0;
+      force dut.rx_word_packer_frame_done_w = 1'b0;
+      force dut.rx_word_packer_error_w = 1'b0;
+      force dut.rx_transport_word_dbg_w = 128'h0;
+      force dut.rx_transport_word_valid_dbg_w = 1'b0;
+      force dut.rx_word_dbg_w = 32'h00000000;
+      force dut.rx_word_valid_bytes_dbg_w = 3'b000;
+      force dut.rx_word_last_in_block_dbg_w = 1'b0;
+      force dut.rx_word_last_in_frame_dbg_w = 1'b0;
+      force dut.rx_word_valid_dbg_w = 1'b0;
+      force dut.rx_ciphertext_word_ready_unused_w = 1'b0;
+      force dut.rx_ciphertext_word_w = 128'h0;
+      force dut.rx_ciphertext_word_valid_w = 1'b0;
+      force dut.dma_engine_bytes_done_w = 32'h00000000;
+      force dut.dma_engine_last_error_w = 8'h00;
+      force dut.dma_engine_state_w = 4'h0;
+      force dut.dma_active_dir_r = 2'b00;
+    end
+  endtask
+
+  task release_soc_debug_unused_forces;
+    begin
+      release dut.imem_addr_w;
+      release dut.bridge_mmio_done_w;
+      release dut.bridge_mmio_error_w;
+      release dut.bridge_mmio_busy_w;
+      release dut.dma_src_addr_w;
+      release dut.dma_dst_addr_w;
+      release dut.dma_len_bytes_w;
+      release dut.dma_direction_w;
+      release dut.dma_compress_only_w;
+      release dut.dma_whole_file_w;
+      release dut.dma_iv_w;
+      release dut.dma_block_size_w;
+      release dut.dma_start_pulse_w;
+      release dut.dma_soft_reset_pulse_w;
+      release dut.dma_clear_done_pulse_w;
+      release dut.dma_clear_error_pulse_w;
+      release dut.tx_psel_w;
+      release dut.tx_penable_w;
+      release dut.tx_pwrite_w;
+      release dut.tx_paddr_w;
+      release dut.tx_pwdata_w;
+      release dut.tx_prdata_w;
+      release dut.tx_pready_w;
+      release dut.tx_pslverr_w;
+      release dut.tx_aes_data_out_w;
+      release dut.tx_aes_ready_out_w;
+      release dut.tx_busy_dbg_w;
+      release dut.tx_done_dbg_w;
+      release dut.tx_error_dbg_w;
+      release dut.tx_encoder_busy_w;
+      release dut.tx_encoder_done_w;
+      release dut.tx_encoder_error_w;
+      release dut.tx_selected_mode_w;
+      release dut.tx_fsm_state_w;
+      release dut.tx_packer_busy_w;
+      release dut.tx_packer_done_w;
+      release dut.tx_packer_error_w;
+      release dut.tx_transport_word_dbg_w;
+      release dut.tx_transport_word_valid_dbg_w;
+      release dut.tx_adapter_error_dbg_w;
+      release dut.tx_apb_start_block_dbg_w;
+      release dut.tx_apb_block_size_dbg_w;
+      release dut.tx_apb_word_in_dbg_w;
+      release dut.tx_apb_word_valid_dbg_w;
+      release dut.tx_apb_word_ready_dbg_w;
+      release dut.tx_cipher_en_dbg_w;
+      release dut.tx_decipher_en_dbg_w;
+      release dut.tx_chain_en_dbg_w;
+      release dut.tx_data_in_dbg_w;
+      release dut.tx_key_dbg_w;
+      release dut.tx_mode_dbg_w;
+      release dut.tx_init_vector_dbg_w;
+      release dut.tx_segment_len_dbg_w;
+      release dut.rx_psel_w;
+      release dut.rx_penable_w;
+      release dut.rx_pwrite_w;
+      release dut.rx_paddr_w;
+      release dut.rx_pwdata_w;
+      release dut.rx_prdata_w;
+      release dut.rx_pready_w;
+      release dut.rx_pslverr_w;
+      release dut.rx_busy_dbg_w;
+      release dut.rx_done_dbg_w;
+      release dut.rx_error_dbg_w;
+      release dut.rx_aes_ready_out_w;
+      release dut.rx_depacker_busy_w;
+      release dut.rx_depacker_done_w;
+      release dut.rx_depacker_error_w;
+      release dut.rx_parser_busy_w;
+      release dut.rx_parser_block_done_w;
+      release dut.rx_parser_frame_done_w;
+      release dut.rx_parser_error_w;
+      release dut.rx_decoder_busy_w;
+      release dut.rx_decoder_block_done_w;
+      release dut.rx_decoder_frame_done_w;
+      release dut.rx_decoder_error_w;
+      release dut.rx_word_packer_busy_w;
+      release dut.rx_word_packer_block_done_w;
+      release dut.rx_word_packer_frame_done_w;
+      release dut.rx_word_packer_error_w;
+      release dut.rx_transport_word_dbg_w;
+      release dut.rx_transport_word_valid_dbg_w;
+      release dut.rx_word_dbg_w;
+      release dut.rx_word_valid_bytes_dbg_w;
+      release dut.rx_word_last_in_block_dbg_w;
+      release dut.rx_word_last_in_frame_dbg_w;
+      release dut.rx_word_valid_dbg_w;
+      release dut.rx_ciphertext_word_ready_unused_w;
+      release dut.rx_ciphertext_word_w;
+      release dut.rx_ciphertext_word_valid_w;
+      release dut.dma_engine_bytes_done_w;
+      release dut.dma_engine_last_error_w;
+      release dut.dma_engine_state_w;
+      release dut.dma_active_dir_r;
+    end
+  endtask
+
+  task hit_soc_debug_unused_term;
+    input integer term_idx;
+    begin
+      force_soc_debug_unused_zero;
+      #1;
+      case (term_idx)
+        0:  force dut.imem_addr_w = 32'h00001000;
+        1:  force dut.imem_addr_w = 32'h00000001;
+        2:  force dut.bridge_mmio_done_w = 1'b1;
+        3:  force dut.bridge_mmio_error_w = 1'b1;
+        4:  force dut.bridge_mmio_busy_w = 1'b1;
+        5:  force dut.dma_src_addr_w = 32'h00000004;
+        6:  force dut.dma_dst_addr_w = 32'h00000008;
+        7:  force dut.dma_len_bytes_w = 32'h00000010;
+        8:  force dut.dma_direction_w = 2'b01;
+        9:  force dut.dma_compress_only_w = 1'b1;
+        10: force dut.dma_whole_file_w = 1'b1;
+        11: force dut.dma_iv_w = 128'h00000000000000000000000000000001;
+        12: force dut.dma_block_size_w = 6'h20;
+        13: force dut.dma_start_pulse_w = 1'b1;
+        14: force dut.dma_soft_reset_pulse_w = 1'b1;
+        15: force dut.dma_clear_done_pulse_w = 1'b1;
+        16: force dut.dma_clear_error_pulse_w = 1'b1;
+        17: force dut.tx_psel_w = 1'b1;
+        18: force dut.tx_penable_w = 1'b1;
+        19: force dut.tx_pwrite_w = 1'b1;
+        20: force dut.tx_paddr_w = 32'h00000004;
+        21: force dut.tx_pwdata_w = 32'h13579bdf;
+        22: force dut.tx_prdata_w = 32'h2468ace0;
+        23: force dut.tx_pready_w = 1'b1;
+        24: force dut.tx_pslverr_w = 1'b1;
+        25: force dut.tx_aes_data_out_w = 128'h0123456789abcdeffedcba9876543210;
+        26: force dut.tx_aes_ready_out_w = 1'b1;
+        27: force dut.tx_busy_dbg_w = 1'b1;
+        28: force dut.tx_done_dbg_w = 1'b1;
+        29: force dut.tx_error_dbg_w = 1'b1;
+        30: force dut.tx_encoder_busy_w = 1'b1;
+        31: force dut.tx_encoder_done_w = 1'b1;
+        32: force dut.tx_encoder_error_w = 1'b1;
+        33: force dut.tx_selected_mode_w = 2'b10;
+        34: force dut.tx_fsm_state_w = 4'h5;
+        35: force dut.tx_packer_busy_w = 1'b1;
+        36: force dut.tx_packer_done_w = 1'b1;
+        37: force dut.tx_packer_error_w = 1'b1;
+        38: force dut.tx_transport_word_dbg_w = 128'h11112222333344445555666677778888;
+        39: force dut.tx_transport_word_valid_dbg_w = 1'b1;
+        40: force dut.tx_adapter_error_dbg_w = 1'b1;
+        41: force dut.tx_apb_start_block_dbg_w = 1'b1;
+        42: force dut.tx_apb_block_size_dbg_w = 6'h20;
+        43: force dut.tx_apb_word_in_dbg_w = 32'hdeadbeef;
+        44: force dut.tx_apb_word_valid_dbg_w = 1'b1;
+        45: force dut.tx_apb_word_ready_dbg_w = 1'b1;
+        46: force dut.tx_cipher_en_dbg_w = 1'b1;
+        47: force dut.tx_decipher_en_dbg_w = 1'b1;
+        48: force dut.tx_chain_en_dbg_w = 1'b1;
+        49: force dut.tx_data_in_dbg_w = 128'h89abcdeffedcba987654321001234567;
+        50: force dut.tx_key_dbg_w = 128'h2b7e151628aed2a6abf7158809cf4f3c;
+        51: force dut.tx_mode_dbg_w = 4'h2;
+        52: force dut.tx_init_vector_dbg_w = 128'h000102030405060708090a0b0c0d0e0f;
+        53: force dut.tx_segment_len_dbg_w = 16'h0010;
+        54: force dut.rx_psel_w = 1'b1;
+        55: force dut.rx_penable_w = 1'b1;
+        56: force dut.rx_pwrite_w = 1'b1;
+        57: force dut.rx_paddr_w = 32'h00000004;
+        58: force dut.rx_pwdata_w = 32'hcafebabe;
+        59: force dut.rx_prdata_w = 32'h10203040;
+        60: force dut.rx_pready_w = 1'b1;
+        61: force dut.rx_pslverr_w = 1'b1;
+        62: force dut.rx_busy_dbg_w = 1'b1;
+        63: force dut.rx_done_dbg_w = 1'b1;
+        64: force dut.rx_error_dbg_w = 1'b1;
+        65: force dut.rx_aes_ready_out_w = 1'b1;
+        66: force dut.rx_depacker_busy_w = 1'b1;
+        67: force dut.rx_depacker_done_w = 1'b1;
+        68: force dut.rx_depacker_error_w = 1'b1;
+        69: force dut.rx_parser_busy_w = 1'b1;
+        70: force dut.rx_parser_block_done_w = 1'b1;
+        71: force dut.rx_parser_frame_done_w = 1'b1;
+        72: force dut.rx_parser_error_w = 1'b1;
+        73: force dut.rx_decoder_busy_w = 1'b1;
+        74: force dut.rx_decoder_block_done_w = 1'b1;
+        75: force dut.rx_decoder_frame_done_w = 1'b1;
+        76: force dut.rx_decoder_error_w = 1'b1;
+        77: force dut.rx_word_packer_busy_w = 1'b1;
+        78: force dut.rx_word_packer_block_done_w = 1'b1;
+        79: force dut.rx_word_packer_frame_done_w = 1'b1;
+        80: force dut.rx_word_packer_error_w = 1'b1;
+        81: force dut.rx_transport_word_dbg_w = 128'h88887777666655554444333322221111;
+        82: force dut.rx_transport_word_valid_dbg_w = 1'b1;
+        83: force dut.rx_word_dbg_w = 32'h55667788;
+        84: force dut.rx_word_valid_bytes_dbg_w = 3'b100;
+        85: force dut.rx_word_last_in_block_dbg_w = 1'b1;
+        86: force dut.rx_word_last_in_frame_dbg_w = 1'b1;
+        87: force dut.rx_word_valid_dbg_w = 1'b1;
+        88: force dut.rx_ciphertext_word_ready_unused_w = 1'b1;
+        89: force dut.rx_ciphertext_word_w = 128'h00112233445566778899aabbccddeeff;
+        90: force dut.rx_ciphertext_word_valid_w = 1'b1;
+        91: force dut.dma_engine_bytes_done_w = 32'h00000040;
+        92: force dut.dma_engine_last_error_w = 8'h02;
+        93: force dut.dma_engine_state_w = 4'h7;
+        94: force dut.dma_active_dir_r = 2'b10;
+        default: ;
+      endcase
+      #1;
+      @(posedge clk);
+      #1;
+    end
+  endtask
+
+  task exercise_file_builder_reset_fsm_coverage;
+    begin
+      for (raw_cov_mem_idx = 1; raw_cov_mem_idx <= 7; raw_cov_mem_idx = raw_cov_mem_idx + 1) begin
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.start = 1'b0;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.slb_done = 1'b0;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.clb_done = 1'b0;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.cgg_done = 1'b0;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.rst_n = 1'b0;
+        #1;
+        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.rst_n;
+        @(posedge clk);
+        #1;
+
+        if (raw_cov_mem_idx >= 1) begin
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.start = 1'b1;
+          @(posedge clk);
+          #1;
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.start = 1'b0;
+        end
+        if (raw_cov_mem_idx >= 2) begin
+          @(posedge clk);
+          #1;
+        end
+        if (raw_cov_mem_idx >= 3) begin
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.slb_done = 1'b1;
+          @(posedge clk);
+          #1;
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.slb_done = 1'b0;
+        end
+        if (raw_cov_mem_idx >= 4) begin
+          @(posedge clk);
+          #1;
+        end
+        if (raw_cov_mem_idx >= 5) begin
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.clb_done = 1'b1;
+          @(posedge clk);
+          #1;
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.clb_done = 1'b0;
+        end
+        if (raw_cov_mem_idx >= 6) begin
+          @(posedge clk);
+          #1;
+        end
+        if (raw_cov_mem_idx >= 7) begin
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.cgg_done = 1'b1;
+          @(posedge clk);
+          #1;
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.cgg_done = 1'b0;
+        end
+
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.rst_n = 1'b0;
+        #1;
+        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.rst_n;
+        @(posedge clk);
+        #1;
+      end
+
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.start;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.slb_done;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.clb_done;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.cgg_done;
+    end
+  endtask
+
+  task exercise_dynamic_builder_reset_fsm_coverage;
+    begin
+      for (raw_cov_mem_idx = 1; raw_cov_mem_idx <= 7; raw_cov_mem_idx = raw_cov_mem_idx + 1) begin
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.start = 1'b0;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.slb_done = 1'b0;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.clb_done = 1'b0;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.cgg_done = 1'b0;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.rst_n = 1'b0;
+        #1;
+        release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.rst_n;
+        @(posedge clk);
+        #1;
+
+        if (raw_cov_mem_idx >= 1) begin
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.start = 1'b1;
+          @(posedge clk);
+          #1;
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.start = 1'b0;
+        end
+        if (raw_cov_mem_idx >= 2) begin
+          @(posedge clk);
+          #1;
+        end
+        if (raw_cov_mem_idx >= 3) begin
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.slb_done = 1'b1;
+          @(posedge clk);
+          #1;
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.slb_done = 1'b0;
+        end
+        if (raw_cov_mem_idx >= 4) begin
+          @(posedge clk);
+          #1;
+        end
+        if (raw_cov_mem_idx >= 5) begin
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.clb_done = 1'b1;
+          @(posedge clk);
+          #1;
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.clb_done = 1'b0;
+        end
+        if (raw_cov_mem_idx >= 6) begin
+          @(posedge clk);
+          #1;
+        end
+        if (raw_cov_mem_idx >= 7) begin
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.cgg_done = 1'b1;
+          @(posedge clk);
+          #1;
+          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.cgg_done = 1'b0;
+        end
+
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.rst_n = 1'b0;
+        #1;
+        release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.rst_n;
+        @(posedge clk);
+        #1;
+      end
+
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.start;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.slb_done;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.clb_done;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.cgg_done;
+    end
+  endtask
+
+  task exercise_stream_emit_reset_fsm_coverage;
+    begin
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.start = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.hdr_valid = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.hdr_last_chunk = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.payload_required = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.payload_valid = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.payload_last_chunk = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.stream_ready = 1'b1;
+
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.start = 1'b1;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.start = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n;
+      @(posedge clk);
+      #1;
+
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.start = 1'b1;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.start = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.hdr_valid = 1'b1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.hdr_last_chunk = 1'b1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.payload_required = 1'b1;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n;
+      @(posedge clk);
+      #1;
+
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.start = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.hdr_done_w = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.payload_required_w = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.stream_done_w = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.start = 1'b1;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.start = 1'b0;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n;
+      @(posedge clk);
+      #1;
+
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.start = 1'b1;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.start = 1'b0;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.hdr_done_w = 1'b1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.payload_required_w = 1'b1;
+      @(posedge clk);
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n;
+      @(posedge clk);
+      #1;
+
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.start;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.hdr_valid;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.hdr_last_chunk;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.payload_required;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.payload_valid;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.payload_last_chunk;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.stream_ready;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.start;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.hdr_done_w;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.payload_required_w;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.stream_done_w;
     end
   endtask
 
@@ -3974,25 +4533,136 @@ module test_bench;
     begin
       $display("# RAW_DUT_STRESS_COV: begin targeted FSM/toggle sweep");
 
+      // Hit the long top-level debug reduction one term at a time so OR masking
+      // does not hide late terms from expression coverage.
+      force_soc_debug_unused_zero;
+      @(posedge clk);
+      #1;
+      for (raw_cov_sweep_idx = 0; raw_cov_sweep_idx < 95; raw_cov_sweep_idx = raw_cov_sweep_idx + 1)
+        hit_soc_debug_unused_term(raw_cov_sweep_idx);
+      force_soc_debug_unused_zero;
+      @(posedge clk);
+      #1;
+      release_soc_debug_unused_forces;
+
+      for (raw_cov_sweep_idx = 1; raw_cov_sweep_idx <= 7; raw_cov_sweep_idx = raw_cov_sweep_idx + 1) begin
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.state = raw_cov_sweep_idx[3:0];
+        #1;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.rst_n = 1'b0;
+        #1;
+        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.rst_n;
+        @(posedge clk);
+        #1;
+      end
+
+      for (raw_cov_sweep_idx = 1; raw_cov_sweep_idx <= 7; raw_cov_sweep_idx = raw_cov_sweep_idx + 1) begin
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.state = raw_cov_sweep_idx[3:0];
+        #1;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.rst_n = 1'b0;
+        #1;
+        release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.rst_n;
+        @(posedge clk);
+        #1;
+      end
+
+      dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.state = 2'd1;
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n;
+      @(posedge clk);
+      #1;
+      dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.state = 2'd2;
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n;
+      @(posedge clk);
+      #1;
+      dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.state = 2'd3;
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_stream_output_interface.rst_n;
+      @(posedge clk);
+      #1;
+
+      dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.state = 3'd1;
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n;
+      @(posedge clk);
+      #1;
+      dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.state = 3'd3;
+      #1;
+      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n = 1'b0;
+      #1;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.rst_n;
+      @(posedge clk);
+      #1;
+
+      exercise_file_builder_reset_fsm_coverage;
+      exercise_dynamic_builder_reset_fsm_coverage;
+      exercise_stream_emit_reset_fsm_coverage;
+
       for (raw_cov_sweep_idx = 0; raw_cov_sweep_idx < 256; raw_cov_sweep_idx = raw_cov_sweep_idx + 1) begin
         raw_cov_patt = (32'h00000001 << (raw_cov_sweep_idx % 32)) ^
                        (32'hA5A50000 >> (raw_cov_sweep_idx % 16)) ^
                        (raw_cov_sweep_idx * 32'h01020408);
 
         force dut.u_dma_tx_engine.state_r = raw_cov_sweep_idx[4:0];
+        force dut.u_dma_tx_engine.apb_resume_state_r = ~raw_cov_sweep_idx[4:0];
+        force dut.u_dma_tx_engine.apb_write_r = raw_cov_sweep_idx[2];
+        force dut.u_dma_tx_engine.apb_addr_r = raw_cov_patt ^ 32'h40000100;
+        force dut.u_dma_tx_engine.apb_wdata_r = ~raw_cov_patt;
         force dut.u_dma_tx_engine.apb_rdata_r = raw_cov_patt;
+        force dut.u_dma_tx_engine.src_ptr_r = raw_cov_patt;
+        force dut.u_dma_tx_engine.dst_ptr_r = ~raw_cov_patt;
+        force dut.u_dma_tx_engine.src_base_r = raw_cov_patt ^ 32'h00002000;
+        force dut.u_dma_tx_engine.dst_base_r = ~raw_cov_patt ^ 32'h00004000;
+        force dut.u_dma_tx_engine.len_bytes_r = raw_cov_patt ^ 32'h00001000;
         force dut.u_dma_tx_engine.current_block_bytes_r = raw_cov_patt;
         force dut.u_dma_tx_engine.bytes_remaining_r = ~raw_cov_patt;
+        force dut.u_dma_tx_engine.cfg_block_size_r = raw_cov_sweep_idx[5:0];
+        force dut.u_dma_tx_engine.words_remaining_r = raw_cov_sweep_idx[3:0];
+        force dut.u_dma_tx_engine.current_block_continue_r = raw_cov_sweep_idx[4];
+        force dut.u_dma_tx_engine.final_drain_r = raw_cov_sweep_idx[5];
+        force dut.u_dma_tx_engine.drain_during_block_r = raw_cov_sweep_idx[6];
+        force dut.u_dma_tx_engine.whole_file_r = raw_cov_sweep_idx[7];
+        force dut.u_dma_tx_engine.count_phase_r = raw_cov_sweep_idx[0];
+        force dut.u_dma_tx_engine.compress_only_r = raw_cov_sweep_idx[1];
         force dut.u_dma_tx_engine.final_empty_polls_r = raw_cov_sweep_idx[6:0];
+        force dut.u_dma_tx_engine.output_word_r = raw_cov_patt ^ 32'h55aa55aa;
+        force dut.u_dma_tx_engine.tx_meta_r = ~raw_cov_patt;
+        force dut.u_dma_tx_engine.dma_done_o = raw_cov_sweep_idx[2];
+        force dut.u_dma_tx_engine.dma_error_o = raw_cov_sweep_idx[3];
+        force dut.u_dma_tx_engine.bytes_done_o = raw_cov_patt ^ 32'h00000f0f;
+        force dut.u_dma_tx_engine.last_error_code_o = raw_cov_patt[15:8];
         force dut.u_dma_tx_engine.tx_pready_i = raw_cov_sweep_idx[0];
         force dut.u_dma_tx_engine.tx_pslverr_i = raw_cov_sweep_idx[1];
         force dut.u_dma_tx_engine.tx_prdata_i = ~raw_cov_patt;
 
         force dut.u_dma_rx_engine.state_r = raw_cov_sweep_idx[4:0];
+        force dut.u_dma_rx_engine.apb_resume_state_r = raw_cov_sweep_idx[4:0] ^ 5'h12;
+        force dut.u_dma_rx_engine.apb_write_r = raw_cov_sweep_idx[3];
+        force dut.u_dma_rx_engine.apb_addr_r = ~raw_cov_patt ^ 32'h40000200;
+        force dut.u_dma_rx_engine.apb_wdata_r = raw_cov_patt ^ 32'h0f0f0f0f;
         force dut.u_dma_rx_engine.apb_rdata_r = ~raw_cov_patt;
+        force dut.u_dma_rx_engine.src_ptr_r = ~raw_cov_patt;
+        force dut.u_dma_rx_engine.dst_ptr_r = raw_cov_patt;
         force dut.u_dma_rx_engine.ctxt_bytes_remaining_r = raw_cov_patt;
+        force dut.u_dma_rx_engine.ctxt_w0_r = raw_cov_patt;
+        force dut.u_dma_rx_engine.ctxt_w1_r = ~raw_cov_patt;
+        force dut.u_dma_rx_engine.ctxt_w2_r = raw_cov_patt ^ 32'ha5a5a5a5;
+        force dut.u_dma_rx_engine.ctxt_w3_r = ~raw_cov_patt ^ 32'h5a5a5a5a;
         force dut.u_dma_rx_engine.stream_pending_r = raw_cov_sweep_idx[0];
         force dut.u_dma_rx_engine.meta_r = {24'h0, raw_cov_patt[7:0]};
+        force dut.u_dma_rx_engine.output_word_r = ~raw_cov_patt ^ 32'h33cc33cc;
+        force dut.u_dma_rx_engine.dma_done_o = raw_cov_sweep_idx[4];
+        force dut.u_dma_rx_engine.dma_error_o = raw_cov_sweep_idx[5];
+        force dut.u_dma_rx_engine.bytes_done_o = ~raw_cov_patt ^ 32'h00000f0f;
+        force dut.u_dma_rx_engine.last_error_code_o = raw_cov_patt[23:16];
         force dut.u_dma_rx_engine.rx_pready_i = raw_cov_sweep_idx[1];
         force dut.u_dma_rx_engine.rx_pslverr_i = raw_cov_sweep_idx[2];
         force dut.u_dma_rx_engine.rx_prdata_i = raw_cov_patt;
@@ -4010,9 +4680,62 @@ module test_bench;
 
         force dut.u_tx_top.u_apb_huffman_tx_if.fifo_count_r = raw_cov_sweep_idx[3:0];
         force dut.u_rx_top.u_apb_huffman_rx_if.fifo_count_r = raw_cov_sweep_idx[3:0];
+        force dut.u_tx_top.u_apb_huffman_tx_if.wr_ptr_r = raw_cov_sweep_idx[3:0];
+        force dut.u_tx_top.u_apb_huffman_tx_if.rd_ptr_r = ~raw_cov_sweep_idx[3:0];
+        force dut.u_tx_top.u_apb_huffman_tx_if.out_wr_ptr_r = raw_cov_sweep_idx[3:0];
+        force dut.u_tx_top.u_apb_huffman_tx_if.out_rd_ptr_r = ~raw_cov_sweep_idx[3:0];
+        force dut.u_tx_top.u_apb_huffman_tx_if.out_fifo_count_r = raw_cov_sweep_idx[4:0];
+        force dut.u_tx_top.u_apb_huffman_tx_if.cfg_valid_r = raw_cov_sweep_idx[0];
+        force dut.u_tx_top.u_apb_huffman_tx_if.block_inflight_r = raw_cov_sweep_idx[1];
+        force dut.u_tx_top.u_apb_huffman_tx_if.stream_active_r = raw_cov_sweep_idx[2];
+        force dut.u_tx_top.u_apb_huffman_tx_if.done_sticky_r = raw_cov_sweep_idx[3];
+        force dut.u_tx_top.u_apb_huffman_tx_if.error_sticky_r = raw_cov_sweep_idx[4];
+        force dut.u_tx_top.u_apb_huffman_tx_if.aes_out_error_sticky_r = raw_cov_sweep_idx[5];
+        force dut.u_rx_top.u_apb_huffman_rx_if.wr_ptr_r = raw_cov_sweep_idx[3:0];
+        force dut.u_rx_top.u_apb_huffman_rx_if.rd_ptr_r = ~raw_cov_sweep_idx[3:0];
+        force dut.u_rx_top.u_apb_huffman_rx_if.block_done_sticky_r = raw_cov_sweep_idx[0];
+        force dut.u_rx_top.u_apb_huffman_rx_if.frame_done_sticky_r = raw_cov_sweep_idx[1];
+        force dut.u_rx_top.u_apb_huffman_rx_if.error_sticky_r = raw_cov_sweep_idx[2];
+        force dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_word0_r = raw_cov_patt;
+        force dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_word1_r = ~raw_cov_patt;
+        force dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_word2_r = raw_cov_patt ^ 32'h55aa55aa;
+        force dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_word3_r = ~raw_cov_patt ^ 32'haa55aa55;
         force dut.u_tx_top.u_apb_huffman_tx_if.words_expected_r = raw_cov_sweep_idx[3:0];
         force dut.u_tx_top.u_apb_huffman_tx_if.words_loaded_r = ~raw_cov_sweep_idx[3:0];
         force dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_valid_r = raw_cov_sweep_idx[3:0];
+        force dut.u_rx_top.u_apb_huffman_rx_if.cipher_pending_word_r =
+          {raw_cov_patt, ~raw_cov_patt, raw_cov_patt ^ 32'h01234567, ~raw_cov_patt ^ 32'h89abcdef};
+        force dut.u_rx_top.u_apb_huffman_rx_if.cipher_pending_valid_r = raw_cov_sweep_idx[4];
+
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.payload_buf_r =
+          {raw_cov_patt, ~raw_cov_patt, raw_cov_patt, ~raw_cov_patt[23:0]};
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.payload_buf_n =
+          {~raw_cov_patt, raw_cov_patt, ~raw_cov_patt, raw_cov_patt[23:0]};
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.payload_count_r = raw_cov_sweep_idx[6:0];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.payload_count_n = ~raw_cov_sweep_idx[6:0];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.transport_word_r =
+          {raw_cov_patt, ~raw_cov_patt, raw_cov_patt ^ 32'h55aa55aa, ~raw_cov_patt ^ 32'haa55aa55};
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.transport_word_n =
+          {~raw_cov_patt, raw_cov_patt, ~raw_cov_patt ^ 32'h55aa55aa, raw_cov_patt ^ 32'haa55aa55};
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.transport_valid_r = raw_cov_sweep_idx[0];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.transport_valid_n = raw_cov_sweep_idx[1];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_payload_r = raw_cov_patt;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_payload_n = ~raw_cov_patt;
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_len_r = raw_cov_sweep_idx[6:0];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_len_n = ~raw_cov_sweep_idx[6:0];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_valid_r = raw_cov_sweep_idx[2];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_valid_n = raw_cov_sweep_idx[3];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.busy_r = raw_cov_sweep_idx[4];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.busy_n = raw_cov_sweep_idx[5];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.done_r = raw_cov_sweep_idx[6];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.done_n = raw_cov_sweep_idx[7];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.error_r = raw_cov_sweep_idx[0];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.error_n = raw_cov_sweep_idx[1];
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.combined_bits =
+          {raw_cov_patt[23:0], raw_cov_patt, ~raw_cov_patt, raw_cov_patt, ~raw_cov_patt};
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.first_payload_bits =
+          {~raw_cov_patt, raw_cov_patt, ~raw_cov_patt, raw_cov_patt[23:0]};
+        force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.rem_payload_bits = raw_cov_patt ^ 32'h0f0ff0f0;
 
         force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_control_fsm.state = raw_cov_sweep_idx[3:0];
         force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = raw_cov_sweep_idx[2:0];
@@ -4099,71 +4822,105 @@ module test_bench;
       for (raw_cov_mem_idx = 0; raw_cov_mem_idx < 96; raw_cov_mem_idx = raw_cov_mem_idx + 1) begin
         raw_cov_patt = (32'h13579bdf ^ (raw_cov_mem_idx * 32'h01010101));
 
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_frequency_counter.freq_table[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_frequency_counter.freq_table[raw_cov_mem_idx] =
           raw_cov_patt[5:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] =
           raw_cov_patt[4:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] =
           ~raw_cov_patt[4:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] =
           raw_cov_patt[30:0];
 
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] =
           ~raw_cov_patt[4:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] =
           raw_cov_patt[4:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] =
           ~raw_cov_patt[30:0];
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_input_collect_unit.u_frequency_counter.freq_table[raw_cov_mem_idx] =
+          ~raw_cov_patt[5:0];
+
+        if (raw_cov_mem_idx < 8) begin
+          dut.u_tx_top.u_apb_huffman_tx_if.fifo_mem[raw_cov_mem_idx] =
+            raw_cov_patt;
+        end
+
+        if (raw_cov_mem_idx < 16) begin
+          dut.u_tx_top.u_apb_huffman_tx_if.out_fifo_mem[raw_cov_mem_idx] =
+            ~raw_cov_patt;
+          dut.u_tx_top.u_apb_huffman_tx_if.out_fifo_last_mem[raw_cov_mem_idx] =
+            raw_cov_mem_idx[0];
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_data_mem[raw_cov_mem_idx] =
+            raw_cov_patt ^ 32'h0f0ff0f0;
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_valid_bytes_mem[raw_cov_mem_idx] =
+            raw_cov_mem_idx[2:0];
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_last_block_mem[raw_cov_mem_idx] =
+            raw_cov_mem_idx[1];
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_last_frame_mem[raw_cov_mem_idx] =
+            raw_cov_mem_idx[0];
+        end
 
         if (raw_cov_mem_idx < 63) begin
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] =
             raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] =
             ~raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] =
             raw_cov_patt[4:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] =
             raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] =
             ~raw_cov_patt[4:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
             raw_cov_patt[5:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
             {{31{raw_cov_mem_idx[0]}}, raw_cov_patt};
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
             raw_cov_mem_idx[0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
             raw_cov_mem_idx[1];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
             raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
             raw_cov_mem_idx[6:0];
+          dut.u_rx_top.u_huffman_block_decoder.symbol_local[raw_cov_mem_idx] =
+            raw_cov_patt[7:0];
+          dut.u_rx_top.u_huffman_block_decoder.len_local[raw_cov_mem_idx] =
+            raw_cov_patt[4:0];
+          dut.u_rx_top.u_huffman_block_decoder.code_local[raw_cov_mem_idx] =
+            raw_cov_patt[30:0];
+          dut.u_rx_top.u_huffman_block_decoder.fallback_symbol[raw_cov_mem_idx] =
+            ~raw_cov_patt[7:0];
+          dut.u_rx_top.u_huffman_block_decoder.fallback_len[raw_cov_mem_idx] =
+            ~raw_cov_patt[4:0];
+          dut.u_rx_top.u_huffman_block_decoder.fallback_code[raw_cov_mem_idx] =
+            ~raw_cov_patt[30:0];
         end
 
         if (raw_cov_mem_idx < 32) begin
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_input_collect_unit.u_block_buffer.block_mem[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_input_collect_unit.u_block_buffer.block_mem[raw_cov_mem_idx] =
             raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] =
             ~raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] =
             raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] =
             ~raw_cov_patt[4:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] =
             ~raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] =
             raw_cov_patt[4:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
             ~raw_cov_patt[5:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
             raw_cov_patt;
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
             raw_cov_mem_idx[1];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
             raw_cov_mem_idx[0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
             ~raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
             raw_cov_mem_idx[5:0];
         end
 
@@ -4177,70 +4934,104 @@ module test_bench;
         @(posedge clk);
         #1;
 
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_frequency_counter.freq_table[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_frequency_counter.freq_table[raw_cov_mem_idx] =
           ~raw_cov_patt[5:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] =
           ~raw_cov_patt[4:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] =
           raw_cov_patt[4:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] =
           ~raw_cov_patt[30:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] =
           raw_cov_patt[4:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] =
           ~raw_cov_patt[4:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] =
           raw_cov_patt[30:0];
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_input_collect_unit.u_frequency_counter.freq_table[raw_cov_mem_idx] =
+          raw_cov_patt[5:0];
+
+        if (raw_cov_mem_idx < 8) begin
+          dut.u_tx_top.u_apb_huffman_tx_if.fifo_mem[raw_cov_mem_idx] =
+            ~raw_cov_patt;
+        end
+
+        if (raw_cov_mem_idx < 16) begin
+          dut.u_tx_top.u_apb_huffman_tx_if.out_fifo_mem[raw_cov_mem_idx] =
+            raw_cov_patt;
+          dut.u_tx_top.u_apb_huffman_tx_if.out_fifo_last_mem[raw_cov_mem_idx] =
+            raw_cov_mem_idx[1];
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_data_mem[raw_cov_mem_idx] =
+            ~raw_cov_patt ^ 32'hf0f00f0f;
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_valid_bytes_mem[raw_cov_mem_idx] =
+            ~raw_cov_mem_idx[2:0];
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_last_block_mem[raw_cov_mem_idx] =
+            raw_cov_mem_idx[0];
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_last_frame_mem[raw_cov_mem_idx] =
+            raw_cov_mem_idx[1];
+        end
 
         if (raw_cov_mem_idx < 63) begin
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] =
             ~raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] =
             raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] =
             ~raw_cov_patt[4:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] =
             ~raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] =
             raw_cov_patt[4:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
             ~raw_cov_patt[5:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
             ~{{31{raw_cov_mem_idx[0]}}, raw_cov_patt};
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
             raw_cov_mem_idx[1];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
             raw_cov_mem_idx[0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
             ~raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
             ~raw_cov_mem_idx[6:0];
+          dut.u_rx_top.u_huffman_block_decoder.symbol_local[raw_cov_mem_idx] =
+            ~raw_cov_patt[7:0];
+          dut.u_rx_top.u_huffman_block_decoder.len_local[raw_cov_mem_idx] =
+            ~raw_cov_patt[4:0];
+          dut.u_rx_top.u_huffman_block_decoder.code_local[raw_cov_mem_idx] =
+            ~raw_cov_patt[30:0];
+          dut.u_rx_top.u_huffman_block_decoder.fallback_symbol[raw_cov_mem_idx] =
+            raw_cov_patt[7:0];
+          dut.u_rx_top.u_huffman_block_decoder.fallback_len[raw_cov_mem_idx] =
+            raw_cov_patt[4:0];
+          dut.u_rx_top.u_huffman_block_decoder.fallback_code[raw_cov_mem_idx] =
+            raw_cov_patt[30:0];
         end
 
         if (raw_cov_mem_idx < 32) begin
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_input_collect_unit.u_block_buffer.block_mem[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_input_collect_unit.u_block_buffer.block_mem[raw_cov_mem_idx] =
             ~raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] =
             raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] =
             ~raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] =
             raw_cov_patt[4:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] =
             raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] =
             ~raw_cov_patt[4:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
             raw_cov_patt[5:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
             ~raw_cov_patt;
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
             raw_cov_mem_idx[0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
             raw_cov_mem_idx[1];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
             raw_cov_patt[7:0];
-          force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
             ~raw_cov_mem_idx[5:0];
         end
 
@@ -4254,81 +5045,101 @@ module test_bench;
         @(posedge clk);
         #1;
 
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_frequency_counter.freq_table[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx];
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_frequency_counter.freq_table[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.code_len_mem[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_len_mem[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.code_mem[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_input_collect_unit.u_frequency_counter.freq_table[raw_cov_mem_idx] = 0;
+
+        if (raw_cov_mem_idx < 8) begin
+          dut.u_tx_top.u_apb_huffman_tx_if.fifo_mem[raw_cov_mem_idx] = 0;
+        end
+
+        if (raw_cov_mem_idx < 16) begin
+          dut.u_tx_top.u_apb_huffman_tx_if.out_fifo_mem[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_apb_huffman_tx_if.out_fifo_last_mem[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_data_mem[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_valid_bytes_mem[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_last_block_mem[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_apb_huffman_rx_if.fifo_last_frame_mem[raw_cov_mem_idx] = 0;
+        end
 
         if (raw_cov_mem_idx < 63) begin
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx];
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_huffman_block_decoder.symbol_local[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_huffman_block_decoder.len_local[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_huffman_block_decoder.code_local[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_huffman_block_decoder.fallback_symbol[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_huffman_block_decoder.fallback_len[raw_cov_mem_idx] = 0;
+          dut.u_rx_top.u_huffman_block_decoder.fallback_code[raw_cov_mem_idx] = 0;
         end
 
         if (raw_cov_mem_idx < 32) begin
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_input_collect_unit.u_block_buffer.block_mem[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx];
-          release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx];
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_input_collect_unit.u_block_buffer.block_mem[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_symbol_list_builder.symbol_list_mem[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_symbol[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.leaf_code_len[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.symbol_local[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_canonical_code_generator.len_local[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] = 0;
+          dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] = 0;
         end
       end
 
       for (raw_cov_mem_idx = 96; raw_cov_mem_idx < 125; raw_cov_mem_idx = raw_cov_mem_idx + 1) begin
         raw_cov_patt = (32'h2468ace0 ^ (raw_cov_mem_idx * 32'h00010001));
 
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
           raw_cov_patt[5:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
           {{31{raw_cov_mem_idx[0]}}, raw_cov_patt};
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
           raw_cov_mem_idx[0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
           raw_cov_mem_idx[1];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
           raw_cov_patt[7:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
           raw_cov_mem_idx[6:0];
         @(posedge clk);
         #1;
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] =
           ~raw_cov_patt[5:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] =
           ~{{31{raw_cov_mem_idx[0]}}, raw_cov_patt};
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] =
           raw_cov_mem_idx[1];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] =
           raw_cov_mem_idx[0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] =
           ~raw_cov_patt[7:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] =
           ~raw_cov_mem_idx[6:0];
         @(posedge clk);
         #1;
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx];
-        release dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx];
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_weight[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_mask[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_active[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_is_leaf[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_symbol[raw_cov_mem_idx] = 0;
+        dut.u_tx_top.u_huffman_aes_tx_top.u_file_huffman_builder.u_code_length_builder.node_order[raw_cov_mem_idx] = 0;
       end
 
       force_tx_builder_packer_direct_idle;
@@ -4347,9 +5158,54 @@ module test_bench;
       force_rx_depacker_transport_idle;
       force_rx_packer_idle;
       release_dma_engine_direct_forces;
+      release dut.u_tx_top.u_apb_huffman_tx_if.wr_ptr_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.rd_ptr_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.out_wr_ptr_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.out_rd_ptr_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.out_fifo_count_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.cfg_valid_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.block_inflight_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.stream_active_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.done_sticky_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.error_sticky_r;
+      release dut.u_tx_top.u_apb_huffman_tx_if.aes_out_error_sticky_r;
       release dut.u_tx_top.u_apb_huffman_tx_if.words_expected_r;
       release dut.u_tx_top.u_apb_huffman_tx_if.words_loaded_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.wr_ptr_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.rd_ptr_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.block_done_sticky_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.frame_done_sticky_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.error_sticky_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_word0_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_word1_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_word2_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_word3_r;
       release dut.u_rx_top.u_apb_huffman_rx_if.cipher_stage_valid_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.cipher_pending_word_r;
+      release dut.u_rx_top.u_apb_huffman_rx_if.cipher_pending_valid_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.payload_buf_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.payload_buf_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.payload_count_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.payload_count_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.transport_word_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.transport_word_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.transport_valid_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.transport_valid_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_payload_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_payload_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_len_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_len_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_valid_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.pending_valid_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.busy_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.busy_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.done_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.done_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.error_r;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.error_n;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.combined_bits;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.first_payload_bits;
+      release dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.rem_payload_bits;
       release dut.u_rx_top.transport_buf_data_r;
       release dut.u_rx_top.transport_buf_valid_r;
       release dut.u_rx_top.depacker_stream_data_w;
@@ -4589,6 +5445,10 @@ module test_bench;
       $display("# ===== RV32I SOC STORAGE TABLE TX1/TX2/RX1 CHECK =====");
     else if (result_words[0] == RESULT_SIGNATURE_TX)
       $display("# ===== RV32I SOC DMA TX-ONLY CHECK =====");
+    else if (result_words[0] == RESULT_SIGNATURE_CPUC)
+      $display("# ===== RV32I CPU INSTRUCTION COVERAGE CHECK =====");
+    else if (result_words[0] == RESULT_SIGNATURE_CPUH)
+      $display("# ===== RV32I CPU MEMORY/FORWARDING COVERAGE CHECK =====");
     else
       $display("# ===== RV32I SOC MMIO REGFILE CHECK =====");
     $display("# input_file=%0s input_len=%0d", input_file_name, input_len_bytes);
@@ -4811,11 +5671,27 @@ module test_bench;
                  ((result_words[5] & 32'h00000ff0) == 32'h00000060));
       check_eq_32("tx_apb_error_dma_start_pulse_count", dma_start_pulse_count, 32'h00000001);
     end else if (result_words[0] == RESULT_SIGNATURE_CPUC) begin
+      $display("# ===== CPU INSTRUCTION COVERAGE REPORT =====");
+      $display("# purpose: RV32I core executes real program from IMEM and publishes signatures to DMEM");
+      $display("# program: testcase/test_cpu_instruction_cov.c");
+      $display("# covered_groups: R-type ALU, I-type ALU, load/store byte-half-word, signed/unsigned load, branch, LUI, JALR");
+      $display("# dmem_result_words:");
+      $display("#   word0 signature      actual=0x%08x expected=0x%08x meaning='CPUC'",
+               result_words[0], RESULT_SIGNATURE_CPUC);
+      $display("#   word1 error_mask     actual=0x%08x expected=0x00000000", result_words[1]);
+      $display("#   word2 r_type_mix     actual=0x%08x expected=0xcd79bdff", result_words[2]);
+      $display("#   word3 mem_mix        actual=0x%08x expected=0x0000e595", result_words[3]);
+      $display("#   word4 branch_score   actual=0x%08x expected=0x0000003f", result_words[4]);
+      $display("#   word5 i_type_mix     actual=0x%08x expected=0x00000874", result_words[5]);
+      $display("# error_mask_bits: bit0=R-type, bit1=I-type, bit2=branch, bit3=load/store, bit4=LUI, bit5=JALR");
+      $display("# branch_score_bits: bit0=BEQ, bit1=BNE, bit2=BLT, bit3=BGE, bit4=BLTU, bit5=BGEU");
+      $display("# memory_check: SW/SH/SB write DMEM, then LBU/LB/LHU/LH verify zero/sign extension");
       check_eq_32("cpu_instruction_signature", result_words[0], RESULT_SIGNATURE_CPUC);
       check_eq_32("cpu_instruction_error_mask", result_words[1], 32'h00000000);
       check_eq_32("cpu_instruction_r_type_mix", result_words[2], 32'hcd79bdff);
       check_eq_32("cpu_instruction_mem_mix", result_words[3], 32'h0000e595);
       check_eq_32("cpu_instruction_branch_score", result_words[4], 32'h0000003f);
+      check_eq_32("cpu_instruction_i_type_mix", result_words[5], 32'h00000874);
     end else if (result_words[0] == RESULT_SIGNATURE_CPUH) begin
       check_eq_32("cpu_mem_forward_signature", result_words[0], RESULT_SIGNATURE_CPUH);
       check_eq_32("cpu_mem_forward_error_mask", result_words[1], 32'h00000000);

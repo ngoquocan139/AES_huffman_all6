@@ -10,7 +10,8 @@ TB_NAME 	?= test_bench
 RADIX		?= hex
 RUN_ARGS    ?=
 VSIM_RUN_MODE ?= -batch
-VSIM_DO ?= run -all; quit -f
+VSIM_DO ?= log -r /*; run -all; quit -f
+WLF_OUT ?= $(TESTNAME).wlf
 QUESTA_ROOT ?= $(abspath ../../questasim)
 QUESTA_BIN  ?= $(QUESTA_ROOT)/linux_x86_64
 QUESTA_LICENSE ?= $(QUESTA_ROOT)/license.dat
@@ -73,29 +74,31 @@ drc:
 build_cov:
 	mkdir -p log ucdb
 	cp -rf $(TESTCASE_DIR)/$(TESTNAME).v run_test.v
-	vlib work
+	@if [ ! -d work ]; then vlib work; fi
 	vmap work work
+	@sed -i 's/^; FecUdpEffort = 1/FecUdpEffort = 2/' modelsim.ini
 	vlog +cover=bcesft -f compile.f
 
 build:
 	mkdir -p log
 	cp -rf $(TESTCASE_DIR)/$(TESTNAME).v run_test.v
-	vlib work
+	@if [ ! -d work ]; then vlib work; fi
 	vmap work work
 	vlog -f compile.f
 
 run:
 	mkdir -p log
-	vsim $(VSIM_RUN_MODE) -l $(TESTNAME).log -voptargs=+acc -assertdebug $(TB_NAME) $(RUN_ARGS) -do "$(VSIM_DO)"
+	vsim $(VSIM_RUN_MODE) -wlf $(WLF_OUT) -l $(TESTNAME).log -voptargs=+acc -assertdebug $(TB_NAME) $(RUN_ARGS) -do "$(VSIM_DO)"
 	@test -s $(TESTNAME).log || (echo "[FAIL] vsim produced an empty log; check Questa license/socket startup"; exit 1)
 	@! grep -E "Trouble making server|couldn't open socket|License Issue|Unable to checkout|Failure to obtain|Invalid license|Error loading design" $(TESTNAME).log || (echo "[FAIL] vsim startup failed; see $(TESTNAME).log"; exit 1)
 	cp -rf $(TESTNAME).log sim.log 
+	@if [ -f $(WLF_OUT) ]; then cp -f $(WLF_OUT) sim.wlf; cp -f $(WLF_OUT) log/$(TESTNAME).wlf; fi
 	mv $(TESTNAME).log log/
 	$(MAKE) archive_case_outputs TESTNAME=$(TESTNAME)
 	
 run_cov:
 	mkdir -p log ucdb
-	vsim -debugDB -coverage -l $(TESTNAME).log -c $(TB_NAME) $(RUN_ARGS) -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit $(TESTNAME).ucdb; log -r /*; run -all"
+	vsim -coverage -l $(TESTNAME).log -c $(TB_NAME) $(RUN_ARGS) -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit $(TESTNAME).ucdb; run -all; quit -f"
 	@test -s $(TESTNAME).log || (echo "[FAIL] vsim produced an empty log; check Questa license/socket startup"; exit 1)
 	@! grep -E "Trouble making server|couldn't open socket|License Issue|Unable to checkout|Failure to obtain|Invalid license|Error loading design" $(TESTNAME).log || (echo "[FAIL] vsim startup failed; see $(TESTNAME).log"; exit 1)
 	cp -rf $(TESTNAME).log sim.log
@@ -119,6 +122,9 @@ gen_cov:
 	vcover merge IP.ucdb ucdb/*.ucdb
 	vcover report IP.ucdb -output coverage/summary_report.txt
 	vcover report -zeros -detail -code bcesft -annotate -All -codeAll IP.ucdb -output coverage/detail_report.txt
+	vcover report -instance=/test_bench/dut -recursive -code bcesft IP.ucdb -output coverage/dut_raw_bcesft_report.txt
+	vcover report -instance=/test_bench/dut -recursive -code bcesf IP.ucdb -output coverage/dut_raw_bcesf_report.txt
+	vcover report -instance=/test_bench/dut -recursive -code bs IP.ucdb -output coverage/dut_raw_bs_report.txt
 	cp IP.ucdb IP_closed.ucdb
 	vsim -c -viewcov IP_closed.ucdb -do "do coverage_close.do"
 	vcover report -instance=/test_bench/dut -recursive IP_closed.ucdb -output coverage/dut_closed_report.txt
@@ -129,7 +135,8 @@ gen_html:
 	vcover report -zeros -details -code bcesft -annotate -testhitdataAll -html IP.ucdb
 
 wave:
-	vsim -i -view vsim.wlf -do "add wave vsim:/$(TB_NAME)/*; radix -$(RADIX)" &
+	@test -f sim.wlf || (echo "[FAIL] sim.wlf not found. Run 'make all TESTNAME=...' first."; exit 1)
+	vsim -i -view sim.wlf -do "view wave; add wave -r *; radix -$(RADIX)" &
 
 clean:
 	rm -rf work

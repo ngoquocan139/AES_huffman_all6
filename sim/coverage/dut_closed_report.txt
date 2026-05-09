@@ -7,8 +7,8 @@ Recursive Coverage Report Summary Data by instance
     Enabled Coverage              Bins      Hits    Misses  Coverage
     ----------------              ----      ----    ------  --------
     Branches                      1060      1006        54    94.90%
-    Statements                    2034      1970        64    96.85%
+    Statements                    2062      1998        64    96.89%
 
 
-Total Coverage By Instance (filtered view): 95.87%
+Total Coverage By Instance (filtered view): 95.90%
 

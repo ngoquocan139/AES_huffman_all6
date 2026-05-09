@@ -5,11 +5,6 @@ Z0 !s99 nomlopt
 R0
 R0
 R0
-R0
-R0
-R0
-R0
-R0
 !s11f vlog 2021.2_1 2021.05, May 15 2021
 13
 !s112 1.1
@@ -19,72 +14,62 @@ R0
 cModel Technology
 Z1 d/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim
 T_opt
-!s110 1778054645
-VI?ggC93m_L]MWc:<lJFb^1
+!s110 1778157110
+VY2EOJM>O2^InPXA^kaVzf3
 Z2 04 10 4 work test_bench fast 0
-=1-000ae431a4f1-69faf5f3-3e9ba-9cb1
-Z3 !s124 OEM100
-Z4 o-quiet -auto_acc_if_foreign -work work -debugdb +access+cover=bcesft
-Z5 tCvgOpt 0
+=1-000ae431a4f1-69fc8633-58616-601e
+Z3 !s102 +cover=bcesft
+Z4 !s124 OEM100
+o-quiet -auto_acc_if_foreign -work work +cover=bcesft
+Z5 tCvgOpt 0 FecUdpEffort 2
 n@_opt
 Z6 OL;O;2021.2_1;73
-R1
 T_opt1
-!s110 1778058260
-Vi^:Lm`Ko4WT_?nQliTC^>0
+!s110 1778156819
+V3<AUjUDG7W`hGDWjW>3Uc1
 R2
-=1-000ae431a4f1-69fb0410-8ee12-b08a
-R3
+=1-000ae431a4f1-69fc8512-9ee7e-5d72
+R4
 o-quiet -auto_acc_if_foreign -work work +acc
 R5
 n@_opt1
 R6
 R1
-T_opt2
-!s110 1778051155
-VVP^dHSA@;dY^_Qz0dS2IA2
-R2
-=1-000ae431a4f1-69fae84d-ea8e6-8d66
-R3
-R4
-R5
-n@_opt2
-R6
-R1
 vaes128_cipher_core
-Z7 !s110 1778059751
+Z7 !s110 1778157093
 !i10b 1
 !s100 068CMUCdS?1U4FzV78<VU0
-IO?G>7PzOmb^Wd9Z9@hXCj2
+I;[5Jjdl0iC8cfk53]L8^X0
 R1
 Z8 w1776100863
 8../rtl/aes128_cipher_core.v
 F../rtl/aes128_cipher_core.v
 Z9 F../rtl/aes_encrypt_funcs.vh
-!i122 46
+!i122 37
 L0 11 370
 Z10 VDg1SIo80bB@j0V0VzS_@n1
 Z11 OL;L;2021.2_1;73
 r1
 !s85 0
 31
-Z12 !s108 1778059749.000000
-!s107 run_test.v|../rtl/aes_inverse_funcs.vh|../rtl/aes_encrypt_funcs.vh|../rtl/huffman_symbol_map.vh|../rtl/defines.vh|../tb/tb_rv32_soc_mmio_dma.v|../rtl/apb_huffman_aes_tx_top.v|../rtl/aes128_cipher_inv_top.v|../rtl/aes128_key_expansion_inv.v|../rtl/aes128_cipher_core_inv.v|../rtl/aes128_cipher_top.v|../rtl/aes128_cipher_core.v|../rtl/aes128_key_expansion.v|../rtl/apb_huffman_tx_if.v|../rtl/huffman_aes_tx_top.v|../rtl/apb_huffman_aes_rx_top.v|../rtl/apb_huffman_rx_if.v|../rtl/rx_byte_packer_32.v|../rtl/huffman_block_decoder.v|../rtl/HUFFMAN_DECODE_TABLE_IP.v|../rtl/huffman_block_parser.v|../rtl/bit_depacker_128.v|../rtl/bit_packer_128.v|../rtl/wrapper_rx.v|../rtl/wrapper.v|../rtl/dynamic_huffman_encoder.v|../rtl/control_fsm.v|../rtl/emit_backend.v|../rtl/stream_output_interface.v|../rtl/payload_emitter.v|../rtl/header_formatter.v|../rtl/mode_decision_logic.v|../rtl/huffman_builder.v|../rtl/canonical_code_generator.v|../rtl/code_length_builder.v|../rtl/symbol_list_builder.v|../rtl/input_collect_unit.v|../rtl/frequency_counter.v|../rtl/block_buffer.v|../rtl/rv32_soc_top.v|../rtl/dmem_ip_wrapper.v|../rtl/DMEM_ip.v|../rtl/dma_rx_engine.v|../rtl/dma_tx_engine.v|../rtl/cpu_mmio_to_apb_bridge.v|../rtl/dma_regfile.v|../rtl/imem_sync.v|../rtl/registers_file.v|../rtl/top_rv32_sync.v|../rtl/mem_stage_sync.v|../rtl/if_stage_sync.v|../rtl/forwarding.v|../rtl/id_stage.v|../rtl/ex_stage.v|
-Z13 !s90 -f|compile.f|
+Z12 !s108 1778157091.000000
+Z13 !s107 run_test.v|../rtl/aes_inverse_funcs.vh|../rtl/aes_encrypt_funcs.vh|../rtl/huffman_symbol_map.vh|../rtl/defines.vh|../tb/tb_rv32_soc_mmio_dma.v|../rtl/apb_huffman_aes_tx_top.v|../rtl/aes128_cipher_inv_top.v|../rtl/aes128_key_expansion_inv.v|../rtl/aes128_cipher_core_inv.v|../rtl/aes128_cipher_top.v|../rtl/aes128_cipher_core.v|../rtl/aes128_key_expansion.v|../rtl/apb_huffman_tx_if.v|../rtl/huffman_aes_tx_top.v|../rtl/apb_huffman_aes_rx_top.v|../rtl/apb_huffman_rx_if.v|../rtl/rx_byte_packer_32.v|../rtl/huffman_block_decoder.v|../rtl/HUFFMAN_DECODE_TABLE_IP.v|../rtl/huffman_block_parser.v|../rtl/bit_depacker_128.v|../rtl/bit_packer_128.v|../rtl/wrapper_rx.v|../rtl/wrapper.v|../rtl/dynamic_huffman_encoder.v|../rtl/control_fsm.v|../rtl/emit_backend.v|../rtl/stream_output_interface.v|../rtl/payload_emitter.v|../rtl/header_formatter.v|../rtl/mode_decision_logic.v|../rtl/huffman_builder.v|../rtl/canonical_code_generator.v|../rtl/code_length_builder.v|../rtl/symbol_list_builder.v|../rtl/input_collect_unit.v|../rtl/frequency_counter.v|../rtl/block_buffer.v|../rtl/rv32_soc_top.v|../rtl/dmem_ip_wrapper.v|../rtl/DMEM_ip.v|../rtl/dma_rx_engine.v|../rtl/dma_tx_engine.v|../rtl/cpu_mmio_to_apb_bridge.v|../rtl/dma_regfile.v|../rtl/imem_sync.v|../rtl/registers_file.v|../rtl/top_rv32_sync.v|../rtl/mem_stage_sync.v|../rtl/if_stage_sync.v|../rtl/forwarding.v|../rtl/id_stage.v|../rtl/ex_stage.v|
+Z14 !s90 +cover=bcesft|-f|compile.f|
 !i113 0
-Z14 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R3
+Z15 o+cover=bcesft -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
 R5
 vaes128_cipher_core_inv
 R7
 !i10b 1
 !s100 7@4Mg7Zb??6X1EQ^XzG_@0
-I^bDlN3_8Fh8egXmR]DPnS0
+Ifa<O^nj278VB]N<O;7@a52
 R1
 R8
 8../rtl/aes128_cipher_core_inv.v
 F../rtl/aes128_cipher_core_inv.v
-Z15 F../rtl/aes_inverse_funcs.vh
-!i122 46
+Z16 F../rtl/aes_inverse_funcs.vh
+!i122 37
 L0 11 422
 R10
 R11
@@ -92,21 +77,22 @@ r1
 !s85 0
 31
 R12
-Z16 !s107 run_test.v|../rtl/aes_inverse_funcs.vh|../rtl/aes_encrypt_funcs.vh|../rtl/huffman_symbol_map.vh|../rtl/defines.vh|../tb/tb_rv32_soc_mmio_dma.v|../rtl/apb_huffman_aes_tx_top.v|../rtl/aes128_cipher_inv_top.v|../rtl/aes128_key_expansion_inv.v|../rtl/aes128_cipher_core_inv.v|../rtl/aes128_cipher_top.v|../rtl/aes128_cipher_core.v|../rtl/aes128_key_expansion.v|../rtl/apb_huffman_tx_if.v|../rtl/huffman_aes_tx_top.v|../rtl/apb_huffman_aes_rx_top.v|../rtl/apb_huffman_rx_if.v|../rtl/rx_byte_packer_32.v|../rtl/huffman_block_decoder.v|../rtl/HUFFMAN_DECODE_TABLE_IP.v|../rtl/huffman_block_parser.v|../rtl/bit_depacker_128.v|../rtl/bit_packer_128.v|../rtl/wrapper_rx.v|../rtl/wrapper.v|../rtl/dynamic_huffman_encoder.v|../rtl/control_fsm.v|../rtl/emit_backend.v|../rtl/stream_output_interface.v|../rtl/payload_emitter.v|../rtl/header_formatter.v|../rtl/mode_decision_logic.v|../rtl/huffman_builder.v|../rtl/canonical_code_generator.v|../rtl/code_length_builder.v|../rtl/symbol_list_builder.v|../rtl/input_collect_unit.v|../rtl/frequency_counter.v|../rtl/block_buffer.v|../rtl/rv32_soc_top.v|../rtl/dmem_ip_wrapper.v|../rtl/DMEM_ip.v|../rtl/dma_rx_engine.v|../rtl/dma_tx_engine.v|../rtl/cpu_mmio_to_apb_bridge.v|../rtl/dma_regfile.v|../rtl/imem_sync.v|../rtl/registers_file.v|../rtl/top_rv32_sync.v|../rtl/mem_stage_sync.v|../rtl/if_stage_sync.v|../rtl/forwarding.v|../rtl/id_stage.v|../rtl/ex_stage.v|
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vaes128_cipher_inv_top
 R7
 !i10b 1
 !s100 7V0bdHnUc40j^BK]CfdTf3
-IZPC=4H^6I>]0jA8SkR53z3
+IBe8f70R>T:H9ChKi]kdD03
 R1
 R8
 8../rtl/aes128_cipher_inv_top.v
 F../rtl/aes128_cipher_inv_top.v
-!i122 46
+!i122 37
 L0 13 46
 R10
 R11
@@ -114,21 +100,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vaes128_cipher_top
 R7
 !i10b 1
 !s100 P[?Bc9beWaLRN^C<mP2^;1
-IUQ9?KBfa:8h9d>[in:9Ch3
+IY1i5O:=2KUNS[D?HP=R5[1
 R1
 R8
 8../rtl/aes128_cipher_top.v
 F../rtl/aes128_cipher_top.v
-!i122 46
+!i122 37
 L0 13 50
 R10
 R11
@@ -136,22 +123,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vaes128_key_expansion
-R7
+Z17 !s110 1778157092
 !i10b 1
 !s100 YY><EWT>Uo=i;AeHfnDI_0
-InSO=1IUSPO293H=I0nO^^2
+I;kP_I=>37J]8ZIKh@1HMD2
 R1
 R8
 8../rtl/aes128_key_expansion.v
 F../rtl/aes128_key_expansion.v
 R9
-!i122 46
+!i122 37
 L0 11 276
 R10
 R11
@@ -159,22 +147,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vaes128_key_expansion_inv
 R7
 !i10b 1
 !s100 ;<d;@M8e?lGPn6U6IeA8z1
-IPTk=dSok5Xz[J^`NRgQ;T3
+IP<@<D22Yedh[l3RZYO4Ob1
 R1
 R8
 8../rtl/aes128_key_expansion_inv.v
 F../rtl/aes128_key_expansion_inv.v
-R15
-!i122 46
+R16
+!i122 37
 L0 11 330
 R10
 R11
@@ -182,21 +171,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vapb_huffman_aes_rx_top
-R7
+R17
 !i10b 1
 !s100 1i]o2^OO:QCAgQAY>[^0L0
-IRf2lJL:o3V^C6JS2Lk]lL2
+IBUjPaFJoGP3MCFJ@GJ`n93
 R1
 w1777287834
 8../rtl/apb_huffman_aes_rx_top.v
 F../rtl/apb_huffman_aes_rx_top.v
-!i122 46
+!i122 37
 L0 1 504
 R10
 R11
@@ -204,21 +194,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vapb_huffman_aes_tx_top
 R7
 !i10b 1
 !s100 Hh]a8=h8=NOHnZP5[9UYl1
-Ie^^3DXSbJkC9KdUO@3^?12
+I8b=?<e==47Fk<^F@Pd]UI3
 R1
 w1777287227
 8../rtl/apb_huffman_aes_tx_top.v
 F../rtl/apb_huffman_aes_tx_top.v
-!i122 46
+!i122 37
 L0 1 479
 R10
 R11
@@ -226,21 +217,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vapb_huffman_rx_if
-R7
+R17
 !i10b 1
 !s100 bnDoWD1A`1[]edzR=@FbB0
-ICMLGGTJ[2L1bk8`2Uj;nj3
+I==>:eM5Ocjc:kQBn1OKh^0
 R1
 R8
 8../rtl/apb_huffman_rx_if.v
 F../rtl/apb_huffman_rx_if.v
-!i122 46
+!i122 37
 L0 1 451
 R10
 R11
@@ -248,21 +240,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vapb_huffman_tx_if
-R7
+R17
 !i10b 1
 !s100 niD44h]:=OhVUON=B4l^n1
-IH:WD]ILz:a_ZHRlV[F6?O1
+IE8W@OLNZ9A2ON_l0Q7gMD0
 R1
 w1777437030
 8../rtl/apb_huffman_tx_if.v
 F../rtl/apb_huffman_tx_if.v
-!i122 46
+!i122 37
 L0 1 613
 R10
 R11
@@ -270,21 +263,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vbit_depacker_128
-R7
+R17
 !i10b 1
 !s100 VVknDnK<eN10_ca_^Y<;A0
-IgR]6JUB@=D_TZN3UI9AR90
+IOMZ25XR7DDECXUYjMkm=G3
 R1
 w1776836496
 8../rtl/bit_depacker_128.v
 F../rtl/bit_depacker_128.v
-!i122 46
+!i122 37
 L0 1 208
 R10
 R11
@@ -292,21 +286,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vbit_packer_128
-R7
+R17
 !i10b 1
 !s100 c?ngJ;Z4YCYgc7S:KEO=l1
-I<Na_HHLVZ3]O:fcA9aAhN0
+ID[2;9a<W490XO:7]@;`hX3
 R1
 w1776845260
 8../rtl/bit_packer_128.v
 F../rtl/bit_packer_128.v
-!i122 46
+!i122 37
 L0 1 262
 R10
 R11
@@ -314,21 +309,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vblock_buffer
-R7
+R17
 !i10b 1
 !s100 FFd5[8Q>62oY:<<O]7iQT0
-IioXQ`4e6Xz`dn[=aVn2Ag0
+IORkQf5VRQ4>=h4[6^DNYC3
 R1
 R8
 8../rtl/block_buffer.v
 F../rtl/block_buffer.v
-!i122 46
+!i122 37
 L0 1 70
 R10
 R11
@@ -336,22 +332,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vcanonical_code_generator
-R7
+R17
 !i10b 1
 !s100 T^_=Db@4UJf:6b[5eH9M<2
-IEb4RITP9]eR[U11?gZ1KM0
+IT[0:UInQR8k:e?EJ@KGDY2
 R1
 w1777252634
 8../rtl/canonical_code_generator.v
 F../rtl/canonical_code_generator.v
-Z17 F../rtl/huffman_symbol_map.vh
-!i122 46
+Z18 F../rtl/huffman_symbol_map.vh
+!i122 37
 L0 1 384
 R10
 R11
@@ -359,22 +356,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vcode_length_builder
-R7
+R17
 !i10b 1
 !s100 >[7<U3LQ@ieM@^Nld^TTR0
-Ik5MEId_NBTOKVIPfmabX^2
+IKD944D4iDTEF2ZBe_5Ci>1
 R1
 w1777978178
 8../rtl/code_length_builder.v
 F../rtl/code_length_builder.v
-R17
-!i122 46
+R18
+!i122 37
 L0 1 580
 R10
 R11
@@ -382,21 +380,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vcontrol_fsm
-R7
+R17
 !i10b 1
 !s100 94oO9b0E]6Ghzfj5`QU:k1
-IES3[05boKZ8Sm>;jBMdZ:0
+IZehR9>EBamm:G[b@l=h220
 R1
 w1777251517
 8../rtl/control_fsm.v
 F../rtl/control_fsm.v
-!i122 46
+!i122 37
 L0 1 247
 R10
 R11
@@ -404,21 +403,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vcpu_mmio_to_apb_bridge
-Z18 !s110 1778059750
+R17
 !i10b 1
 !s100 ]Han1U@o>gmYdHCj_9J]92
-IfBn;:?H4Ti`4[b71HS<cZ2
+IQLZT;ESkBQ59FAj0GJH;n3
 R1
 w1776243447
 8../rtl/cpu_mmio_to_apb_bridge.v
 F../rtl/cpu_mmio_to_apb_bridge.v
-!i122 46
+!i122 37
 L0 1 150
 R10
 R11
@@ -426,21 +426,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vdma_regfile
-R18
+R17
 !i10b 1
 !s100 JUBMNjj1G]zi>YjgcoG5M3
-IeODX^72S`:IlY0AD5^E[00
+Im3cGo><j>Y8?aTEhof`F<2
 R1
 w1777287192
 8../rtl/dma_regfile.v
 F../rtl/dma_regfile.v
-!i122 46
+!i122 37
 L0 1 349
 R10
 R11
@@ -448,21 +449,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vdma_rx_engine
-R7
+R17
 !i10b 1
 !s100 bXL44z19Gm;NW_>6?RFD<1
-I@4AoKOFnEW_AeegOA5fdK2
+IP1W6EDTC2Of:GE4`DX=[<0
 R1
 w1776880693
 8../rtl/dma_rx_engine.v
 F../rtl/dma_rx_engine.v
-!i122 46
+!i122 37
 L0 1 386
 R10
 R11
@@ -470,21 +472,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vdma_tx_engine
-R18
+R17
 !i10b 1
 !s100 ]k<5>HAN9f]BCih7WRHQC2
-I1MzCocN2mAIMKD9Z:Kl<L2
+IA[3:34lYdf9mCLb73g?oR2
 R1
 w1777437348
 8../rtl/dma_tx_engine.v
 F../rtl/dma_tx_engine.v
-!i122 46
+!i122 37
 L0 1 571
 R10
 R11
@@ -492,21 +495,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vDMEM_ip
-R7
+R17
 !i10b 1
 !s100 nDXY>]NIh8;R`?K1iZGg:2
-IemI?WRz4YG_YX=R6:O<WC3
+I<Z0AfA>hd:jWh_C;4KnQo1
 R1
 w1776783033
 8../rtl/DMEM_ip.v
 F../rtl/DMEM_ip.v
-!i122 46
+!i122 37
 L0 13 51
 R10
 R11
@@ -514,22 +518,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 n@d@m@e@m_ip
 vdmem_ip_wrapper
-R7
+R17
 !i10b 1
 !s100 ZRAiL?Gk7c5WKV9jUL2VO2
-I>JCj4h;Nndik]825Vk_bd2
+I=XEZ4=A3fDWNZRfSKQ`f73
 R1
 w1776783069
 8../rtl/dmem_ip_wrapper.v
 F../rtl/dmem_ip_wrapper.v
-!i122 46
+!i122 37
 L0 11 40
 R10
 R11
@@ -537,21 +542,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vdynamic_huffman_encoder
-R7
+R17
 !i10b 1
 !s100 ^^4A8?Poa1AlEGc5CWnX31
-IUZ<T7ckXW;H1nU64eVeH;1
+IBWodBQe_k?ZJ37GHf1KMC0
 R1
 w1777983182
 8../rtl/dynamic_huffman_encoder.v
 F../rtl/dynamic_huffman_encoder.v
-!i122 46
+!i122 37
 L0 1 472
 R10
 R11
@@ -559,21 +565,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vemit_backend
-R7
+R17
 !i10b 1
 !s100 <I11hP=8T?<JI1H6XWKh22
-I_:UV[z9MU6L=^]`VSI:GY0
+IfUVfUMe[GXdM<CQIW:Kn^0
 R1
 R8
 8../rtl/emit_backend.v
 F../rtl/emit_backend.v
-!i122 46
+!i122 37
 L0 1 328
 R10
 R11
@@ -581,21 +588,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vex_stage
-R18
+R17
 !i10b 1
 !s100 k?03cXHNlloDD4S04M3Hl0
-IMCLXmF7la5i5PDbHT?Hb02
+I@mVY<2z5]Z24OP=OY7=U12
 R1
 R8
 8../rtl/ex_stage.v
 F../rtl/ex_stage.v
-!i122 46
+!i122 37
 L0 3 132
 R10
 R11
@@ -603,21 +611,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vforwarding
-R18
+R17
 !i10b 1
 !s100 HXMJP6T[cHAfQBXi<3^mA0
-IT;gL8BU8LH`FA7ni7FPK40
+IA=noT`YBDC7jCd0W80]6H1
 R1
 w1776859463
 8../rtl/forwarding.v
 F../rtl/forwarding.v
-!i122 46
+!i122 37
 L0 1 87
 R10
 R11
@@ -625,22 +634,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vfrequency_counter
-R7
+R17
 !i10b 1
 !s100 Kc56_UgchS_J4>RAj8[fb0
-I;>Q8<E:cjISgnQZSlKid<0
+Ie:IV]oDUUO;0YXf]OGBi61
 R1
 R8
 8../rtl/frequency_counter.v
 F../rtl/frequency_counter.v
-R17
-!i122 46
+R18
+!i122 37
 L0 1 125
 R10
 R11
@@ -648,22 +658,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vheader_formatter
-R7
+R17
 !i10b 1
 !s100 SiBJkPLRTmA[ZFGmbLYUd3
-I>k8TFCmc@oYRAFmUbfz5H3
+I@a;n22XR=oJTd0=QXdVZB2
 R1
 w1777980692
 8../rtl/header_formatter.v
 F../rtl/header_formatter.v
-R17
-!i122 46
+R18
+!i122 37
 L0 1 512
 R10
 R11
@@ -671,21 +682,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vhuffman_aes_tx_top
-R7
+R17
 !i10b 1
 !s100 GD;`MH@5iGVF`9L49ZNa00
-IQl_Fc2KjYR8DY?Y3C7zTb1
+InOcHaGo_mz`4b=P^KSW?_0
 R1
 w1777252944
 8../rtl/huffman_aes_tx_top.v
 F../rtl/huffman_aes_tx_top.v
-!i122 46
+!i122 37
 L0 1 566
 R10
 R11
@@ -693,21 +705,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vhuffman_block_decoder
-R7
+R17
 !i10b 1
 !s100 K83CLjaPi9_heOWWzS8?_3
-IXR>H@1m5^Zac3__KL=2M_1
+ISFFh66DOFhbc:<MGMlm2C1
 R1
 w1777268471
 8../rtl/huffman_block_decoder.v
 F../rtl/huffman_block_decoder.v
-!i122 46
+!i122 37
 L0 1 1051
 R10
 R11
@@ -715,21 +728,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vhuffman_block_parser
-R7
+R17
 !i10b 1
 !s100 f;`Vjfio79iB@L@HOJE:h3
-IH>>^dnPB?J7DflJhY_Enj3
+I7:Q1T;1LD1Ha8NF=;Me1`2
 R1
 w1777251463
 8../rtl/huffman_block_parser.v
 F../rtl/huffman_block_parser.v
-!i122 46
+!i122 37
 L0 1 654
 R10
 R11
@@ -737,21 +751,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vhuffman_builder
-R7
+R17
 !i10b 1
 !s100 Ug3MfC2kcnaCDUnLbQ5Ah3
-IY_k@>G]6EHLml@V^CkOUX3
+IEbL?n;XTinV1KIi===nEM3
 R1
 w1776854804
 8../rtl/huffman_builder.v
 F../rtl/huffman_builder.v
-!i122 46
+!i122 37
 L0 1 275
 R10
 R11
@@ -759,21 +774,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vHUFFMAN_DECODE_TABLE_IP
-R7
+R17
 !i10b 1
 !s100 UC]7mWW<>D9F5>A]7@bWS1
-Ig_`U3DKCcSLX99hWKNPag1
+IYIMXJPk=0H<WNB7K02Roh0
 R1
 w1777253267
 8../rtl/HUFFMAN_DECODE_TABLE_IP.v
 F../rtl/HUFFMAN_DECODE_TABLE_IP.v
-!i122 46
+!i122 37
 L0 7 45
 R10
 R11
@@ -781,22 +797,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 n@h@u@f@f@m@a@n_@d@e@c@o@d@e_@t@a@b@l@e_@i@p
 vid_stage
-R18
+R17
 !i10b 1
 !s100 >G?5]Zl16jDGoKYn_C9FR2
-IMj3>]6hin6MEM2K]95D]k0
+IHkWebGNDHE6>Qi`cIY6bF2
 R1
 w1776155103
 8../rtl/id_stage.v
 F../rtl/id_stage.v
-!i122 46
+!i122 37
 L0 3 260
 R10
 R11
@@ -804,21 +821,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vif_stage_sync
-R18
+R17
 !i10b 1
 !s100 N36ZHjZDah[7>eLU@I]K>1
-I[UFa1fC3Z=@OE]GbRZ1aG2
+IhPLZ[C4QJUZDlWRbL675:1
 R1
 w1776157222
 8../rtl/if_stage_sync.v
 F../rtl/if_stage_sync.v
-!i122 46
+!i122 37
 L0 8 95
 R10
 R11
@@ -826,21 +844,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vimem_sync
-R18
+R17
 !i10b 1
 !s100 z1D8H>QcLkY_`b:PQ6P;d0
-Ih0?IoO57BWlWL?`8fCKio3
+IgNJa:=bHJ=WOeNSGW>fW82
 R1
 w1776783339
 8../rtl/imem_sync.v
 F../rtl/imem_sync.v
-!i122 46
+!i122 37
 L0 3 40
 R10
 R11
@@ -848,21 +867,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vinput_collect_unit
-R7
+R17
 !i10b 1
 !s100 eAJg=o2N0AnV21^PBZTKj3
-I`1lcdLhWdnT0D0aQ84N0I2
+IkAWRPfah:G38>]FUO@nWY2
 R1
 R8
 8../rtl/input_collect_unit.v
 F../rtl/input_collect_unit.v
-!i122 46
+!i122 37
 L0 1 258
 R10
 R11
@@ -870,21 +890,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vmem_stage_sync
-R18
+R17
 !i10b 1
 !s100 5ZcjJWoBde7Z5D=2XiH2?1
-Ijz=3^28:ViQE?6JzMR4:c3
+I2FVQY22@W<QeYW[FHSgSC2
 R1
 w1776859471
 8../rtl/mem_stage_sync.v
 F../rtl/mem_stage_sync.v
-!i122 46
+!i122 37
 L0 7 263
 R10
 R11
@@ -892,22 +913,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vmode_decision_logic
-R7
+R17
 !i10b 1
 !s100 _Mz[URlTi=ZOR3Q^2gfPD1
-Id2Al:Z`_AV];4f8JioR?]1
+I<H5I0XYTaihSdTIbnAga31
 R1
 w1776235214
 8../rtl/mode_decision_logic.v
 F../rtl/mode_decision_logic.v
-R17
-!i122 46
+R18
+!i122 37
 L0 1 423
 R10
 R11
@@ -915,22 +937,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vpayload_emitter
-R7
+R17
 !i10b 1
 !s100 hCNh[o8z9JZd4TOC2lS<22
-IVzDE^RmQoK36b1BZAl[NQ2
+I33?F`U6?mh2m@jjVETA8J3
 R1
 w1776856289
 8../rtl/payload_emitter.v
 F../rtl/payload_emitter.v
-R17
-!i122 46
+R18
+!i122 37
 L0 1 370
 R10
 R11
@@ -938,21 +961,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vregisters_file
-R18
+R17
 !i10b 1
 !s100 HB6]9S2Jze8NkBWIEHnoK3
-Idm9ID=BTU`KP`<C>6Xz1R3
+IV>dO4`Z66m^3zWd8ojAbg1
 R1
 w1776780869
 8../rtl/registers_file.v
 F../rtl/registers_file.v
-!i122 46
+!i122 37
 L0 1 43
 R10
 R11
@@ -960,21 +984,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vrv32_soc_top
-R7
+R17
 !i10b 1
 !s100 >XHH:b3=U3PJVB17][lP42
-IVn3[V_P4a5CWGiD[D<[Pm1
+IM^6G>b8;LUBPNmkKN>Lb^0
 R1
 w1777287298
 8../rtl/rv32_soc_top.v
 F../rtl/rv32_soc_top.v
-!i122 46
+!i122 37
 L0 12 723
 R10
 R11
@@ -982,21 +1007,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vrx_byte_packer_32
-R7
+R17
 !i10b 1
 !s100 U4^De^dgDG0FVXlR:]Bg73
-IjNRCkDUdIk@90FmVH<KUb0
+IhVa0KjXWk7F@_2B<K_JeS1
 R1
 R8
 8../rtl/rx_byte_packer_32.v
 F../rtl/rx_byte_packer_32.v
-!i122 46
+!i122 37
 L0 1 144
 R10
 R11
@@ -1004,21 +1030,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vstream_output_interface
-R7
+R17
 !i10b 1
 !s100 ;6E3??Dmo;m7kfEkckz>l0
-IKX=0Q4mNA:_IL5hQCTOEK3
+I]TCclRm]NHMB0WJEfbXYY0
 R1
 R8
 8../rtl/stream_output_interface.v
 F../rtl/stream_output_interface.v
-!i122 46
+!i122 37
 L0 1 174
 R10
 R11
@@ -1026,22 +1053,23 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vsymbol_list_builder
-R7
+R17
 !i10b 1
 !s100 fl@i3ZQM]YgFH4ZX@KH6]1
-If>7Ga=onjg2MMffKnQ]RV0
+I5mFZce=^VnNRTUGnL@<MQ1
 R1
 w1777252240
 8../rtl/symbol_list_builder.v
 F../rtl/symbol_list_builder.v
-R17
-!i122 46
+R18
+!i122 37
 L0 1 225
 R10
 R11
@@ -1049,44 +1077,46 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vtest_bench
 R7
 !i10b 1
-!s100 m>06cP_S@Eb`<XlAni1<U0
-Ij7PK0N2dm1`>a:?hBMbQC3
+!s100 D>cSW1]GIRKcB[?a8oLQi3
+IA6lTS<kf>lSWOC8;ZFQoZ0
 R1
-w1778059749
+w1778157090
 8../tb/tb_rv32_soc_mmio_dma.v
 F../tb/tb_rv32_soc_mmio_dma.v
 Frun_test.v
-!i122 46
-L0 3 4886
+!i122 37
+L0 3 5762
 R10
 R11
 r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vtop_rv32_sync
-R18
+R17
 !i10b 1
 !s100 @bFOI9?gcf_CKeQ6VgaUe1
-IYY1A@zKO3=NEEBh:E2FGH1
+IAb;mIe:L6Z^fCbR3ab1P60
 R1
 w1776859478
 8../rtl/top_rv32_sync.v
 F../rtl/top_rv32_sync.v
-!i122 46
+!i122 37
 L0 2 306
 R10
 R11
@@ -1094,21 +1124,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vwrapper
-R7
+R17
 !i10b 1
 !s100 eV^_dkm;?N@]BbA36a^z>1
-I;m=a`AMn]8CTVMhF[Sc0M2
+I6GD89diblfzg[G9UDlRY<1
 R1
 R8
 8../rtl/wrapper.v
 F../rtl/wrapper.v
-!i122 46
+!i122 37
 L0 1 46
 R10
 R11
@@ -1116,21 +1147,22 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5
 vwrapper_rx
-R7
+R17
 !i10b 1
 !s100 [d=@6SAN_XnIzV65B]ZM]2
-IESE2[==E4J`g@g9WGTU0_0
+Ifg71_jAk@o^ie3VYl]@561
 R1
 R8
 8../rtl/wrapper_rx.v
 F../rtl/wrapper_rx.v
-!i122 46
+!i122 37
 L0 1 48
 R10
 R11
@@ -1138,8 +1170,9 @@ r1
 !s85 0
 31
 R12
-R16
 R13
-!i113 0
 R14
+!i113 0
+R3
+R15
 R5

@@ -1,2 +1,0 @@
-base_addr=0x00002000 byte_count=0
-idx addr byte ascii

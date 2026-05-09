@@ -1,6 +1,10 @@
-# vsim -debugDB -coverage -l cpu_instruction_cov.log -c test_bench "+CASE_NAME=cpu_instruction_cov" "+INPUT_FILE=input1.txt" -voptargs="+access+cover=bcesft" -assertdebug -do "coverage save -onexit cpu_instruction_cov.ucdb; log -r /*; run -all" 
-# Start time: 07:00:51 on May 06,2026
-# ** Note: (vsim-8009) Loading existing optimized design _opt
+# vsim -coverage -l cpu_instruction_cov.log -c test_bench "+CASE_NAME=cpu_instruction_cov" "+INPUT_FILE=input1.txt" -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit cpu_instruction_cov.ucdb; run -all; quit -f" 
+# Start time: 12:31:46 on May 07,2026
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vopt-143) Recognized 1 FSM in module "emit_backend(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "stream_output_interface(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "huffman_builder(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "huffman_builder(fast__1)".
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
 # //
@@ -16,62 +20,7 @@
 # //  18 U.S.C. Section 1905.
 # //
 # Loading work.test_bench(fast)
-# Loading work.rv32_soc_top(fast)
-# Loading work.top_rv32_sync(fast)
-# Loading work.if_stage_sync(fast)
-# Loading work.id_stage(fast)
-# Loading work.ex_stage(fast)
-# Loading work.mem_stage_sync(fast)
-# Loading work.forwarding(fast)
-# Loading work.registers_file(fast)
-# Loading work.imem_sync(fast)
-# Loading work.dmem_ip_wrapper(fast)
-# Loading work.DMEM_ip(fast)
-# Loading work.apb_huffman_aes_tx_top(fast)
-# Loading work.apb_huffman_tx_if(fast)
-# Loading work.huffman_aes_tx_top(fast)
-# Loading work.frequency_counter(fast)
-# Loading work.huffman_builder(fast)
-# Loading work.symbol_list_builder(fast)
-# Loading work.code_length_builder(fast)
-# Loading work.canonical_code_generator(fast)
-# Loading work.dynamic_huffman_encoder(fast)
-# Loading work.input_collect_unit(fast)
-# Loading work.block_buffer(fast)
-# Loading work.frequency_counter(fast__1)
-# Loading work.huffman_builder(fast__1)
-# Loading work.symbol_list_builder(fast__1)
-# Loading work.code_length_builder(fast__1)
-# Loading work.canonical_code_generator(fast__1)
-# Loading work.mode_decision_logic(fast)
-# Loading work.emit_backend(fast)
-# Loading work.header_formatter(fast)
-# Loading work.payload_emitter(fast)
-# Loading work.stream_output_interface(fast)
-# Loading work.control_fsm(fast)
-# Loading work.bit_packer_128(fast)
-# Loading work.wrapper(fast)
-# Loading work.aes128_cipher_top(fast)
-# Loading work.aes128_cipher_core(fast)
-# Loading work.aes128_key_expansion(fast)
-# Loading work.apb_huffman_aes_rx_top(fast)
-# Loading work.wrapper_rx(fast)
-# Loading work.aes128_cipher_inv_top(fast)
-# Loading work.aes128_cipher_core_inv(fast)
-# Loading work.aes128_key_expansion_inv(fast)
-# Loading work.bit_depacker_128(fast)
-# Loading work.huffman_block_parser(fast)
-# Loading work.huffman_block_decoder(fast)
-# Loading work.HUFFMAN_DECODE_TABLE_IP(fast)
-# Loading work.rx_byte_packer_32(fast)
-# Loading work.apb_huffman_rx_if(fast)
-# Loading work.cpu_mmio_to_apb_bridge(fast)
-# Loading work.dma_regfile(fast)
-# Loading work.dma_tx_engine(fast)
-# Loading work.dma_rx_engine(fast)
-# ** Note: (vsim-8716) Reusing existing debug database vsim.dbg.
 # coverage save -onexit cpu_instruction_cov.ucdb
-#  log -r /*
 #  run -all
 # INPUT_FILE override: input1.txt
 # Sync Istr 0: 00008137
@@ -80,7 +29,7 @@
 # Sync Istr 3: 123455b7
 # Test_result STARTED cpu_instruction_cov
 # Loaded 2551 byte(s) from input1.txt into DMEM @ 0x00002000
-# ===== RV32I SOC MMIO REGFILE CHECK =====
+# ===== RV32I CPU INSTRUCTION COVERAGE CHECK =====
 # input_file=input1.txt input_len=2551
 # dma_active_dir=0 busy=0 done_sticky=0 error_sticky=0
 # dma_cfg src=0x00000000 dst=0x00000000 len=0x00000000 dir=0x0 block=0x20
@@ -117,15 +66,30 @@
 # FILES summary=loopback/tb_rv32_soc_mmio_dma_summary.txt compare=loopback/tb_rv32_soc_mmio_dma_compare.txt src_dump=dmem_dump/tb_rv32_soc_mmio_dma_src.txt tx_dump=dmem_dump/tb_rv32_soc_mmio_dma_tx.txt rx_dump=dmem_dump/tb_rv32_soc_mmio_dma_rx.txt
 # [PASS] mem_err_o_should_be_zero | actual=0 expected=0
 # [PASS] cpu_should_publish_known_signature
+# ===== CPU INSTRUCTION COVERAGE REPORT =====
+# purpose: RV32I core executes real program from IMEM and publishes signatures to DMEM
+# program: testcase/test_cpu_instruction_cov.c
+# covered_groups: R-type ALU, I-type ALU, load/store byte-half-word, signed/unsigned load, branch, LUI, JALR
+# dmem_result_words:
+#   word0 signature      actual=0x43505543 expected=0x43505543 meaning='CPUC'
+#   word1 error_mask     actual=0x00000000 expected=0x00000000
+#   word2 r_type_mix     actual=0xcd79bdff expected=0xcd79bdff
+#   word3 mem_mix        actual=0x0000e595 expected=0x0000e595
+#   word4 branch_score   actual=0x0000003f expected=0x0000003f
+#   word5 i_type_mix     actual=0x00000874 expected=0x00000874
+# error_mask_bits: bit0=R-type, bit1=I-type, bit2=branch, bit3=load/store, bit4=LUI, bit5=JALR
+# branch_score_bits: bit0=BEQ, bit1=BNE, bit2=BLT, bit3=BGE, bit4=BLTU, bit5=BGEU
+# memory_check: SW/SH/SB write DMEM, then LBU/LB/LHU/LH verify zero/sign extension
 # [PASS] cpu_instruction_signature | actual=0x43505543 expected=0x43505543
 # [PASS] cpu_instruction_error_mask | actual=0x00000000 expected=0x00000000
 # [PASS] cpu_instruction_r_type_mix | actual=0xcd79bdff expected=0xcd79bdff
 # [PASS] cpu_instruction_mem_mix | actual=0x0000e595 expected=0x0000e595
 # [PASS] cpu_instruction_branch_score | actual=0x0000003f expected=0x0000003f
-# SUMMARY: PASS=7 FAIL=0
+# [PASS] cpu_instruction_i_type_mix | actual=0x00000874 expected=0x00000874
+# SUMMARY: PASS=8 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(4088)
-#    Time: 103896 ns  Iteration: 0  Instance: /test_bench
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5730)
+#    Time: 103906 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 07:01:50 on May 06,2026, Elapsed time: 0:00:59
+# End time: 12:32:21 on May 07,2026, Elapsed time: 0:00:35
 # Errors: 0, Warnings: 0
