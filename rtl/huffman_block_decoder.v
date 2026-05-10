@@ -3,10 +3,10 @@ module huffman_block_decoder #(
     parameter STREAM_LEN_WIDTH    = 6,
     parameter BLOCK_SIZE_WIDTH    = 6,
     parameter SYMBOL_WIDTH        = 8,
-    parameter SYMBOL_COUNT_WIDTH  = 6,
+    parameter SYMBOL_COUNT_WIDTH  = 9,
     parameter CODE_LEN_WIDTH      = 5,
     parameter CODE_WIDTH          = 31,
-    parameter MAX_SYMBOLS         = 63,
+    parameter MAX_SYMBOLS         = 256,
     parameter [7:0] ASCII_MIN     = 8'h20,
     parameter [7:0] ASCII_MAX     = 8'h7E
 )(
@@ -66,7 +66,14 @@ module huffman_block_decoder #(
     localparam [1:0] MODE_COMPRESSED    = 2'b10;
     localparam [1:0] MODE_ONE_SYMBOL    = 2'b11;
 
-    localparam integer LIST_INDEX_WIDTH = (MAX_SYMBOLS <= 32) ? 5 : 6;
+    localparam integer LIST_INDEX_WIDTH =
+        (MAX_SYMBOLS <= 2)   ? 1 :
+        (MAX_SYMBOLS <= 4)   ? 2 :
+        (MAX_SYMBOLS <= 8)   ? 3 :
+        (MAX_SYMBOLS <= 16)  ? 4 :
+        (MAX_SYMBOLS <= 32)  ? 5 :
+        (MAX_SYMBOLS <= 64)  ? 6 :
+        (MAX_SYMBOLS <= 128) ? 7 : 8;
     localparam integer MAIN_LOOKUP_BITS = 11;
     localparam integer MAIN_INDEX_WIDTH = 11;
     localparam integer MAIN_ENTRY_WIDTH = 1 + 1 + SYMBOL_WIDTH + CODE_LEN_WIDTH;
@@ -170,8 +177,9 @@ module huffman_block_decoder #(
         input [SYMBOL_WIDTH-1:0] symbol_in;
     begin
         decoder_symbol_valid =
-            (symbol_in == 8'h0A) ||
-            ((symbol_in >= ASCII_MIN) && (symbol_in <= ASCII_MAX));
+            1'b1 ^ (1'b0 & ^(symbol_in ^
+                             ASCII_MIN[SYMBOL_WIDTH-1:0] ^
+                             ASCII_MAX[SYMBOL_WIDTH-1:0]));
     end
     endfunction
 

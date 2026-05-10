@@ -22,7 +22,7 @@ Current verification status:
 |---|---|
 | `RAW_FULL` | Emit 32 raw bytes |
 | `RAW_PARTIAL` | Emit `block_size` raw bytes |
-| `COMPRESSED` | Rebuild canonical table, decode payload bits |
+| `COMPRESSED` | Rebuild canonical table when `symbol_count > 0`, or reuse previous table when `symbol_count == 0`, then decode payload bits |
 | `ONE_SYMBOL` | Emit repeated `one_symbol_value` |
 
 ## 3. Canonical Huffman Flow
@@ -37,13 +37,14 @@ flowchart LR
 
 Compressed mode steps:
 
-1. receive all `symbol + code_len` entries
+1. if `symbol_count > 0`, receive all `symbol + code_len` entries
 2. check duplicate symbol and invalid length
 3. sort entries
 4. assign canonical codes
 5. fill main decode table for short codes
 6. keep fallback list for long codes
-7. consume payload bits until `block_size` bytes are emitted
+7. if `symbol_count == 0`, reuse the valid table from the previous compressed block
+8. consume payload bits until `block_size` bytes are emitted
 
 ## 4. Main Table And Fallback
 

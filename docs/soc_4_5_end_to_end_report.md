@@ -9,7 +9,7 @@ cho bao cao:
 |---|---|---|---|
 | SOC-01 | `dma_compress_aes_input1` | `input1.txt` | Main secure-storage loopback |
 | SOC-02 | `dma_compress_aes_input3` | `input3.txt` | Small/repeated input loopback |
-| SOC-03 | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | Max-valid-symbol stress loopback |
+| SOC-03 | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | Alnum63/codebook stress loopback |
 | SOC-04 | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | Software-managed storage table demo |
 
 Ba testcase loopback dau dung software:
@@ -43,7 +43,7 @@ make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_
 Latest run:
 
 ```text
-Date: 2026-05-07
+Date: 2026-05-10
 Clock used by TB benchmark: 10 ns period, 100 MHz
 Result: 3 main loopback tests PASS; storage-table demo PASS; all are in the 34/34 clean baseline
 ```
@@ -101,16 +101,16 @@ Moi SOC testcase pass khi:
 
 | Testname | PASS/FAIL | Input bytes | TX bytes | RX bytes | Payload ratio | Payload saving | Storage ratio | Storage saving |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `dma_compress_aes_input1` | PASS | 2551 | 992 | 2551 | 36.32% | 63.68% | 38.89% | 61.11% |
-| `dma_compress_aes_input3` | PASS | 242 | 112 | 242 | 40.81% | 59.19% | 46.28% | 53.72% |
-| `dma_compress_aes_alnum63_cov` | PASS | 504 | 544 | 504 | 100.67% | -0.67% | 107.94% | -7.94% |
-| `dma_storage_table_input1_then_input3` | PASS | 2551 + 242 | TX1 992 | RX1 2551 | 40.19% | 59.81% | 38.89% | 61.11% |
+| `dma_compress_aes_input1` | PASS | 2551 | 1024 | 2551 | 37.50% | 62.50% | 40.14% | 59.86% |
+| `dma_compress_aes_input3` | PASS | 242 | 112 | 242 | 42.05% | 57.95% | 46.28% | 53.72% |
+| `dma_compress_aes_alnum63_cov` | PASS | 504 | 560 | 504 | 101.86% | -1.86% | 111.11% | -11.11% |
+| `dma_storage_table_input1_then_input3` | PASS | 2551 + 242 | TX1 1024 | RX1 2551 | 41.48% | 58.52% | 40.14% | 59.86% |
 
 Interpretation:
 
 | Testname | Note |
 |---|---|
-| `dma_compress_aes_input1` | Nen tot, storage saving `61.11%`, loopback dung. |
+| `dma_compress_aes_input1` | Nen tot, storage saving `59.86%`, loopback dung. |
 | `dma_compress_aes_input3` | Input ngan/lap lai cao, storage saving `53.72%`, loopback dung. |
 | `dma_compress_aes_alnum63_cov` | Input gan uniform voi 63 symbol, header/codebook overhead lon hon payload saving, nen storage saving am. Day la stress functional, khong phai case toi uu nen. |
 | `dma_storage_table_input1_then_input3` | Chung minh software RV32I co the luu 2 ciphertext record, sau do chon lai input1 bang metadata va RX dung. |
@@ -130,9 +130,9 @@ duoi.
 
 | Testname | TX cycles | RX cycles | TX input MB/s | TX output MB/s | RX input MB/s | RX output MB/s |
 |---|---:|---:|---:|---:|---:|---:|
-| `dma_compress_aes_input1` | 34045 | 14904 | 7.493 | 2.914 | 6.656 | 17.116 |
-| `dma_compress_aes_input3` | 4549 | 5202 | 5.320 | 2.462 | 2.153 | 4.652 |
-| `dma_compress_aes_alnum63_cov` | 18129 | 8475 | 2.780 | 3.001 | 6.419 | 5.947 |
+| `dma_compress_aes_input1` | 45441 | 14931 | 5.614 | 2.253 | 6.858 | 17.085 |
+| `dma_compress_aes_input3` | 10805 | 5206 | 2.240 | 1.037 | 2.151 | 4.648 |
+| `dma_compress_aes_alnum63_cov` | 44457 | 8491 | 1.134 | 1.260 | 6.595 | 5.936 |
 
 ## 7. Output Files
 

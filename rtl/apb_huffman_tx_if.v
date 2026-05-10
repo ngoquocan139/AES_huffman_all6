@@ -1,5 +1,6 @@
 module apb_huffman_tx_if #(
-    parameter BLOCK_SIZE_WIDTH = 6
+    parameter BLOCK_SIZE_WIDTH  = 6,
+    parameter SYMBOL_COUNT_WIDTH = 9
 )(
     input  wire                         PCLK,
     input  wire                         PRESETn,
@@ -48,7 +49,7 @@ module apb_huffman_tx_if #(
     input  wire                         global_build_done_i,
     input  wire                         global_build_error_i,
     input  wire                         global_table_valid_i,
-    input  wire [BLOCK_SIZE_WIDTH-1:0]  global_symbol_count_i
+    input  wire [SYMBOL_COUNT_WIDTH-1:0] global_symbol_count_i
 );
 
     // --------------------------------------------------------------------
@@ -247,7 +248,7 @@ module apb_huffman_tx_if #(
                     PRDATA[0] = compress_only_o;
                     PRDATA[1] = whole_file_enable_o;
                     PRDATA[2] = whole_file_count_mode_o;
-                    PRDATA[BLOCK_SIZE_WIDTH+8-1:8] = global_symbol_count_i;
+                    PRDATA[SYMBOL_COUNT_WIDTH+8-1:8] = global_symbol_count_i;
                 end
 
                 ADDR_AES_OUT_DATA: begin

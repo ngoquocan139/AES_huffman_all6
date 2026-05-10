@@ -1,8 +1,8 @@
 module frequency_counter #(
-    parameter ALPHABET_SIZE       = 96,
+    parameter ALPHABET_SIZE       = 256,
     parameter SYMBOL_WIDTH        = 8,
     parameter COUNT_WIDTH         = 6,
-    parameter SYMBOL_INDEX_WIDTH  = 7,
+    parameter SYMBOL_INDEX_WIDTH  = 8,
     parameter [7:0] ASCII_MIN     = 8'h20,
     parameter [7:0] ASCII_MAX     = 8'h7E,
     parameter [7:0] DEFAULT_REMAP = 8'h20
@@ -40,10 +40,7 @@ module frequency_counter #(
     end
 
     always @(*) begin
-        if (read_index < ALPHABET_SIZE[SYMBOL_INDEX_WIDTH-1:0])
-            read_count = freq_table[read_index];
-        else
-            read_count = {COUNT_WIDTH{1'b0}};
+        read_count = freq_table[read_index];
     end
 
     always @(posedge clk or negedge rst_n) begin

@@ -1,5 +1,5 @@
 # vsim -coverage -l mmio_regfile_basic.log -c test_bench "+CASE_NAME=mmio_regfile_basic" -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit mmio_regfile_basic.ucdb; run -all; quit -f" 
-# Start time: 11:07:48 on May 07,2026
+# Start time: 04:56:49 on May 10,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -70,8 +70,8 @@
 # [PASS] basic_no_dma_start | actual=0x00000000 expected=0x00000000
 # SUMMARY: PASS=9 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5710)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5734)
 #    Time: 61266 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 11:08:23 on May 07,2026, Elapsed time: 0:00:35
+# End time: 04:57:16 on May 10,2026, Elapsed time: 0:00:27
 # Errors: 0, Warnings: 0

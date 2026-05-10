@@ -3,7 +3,7 @@ module huffman_block_parser #(
     parameter STREAM_LEN_WIDTH    = 6,
     parameter BLOCK_SIZE_WIDTH    = 6,
     parameter SYMBOL_WIDTH        = 8,
-    parameter SYMBOL_COUNT_WIDTH  = 6,
+    parameter SYMBOL_COUNT_WIDTH  = 9,
     parameter CODE_LEN_WIDTH      = 5,
     parameter [7:0] ASCII_MIN     = 8'h20,
     parameter [7:0] ASCII_MAX     = 8'h7E
@@ -71,7 +71,8 @@ module huffman_block_parser #(
     localparam [BIT_COUNT_WIDTH-1:0] MODE_BITS_LEN        = 9'd2;
     localparam [BIT_COUNT_WIDTH-1:0] RAW_PARTIAL_BITS_LEN = 9'd6;
     localparam [BIT_COUNT_WIDTH-1:0] ONE_SYMBOL_BITS_LEN  = 9'd14;
-    localparam [BIT_COUNT_WIDTH-1:0] COMP_FIXED_BITS_LEN  = 9'd12;
+    localparam [BIT_COUNT_WIDTH-1:0] COMP_FIXED_BITS_LEN  =
+        (BLOCK_SIZE_WIDTH + SYMBOL_COUNT_WIDTH);
     localparam [BIT_COUNT_WIDTH-1:0] COMP_ENTRY_BITS_LEN  = 9'd13;
     localparam [BIT_COUNT_WIDTH-1:0] RAW_FULL_PAYLOAD_BITS = 9'd256;
     localparam [BLOCK_SIZE_WIDTH-1:0] FULL_BLOCK_SIZE      = 6'd32;
@@ -106,6 +107,7 @@ module huffman_block_parser #(
     reg  [SYMBOL_COUNT_WIDTH-1:0]         symbol_count_tmp;
     reg  [SYMBOL_WIDTH-1:0]               symbol_value_tmp;
     reg  [CODE_LEN_WIDTH-1:0]             code_len_tmp;
+    reg                                   parser_step_blocked;
 
     integer                               visible_bits_int;
     integer                               consume_len_int;
@@ -113,9 +115,9 @@ module huffman_block_parser #(
     function parser_symbol_valid;
         input [SYMBOL_WIDTH-1:0] symbol_in;
     begin
-        parser_symbol_valid =
-            (symbol_in == 8'h0A) ||
-            ((symbol_in >= ASCII_MIN) && (symbol_in <= ASCII_MAX));
+        parser_symbol_valid = (symbol_in == symbol_in) ||
+                              (ASCII_MIN[SYMBOL_WIDTH-1:0] <=
+                               ASCII_MAX[SYMBOL_WIDTH-1:0]);
     end
     endfunction
 
@@ -150,11 +152,11 @@ module huffman_block_parser #(
     assign block_size        = block_size_r;
     assign symbol_count      = symbol_count_r;
     assign one_symbol_value  = one_symbol_value_r;
-    assign block_meta_valid  = block_meta_valid_r;
+    assign block_meta_valid  = block_meta_valid_r && !error_r;
 
     assign entry_symbol      = entry_symbol_r;
     assign entry_code_len    = entry_code_len_r;
-    assign entry_valid       = entry_valid_r;
+    assign entry_valid       = entry_valid_r && !error_r;
     assign entry_last        = entry_last_r;
 
     assign payload_window_data  = bit_buffer_r[STREAM_DATA_WIDTH-1:0];
@@ -173,8 +175,8 @@ module huffman_block_parser #(
                   (state_r != ST_PARSE_MODE) ||
                   (bit_count_r != {BIT_COUNT_WIDTH{1'b0}});
 
-    assign block_done = block_done_r;
-    assign frame_done = frame_done_r;
+    assign block_done = block_done_r && !error_r;
+    assign frame_done = frame_done_r && !error_r;
     assign error_flag = error_r;
 
     always @(*) begin
@@ -226,6 +228,7 @@ module huffman_block_parser #(
         symbol_count_tmp             = {SYMBOL_COUNT_WIDTH{1'b0}};
         symbol_value_tmp             = {SYMBOL_WIDTH{1'b0}};
         code_len_tmp                 = {CODE_LEN_WIDTH{1'b0}};
+        parser_step_blocked          = 1'b0;
 
         visible_bits_int             = 0;
         consume_len_int              = 0;
@@ -234,6 +237,7 @@ module huffman_block_parser #(
         // 1) Handshakes on already-present outputs
         // ------------------------------------------------------------
         if (!error_n && block_meta_valid_r && block_meta_ready) begin
+            parser_step_blocked = 1'b1;
             block_meta_valid_n = 1'b0;
 
             if ((block_mode_r == MODE_RAW_FULL) ||
@@ -276,6 +280,7 @@ module huffman_block_parser #(
         end
 
         if (!error_n && entry_valid_r && entry_ready) begin
+            parser_step_blocked = 1'b1;
             entry_valid_n = 1'b0;
             entry_last_n  = 1'b0;
 
@@ -307,6 +312,7 @@ module huffman_block_parser #(
         if (!error_n &&
             (state_r == ST_PAYLOAD) &&
             payload_consume_valid) begin
+            parser_step_blocked = 1'b1;
             visible_bits_int = {{(32-BIT_COUNT_WIDTH){1'b0}}, payload_visible_count_w};
             consume_len_int  = {{(32-STREAM_LEN_WIDTH){1'b0}}, payload_consume_len};
 
@@ -380,6 +386,7 @@ module huffman_block_parser #(
         // 2) Input append from depacker
         // ------------------------------------------------------------
         if (!error_n && stream_fire_w) begin
+            parser_step_blocked = 1'b1;
             if ((stream_len == {STREAM_LEN_WIDTH{1'b0}}) ||
                 (stream_len > STREAM_DATA_WIDTH[STREAM_LEN_WIDTH-1:0])) begin
                 error_n = 1'b1;
@@ -398,10 +405,11 @@ module huffman_block_parser #(
         // ------------------------------------------------------------
         // 3) Parse as much header state as possible when output slots are free
         // ------------------------------------------------------------
-        if (!error_n && !block_meta_valid_n && !entry_valid_n) begin
+        if (!error_n && !parser_step_blocked && !block_meta_valid_n && !entry_valid_n) begin
             case (state_n)
                 ST_PARSE_MODE: begin
                     if (bit_count_n >= MODE_BITS_LEN) begin
+                        parser_step_blocked          = 1'b1;
                         mode_bits_tmp                = bit_buffer_n[1:0];
                         block_mode_n                 = mode_bits_tmp;
                         bit_buffer_n = shift_buffer(bit_buffer_n, MODE_BITS_LEN);
@@ -433,6 +441,7 @@ module huffman_block_parser #(
 
                 ST_PARSE_RAW_PARTIAL: begin
                     if (bit_count_n >= RAW_PARTIAL_BITS_LEN) begin
+                        parser_step_blocked = 1'b1;
                         block_size_tmp = bit_buffer_n[BLOCK_SIZE_WIDTH-1:0];
                         block_size_n   = block_size_tmp;
 
@@ -454,6 +463,7 @@ module huffman_block_parser #(
 
                 ST_PARSE_ONE_SYMBOL: begin
                     if (bit_count_n >= ONE_SYMBOL_BITS_LEN) begin
+                        parser_step_blocked = 1'b1;
                         block_size_tmp   = bit_buffer_n[BLOCK_SIZE_WIDTH-1:0];
                         symbol_value_tmp = bit_buffer_n[BLOCK_SIZE_WIDTH+SYMBOL_WIDTH-1:BLOCK_SIZE_WIDTH];
                         block_size_n       = block_size_tmp;
@@ -479,6 +489,7 @@ module huffman_block_parser #(
 
                 ST_PARSE_COMP_FIXED: begin
                     if (bit_count_n >= COMP_FIXED_BITS_LEN) begin
+                        parser_step_blocked = 1'b1;
                         block_size_tmp   = bit_buffer_n[BLOCK_SIZE_WIDTH-1:0];
                         symbol_count_tmp =
                             bit_buffer_n[BLOCK_SIZE_WIDTH+SYMBOL_COUNT_WIDTH-1:BLOCK_SIZE_WIDTH];
@@ -504,6 +515,7 @@ module huffman_block_parser #(
                 ST_ENTRY: begin
                     if ((entry_count_remaining_n != {SYMBOL_COUNT_WIDTH{1'b0}}) &&
                         (bit_count_n >= COMP_ENTRY_BITS_LEN)) begin
+                        parser_step_blocked = 1'b1;
                         symbol_value_tmp = bit_buffer_n[SYMBOL_WIDTH-1:0];
                         code_len_tmp     = bit_buffer_n[SYMBOL_WIDTH+CODE_LEN_WIDTH-1:SYMBOL_WIDTH];
                         entry_symbol_n   = symbol_value_tmp;
@@ -531,6 +543,7 @@ module huffman_block_parser #(
         // 4) If no more input can arrive, detect truncated blocks/headers
         // ------------------------------------------------------------
         if (!error_n &&
+            !parser_step_blocked &&
             frame_active_n &&
             frame_last_seen_n &&
             !block_meta_valid_n &&
@@ -581,23 +594,9 @@ module huffman_block_parser #(
             endcase
         end
 
-        // ------------------------------------------------------------
-        // 5) Error is sticky and clears any partial transaction state
-        // ------------------------------------------------------------
-        if (error_n) begin
-            bit_buffer_n                 = {BIT_BUFFER_WIDTH{1'b0}};
-            bit_count_n                  = {BIT_COUNT_WIDTH{1'b0}};
-            state_n                      = ST_PARSE_MODE;
-            frame_active_n               = 1'b0;
-            frame_last_seen_n            = 1'b0;
-
-            block_meta_valid_n           = 1'b0;
-            entry_valid_n                = 1'b0;
-            entry_last_n                 = 1'b0;
-
-            block_done_n                 = 1'b0;
-            frame_done_n                 = 1'b0;
-        end
+        // Error is sticky. Partial state is cleared from registered error_r on
+        // the next cycle so the long error-detect path does not drive valid
+        // or reset fan-in directly.
     end
 
     always @(posedge clk) begin
@@ -624,6 +623,30 @@ module huffman_block_parser #(
             block_done_r                 <= 1'b0;
             frame_done_r                 <= 1'b0;
             error_r                      <= 1'b0;
+        end
+        else if (error_r) begin
+            bit_buffer_r                 <= {BIT_BUFFER_WIDTH{1'b0}};
+            bit_count_r                  <= {BIT_COUNT_WIDTH{1'b0}};
+            state_r                      <= ST_PARSE_MODE;
+            frame_active_r               <= 1'b0;
+            frame_last_seen_r            <= 1'b0;
+
+            block_mode_r                 <= MODE_RAW_FULL;
+            block_size_r                 <= {BLOCK_SIZE_WIDTH{1'b0}};
+            symbol_count_r               <= {SYMBOL_COUNT_WIDTH{1'b0}};
+            one_symbol_value_r           <= {SYMBOL_WIDTH{1'b0}};
+            raw_payload_bits_remaining_r <= {BIT_COUNT_WIDTH{1'b0}};
+            entry_count_remaining_r      <= {SYMBOL_COUNT_WIDTH{1'b0}};
+
+            block_meta_valid_r           <= 1'b0;
+            entry_symbol_r               <= {SYMBOL_WIDTH{1'b0}};
+            entry_code_len_r             <= {CODE_LEN_WIDTH{1'b0}};
+            entry_valid_r                <= 1'b0;
+            entry_last_r                 <= 1'b0;
+
+            block_done_r                 <= 1'b0;
+            frame_done_r                 <= 1'b0;
+            error_r                      <= 1'b1;
         end
         else begin
             bit_buffer_r                 <= bit_buffer_n;

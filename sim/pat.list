@@ -36,5 +36,5 @@ raw_dut_stress_cov
 # Known failing / not in clean baseline yet:
 # dma_compress_aes_input2_debug      # TX error on current input2.txt, keep for debug closure
 # dma_compress_aes_input4_cov_debug  # TX error 0x05 on current log-like input4_cov.txt
-# dma_compress_aes_ascii_sweep_cov   # More than 63 unique symbols; covered by tx_compress_only_ascii_sweep_cov error test
+# dma_compress_aes_ascii_sweep_cov   # Full E2E ASCII-sweep stress not in clean baseline; TX-only sweep is covered and passes under 256-symbol codebook
 # host_preprocess_input4_cov_debug   # host parser rejects current header line format

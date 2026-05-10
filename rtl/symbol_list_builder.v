@@ -1,9 +1,9 @@
 module symbol_list_builder #(
-    parameter ALPHABET_SIZE         = 96,
+    parameter ALPHABET_SIZE         = 256,
     parameter SYMBOL_WIDTH          = 8,
-    parameter SYMBOL_COUNT_WIDTH    = 6,
+    parameter SYMBOL_COUNT_WIDTH    = 9,
     parameter COUNT_WIDTH           = 6,
-    parameter SYMBOL_INDEX_WIDTH    = 7,
+    parameter SYMBOL_INDEX_WIDTH    = 8,
     parameter MAX_SYMBOLS_PER_BLOCK = 32,
     parameter [7:0] ASCII_MIN       = 8'h20
 )(
@@ -30,7 +30,14 @@ module symbol_list_builder #(
     localparam [1:0] ST_SCAN = 2'b10;
     localparam [1:0] ST_DONE = 2'b11;
 
-    localparam LIST_INDEX_WIDTH = (MAX_SYMBOLS_PER_BLOCK <= 32) ? 5 : 6;
+    localparam LIST_INDEX_WIDTH =
+        (MAX_SYMBOLS_PER_BLOCK <= 2)   ? 1 :
+        (MAX_SYMBOLS_PER_BLOCK <= 4)   ? 2 :
+        (MAX_SYMBOLS_PER_BLOCK <= 8)   ? 3 :
+        (MAX_SYMBOLS_PER_BLOCK <= 16)  ? 4 :
+        (MAX_SYMBOLS_PER_BLOCK <= 32)  ? 5 :
+        (MAX_SYMBOLS_PER_BLOCK <= 64)  ? 6 :
+        (MAX_SYMBOLS_PER_BLOCK <= 128) ? 7 : 8;
 
     reg [1:0] state, next_state;
 
@@ -47,8 +54,9 @@ module symbol_list_builder #(
 
 `include "huffman_symbol_map.vh"
 
+    localparam [31:0] ALPHABET_LAST_I = ALPHABET_SIZE - 1;
     localparam [SYMBOL_INDEX_WIDTH-1:0] ALPHABET_LAST =
-        ALPHABET_SIZE - 1;
+        ALPHABET_LAST_I[SYMBOL_INDEX_WIDTH-1:0];
 
     localparam [SYMBOL_COUNT_WIDTH-1:0] MAX_SYMBOLS_VALUE =
         MAX_SYMBOLS_PER_BLOCK[SYMBOL_COUNT_WIDTH-1:0];
@@ -114,8 +122,10 @@ module symbol_list_builder #(
             symbol_count <= {SYMBOL_COUNT_WIDTH{1'b0}};
             error_flag   <= 1'b0;
 
+`ifndef SYNTHESIS
             for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1)
                 symbol_list_mem[i] <= {SYMBOL_WIDTH{1'b0}};
+`endif
         end
         else begin
             state   <= next_state;
@@ -130,8 +140,10 @@ module symbol_list_builder #(
                     symbol_count <= {SYMBOL_COUNT_WIDTH{1'b0}};
                     error_flag   <= 1'b0;
 
+`ifndef SYNTHESIS
                     for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1)
                         symbol_list_mem[i] <= {SYMBOL_WIDTH{1'b0}};
+`endif
                 end
 
                 ST_SCAN: begin

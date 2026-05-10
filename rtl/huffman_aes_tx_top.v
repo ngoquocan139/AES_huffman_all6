@@ -5,13 +5,13 @@ module huffman_aes_tx_top #(
     parameter BLOCK_SIZE_WIDTH      = 6,
     parameter BUFFER_ADDR_WIDTH     = 5,
     parameter SYMBOL_WIDTH          = 8,
-    parameter SYMBOL_COUNT_WIDTH    = 6,
+    parameter SYMBOL_COUNT_WIDTH    = 9,
     parameter COUNT_WIDTH           = 6,
-    parameter SYMBOL_INDEX_WIDTH    = 7,
+    parameter SYMBOL_INDEX_WIDTH    = 8,
     parameter CODE_LEN_WIDTH        = 5,
-    parameter CODE_WIDTH            = 31,
-    parameter HEADER_BITS_WIDTH     = 10,
-    parameter TOTAL_BITS_WIDTH      = 11,
+    parameter CODE_WIDTH            = 13,
+    parameter HEADER_BITS_WIDTH     = 12,
+    parameter TOTAL_BITS_WIDTH      = 16,
     parameter CHUNK_DATA_WIDTH      = 32,
     parameter CHUNK_LEN_WIDTH       = 6,
     parameter MAX_SYMBOLS_PER_BLOCK = 32,
@@ -113,10 +113,10 @@ module huffman_aes_tx_top #(
     // --------------------------------------------------------------------
     // Internal interconnect: adapter -> dynamic_huffman_encoder
     // --------------------------------------------------------------------
-    localparam integer HUFFMAN_ALPHABET_SIZE = 96;
+    localparam integer HUFFMAN_ALPHABET_SIZE = 256;
     localparam integer FILE_COUNT_WIDTH      = 16;
-    localparam integer FILE_MAX_SYMBOLS      = 63;
-    localparam integer FILE_MAX_TREE_NODES   = 125;
+    localparam integer FILE_MAX_SYMBOLS      = 256;
+    localparam integer FILE_MAX_TREE_NODES   = 511;
 
     wire                          enc_start_block_w;
     wire [SYMBOL_WIDTH-1:0]       enc_byte_in_w;
@@ -421,7 +421,7 @@ module huffman_aes_tx_top #(
         .clk                 (clk),
         .rst_n               (rst_n),
         .start               (global_build_start),
-        .block_size          (6'd1),
+        .block_size          ({{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1}),
         .freq_read_index     (file_freq_read_index_w),
         .freq_read_count     (file_freq_read_count_w),
         .busy                (file_build_busy_w),

@@ -436,7 +436,7 @@ Neu con it thoi gian, doc dung thu tu nay:
 
 ## 8. Latest Numbers To Remember
 
-Latest checked date: **May 7, 2026**.
+Latest checked date: **May 10, 2026**.
 
 De de nho khi bi hoi nhanh:
 
@@ -444,7 +444,7 @@ De de nho khi bi hoi nhanh:
 |---|---:|
 | Main end-to-end evidence | `SUMMARY: PASS=18 FAIL=0` cho testcase SoC TX->RX chinh |
 | Multi-record storage evidence | `SUMMARY: PASS=22 FAIL=0` cho `dma_storage_table_input1_then_input3` |
-| Raw DUT full coverage | `93.72%` |
+| Raw DUT full coverage | `93.52%` |
 | Closed DUT coverage | `95.90%` sau coverage closure |
 | Main weak raw areas | RX parser/decoder condition/expression, AES/Huffman wide-bus toggles, dynamic builder memory-array toggles |
 

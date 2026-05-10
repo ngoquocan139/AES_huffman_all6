@@ -76,13 +76,13 @@ Top nay khong tu giai ma du lieu. O cau hinh hien tai:
 | `BLOCK_SIZE_WIDTH` | `6` | So bit bieu dien kich thuoc block. Mac dinh ho tro 0..63, thuc te top chap nhan 1..32 byte. |
 | `BUFFER_ADDR_WIDTH` | `5` | Dia chi cho bo dem block 32 phan tu. |
 | `SYMBOL_WIDTH` | `8` | Do rong ky tu dau vao. |
-| `SYMBOL_COUNT_WIDTH` | `6` | Do rong bo dem so luong symbol. |
+| `SYMBOL_COUNT_WIDTH` | `9` | Do rong bo dem so luong symbol, du cho whole-file table 256 symbol. |
 | `COUNT_WIDTH` | `6` | Do rong tan suat tung symbol. |
-| `SYMBOL_INDEX_WIDTH` | `7` | Chi muc alphabet. |
+| `SYMBOL_INDEX_WIDTH` | `8` | Chi muc alphabet byte `0x00..0xFF`. |
 | `CODE_LEN_WIDTH` | `5` | Do rong do dai ma Huffman. |
-| `CODE_WIDTH` | `31` | Do rong toi da cua ma Huffman. |
-| `HEADER_BITS_WIDTH` | `10` | Do rong bo dem bit cua phan header Huffman. |
-| `TOTAL_BITS_WIDTH` | `11` | Do rong bo dem tong so bit du lieu sau khi danh gia mode. |
+| `CODE_WIDTH` | `13` | Do rong toi da cua ma Huffman trong FPGA demo hien tai. |
+| `HEADER_BITS_WIDTH` | `12` | Do rong bo dem bit cua phan header Huffman. |
+| `TOTAL_BITS_WIDTH` | `16` | Do rong bo dem tong so bit du lieu sau khi danh gia mode. |
 | `CHUNK_DATA_WIDTH` | `32` | Do rong chunk bit tu encoder sang packer. |
 | `CHUNK_LEN_WIDTH` | `6` | Do rong so bit hop le trong moi chunk. |
 | `MAX_SYMBOLS_PER_BLOCK` | `32` | So ky tu toi da trong 1 block. |
@@ -92,6 +92,11 @@ Top nay khong tu giai ma du lieu. O cau hinh hien tai:
 | `TRANSPORT_WORD_WIDTH` | `128` | Do rong word dau vao AES. |
 | `VALID_BITS_WIDTH` | `7` | So bit can de ma hoa so bit hop le trong payload 120-bit. |
 | `AES_KEY_FIXED` | `128'h00112233445566778899AABBCCDDEEFF` | Key AES co dinh cua wrapper mac dinh. |
+
+Ghi chu: per-block path van dung `MAX_SYMBOLS_PER_BLOCK=32` va
+`MAX_TREE_NODES=63`. Whole-file path trong `huffman_aes_tx_top` override builder
+bang `FILE_MAX_SYMBOLS=256` va `FILE_MAX_TREE_NODES=511`, vi vay codebook
+whole-file hien ho tro full byte alphabet.
 
 ## 5. Cong top-level
 

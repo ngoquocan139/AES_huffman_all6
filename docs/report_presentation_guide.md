@@ -15,6 +15,7 @@ Dung cac spec theo thu tu nay khi on bao cao:
 | 7 | `rx_path_end_to_end_spec.md` | Giai thich rieng RX khi bi hoi sau |
 | 8 | `memory_map_dma_software_contract.md` | Bang dia chi MMIO/DMEM |
 | 9 | `iv_generation_and_cbc_contract_spec.md` | Giai thich IV va AES-CBC |
+| 10 | `paper_comparison_huffman_aes_cbc.md` | So sanh cong bang voi bai bao Huffman + CBC-AES |
 
 Khong can trinh bay tung spec module con tren slide. Cac file nhu
 `dma_tx_engine_spec.md`, `dynamic_huffman_encoder_spec.md`,
@@ -138,9 +139,9 @@ Day la nhom testcase chinh nen dua vao bao cao:
 
 | Testcase | Input | Result | Storage saving | Note |
 |---|---|---:|---:|---|
-| `dma_compress_aes_input1` | `input1.txt`, 2551 bytes | PASS | 61.11% | Main secure-storage loopback |
+| `dma_compress_aes_input1` | `input1.txt`, 2551 bytes | PASS | 59.86% | Main secure-storage loopback |
 | `dma_compress_aes_input3` | `input3.txt`, 242 bytes | PASS | 53.72% | Small/repeated input |
-| `dma_compress_aes_alnum63_cov` | 63-symbol stress, 504 bytes | PASS | -7.94% | Functional stress, not compression-optimized |
+| `dma_compress_aes_alnum63_cov` | 63-symbol stress, 504 bytes | PASS | -11.11% | Functional stress, not compression-optimized |
 
 Can nhan manh:
 
@@ -155,9 +156,9 @@ Theo simulation TB 100 MHz:
 
 | Testcase | TX input throughput | RX output throughput |
 |---|---:|---:|
-| `dma_compress_aes_input1` | 7.493 MB/s | 17.116 MB/s |
-| `dma_compress_aes_input3` | 5.320 MB/s | 4.652 MB/s |
-| `dma_compress_aes_alnum63_cov` | 2.780 MB/s | 5.947 MB/s |
+| `dma_compress_aes_input1` | 5.614 MB/s | 17.085 MB/s |
+| `dma_compress_aes_input3` | 2.240 MB/s | 4.648 MB/s |
+| `dma_compress_aes_alnum63_cov` | 1.134 MB/s | 5.936 MB/s |
 
 Neu noi ve FPGA demo 50 MHz, throughput ly thuyet xap xi mot nua so tren.
 
@@ -169,15 +170,15 @@ Bao cao coverage dung so nay:
 |---|---:|
 | Active testcase | 34 |
 | Passed testcase | 34 |
-| Raw DUT full `bcesft` | 93.72% |
-| Raw DUT branches / statements | 93.85% / 96.39% |
+| Raw DUT full `bcesft` | 93.52% |
+| Raw DUT branches / statements | 94.22% / 96.33% |
 | Closed DUT coverage | 95.90% |
 
 Can noi ro:
 
 - Khong noi raw full coverage la 100%.
 - Closed coverage 95.90% la sau exclusion/closure co reason.
-- Neu thay hoi theo goc functional, dua so `Branches 93.85%` va `Statements 96.39%` thay vi co gang gom thanh 1 so duy nhat.
+- Neu thay hoi theo goc functional, dua so `Branches 94.22%` va `Statements 96.33%` thay vi co gang gom thanh 1 so duy nhat.
 
 ### 5.4 Vivado implementation
 
@@ -185,14 +186,34 @@ Ket qua implementation moi nhat o 50 MHz:
 
 | Build | WNS | Power | LUT | BRAM | Status |
 |---|---:|---:|---:|---:|---|
-| TX-only | +3.752 ns | 0.202 W | 19781 | 10 | Timing pass |
-| RX-only | +0.230 ns | 0.219 W | 12004 | 11 | Timing pass |
+| TX-only | +0.217 ns | 0.239 W | 45501 | 10 | Timing pass |
+| RX-only | +0.341 ns | 0.193 W | 22730 | 11 | Timing pass |
 
 Can noi ro:
 
 - Day la split TX/RX implementation, khong phai full TX+RX chung mot bitstream.
+- TX LUT tang sau khi nang dynamic codebook len 256 symbol; van con timing pass o 50 MHz.
 - Power report la vectorless, confidence `Medium`, chua co SAIF activity that.
 - Neu can nap board thi can regenerate bitstream sau implementation.
+
+### 5.5 Paper comparison
+
+So voi bai bao `A lossless compression and encryption mechanism for remote
+monitoring of ECG data using Huffman coding and CBC-AES`:
+
+| Design | Dataset / input | Compression ratio | Space saving | Security |
+|---|---|---:|---:|---|
+| Referenced paper | MIT-BIH ECG, DWT/filtering + Huffman | 35.015% | 64.985% | AES-CBC 256-bit key |
+| This SoC | `input1.txt`, dynamic whole-file Huffman 256-symbol | 40.14% final storage | 59.86% | AES-128-CBC |
+| This SoC | same MIT-BIH records, external delta2+varuint preprocessing | 32.76% average final storage | 67.24% | AES-128-CBC |
+| This SoC | `input3.txt` | 46.28% final storage | 53.72% | AES-128-CBC |
+| This SoC | `input4_cov.txt`, TX-only | 67.73% final storage | 32.27% | AES bypass benchmark |
+
+Ket luan nen noi: voi huong so sanh chinh, du lieu MIT-BIH duoc preprocess ben
+ngoai thanh byte stream delta2+varuint roi moi dua vao SoC. Tren cung nam ban
+ghi MIT-BIH, ket qua trung binh la `32.76%` final storage ratio, tot hon bai
+bao `35.015%` khoang `2.26` diem phan tram. Phai noi ro preprocessing nay nam
+ngoai SoC; SoC hien tai chi thuc hien secure storage cho byte stream da xu ly.
 
 ## 6. Testcase Groups To Mention
 

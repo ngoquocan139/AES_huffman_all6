@@ -2,13 +2,13 @@ module dynamic_huffman_encoder #(
     parameter BLOCK_SIZE_WIDTH      = 6,
     parameter BUFFER_ADDR_WIDTH     = 5,
     parameter SYMBOL_WIDTH          = 8,
-    parameter SYMBOL_COUNT_WIDTH    = 6,
+    parameter SYMBOL_COUNT_WIDTH    = 9,
     parameter COUNT_WIDTH           = 6,
-    parameter SYMBOL_INDEX_WIDTH    = 7,
+    parameter SYMBOL_INDEX_WIDTH    = 8,
     parameter CODE_LEN_WIDTH        = 5,
-    parameter CODE_WIDTH            = 31,
-    parameter HEADER_BITS_WIDTH     = 10,
-    parameter TOTAL_BITS_WIDTH      = 11,
+    parameter CODE_WIDTH            = 13,
+    parameter HEADER_BITS_WIDTH     = 12,
+    parameter TOTAL_BITS_WIDTH      = 16,
     parameter CHUNK_DATA_WIDTH      = 32,
     parameter CHUNK_LEN_WIDTH       = 6,
     parameter MAX_SYMBOLS_PER_BLOCK = 32,
@@ -61,7 +61,7 @@ module dynamic_huffman_encoder #(
     // ------------------------------------------------------------
     // control_fsm wires
     // ------------------------------------------------------------
-    localparam integer HUFFMAN_ALPHABET_SIZE = 96;
+    localparam integer HUFFMAN_ALPHABET_SIZE = 256;
 
     wire        ctrl_start_collect_w;
     wire        ctrl_start_build_w;
@@ -300,7 +300,7 @@ module dynamic_huffman_encoder #(
         .clk                 (clk),
         .rst_n               (rst_n),
         .start               (ctrl_start_build_w),
-        .block_size          (collect_block_size_w),
+        .block_size          ({{(SYMBOL_COUNT_WIDTH-BLOCK_SIZE_WIDTH){1'b0}}, collect_block_size_w}),
 
         .freq_read_index     (hb_freq_read_index_w),
         .freq_read_count     (icu_freq_read_count_w),
@@ -342,6 +342,7 @@ module dynamic_huffman_encoder #(
         .BLOCK_SIZE_WIDTH   (BLOCK_SIZE_WIDTH),
         .BUFFER_ADDR_WIDTH  (BUFFER_ADDR_WIDTH),
         .SYMBOL_WIDTH       (SYMBOL_WIDTH),
+        .SYMBOL_COUNT_WIDTH (SYMBOL_COUNT_WIDTH),
         .SYMBOL_INDEX_WIDTH (SYMBOL_INDEX_WIDTH),
         .CODE_LEN_WIDTH     (CODE_LEN_WIDTH),
         .TOTAL_BITS_WIDTH   (TOTAL_BITS_WIDTH),
@@ -382,6 +383,7 @@ module dynamic_huffman_encoder #(
         .BLOCK_SIZE_WIDTH   (BLOCK_SIZE_WIDTH),
         .BUFFER_ADDR_WIDTH  (BUFFER_ADDR_WIDTH),
         .SYMBOL_WIDTH       (SYMBOL_WIDTH),
+        .SYMBOL_COUNT_WIDTH (SYMBOL_COUNT_WIDTH),
         .SYMBOL_INDEX_WIDTH (SYMBOL_INDEX_WIDTH),
         .CODE_LEN_WIDTH     (CODE_LEN_WIDTH),
         .CODE_WIDTH         (CODE_WIDTH),

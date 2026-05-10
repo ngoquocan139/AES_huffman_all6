@@ -2,9 +2,10 @@ module mode_decision_logic #(
     parameter BLOCK_SIZE_WIDTH   = 6,
     parameter BUFFER_ADDR_WIDTH  = 5,
     parameter SYMBOL_WIDTH       = 8,
-    parameter SYMBOL_INDEX_WIDTH = 7,
+    parameter SYMBOL_COUNT_WIDTH = 9,
+    parameter SYMBOL_INDEX_WIDTH = 8,
     parameter CODE_LEN_WIDTH     = 5,
-    parameter TOTAL_BITS_WIDTH   = 11,
+    parameter TOTAL_BITS_WIDTH   = 16,
     parameter [7:0] ASCII_MIN    = 8'h20,
     parameter [7:0] ASCII_MAX    = 8'h7E
 )(
@@ -13,7 +14,7 @@ module mode_decision_logic #(
     input  wire                          start,
 
     input  wire [BLOCK_SIZE_WIDTH-1:0]   block_size,
-    input  wire [BLOCK_SIZE_WIDTH-1:0]   symbol_count,
+    input  wire [SYMBOL_COUNT_WIDTH-1:0] symbol_count,
 
     // Read block_buffer
     output reg  [BUFFER_ADDR_WIDTH-1:0]  buffer_read_addr,
@@ -49,15 +50,17 @@ module mode_decision_logic #(
 
     // RAW_FULL       : 2 bits
     // RAW_PARTIAL    : 2 + 6 = 8 bits
-    // COMPRESSED     : 2 + 6 + 6 = 14 bits + 13*K
+    // COMPRESSED     : 2 + block_size + symbol_count bits + 13*K
     // ONE_SYMBOL_COMP: 2 + 6 + 8 = 16 bits, no payload
-    localparam [TOTAL_BITS_WIDTH-1:0] RAW_FULL_BASE_BITS     = 11'd2;
-    localparam [TOTAL_BITS_WIDTH-1:0] RAW_PARTIAL_BASE_BITS  = 11'd8;
-    localparam [TOTAL_BITS_WIDTH-1:0] COMP_BASE_BITS         = 11'd14;
-    localparam [TOTAL_BITS_WIDTH-1:0] ONE_SYMBOL_BASE_BITS   = 11'd16;
-    localparam [TOTAL_BITS_WIDTH-1:0] TRANSPORT_PAYLOAD_BITS = 11'd120;
-    localparam [TOTAL_BITS_WIDTH-1:0] TRANSPORT_WORD_BYTES   = 11'd16;
-    localparam [TOTAL_BITS_WIDTH-1:0] MIN_COMP_MARGIN_BITS   = 11'd16;
+    localparam [TOTAL_BITS_WIDTH-1:0] RAW_FULL_BASE_BITS     = 2;
+    localparam [TOTAL_BITS_WIDTH-1:0] RAW_PARTIAL_BASE_BITS  = 8;
+    localparam [TOTAL_BITS_WIDTH-1:0] COMP_BASE_BITS         =
+        (2 + BLOCK_SIZE_WIDTH + SYMBOL_COUNT_WIDTH);
+    localparam [TOTAL_BITS_WIDTH-1:0] ONE_SYMBOL_BASE_BITS   =
+        (2 + BLOCK_SIZE_WIDTH + SYMBOL_WIDTH);
+    localparam [TOTAL_BITS_WIDTH-1:0] TRANSPORT_PAYLOAD_BITS = 120;
+    localparam [TOTAL_BITS_WIDTH-1:0] TRANSPORT_WORD_BYTES   = 16;
+    localparam [TOTAL_BITS_WIDTH-1:0] MIN_COMP_MARGIN_BITS   = 16;
 
     reg [2:0] state, next_state;
 
@@ -152,9 +155,9 @@ module mode_decision_logic #(
 
     // 13 bits / symbol = 8(symbol_id) + 5(code_len)
     assign symbol_list_bits_w =
-        ({{(TOTAL_BITS_WIDTH-BLOCK_SIZE_WIDTH){1'b0}}, symbol_count} << 3) +
-        ({{(TOTAL_BITS_WIDTH-BLOCK_SIZE_WIDTH){1'b0}}, symbol_count} << 2) +
-        {{(TOTAL_BITS_WIDTH-BLOCK_SIZE_WIDTH){1'b0}}, symbol_count};
+        ({{(TOTAL_BITS_WIDTH-SYMBOL_COUNT_WIDTH){1'b0}}, symbol_count} << 3) +
+        ({{(TOTAL_BITS_WIDTH-SYMBOL_COUNT_WIDTH){1'b0}}, symbol_count} << 2) +
+        {{(TOTAL_BITS_WIDTH-SYMBOL_COUNT_WIDTH){1'b0}}, symbol_count};
 
     assign current_code_len_ext_w =
         {{(TOTAL_BITS_WIDTH-CODE_LEN_WIDTH){1'b0}}, code_len_read_data};
@@ -206,7 +209,7 @@ module mode_decision_logic #(
                 // - one-symbol block (can decide directly)
                 if (block_size == {BLOCK_SIZE_WIDTH{1'b0}})
                     next_state = ST_COMPARE;
-                else if (symbol_count == {{(BLOCK_SIZE_WIDTH-1){1'b0}},1'b1})
+                else if (symbol_count == {{(SYMBOL_COUNT_WIDTH-1){1'b0}},1'b1})
                     next_state = ST_COMPARE;
                 else
                     next_state = ST_SCAN;
@@ -269,11 +272,11 @@ module mode_decision_logic #(
                     if (block_size > 6'd32)
                         error_flag <= 1'b1;
 
-                    if (symbol_count > 6'd32)
+                    if (symbol_count > {{(SYMBOL_COUNT_WIDTH-6){1'b0}}, 6'd32})
                         error_flag <= 1'b1;
 
                     if ((block_size == {BLOCK_SIZE_WIDTH{1'b0}}) &&
-                        (symbol_count != {BLOCK_SIZE_WIDTH{1'b0}}))
+                        (symbol_count != {SYMBOL_COUNT_WIDTH{1'b0}}))
                         error_flag <= 1'b1;
 
                     // raw candidate
@@ -286,13 +289,13 @@ module mode_decision_logic #(
                     compressed_header_bits <= COMP_BASE_BITS + symbol_list_bits_w;
 
                     // one-symbol compressed
-                    if (symbol_count == {{(BLOCK_SIZE_WIDTH-1){1'b0}},1'b1})
+                    if (symbol_count == {{(SYMBOL_COUNT_WIDTH-1){1'b0}},1'b1})
                         one_symbol_total_bits <= ONE_SYMBOL_BASE_BITS;
                     else
                         one_symbol_total_bits <= {TOTAL_BITS_WIDTH{1'b0}};
 
                     // if only one symbol, standard compressed payload would be 1 bit/byte
-                    if (symbol_count == {{(BLOCK_SIZE_WIDTH-1){1'b0}},1'b1})
+                    if (symbol_count == {{(SYMBOL_COUNT_WIDTH-1){1'b0}},1'b1})
                         compressed_payload_bits <= block_size_ext_w;
                 end
 
@@ -326,7 +329,7 @@ module mode_decision_logic #(
                     // one-symbol block:
                     // 1) compare final transport storage cost
                     // 2) if tied, require a bit-margin before keeping compressed
-                    else if (symbol_count == {{(BLOCK_SIZE_WIDTH-1){1'b0}},1'b1}) begin
+                    else if (symbol_count == {{(SYMBOL_COUNT_WIDTH-1){1'b0}},1'b1}) begin
                         if (one_symbol_storage_bytes_w < raw_storage_bytes_w)
                             selected_mode <= MODE_ONE_SYMBOL_COMP;
                         else if ((one_symbol_storage_bytes_w == raw_storage_bytes_w) &&

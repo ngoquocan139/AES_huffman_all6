@@ -119,10 +119,11 @@ module test_bench;
   reg rx_seen_busy;
   reg tx_busy_prev;
   reg rx_busy_prev;
-  reg [8*32-1:0] input_file_name;
-  reg [8*32-1:0] input2_file_name;
+  reg [8*128-1:0] input_file_name;
+  reg [8*128-1:0] input2_file_name;
   reg [8*64-1:0] case_name;
   integer input2_file_enable;
+  integer input_binary_mode;
 
   reg [127:0] first_tx_transport_word;
   reg [127:0] first_tx_ciphertext_dmem_word;
@@ -226,12 +227,15 @@ module test_bench;
     input_file_name = "input1.txt";
     input2_file_name = "";
     input2_file_enable = 0;
+    input_binary_mode = $test$plusargs("INPUT_BINARY");
     if ($value$plusargs("INPUT_FILE=%s", input_file_name))
       $display("# INPUT_FILE override: %0s", input_file_name);
     if ($value$plusargs("INPUT_FILE2=%s", input2_file_name)) begin
       input2_file_enable = 1;
       $display("# INPUT_FILE2 override: %0s", input2_file_name);
     end
+    if (input_binary_mode)
+      $display("# INPUT_BINARY mode enabled: CR bytes are preserved");
   end
 
   task automatic check_eq_2;
@@ -333,7 +337,7 @@ module test_bench;
         input_bytes[idx] = 8'h00;
 
       input_len_bytes = 0;
-      fd = $fopen(input_file_name, "r");
+      fd = input_binary_mode ? $fopen(input_file_name, "rb") : $fopen(input_file_name, "r");
       if (fd == 0) begin
         $display("[FAIL] cannot open file: %0s", input_file_name);
         fail_count = fail_count + 1;
@@ -342,7 +346,7 @@ module test_bench;
 
       while (!$feof(fd)) begin
         ch = $fgetc(fd);
-        if ((ch != -1) && (ch[7:0] != 8'h0D)) begin
+        if ((ch != -1) && (input_binary_mode || (ch[7:0] != 8'h0D))) begin
           if (input_len_bytes >= MAX_INPUT_BYTES) begin
             $display("[FAIL] input file is larger than MAX_INPUT_BYTES=%0d", MAX_INPUT_BYTES);
             fail_count = fail_count + 1;
@@ -396,7 +400,7 @@ module test_bench;
       if (input2_file_enable == 0)
         disable load_secondary_input_txt_to_dmem;
 
-      fd = $fopen(input2_file_name, "r");
+      fd = input_binary_mode ? $fopen(input2_file_name, "rb") : $fopen(input2_file_name, "r");
       if (fd == 0) begin
         $display("[FAIL] cannot open second input file: %0s", input2_file_name);
         fail_count = fail_count + 1;
@@ -409,7 +413,7 @@ module test_bench;
 
       while (!$feof(fd)) begin
         ch = $fgetc(fd);
-        if ((ch != -1) && (ch[7:0] != 8'h0D)) begin
+        if ((ch != -1) && (input_binary_mode || (ch[7:0] != 8'h0D))) begin
           if (input2_len_bytes >= SRC2_BUFFER_BYTES) begin
             $display("[FAIL] second input file exceeds source2 buffer size: %0d >= %0d",
                      input2_len_bytes, SRC2_BUFFER_BYTES);

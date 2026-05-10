@@ -1,11 +1,11 @@
 module huffman_builder #(
-    parameter ALPHABET_SIZE         = 96,
+    parameter ALPHABET_SIZE         = 256,
     parameter SYMBOL_WIDTH          = 8,
-    parameter SYMBOL_COUNT_WIDTH    = 6,
+    parameter SYMBOL_COUNT_WIDTH    = 9,
     parameter COUNT_WIDTH           = 6,
-    parameter SYMBOL_INDEX_WIDTH    = 7,
+    parameter SYMBOL_INDEX_WIDTH    = 8,
     parameter CODE_LEN_WIDTH        = 5,
-    parameter CODE_WIDTH            = 31,
+    parameter CODE_WIDTH            = 13,
     parameter MAX_SYMBOLS_PER_BLOCK = 32,
     parameter MAX_TREE_NODES        = 63,
     parameter [7:0] ASCII_MIN       = 8'h20

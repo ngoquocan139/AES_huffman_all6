@@ -1,5 +1,5 @@
 # vsim -coverage -l tx_encoder_direct_cov.log -c test_bench "+CASE_NAME=tx_encoder_direct_cov" "+INPUT_FILE=input1.txt" "+TX_ENCODER_DIRECT_COV" -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit tx_encoder_direct_cov.ucdb; run -all; quit -f" 
-# Start time: 11:14:33 on May 07,2026
+# Start time: 05:02:18 on May 10,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -70,11 +70,11 @@
 # [PASS] basic_status_after_soft_reset | actual=0x00000000 expected=0x00000000
 # [PASS] basic_no_dma_start | actual=0x00000000 expected=0x00000000
 # TX_ENCODER_DIRECT_COV: exercise TX dynamic-Huffman mode/header/payload defensive branches
-# TX_ENCODER_DIRECT_COV: done tx_words_dummy=0x001 reversed_dummy=0x55555554
+# TX_ENCODER_DIRECT_COV: done tx_words_dummy=0x001 reversed_dummy=0x555XX55X
 # SUMMARY: PASS=9 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5710)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5734)
 #    Time: 61985 ns  Iteration: 1  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 11:15:07 on May 07,2026, Elapsed time: 0:00:34
+# End time: 05:02:47 on May 10,2026, Elapsed time: 0:00:29
 # Errors: 0, Warnings: 0

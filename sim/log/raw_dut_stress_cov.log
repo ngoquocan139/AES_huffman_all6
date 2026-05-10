@@ -1,5 +1,5 @@
 # vsim -coverage -l raw_dut_stress_cov.log -c test_bench "+CASE_NAME=raw_dut_stress_cov" "+INPUT_FILE=input1.txt" "+SIDEBAND_COV" "+TX_IF_DIRECT_COV" "+TX_ENCODER_DIRECT_COV" "+TX_BUILDER_PACKER_DIRECT_COV" "+RX_IF_DIRECT_COV" "+RX_PARSE_DECODE_COV" "+RX_DECODER_DIRECT_COV" "+RX_DEPACKER_PACKER_DIRECT_COV" "+RX_PARSE_DECODE_ERROR_DIRECT_COV" "+CPU_FORWARD_DIRECT_COV" "+DMA_BRIDGE_DIRECT_COV" "+RAW_DUT_STRESS_COV" -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit raw_dut_stress_cov.ucdb; run -all; quit -f" 
-# Start time: 11:24:54 on May 07,2026
+# Start time: 05:12:32 on May 10,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -57,7 +57,7 @@
 # DEBUG rx_stage_error depacker=0 parser=1 decoder=0 packer=0 aes_path=0
 # DEBUG rx_stage_state parser=0 decoder=6 packer_busy=0 fifo_count=0 block_done=0 frame_done=0
 # DEBUG rx_decoder_error code=0x00 state=0 bytes_left=0 payload_len=0
-# DEBUG rx_decoder_meta mode=2 block_size=16 symbol_count=47 one_symbol=0x00 parser_mode=2 parser_block_size=16 parser_symbol_count=47
+# DEBUG rx_decoder_meta mode=0 block_size=16 symbol_count=111 one_symbol=0x00 parser_mode=0 parser_block_size=0 parser_symbol_count=0
 # BENCHMARK tx_cycles=0 rx_cycles=0 tx_cipher_bytes=13 rx_plain_bytes=-1716864052
 # THROUGHPUT tx_in=0.000 MB/s tx_out=0.000 MB/s rx_in=0.000 MB/s rx_out=0.000 MB/s
 # PAYLOAD compressed_bits=0 compressed_bytes_ceil=0 ratio=0.00% space_saving=100.00%
@@ -84,9 +84,9 @@
 # TX_IF_DIRECT_COV: exercise APB TX IF empty/full/error/status branches
 # TX_IF_DIRECT_COV: done scratch=0x00000204
 # TX_ENCODER_DIRECT_COV: exercise TX dynamic-Huffman mode/header/payload defensive branches
-# TX_ENCODER_DIRECT_COV: done tx_words_dummy=0x001 reversed_dummy=0x55555554
+# TX_ENCODER_DIRECT_COV: done tx_words_dummy=0x001 reversed_dummy=0x555XX55X
 # TX_BUILDER_PACKER_DIRECT_COV: exercise TX builder, packer, and control-FSM defensive branches
-# TX_BUILDER_PACKER_DIRECT_COV: done symbol_dummy=0x27 index_dummy=0x22 code_dummy=0x00000009 better=0
+# TX_BUILDER_PACKER_DIRECT_COV: done symbol_dummy=0x5f index_dummy=0x4b code_dummy=0x00000009 better=0
 # CPU_FORWARD_DIRECT_COV: exercise forwarding mux rs1/rs2 exmem/memwb paths
 # [PASS] cpu_forward_direct_mix_nonzero
 # CPU_FORWARD_DIRECT_COV: done mix=0xffff3337
@@ -97,8 +97,8 @@
 # RAW_DUT_STRESS_COV: done
 # SUMMARY: PASS=10 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5710)
-#    Time: 127475 ns  Iteration: 1  Instance: /test_bench
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5734)
+#    Time: 120405 ns  Iteration: 1  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 11:25:22 on May 07,2026, Elapsed time: 0:00:28
+# End time: 05:13:03 on May 10,2026, Elapsed time: 0:00:31
 # Errors: 0, Warnings: 0

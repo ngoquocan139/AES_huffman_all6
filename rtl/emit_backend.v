@@ -2,10 +2,11 @@ module emit_backend #(
     parameter BLOCK_SIZE_WIDTH   = 6,
     parameter BUFFER_ADDR_WIDTH  = 5,
     parameter SYMBOL_WIDTH       = 8,
-    parameter SYMBOL_INDEX_WIDTH = 7,
+    parameter SYMBOL_COUNT_WIDTH = 9,
+    parameter SYMBOL_INDEX_WIDTH = 8,
     parameter CODE_LEN_WIDTH     = 5,
-    parameter CODE_WIDTH         = 31,
-    parameter HEADER_BITS_WIDTH  = 10,
+    parameter CODE_WIDTH         = 13,
+    parameter HEADER_BITS_WIDTH  = 12,
     parameter CHUNK_DATA_WIDTH   = 32,
     parameter CHUNK_LEN_WIDTH    = 6,
     parameter [7:0] ASCII_MIN    = 8'h20,
@@ -17,10 +18,10 @@ module emit_backend #(
 
     input  wire [1:0]                    selected_mode,
     input  wire [BLOCK_SIZE_WIDTH-1:0]   block_size,
-    input  wire [BLOCK_SIZE_WIDTH-1:0]   symbol_count,
+    input  wire [SYMBOL_COUNT_WIDTH-1:0] symbol_count,
 
     // Read symbol list from huffman_builder
-    output reg  [BLOCK_SIZE_WIDTH-1:0]   symbol_read_addr,
+    output reg  [SYMBOL_COUNT_WIDTH-1:0] symbol_read_addr,
     input  wire [SYMBOL_WIDTH-1:0]       symbol_read_data,
 
     // Read block_buffer from input_collect_unit
@@ -65,7 +66,7 @@ module emit_backend #(
     // ------------------------------------------------------------
     // header_formatter
     // ------------------------------------------------------------
-    wire [BLOCK_SIZE_WIDTH-1:0]   hdr_symbol_read_addr_w;
+    wire [SYMBOL_COUNT_WIDTH-1:0] hdr_symbol_read_addr_w;
     wire [SYMBOL_INDEX_WIDTH-1:0] hdr_code_len_read_index_w;
     wire [CHUNK_DATA_WIDTH-1:0]   hdr_data_w;
     wire [CHUNK_LEN_WIDTH-1:0]    hdr_len_w;
@@ -124,7 +125,7 @@ module emit_backend #(
     // Shared read muxing
     // ------------------------------------------------------------
     always @(*) begin
-        symbol_read_addr    = {BLOCK_SIZE_WIDTH{1'b0}};
+        symbol_read_addr    = {SYMBOL_COUNT_WIDTH{1'b0}};
         buffer_read_addr    = {BUFFER_ADDR_WIDTH{1'b0}};
         code_len_read_index = {SYMBOL_INDEX_WIDTH{1'b0}};
         code_read_index     = {SYMBOL_INDEX_WIDTH{1'b0}};
@@ -165,6 +166,7 @@ module emit_backend #(
     header_formatter #(
         .BLOCK_SIZE_WIDTH   (BLOCK_SIZE_WIDTH),
         .SYMBOL_WIDTH       (SYMBOL_WIDTH),
+        .SYMBOL_COUNT_WIDTH (SYMBOL_COUNT_WIDTH),
         .SYMBOL_INDEX_WIDTH (SYMBOL_INDEX_WIDTH),
         .CODE_LEN_WIDTH     (CODE_LEN_WIDTH),
         .HEADER_BITS_WIDTH  (HEADER_BITS_WIDTH),
@@ -326,5 +328,3 @@ module emit_backend #(
     end
 
 endmodule
-
-

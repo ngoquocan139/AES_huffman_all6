@@ -12,7 +12,7 @@ Repo hien tai co nhom chuong trinh C phuc vu RV32I simulation/coverage:
 | `testcase/test_mmio_tx_only.c` | TX-only `COMPRESS_ONLY + whole_file` de do saving truc tiep | yes |
 | `testcase/test_mmio_tx_only_aes_block.c` | TX-only `COMPRESS_AES` per-block 32B | coverage |
 | `testcase/test_mmio_tx_only_compress_block.c` | TX-only `COMPRESS_ONLY` per-block 32B | coverage |
-| `testcase/test_mmio_tx_encoder_error.c` | expected TX symbol-overflow error path | coverage |
+| `testcase/test_mmio_tx_encoder_error.c` | legacy TX error-path program kept for debug, not used by current 256-symbol clean baseline | coverage/debug |
 | `testcase/test_mmio_regfile_basic.c` | legal MMIO register read/write, IV, reset/clear pulse | coverage |
 | `testcase/test_mmio_regfile_negative.c` | invalid MMIO/config/error propagation | coverage |
 | `testcase/test_mmio_mode_matrix.c` | mode decode/status matrix | coverage |

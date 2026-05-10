@@ -1,5 +1,5 @@
 # vsim -coverage -l tx_builder_packer_direct_cov.log -c test_bench "+CASE_NAME=tx_builder_packer_direct_cov" "+INPUT_FILE=input1.txt" "+TX_BUILDER_PACKER_DIRECT_COV" -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit tx_builder_packer_direct_cov.ucdb; run -all; quit -f" 
-# Start time: 11:15:28 on May 07,2026
+# Start time: 05:03:06 on May 10,2026
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
@@ -70,11 +70,11 @@
 # [PASS] basic_status_after_soft_reset | actual=0x00000000 expected=0x00000000
 # [PASS] basic_no_dma_start | actual=0x00000000 expected=0x00000000
 # TX_BUILDER_PACKER_DIRECT_COV: exercise TX builder, packer, and control-FSM defensive branches
-# TX_BUILDER_PACKER_DIRECT_COV: done symbol_dummy=0x27 index_dummy=0x22 code_dummy=0x00000009 better=0
+# TX_BUILDER_PACKER_DIRECT_COV: done symbol_dummy=0x5f index_dummy=0x4b code_dummy=0x00000009 better=0
 # SUMMARY: PASS=9 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5710)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5734)
 #    Time: 62625 ns  Iteration: 1  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 11:16:03 on May 07,2026, Elapsed time: 0:00:35
+# End time: 05:03:34 on May 10,2026, Elapsed time: 0:00:28
 # Errors: 0, Warnings: 0

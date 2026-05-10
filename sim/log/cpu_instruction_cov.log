@@ -1,10 +1,6 @@
 # vsim -coverage -l cpu_instruction_cov.log -c test_bench "+CASE_NAME=cpu_instruction_cov" "+INPUT_FILE=input1.txt" -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit cpu_instruction_cov.ucdb; run -all; quit -f" 
-# Start time: 12:31:46 on May 07,2026
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# ** Note: (vopt-143) Recognized 1 FSM in module "emit_backend(fast)".
-# ** Note: (vopt-143) Recognized 1 FSM in module "stream_output_interface(fast)".
-# ** Note: (vopt-143) Recognized 1 FSM in module "huffman_builder(fast)".
-# ** Note: (vopt-143) Recognized 1 FSM in module "huffman_builder(fast__1)".
+# Start time: 05:09:22 on May 10,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
 # //
@@ -88,8 +84,8 @@
 # [PASS] cpu_instruction_i_type_mix | actual=0x00000874 expected=0x00000874
 # SUMMARY: PASS=8 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5730)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5734)
 #    Time: 103906 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 12:32:21 on May 07,2026, Elapsed time: 0:00:35
+# End time: 05:09:51 on May 10,2026, Elapsed time: 0:00:29
 # Errors: 0, Warnings: 0

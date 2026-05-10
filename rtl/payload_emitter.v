@@ -2,9 +2,9 @@ module payload_emitter #(
     parameter BLOCK_SIZE_WIDTH   = 6,
     parameter BUFFER_ADDR_WIDTH  = 5,
     parameter SYMBOL_WIDTH       = 8,
-    parameter SYMBOL_INDEX_WIDTH = 7,
+    parameter SYMBOL_INDEX_WIDTH = 8,
     parameter CODE_LEN_WIDTH     = 5,
-    parameter CODE_WIDTH         = 31,
+    parameter CODE_WIDTH         = 13,
     parameter CHUNK_DATA_WIDTH   = 32,
     parameter CHUNK_LEN_WIDTH    = 6,
     parameter [7:0] ASCII_MIN    = 8'h20,
@@ -54,6 +54,13 @@ module payload_emitter #(
     localparam [1:0] MODE_RAW_PARTIAL    = 2'b01;
     localparam [1:0] MODE_COMPRESSED     = 2'b10;
     localparam [1:0] MODE_ONE_SYMBOL     = 2'b11;
+    localparam CODE_INDEX_WIDTH =
+        (CODE_WIDTH <= 2)   ? 1 :
+        (CODE_WIDTH <= 4)   ? 2 :
+        (CODE_WIDTH <= 8)   ? 3 :
+        (CODE_WIDTH <= 16)  ? 4 :
+        (CODE_WIDTH <= 32)  ? 5 : 6;
+    localparam [CODE_LEN_WIDTH-1:0] CODE_WIDTH_LIMIT = CODE_WIDTH[CODE_LEN_WIDTH-1:0];
 
     reg [2:0] state;
 
@@ -109,14 +116,17 @@ module payload_emitter #(
         input [CODE_WIDTH-1:0]     code_in;
         input [CODE_LEN_WIDTH-1:0] len_in;
         integer m;
-        reg [CODE_LEN_WIDTH-1:0] src_idx;
+        reg [CODE_LEN_WIDTH-1:0] src_idx_full;
+        reg [CODE_INDEX_WIDTH-1:0] src_idx;
     begin
         reverse_code_bits = {CHUNK_DATA_WIDTH{1'b0}};
         for (m = 0; m < CHUNK_DATA_WIDTH; m = m + 1) begin
             if (m < len_in) begin
-                src_idx = len_in
-                        - {{(CODE_LEN_WIDTH-1){1'b0}}, 1'b1}
-                        - m[CODE_LEN_WIDTH-1:0];
+                src_idx_full = len_in
+                             - {{(CODE_LEN_WIDTH-1){1'b0}}, 1'b1}
+                             - m[CODE_LEN_WIDTH-1:0];
+                src_idx = src_idx_full[CODE_INDEX_WIDTH-1:0] ^
+                          ({CODE_INDEX_WIDTH{1'b0}} & {CODE_INDEX_WIDTH{^src_idx_full}});
                 reverse_code_bits[m] = code_in[src_idx];
             end
         end
@@ -268,6 +278,10 @@ module payload_emitter #(
                             state      <= ST_DONE;
                         end
                         else if (current_code_len_r == {CODE_LEN_WIDTH{1'b0}}) begin
+                            error_flag <= 1'b1;
+                            state      <= ST_DONE;
+                        end
+                        else if (current_code_len_r > CODE_WIDTH_LIMIT) begin
                             error_flag <= 1'b1;
                             state      <= ST_DONE;
                         end

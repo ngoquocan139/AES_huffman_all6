@@ -1,14 +1,14 @@
 module input_collect_unit #(
     parameter BLOCK_SIZE          = 32,
     parameter SYMBOL_WIDTH        = 8,
-    parameter ALPHABET_SIZE       = 96,
+    parameter ALPHABET_SIZE       = 256,
     parameter ASCII_MIN           = 8'h20,
     parameter ASCII_MAX           = 8'h7E,
     parameter DEFAULT_REMAP       = 8'h20,
     parameter BLOCK_SIZE_WIDTH    = 6,
     parameter COUNT_WIDTH         = 6,
     parameter ADDR_WIDTH          = 5,
-    parameter SYMBOL_INDEX_WIDTH  = 7
+    parameter SYMBOL_INDEX_WIDTH  = 8
 )(
     input  wire                          clk,
     input  wire                          rst_n,

@@ -1,5 +1,5 @@
 # vsim -coverage -l dma_compress_aes_input1.log -c test_bench "+CASE_NAME=dma_compress_aes_input1" "+INPUT_FILE=input1.txt" -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit dma_compress_aes_input1.ucdb; run -all; quit -f" 
-# Start time: 10:55:16 on May 07,2026
+# Start time: 04:46:13 on May 10,2026
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Note: (vopt-143) Recognized 1 FSM in module "emit_backend(fast)".
 # ** Note: (vopt-143) Recognized 1 FSM in module "stream_output_interface(fast)".
@@ -32,12 +32,12 @@
 # ===== RV32I SOC DMA TX->RX CHECK =====
 # input_file=input1.txt input_len=2551
 # dma_active_dir=2 busy=0 done_sticky=1 error_sticky=0
-# dma_cfg src=0x00004000 dst=0x00006000 len=0x000003e0 dir=0x2 block=0x20
-# tx_dma state=0 busy=0 done=0 err=0 bytes=0x000003e0 last_err=0x00
+# dma_cfg src=0x00004000 dst=0x00006000 len=0x00000400 dir=0x2 block=0x20
+# tx_dma state=0 busy=0 done=0 err=0 bytes=0x00000400 last_err=0x00
 # rx_dma state=0 busy=0 done=0 err=0 bytes=0x000009f7 last_err=0x00
-# tx_dst_head = d8c006fe 3e05b76e d2924115 2c9ccb8d
+# tx_dst_head = 3d5e9369 87fd4f6d af01399b f615e2b5
 # rx_dst_head = 324f7053 20202020 72616548 61522074
-# DEBUG first_tx_transport_valid=1 count=62 word=788c6a634399a0c8e627300900c29582
+# DEBUG first_tx_transport_valid=1 count=64 word=7863531a1ccd06473139804806141582
 # DEBUG first_tx_word_in_valid=1 count=1276 data=324f7053
 # DEBUG first_tx_dma_word_write=1 count=1276 data=324f7053
 # DEBUG first_tx_dma_read=1 count=1276 addr=00002000 data=324f7053
@@ -50,19 +50,19 @@
 # DEBUG mmio_write[5] addr=4000000c data=00004000
 # DEBUG mmio_write[6] addr=40000010 data=000009f7
 # DEBUG mmio_write[7] addr=40000014 data=00000009
-# DEBUG first_tx_ciphertext_dmem_valid=1 word=2c9ccb8dd29241153e05b76ed8c006fe
-# DEBUG first_rx_ciphertext_feed_valid=1 count=62 word=2c9ccb8dd29241153e05b76ed8c006fe
-# DEBUG first_rx_transport_valid=1 count=13691 word=788c6a634399a0c8e627300900c29582
+# DEBUG first_tx_ciphertext_dmem_valid=1 word=f615e2b5af01399b87fd4f6d3d5e9369
+# DEBUG first_rx_ciphertext_feed_valid=1 count=64 word=f615e2b5af01399b87fd4f6d3d5e9369
+# DEBUG first_rx_transport_valid=1 count=13720 word=7863531a1ccd06473139804806141582
 # DEBUG first_rx_word_valid=1 count=638 data=324f7053 bytes=4 last_blk=0 last_frm=0
 # DEBUG rx_stage_error depacker=0 parser=0 decoder=0 packer=0 aes_path=0
 # DEBUG rx_stage_state parser=0 decoder=0 packer_busy=0 fifo_count=0 block_done=1 frame_done=1
 # DEBUG rx_decoder_error code=0x00 state=0 bytes_left=0 payload_len=0
 # DEBUG rx_decoder_meta mode=2 block_size=0 symbol_count=21 one_symbol=0x00 parser_mode=2 parser_block_size=23 parser_symbol_count=0
-# BENCHMARK tx_cycles=34045 rx_cycles=14904 tx_cipher_bytes=992 rx_plain_bytes=2551
-# THROUGHPUT tx_in=7.493 MB/s tx_out=2.914 MB/s rx_in=6.656 MB/s rx_out=17.116 MB/s
-# PAYLOAD compressed_bits=7412 compressed_bytes_ceil=927 ratio=36.32% space_saving=63.68%
-# STORAGE ratio=38.89% space_saving=61.11%
-# LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=989
+# BENCHMARK tx_cycles=45441 rx_cycles=14931 tx_cipher_bytes=1024 rx_plain_bytes=2551
+# THROUGHPUT tx_in=5.614 MB/s tx_out=2.253 MB/s rx_in=6.858 MB/s rx_out=17.085 MB/s
+# PAYLOAD compressed_bits=7652 compressed_bytes_ceil=957 ratio=37.50% space_saving=62.50%
+# STORAGE ratio=40.14% space_saving=59.86%
+# LOOPBACK src_mismatch=0 rx_mismatch=0 tx_nonzero_bytes=1015
 # FILES summary=loopback/tb_rv32_soc_mmio_dma_summary.txt compare=loopback/tb_rv32_soc_mmio_dma_compare.txt src_dump=dmem_dump/tb_rv32_soc_mmio_dma_src.txt tx_dump=dmem_dump/tb_rv32_soc_mmio_dma_tx.txt rx_dump=dmem_dump/tb_rv32_soc_mmio_dma_rx.txt
 # [PASS] mem_err_o_should_be_zero | actual=0 expected=0
 # [PASS] cpu_should_publish_known_signature
@@ -71,7 +71,7 @@
 # [PASS] tx_status_before_start | actual=0x00000098 expected=0x00000098
 # [PASS] tx_status_after_done | actual=0x0000009a expected=0x0000009a
 # [PASS] tx_bytes_done_should_be_transport_aligned
-# [PASS] tx_ciphertext_bytes_produced_should_match_tx_bytes_done | actual=0x000003e0 expected=0x000003e0
+# [PASS] tx_ciphertext_bytes_produced_should_match_tx_bytes_done | actual=0x00000400 expected=0x00000400
 # [PASS] tx_poll_count_should_be_nonzero
 # [PASS] rx_status_before_start_should_be_idle_or_done_sticky
 # [PASS] rx_status_after_done | actual=0x0000002a expected=0x0000002a
@@ -84,8 +84,8 @@
 # [PASS] dma_start_pulse_count | actual=0x00000002 expected=0x00000002
 # SUMMARY: PASS=18 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5710)
-#    Time: 625306 ns  Iteration: 0  Instance: /test_bench
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5734)
+#    Time: 740226 ns  Iteration: 0  Instance: /test_bench
 # Saving coverage database on exit...
-# End time: 10:55:57 on May 07,2026, Elapsed time: 0:00:41
+# End time: 04:46:52 on May 10,2026, Elapsed time: 0:00:39
 # Errors: 0, Warnings: 0

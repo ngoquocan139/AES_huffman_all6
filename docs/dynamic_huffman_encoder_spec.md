@@ -18,8 +18,8 @@ Current verification status:
 | Case | Coverage/use |
 |---|---|
 | `tx_compress_only_input1/input4_cov` | Whole-file dynamic Huffman behavior qua SoC TX-only |
-| `tx_compress_only_alnum63_cov` | Max valid-symbol stress within current alphabet |
-| `tx_compress_only_ascii_sweep_cov` | Printable ASCII sweep and mode-decision coverage |
+| `tx_compress_only_alnum63_cov` | Alnum63 stress within 256-symbol byte alphabet |
+| `tx_compress_only_ascii_sweep_cov` | Byte-symbol sweep and mode-decision coverage |
 | `tx_encoder_direct_cov` | Direct encoder mode/error/FSM branches |
 | `tx_builder_packer_direct_cov` | Huffman builder and packer interaction branches |
 
@@ -168,7 +168,7 @@ payload         = block_size raw bytes
 ```text
 mode[1:0]        = 10
 block_size[5:0]
-symbol_count[5:0]
+symbol_count[8:0]
 symbol/code_len table
 payload Huffman code bits
 ```
@@ -191,8 +191,10 @@ one_symbol_value[7:0]
 
 - block size toi da: `32 byte`
 - so symbol toi da trong 1 block: phu thuoc block va normalize rule
-- alphabet active hien tai: printable ASCII + newline
-- invalid bytes duoc remap theo `DEFAULT_REMAP`
+- alphabet active hien tai: full byte alphabet `0x00..0xFF`
+- `huffman_symbol_map.vh` dang map identity, nen input byte nao cung la symbol hop le
+- whole-file mode co the emit codebook toi da 256 symbol; `symbol_count=0` nghia la reuse table
+- TX FPGA demo hien dung `CODE_WIDTH=13`; neu input pathological can code dai hon thi can tang `CODE_WIDTH` hoac them long-code fallback
 
 ## 10. Current Design Notes
 

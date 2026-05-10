@@ -1,9 +1,10 @@
 module header_formatter #(
     parameter BLOCK_SIZE_WIDTH   = 6,
     parameter SYMBOL_WIDTH       = 8,
-    parameter SYMBOL_INDEX_WIDTH = 7,
+    parameter SYMBOL_COUNT_WIDTH = 9,
+    parameter SYMBOL_INDEX_WIDTH = 8,
     parameter CODE_LEN_WIDTH     = 5,
-    parameter HEADER_BITS_WIDTH  = 10,
+    parameter HEADER_BITS_WIDTH  = 12,
     parameter CHUNK_DATA_WIDTH   = 32,
     parameter CHUNK_LEN_WIDTH    = 6,
     parameter [7:0] ASCII_MIN    = 8'h20,
@@ -15,10 +16,10 @@ module header_formatter #(
 
     input  wire [1:0]                    selected_mode,
     input  wire [BLOCK_SIZE_WIDTH-1:0]   block_size,
-    input  wire [BLOCK_SIZE_WIDTH-1:0]   symbol_count,
+    input  wire [SYMBOL_COUNT_WIDTH-1:0] symbol_count,
 
     // Read symbol list
-    output reg  [BLOCK_SIZE_WIDTH-1:0]   symbol_read_addr,
+    output reg  [SYMBOL_COUNT_WIDTH-1:0] symbol_read_addr,
     input  wire [SYMBOL_WIDTH-1:0]       symbol_read_data,
 
     // Read code length
@@ -58,10 +59,12 @@ module header_formatter #(
     localparam [1:0] MODE_COMPRESSED     = 2'b10;
     localparam [1:0] MODE_ONE_SYMBOL     = 2'b11;
 
-    localparam [HEADER_BITS_WIDTH-1:0] RAW_FULL_HEADER_BITS    = 10'd2;
-    localparam [HEADER_BITS_WIDTH-1:0] RAW_PARTIAL_HEADER_BITS = 10'd8;
-    localparam [HEADER_BITS_WIDTH-1:0] COMP_BASE_BITS          = 10'd14;
-    localparam [HEADER_BITS_WIDTH-1:0] ONE_SYMBOL_HEADER_BITS  = 10'd16;
+    localparam [HEADER_BITS_WIDTH-1:0] RAW_FULL_HEADER_BITS    = 2;
+    localparam [HEADER_BITS_WIDTH-1:0] RAW_PARTIAL_HEADER_BITS = 8;
+    localparam [HEADER_BITS_WIDTH-1:0] COMP_BASE_BITS          =
+        (2 + BLOCK_SIZE_WIDTH + SYMBOL_COUNT_WIDTH);
+    localparam [HEADER_BITS_WIDTH-1:0] ONE_SYMBOL_HEADER_BITS  =
+        (2 + BLOCK_SIZE_WIDTH + SYMBOL_WIDTH);
 
     localparam AFTER_DONE      = 2'd0;
     localparam AFTER_COMP_BASE = 2'd1;
@@ -73,11 +76,11 @@ module header_formatter #(
     reg  start_d;
     wire start_pulse;
 
-    reg [BLOCK_SIZE_WIDTH-1:0]  sym_idx;
+    reg [SYMBOL_COUNT_WIDTH-1:0] sym_idx;
     reg [SYMBOL_WIDTH-1:0]      symbol_data_r;
     reg [CODE_LEN_WIDTH-1:0]    code_len_data_r;
 
-    reg [15:0]                  field_data_r;
+    reg [31:0]                  field_data_r;
     reg [4:0]                   field_len_r;
     reg [4:0]                   field_pos_r;
     reg [1:0]                   after_field_r;
@@ -86,14 +89,16 @@ module header_formatter #(
     reg [CHUNK_LEN_WIDTH-1:0]   chunk_len_r;
 
 `ifndef SYNTHESIS
-    localparam [HEADER_BITS_WIDTH-1:0] MAX_HEADER_BITS = 10'd833;
+    localparam [HEADER_BITS_WIDTH-1:0] MAX_HEADER_BITS =
+        (2 + BLOCK_SIZE_WIDTH + SYMBOL_COUNT_WIDTH +
+         (256 * (SYMBOL_WIDTH + CODE_LEN_WIDTH)));
     reg [HEADER_BITS_WIDTH-1:0] bit_ptr;
     reg [HEADER_BITS_WIDTH-1:0] send_ptr;
     reg [MAX_HEADER_BITS-1:0] header_bits;
     wire debug_unused_w;
 `endif
 
-    wire [BLOCK_SIZE_WIDTH-1:0] safe_symbol_count_w;
+    wire [SYMBOL_COUNT_WIDTH-1:0] safe_symbol_count_w;
     wire                        mode_is_raw_full_w;
     wire                        mode_is_raw_partial_w;
     wire                        mode_is_compressed_w;
@@ -113,7 +118,7 @@ module header_formatter #(
     assign mode_is_one_symbol_w  = (selected_mode == MODE_ONE_SYMBOL);
 
     assign safe_symbol_count_w = symbol_count;
-    assign field_bit_w = field_data_r[field_pos_r[3:0]];
+    assign field_bit_w = field_data_r[field_pos_r[4:0]];
     assign field_last_bit_w = (field_pos_r == (field_len_r - 5'd1));
     assign chunk_full_after_bit_w = (chunk_len_r == (CHUNK_DATA_WIDTH - 1));
     assign chunk_data_with_bit_w =
@@ -146,7 +151,7 @@ module header_formatter #(
         if (state == ST_READ_SYMBOL)
             symbol_read_addr = sym_idx;
         else
-            symbol_read_addr = {BLOCK_SIZE_WIDTH{1'b0}};
+            symbol_read_addr = {SYMBOL_COUNT_WIDTH{1'b0}};
     end
 
     always @(*) begin
@@ -165,11 +170,11 @@ module header_formatter #(
             post_send_state_r <= ST_IDLE;
             start_d           <= 1'b0;
 
-            sym_idx           <= {BLOCK_SIZE_WIDTH{1'b0}};
+            sym_idx           <= {SYMBOL_COUNT_WIDTH{1'b0}};
             symbol_data_r     <= {SYMBOL_WIDTH{1'b0}};
             code_len_data_r   <= {CODE_LEN_WIDTH{1'b0}};
 
-            field_data_r      <= 16'b0;
+            field_data_r      <= 32'b0;
             field_len_r       <= 5'b0;
             field_pos_r       <= 5'b0;
             after_field_r     <= AFTER_DONE;
@@ -209,11 +214,11 @@ module header_formatter #(
                     header_total_bits <= {HEADER_BITS_WIDTH{1'b0}};
                     payload_required  <= 1'b0;
 
-                    sym_idx           <= {BLOCK_SIZE_WIDTH{1'b0}};
+            sym_idx           <= {SYMBOL_COUNT_WIDTH{1'b0}};
                     symbol_data_r     <= {SYMBOL_WIDTH{1'b0}};
                     code_len_data_r   <= {CODE_LEN_WIDTH{1'b0}};
 
-                    field_data_r      <= 16'b0;
+                    field_data_r      <= 32'b0;
                     field_len_r       <= 5'b0;
                     field_pos_r       <= 5'b0;
                     after_field_r     <= AFTER_DONE;
@@ -249,14 +254,15 @@ module header_formatter #(
 
                     if (mode_is_compressed_w &&
                         (block_size == {BLOCK_SIZE_WIDTH{1'b0}}) &&
-                        (symbol_count != {BLOCK_SIZE_WIDTH{1'b0}}))
+                        (symbol_count != {SYMBOL_COUNT_WIDTH{1'b0}}))
                         error_flag <= 1'b1;
 
-                    if (mode_is_one_symbol_w && (symbol_count != 6'd1))
+                    if (mode_is_one_symbol_w &&
+                        (symbol_count != {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1}))
                         error_flag <= 1'b1;
 
                     if (mode_is_raw_full_w) begin
-                        field_data_r      <= {14'b0, MODE_RAW_FULL};
+                        field_data_r      <= {30'b0, MODE_RAW_FULL};
                         field_len_r       <= 5'd2;
                         field_pos_r       <= 5'd0;
                         after_field_r     <= AFTER_DONE;
@@ -264,7 +270,7 @@ module header_formatter #(
                         state             <= ST_EMIT_FIELD;
                     end
                     else if (mode_is_raw_partial_w) begin
-                        field_data_r      <= {8'b0, block_size, MODE_RAW_PARTIAL};
+                        field_data_r      <= {24'b0, block_size, MODE_RAW_PARTIAL};
                         field_len_r       <= 5'd8;
                         field_pos_r       <= 5'd0;
                         after_field_r     <= AFTER_DONE;
@@ -276,14 +282,14 @@ module header_formatter #(
                         state             <= ST_READ_ONE;
                     end
                     else begin
-                        field_data_r      <= {2'b0, safe_symbol_count_w, block_size, MODE_COMPRESSED};
-                        field_len_r       <= 5'd14;
+                        field_data_r      <= {15'b0, safe_symbol_count_w, block_size, MODE_COMPRESSED};
+                        field_len_r       <= COMP_BASE_BITS[4:0];
                         field_pos_r       <= 5'd0;
                         after_field_r     <= AFTER_COMP_BASE;
                         header_total_bits <= COMP_BASE_BITS +
-                                             ({{(HEADER_BITS_WIDTH-BLOCK_SIZE_WIDTH){1'b0}}, safe_symbol_count_w} << 3) +
-                                             ({{(HEADER_BITS_WIDTH-BLOCK_SIZE_WIDTH){1'b0}}, safe_symbol_count_w} << 2) +
-                                             {{(HEADER_BITS_WIDTH-BLOCK_SIZE_WIDTH){1'b0}}, safe_symbol_count_w};
+                                             ({{(HEADER_BITS_WIDTH-SYMBOL_COUNT_WIDTH){1'b0}}, safe_symbol_count_w} << 3) +
+                                             ({{(HEADER_BITS_WIDTH-SYMBOL_COUNT_WIDTH){1'b0}}, safe_symbol_count_w} << 2) +
+                                             {{(HEADER_BITS_WIDTH-SYMBOL_COUNT_WIDTH){1'b0}}, safe_symbol_count_w};
                         state             <= ST_EMIT_FIELD;
                     end
                 end
@@ -297,7 +303,7 @@ module header_formatter #(
                     if (!huffman_symbol_valid(symbol_data_r))
                         error_flag <= 1'b1;
 
-                    field_data_r  <= {symbol_data_r, block_size, MODE_ONE_SYMBOL};
+                    field_data_r  <= {16'b0, symbol_data_r, block_size, MODE_ONE_SYMBOL};
                     field_len_r   <= 5'd16;
                     field_pos_r   <= 5'd0;
                     after_field_r <= AFTER_DONE;
@@ -321,7 +327,7 @@ module header_formatter #(
                     if (code_len_data_r == {CODE_LEN_WIDTH{1'b0}})
                         error_flag <= 1'b1;
 
-                    field_data_r  <= {3'b0, code_len_data_r, symbol_data_r};
+                    field_data_r  <= {19'b0, code_len_data_r, symbol_data_r};
                     field_len_r   <= 5'd13;
                     field_pos_r   <= 5'd0;
                     after_field_r <= AFTER_ENTRY;
@@ -351,7 +357,7 @@ module header_formatter #(
                                     post_send_state_r <= ST_DONE;
                                 end
                                 AFTER_COMP_BASE: begin
-                                    if (safe_symbol_count_w == {BLOCK_SIZE_WIDTH{1'b0}}) begin
+                                    if (safe_symbol_count_w == {SYMBOL_COUNT_WIDTH{1'b0}}) begin
                                         hdr_last_chunk    <= 1'b1;
                                         post_send_state_r <= ST_DONE;
                                     end
@@ -360,12 +366,12 @@ module header_formatter #(
                                     end
                                 end
                                 AFTER_ENTRY: begin
-                                    if (sym_idx == (safe_symbol_count_w - {{(BLOCK_SIZE_WIDTH-1){1'b0}}, 1'b1})) begin
+                                    if (sym_idx == (safe_symbol_count_w - {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1})) begin
                                         hdr_last_chunk    <= 1'b1;
                                         post_send_state_r <= ST_DONE;
                                     end
                                     else begin
-                                        sym_idx           <= sym_idx + {{(BLOCK_SIZE_WIDTH-1){1'b0}}, 1'b1};
+                                        sym_idx           <= sym_idx + {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1};
                                         post_send_state_r <= ST_READ_SYMBOL;
                                     end
                                 end
@@ -390,17 +396,17 @@ module header_formatter #(
                                     state <= ST_FLUSH_LAST;
                                 end
                                 AFTER_COMP_BASE: begin
-                                    if (safe_symbol_count_w == {BLOCK_SIZE_WIDTH{1'b0}})
+                                    if (safe_symbol_count_w == {SYMBOL_COUNT_WIDTH{1'b0}})
                                         state <= ST_FLUSH_LAST;
                                     else
                                         state <= ST_READ_SYMBOL;
                                 end
                                 AFTER_ENTRY: begin
-                                    if (sym_idx == (safe_symbol_count_w - {{(BLOCK_SIZE_WIDTH-1){1'b0}}, 1'b1})) begin
+                                    if (sym_idx == (safe_symbol_count_w - {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1})) begin
                                         state <= ST_FLUSH_LAST;
                                     end
                                     else begin
-                                        sym_idx <= sym_idx + {{(BLOCK_SIZE_WIDTH-1){1'b0}}, 1'b1};
+                                        sym_idx <= sym_idx + {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1};
                                         state   <= ST_READ_SYMBOL;
                                     end
                                 end

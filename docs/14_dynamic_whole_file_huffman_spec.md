@@ -63,7 +63,7 @@ toan moi.
 ```text
 mode         = 2'b10
 block_size   = 1..32
-symbol_count = 1..63
+symbol_count = 1..256
 entries      = symbol_count * {symbol[7:0], code_len[4:0]}
 payload      = Huffman coded bytes
 ```
@@ -73,6 +73,8 @@ Y nghia:
 - Block nay cap nhat Huffman table.
 - RX parse entries, build canonical decode table, roi decode payload.
 - Day la hanh vi cu va van duoc ho tro.
+- `symbol_count` la truong 9-bit trong transport hien tai; gia tri `256`
+  duoc dung khi file co du 256 byte-symbol khac nhau.
 
 ### 3.2 Table-reuse compressed block
 
@@ -164,7 +166,7 @@ Quy tac error:
 
 - `block_size == 0`: error.
 - `block_size > 32`: error.
-- `symbol_count > 63`: error theo cau hinh hien tai.
+- `symbol_count > 256`: error theo cau hinh hien tai.
 - `symbol_count == 0` nhung chua co table hop le: error.
 
 Table hop le bi clear khi frame ket thuc hoac khi reset/error.
@@ -185,10 +187,19 @@ Da lam:
 - `dma_regfile.MODE[3]` chon whole-file dynamic.
 - `huffman_block_decoder` them `ST_COMP_LOOKUP_WAIT` de dam bao BRAM lookup
   dung latency sau khi parser consume bit window.
+- `huffman_symbol_map.vh` expose full byte alphabet `0x00..0xFF`, index bang
+  byte value.
+- `code_length_builder` clear/build code-length table 256 entry.
+- `canonical_code_generator` quet code-length table theo len/symbol de tao
+  canonical code cho alphabet 256 ma khong can sort array lon.
 
 Gioi han con lai:
 
-- Global table gioi han toi da `63` symbol.
+- Global table ho tro toi da `256` byte-symbol.
+- TX RTL hien dat `CODE_WIDTH=13` de giam LUT/timing cho FPGA demo; cac dataset
+  regression hien tai co max code length nam trong gioi han nay. Neu can chay
+  phan bo tan suat pathological co code length dai hon, can tang lai
+  `CODE_WIDTH` hoac them fallback long-code.
 - TX whole-file hien chon COMPRESSED cho ca frame, chua co raw fallback theo
   file neu ket qua nen xau.
 - RX bypass AES cho `COMPRESS_ONLY` loopback chua duoc dung trong test chinh.
@@ -228,33 +239,33 @@ make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_
 Ket qua loopback whole-file AES voi `sim/input1.txt`:
 
 - input length: `2551` byte
-- payload ratio: `36.32%`
-- payload space saving: `63.68%`
-- final storage ratio: `38.89%`
-- final storage saving: `61.11%`
+- payload ratio: `37.50%`
+- payload space saving: `62.50%`
+- final storage ratio: `40.14%`
+- final storage saving: `59.86%`
 - RX mismatch: `0`
 
 Ket qua TX-only whole-file `COMPRESS_ONLY` voi `sim/input4_cov.txt`:
 
 - input length: `6000` byte
-- payload ratio: `62.23%`
-- payload space saving: `37.77%`
-- final storage ratio: `66.40%`
-- final storage saving: `33.60%`
+- payload ratio: `63.40%`
+- payload space saving: `36.60%`
+- final storage ratio: `67.73%`
+- final storage saving: `32.27%`
 
-Ket qua max-valid-symbol stress voi `input_cov_alnum63.txt`:
+Ket qua alnum63 stress voi `input_cov_alnum63.txt`:
 
 - input length: `504` byte
-- payload saving: `-0.67%`
-- final storage saving: `-7.94%`
+- payload saving: `-1.86%`
+- final storage saving: `-11.11%`
 - day la expected voi input gan uniform va codebook/header overhead lon
 
 Regression coverage hien tai:
 
 - active testcase: `34`
 - pass: `34`
-- raw DUT full `bcesft`: `93.72%`
-- raw DUT branch+statement: `95.12%`
+- raw DUT full `bcesft`: `93.52%`
+- raw DUT branch+statement: `95.27%`
 - closed DUT coverage: `95.90%`
 
 ## 9. Tradeoff

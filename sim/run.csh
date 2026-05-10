@@ -66,7 +66,7 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             breaksw
         case tx_compress_only_ascii_sweep_cov:
             set tb_name = "test_bench"
-            set c_src = "test_mmio_tx_encoder_error.c"
+            set c_src = "test_mmio_tx_only.c"
             set run_args = "+CASE_NAME=tx_compress_only_ascii_sweep_cov +INPUT_FILE=input_cov_ascii_sweep.txt"
             breaksw
         case tx_compress_only_alnum63_cov:

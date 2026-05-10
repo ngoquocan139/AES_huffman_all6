@@ -14,8 +14,8 @@ Trang thai hien tai:
 | Testcase wrapper | `testcase/<TESTNAME>.v`, duoc Makefile copy thanh `sim/run_test.v` |
 | Coverage regression | `cd sim && ./run.csh cov` |
 | Latest pass/fail | `34/34` PASS |
-| Raw DUT full coverage | `93.72%` |
-| Raw DUT branch+statement | `95.12%` |
+| Raw DUT full coverage | `93.52%` |
+| Raw DUT branch+statement | `95.27%` |
 | Closed DUT coverage | `95.90%` |
 
 Khong con dung `tb_rv32_soc_tx_only` hay `tb_rv32_log_preprocess` trong clean
@@ -65,10 +65,11 @@ make license
 |---|---|---|---|---|
 | Main TX->RX loopback | `test_mmio_dma.c` | `dma_compress_aes_input1` | `input1.txt` | TX `0x9`, RX `0x2` |
 | Small TX->RX loopback | `test_mmio_dma.c` | `dma_compress_aes_input3` | `input3.txt` | TX `0x9`, RX `0x2` |
-| Max-valid-symbol loopback | `test_mmio_dma.c` | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | TX `0x9`, RX `0x2` |
+| Alnum63 stress loopback | `test_mmio_dma.c` | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | TX `0x9`, RX `0x2` |
 | TX-only saving benchmark | `test_mmio_tx_only.c` | `tx_compress_only_input1` | `input1.txt` | TX `0xD` |
 | TX-only log-like benchmark | `test_mmio_tx_only.c` | `tx_compress_only_input4_cov` | `input4_cov.txt` | TX `0xD` |
-| TX symbol overflow error | `test_mmio_tx_encoder_error.c` | `tx_compress_only_ascii_sweep_cov` | `input_cov_ascii_sweep.txt` | expected TX error |
+| TX 256-symbol stress | `test_mmio_tx_only.c` | `tx_compress_only_ascii_sweep_cov` | `input_cov_ascii_sweep.txt` | TX `0xD`, expected expansion |
+| MIT-BIH paper comparison | `test_mmio_dma.c` | `dma_mitdb_100_delta2_var_e2e` | `mitdb_100_mlii_10s_delta2_var.bin` | TX `0x9`, RX `0x2`, `+INPUT_BINARY` |
 | MMIO regfile basic | `test_mmio_regfile_basic.c` | `mmio_regfile_basic` | optional | no DMA start |
 | Multi-record storage demo | `test_mmio_dma_storage_table.c` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | TX input1, TX input3, RX selected input1 |
 | Full coverage regression | selected by `run.csh` | from `pat.list` | from `run.csh` | all active cases |
@@ -100,6 +101,19 @@ Practical limits:
 | Main source buffer | 8192 bytes: `0x00002000..0x00003FFF` |
 | TX output region | 8192 bytes: `0x00004000..0x00005FFF` |
 | RX output region | 8192 bytes: `0x00006000..0x00007FFF` |
+
+MIT-BIH comparison inputs:
+
+| Record | Input file in `sim/` |
+|---:|---|
+| 100 | `mitdb_100_mlii_10s_delta2_var.bin` |
+| 106 | `mitdb_106_mlii_10s_delta2_var.bin` |
+| 112 | `mitdb_112_mlii_10s_delta2_var.bin` |
+| 117 | `mitdb_117_mlii_10s_delta2_var.bin` |
+| 213 | `mitdb_213_mlii_10s_delta2_var.bin` |
+
+These files are already-preprocessed binary byte streams. Use `+INPUT_BINARY`
+so the testbench preserves all byte values exactly.
 
 ## 6. DMA Mode Selection
 
@@ -167,6 +181,18 @@ make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_
 This case proves that RV32I software can store metadata for two encrypted
 objects and later select the first record for RX restore.
 
+MIT-BIH preprocessed paper comparison:
+
+```bash
+cd sim
+make compile C_SRC=test_mmio_dma.c
+make drc
+make all TESTNAME=dma_mitdb_100_delta2_var_e2e RUN_ARGS="+CASE_NAME=dma_mitdb_100_delta2_var_e2e +INPUT_FILE=mitdb_100_mlii_10s_delta2_var.bin +INPUT_BINARY"
+```
+
+Change the record number in both `TESTNAME` and `INPUT_FILE` to run
+`106`, `112`, `117`, or `213`.
+
 Neu chi doi input file sau khi da build dung C/testcase:
 
 ```bash
@@ -198,9 +224,9 @@ Ket qua moi nhat:
 |---|---:|
 | Active testcase count | 34 |
 | Passed testcase count | 34 |
-| Raw DUT full `bcesft` | 93.72% |
-| Raw DUT no-toggle `bcesf` | 94.51% |
-| Raw DUT branch+statement `bs` | 95.12% |
+| Raw DUT full `bcesft` | 93.52% |
+| Raw DUT no-toggle `bcesf` | 94.44% |
+| Raw DUT branch+statement `bs` | 95.27% |
 | Closed DUT coverage | 95.90% |
 
 Report files:
@@ -310,6 +336,13 @@ cd sim
 make vivado_report VIVADO_PROJECT=rv32_soc_synth_tx
 make vivado_report VIVADO_PROJECT=rv32_soc_synth_rx
 ```
+
+Latest 50 MHz implementation result:
+
+| Build | WNS | LUT | BRAM | Total power | Status |
+|---|---:|---:|---:|---:|---|
+| TX-only | +0.217 ns | 45501 | 10 | 0.239 W | Timing pass |
+| RX-only | +0.341 ns | 22730 | 11 | 0.193 W | Timing pass |
 
 ## 12. UART Loader Flow For FPGA
 
