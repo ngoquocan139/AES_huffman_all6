@@ -1,6 +1,6 @@
-# vsim -batch -wlf dma_compress_aes_input1.wlf -l dma_compress_aes_input1.log -voptargs="+acc" -assertdebug test_bench "+CASE_NAME=dma_compress_aes_input1" "+INPUT_FILE=input1.txt" -do "log -r /*; run -all; quit -f" 
-# Start time: 13:14:32 on May 11,2026
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# vsim -batch -wlf wave_dma_compress_aes_input1.wlf -l wave_dma_compress_aes_input1.log -voptargs="+acc" -assertdebug test_bench "+CASE_NAME=dma_compress_aes_input1" "+INPUT_FILE=input1.txt" -do "log /test_bench/wf_*; run -all; quit -f" 
+# Start time: 12:11:51 on May 11,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  Questa Sim-64
 # //  Version 2021.2_1 linux_x86_64 May 15 2021
 # //
@@ -70,7 +70,7 @@
 # Loading work.dma_tx_engine(fast)
 # Loading work.dma_rx_engine(fast)
 # 
-# log -r /*
+# log /test_bench/wf_*
 # run -all
 # INPUT_FILE override: input1.txt
 # Sync Istr 0: 00008137
@@ -126,7 +126,7 @@
 # [PASS] dma_start_pulse_count | actual=0x00000002 expected=0x00000002
 # SUMMARY: PASS=18 FAIL=0
 # [PASS] rv32_soc_unified_test
-# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5831)
+# ** Note: $finish    : ../tb/tb_rv32_soc_mmio_dma.v(5808)
 #    Time: 740226 ns  Iteration: 0  Instance: /test_bench
-# End time: 13:15:01 on May 11,2026, Elapsed time: 0:00:29
+# End time: 12:12:13 on May 11,2026, Elapsed time: 0:00:22
 # Errors: 0, Warnings: 0

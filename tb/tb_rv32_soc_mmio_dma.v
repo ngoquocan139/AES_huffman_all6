@@ -114,6 +114,7 @@ module test_bench;
   integer mmio_write_capture_count;
   integer raw_cov_sweep_idx;
   integer raw_cov_mem_idx;
+  integer trace_detail_enable;
 
   reg tx_seen_busy;
   reg rx_seen_busy;
@@ -173,6 +174,42 @@ module test_bench;
   reg [31:0] rx_dst_words [0:3];
   reg [7:0]  input_bytes [0:MAX_INPUT_BYTES-1];
 
+  // Waveform aliases for the input1 end-to-end flow.
+  wire [31:0] wf_if_pc;
+  wire [31:0] wf_if_instr;
+  wire        wf_cpu_hold;
+  wire        wf_mmio_sel;
+  wire        wf_mmio_stall;
+  wire        wf_apb_psel;
+  wire        wf_apb_penable;
+  wire        wf_apb_pwrite;
+  wire [31:0] wf_apb_paddr;
+  wire [31:0] wf_apb_pwdata;
+  wire [31:0] wf_apb_prdata;
+  wire [31:0] wf_dma_src;
+  wire [31:0] wf_dma_dst;
+  wire [31:0] wf_dma_len;
+  wire [1:0]  wf_dma_dir;
+  wire        wf_dma_compress_only;
+  wire        wf_dma_whole_file;
+  wire [5:0]  wf_dma_block_size;
+  wire        wf_dma_start;
+  wire [3:0]  wf_tx_state;
+  wire        wf_tx_busy;
+  wire        wf_tx_done;
+  wire        wf_tx_error;
+  wire [31:0] wf_tx_bytes_done;
+  wire [3:0]  wf_rx_state;
+  wire        wf_rx_busy;
+  wire        wf_rx_done;
+  wire        wf_rx_error;
+  wire [31:0] wf_rx_bytes_done;
+  wire [31:0] wf_result_signature;
+  wire [31:0] wf_error_mask;
+  wire [31:0] wf_input_len_bytes;
+  wire [31:0] wf_tx_ciphertext_bytes;
+  wire [31:0] wf_rx_plaintext_bytes;
+
   function automatic [7:0] byte_from_word;
     input [31:0] word;
     input [1:0]  lane;
@@ -223,6 +260,41 @@ module test_bench;
     end
   endfunction
 
+  assign wf_if_pc              = dut.u_cpu.ifid_pc_w;
+  assign wf_if_instr           = dut.u_cpu.ifid_instruction_w;
+  assign wf_cpu_hold           = dut.cpu_global_hold_w;
+  assign wf_mmio_sel           = dut.cpu_mmio_sel_w;
+  assign wf_mmio_stall         = dut.bridge_cpu_stall_req_w;
+  assign wf_apb_psel           = dut.bridge_psel_w;
+  assign wf_apb_penable        = dut.bridge_penable_w;
+  assign wf_apb_pwrite         = dut.bridge_pwrite_w;
+  assign wf_apb_paddr          = dut.bridge_paddr_w;
+  assign wf_apb_pwdata         = dut.bridge_pwdata_w;
+  assign wf_apb_prdata         = dut.dma_apb_prdata_w;
+  assign wf_dma_src            = dut.dma_src_addr_w;
+  assign wf_dma_dst            = dut.dma_dst_addr_w;
+  assign wf_dma_len            = dut.dma_len_bytes_w;
+  assign wf_dma_dir            = dut.dma_direction_w;
+  assign wf_dma_compress_only  = dut.dma_compress_only_w;
+  assign wf_dma_whole_file     = dut.dma_whole_file_w;
+  assign wf_dma_block_size     = dut.dma_block_size_w;
+  assign wf_dma_start          = dut.dma_start_pulse_w;
+  assign wf_tx_state           = dut.tx_dma_state_w;
+  assign wf_tx_busy            = dut.tx_dma_busy_w;
+  assign wf_tx_done            = dut.tx_dma_done_w;
+  assign wf_tx_error           = dut.tx_dma_error_w;
+  assign wf_tx_bytes_done      = dut.tx_dma_bytes_done_w;
+  assign wf_rx_state           = dut.rx_dma_state_w;
+  assign wf_rx_busy            = dut.rx_dma_busy_w;
+  assign wf_rx_done            = dut.rx_dma_done_w;
+  assign wf_rx_error           = dut.rx_dma_error_w;
+  assign wf_rx_bytes_done      = dut.rx_dma_bytes_done_w;
+  assign wf_result_signature   = result_words[0];
+  assign wf_error_mask         = result_words[1];
+  assign wf_input_len_bytes    = input_len_bytes;
+  assign wf_tx_ciphertext_bytes = tx_ciphertext_bytes;
+  assign wf_rx_plaintext_bytes  = rx_plaintext_bytes;
+
   initial begin
     input_file_name = "input1.txt";
     input2_file_name = "";
@@ -236,6 +308,7 @@ module test_bench;
     end
     if (input_binary_mode)
       $display("# INPUT_BINARY mode enabled: CR bytes are preserved");
+    trace_detail_enable = $test$plusargs("TRACE_DETAIL");
   end
 
   task automatic check_eq_2;
@@ -5488,57 +5561,81 @@ module test_bench;
              tx_dst_words[0], tx_dst_words[1], tx_dst_words[2], tx_dst_words[3]);
     $display("# rx_dst_head = %08x %08x %08x %08x",
              rx_dst_words[0], rx_dst_words[1], rx_dst_words[2], rx_dst_words[3]);
-    $display("# DEBUG first_tx_transport_valid=%0d count=%0d word=%032x",
-             first_tx_transport_valid, tx_transport_capture_count, first_tx_transport_word);
-    $display("# DEBUG first_tx_word_in_valid=%0d count=%0d data=%08x",
-             first_tx_word_in_valid_seen, tx_word_in_capture_count, first_tx_word_in_data);
-    $display("# DEBUG first_tx_dma_word_write=%0d count=%0d data=%08x",
-             first_tx_dma_word_write_seen, tx_dma_word_write_count, first_tx_dma_word_write_data);
-    $display("# DEBUG first_tx_dma_read=%0d count=%0d addr=%08x data=%08x",
-             first_tx_dma_read_seen, tx_dma_read_capture_count,
-             first_tx_dma_read_addr, first_tx_dma_read_data);
-    $display("# DEBUG first_tx_start=%0d src=%08x dst=%08x len=%08x dir=%0d blk=%0d",
-             first_tx_start_seen, first_tx_start_src_addr, first_tx_start_dst_addr,
-             first_tx_start_len_bytes, first_tx_start_dir, first_tx_start_block_size);
-    for (i = 0; i < 8; i = i + 1) begin
-      $display("# DEBUG mmio_write[%0d] addr=%08x data=%08x",
-               i, mmio_write_addr_log[i], mmio_write_data_log[i]);
+    if (result_words[0] == RESULT_SIGNATURE_DMA) begin
+      $display("# INPUT1 TRACE mmio[0..7]:");
+      for (i = 0; i < 8; i = i + 1)
+        $display("#   mmio_write[%0d] addr=%08x data=%08x",
+                 i, mmio_write_addr_log[i], mmio_write_data_log[i]);
+      $display("# INPUT1 TRACE dma_cfg src=%08x dst=%08x len=%08x dir=%0d block=%0d",
+               dut.u_dma_regfile.src_addr_o,
+               dut.u_dma_regfile.dst_addr_o,
+               dut.u_dma_regfile.len_bytes_o,
+               dut.u_dma_regfile.direction_o,
+               dut.u_dma_regfile.block_size_o);
+      $display("# INPUT1 TRACE tx state=%0d busy=%0b done=%0b bytes=%08x err=%02x",
+               dut.tx_dma_state_w,
+               dut.tx_dma_busy_w,
+               dut.tx_dma_done_w,
+               dut.tx_dma_bytes_done_w,
+               dut.tx_dma_last_error_w);
+      $display("# INPUT1 TRACE rx state=%0d busy=%0b done=%0b bytes=%08x err=%02x",
+               dut.rx_dma_state_w,
+               dut.rx_dma_busy_w,
+               dut.rx_dma_done_w,
+               dut.rx_dma_bytes_done_w,
+               dut.rx_dma_last_error_w);
+      $display("# INPUT1 TRACE result sig=%08x error_mask=%08x src_mismatch=%0d rx_mismatch=%0d",
+               result_words[0], result_words[1], src_mismatch_count, rx_mismatch_count);
     end
-    $display("# DEBUG first_tx_ciphertext_dmem_valid=%0d word=%032x",
-             first_tx_ciphertext_dmem_valid, first_tx_ciphertext_dmem_word);
-    $display("# DEBUG first_rx_ciphertext_feed_valid=%0d count=%0d word=%032x",
-             first_rx_ciphertext_feed_valid, rx_ciphertext_feed_count, first_rx_ciphertext_feed_word);
-    $display("# DEBUG first_rx_transport_valid=%0d count=%0d word=%032x",
-             first_rx_transport_valid, rx_transport_capture_count, first_rx_transport_word);
-    $display("# DEBUG first_rx_word_valid=%0d count=%0d data=%08x bytes=%0d last_blk=%0d last_frm=%0d",
-             first_rx_word_valid_seen, rx_word_capture_count, first_rx_word_data,
-             first_rx_word_valid_bytes, first_rx_word_last_in_block, first_rx_word_last_in_frame);
-    $display("# DEBUG rx_stage_error depacker=%0b parser=%0b decoder=%0b packer=%0b aes_path=%0b",
-             dut.rx_depacker_error_w,
-             dut.rx_parser_error_w,
-             dut.rx_decoder_error_w,
-             dut.rx_word_packer_error_w,
-             dut.u_rx_top.aes_path_error_r);
-    $display("# DEBUG rx_stage_state parser=%0d decoder=%0d packer_busy=%0b fifo_count=%0d block_done=%0b frame_done=%0b",
-             dut.u_rx_top.u_huffman_block_parser.state_r,
-             dut.u_rx_top.u_huffman_block_decoder.state_r,
-             dut.rx_word_packer_busy_w,
-             dut.u_rx_top.u_apb_huffman_rx_if.fifo_count_r,
-             dut.u_rx_top.u_apb_huffman_rx_if.block_done_sticky_r,
-             dut.u_rx_top.u_apb_huffman_rx_if.frame_done_sticky_r);
-    $display("# DEBUG rx_decoder_error code=0x%02x state=%0d bytes_left=%0d payload_len=%0d",
-             dut.u_rx_top.u_huffman_block_decoder.debug_error_code_r,
-             dut.u_rx_top.u_huffman_block_decoder.debug_error_state_r,
-             dut.u_rx_top.u_huffman_block_decoder.debug_error_bytes_remaining_r,
-             dut.u_rx_top.u_huffman_block_decoder.debug_error_payload_len_r);
-    $display("# DEBUG rx_decoder_meta mode=%0d block_size=%0d symbol_count=%0d one_symbol=0x%02x parser_mode=%0d parser_block_size=%0d parser_symbol_count=%0d",
-             dut.u_rx_top.u_huffman_block_decoder.block_mode,
-             dut.u_rx_top.u_huffman_block_decoder.bytes_remaining_r,
-             dut.u_rx_top.u_huffman_block_decoder.symbol_count_r,
-             dut.u_rx_top.u_huffman_block_decoder.one_symbol_value_r,
-             dut.u_rx_top.u_huffman_block_parser.block_mode_r,
-             dut.u_rx_top.u_huffman_block_parser.block_size_r,
-             dut.u_rx_top.u_huffman_block_parser.symbol_count_r);
+    if (trace_detail_enable) begin
+      $display("# DEBUG first_tx_transport_valid=%0d count=%0d word=%032x",
+               first_tx_transport_valid, tx_transport_capture_count, first_tx_transport_word);
+      $display("# DEBUG first_tx_word_in_valid=%0d count=%0d data=%08x",
+               first_tx_word_in_valid_seen, tx_word_in_capture_count, first_tx_word_in_data);
+      $display("# DEBUG first_tx_dma_word_write=%0d count=%0d data=%08x",
+               first_tx_dma_word_write_seen, tx_dma_word_write_count, first_tx_dma_word_write_data);
+      $display("# DEBUG first_tx_dma_read=%0d count=%0d addr=%08x data=%08x",
+               first_tx_dma_read_seen, tx_dma_read_capture_count,
+               first_tx_dma_read_addr, first_tx_dma_read_data);
+      $display("# DEBUG first_tx_start=%0d src=%08x dst=%08x len=%08x dir=%0d blk=%0d",
+               first_tx_start_seen, first_tx_start_src_addr, first_tx_start_dst_addr,
+               first_tx_start_len_bytes, first_tx_start_dir, first_tx_start_block_size);
+      $display("# DEBUG first_tx_ciphertext_dmem_valid=%0d word=%032x",
+               first_tx_ciphertext_dmem_valid, first_tx_ciphertext_dmem_word);
+      $display("# DEBUG first_rx_ciphertext_feed_valid=%0d count=%0d word=%032x",
+               first_rx_ciphertext_feed_valid, rx_ciphertext_feed_count, first_rx_ciphertext_feed_word);
+      $display("# DEBUG first_rx_transport_valid=%0d count=%0d word=%032x",
+               first_rx_transport_valid, rx_transport_capture_count, first_rx_transport_word);
+      $display("# DEBUG first_rx_word_valid=%0d count=%0d data=%08x bytes=%0d last_blk=%0d last_frm=%0d",
+               first_rx_word_valid_seen, rx_word_capture_count, first_rx_word_data,
+               first_rx_word_valid_bytes, first_rx_word_last_in_block, first_rx_word_last_in_frame);
+      $display("# DEBUG rx_stage_error depacker=%0b parser=%0b decoder=%0b packer=%0b aes_path=%0b",
+               dut.rx_depacker_error_w,
+               dut.rx_parser_error_w,
+               dut.rx_decoder_error_w,
+               dut.rx_word_packer_error_w,
+               dut.u_rx_top.aes_path_error_r);
+      $display("# DEBUG rx_stage_state parser=%0d decoder=%0d packer_busy=%0b fifo_count=%0d block_done=%0b frame_done=%0b",
+               dut.u_rx_top.u_huffman_block_parser.state_r,
+               dut.u_rx_top.u_huffman_block_decoder.state_r,
+               dut.rx_word_packer_busy_w,
+               dut.u_rx_top.u_apb_huffman_rx_if.fifo_count_r,
+               dut.u_rx_top.u_apb_huffman_rx_if.block_done_sticky_r,
+               dut.u_rx_top.u_apb_huffman_rx_if.frame_done_sticky_r);
+      $display("# DEBUG rx_decoder_error code=0x%02x state=%0d bytes_left=%0d payload_len=%0d",
+               dut.u_rx_top.u_huffman_block_decoder.debug_error_code_r,
+               dut.u_rx_top.u_huffman_block_decoder.debug_error_state_r,
+               dut.u_rx_top.u_huffman_block_decoder.debug_error_bytes_remaining_r,
+               dut.u_rx_top.u_huffman_block_decoder.debug_error_payload_len_r);
+      $display("# DEBUG rx_decoder_meta mode=%0d block_size=%0d symbol_count=%0d one_symbol=0x%02x parser_mode=%0d parser_block_size=%0d parser_symbol_count=%0d",
+               dut.u_rx_top.u_huffman_block_decoder.block_mode,
+               dut.u_rx_top.u_huffman_block_decoder.bytes_remaining_r,
+               dut.u_rx_top.u_huffman_block_decoder.symbol_count_r,
+               dut.u_rx_top.u_huffman_block_decoder.one_symbol_value_r,
+               dut.u_rx_top.u_huffman_block_parser.block_mode_r,
+               dut.u_rx_top.u_huffman_block_parser.block_size_r,
+               dut.u_rx_top.u_huffman_block_parser.symbol_count_r);
+    end
     $display("# BENCHMARK tx_cycles=%0d rx_cycles=%0d tx_cipher_bytes=%0d rx_plain_bytes=%0d",
              tx_busy_cycles, rx_busy_cycles, tx_ciphertext_bytes, rx_plaintext_bytes);
     $display("# THROUGHPUT tx_in=%0.3f MB/s tx_out=%0.3f MB/s rx_in=%0.3f MB/s rx_out=%0.3f MB/s",
