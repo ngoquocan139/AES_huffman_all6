@@ -546,7 +546,7 @@ Quy trinh dung trong repo:
 cd /mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim
 make compile C_SRC=test_mmio_dma.c
 make drc
-make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
+make all
 ```
 
 Ket qua cua `make compile`:

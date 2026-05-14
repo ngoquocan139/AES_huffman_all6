@@ -25,7 +25,7 @@ Current verification status:
 | `dma_compress_aes_input1/input3/alnum63` | Normal whole-file RX phase trong TX->RX loopback |
 | `mmio_rx_bad_length` | RX rejects ciphertext length khong align 16 byte |
 | `rx_backpressure_cov` | Stream/FIFO backpressure giua RX top va DMA RX |
-| `rx_malformed_transport_cov` | Malformed transport frame propagates RX error |
+| `rx_depacker_packer_direct_cov` | Malformed transport frame propagates RX error |
 | `dma_bridge_direct_cov` | Defensive config/error branches cua DMA/APB path |
 | Full coverage regression | Included in `34/34` PASS baseline |
 

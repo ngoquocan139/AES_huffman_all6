@@ -26,6 +26,7 @@ Policy for the current report:
 |---|---|
 | Simulation top | `test_bench` |
 | Active testcase source | `sim/pat.list` |
+| Bare `make all` default | `dma_compress_aes_input1` / `input1.txt` |
 | Coverage runner | `cd sim && ./run.csh cov` |
 | Latest pass/fail | `34/34` PASS |
 | Raw DUT full coverage | `93.52%` |
@@ -84,6 +85,7 @@ Read in this order when explaining the full system:
 | [soc_4_5_end_to_end_report.md](./soc_4_5_end_to_end_report.md) | Main SoC end-to-end evidence |
 | [paper_comparison_huffman_aes_cbc.md](./paper_comparison_huffman_aes_cbc.md) | Comparison with paper |
 | [29_defense_qa_code_focus_spec.md](./29_defense_qa_code_focus_spec.md) | Oral defense Q&A |
+| [input1_instruction_wavedrom.md](./input1_instruction_wavedrom.md) | Input1 instruction/MMIO waveform trace |
 | [c_files_explained.md](./c_files_explained.md) | What each C program does |
 
 ## 7. FPGA And Workflow Path
@@ -102,7 +104,14 @@ Normal SoC loopback:
 cd sim
 make compile C_SRC=test_mmio_dma.c
 make drc
-make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
+make all
+```
+
+Specific testcase override:
+
+```bash
+cd sim
+make all TESTNAME=dma_compress_aes_input3 RUN_ARGS="+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
 ```
 
 MIT-BIH preprocessed comparison:

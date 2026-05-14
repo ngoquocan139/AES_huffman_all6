@@ -228,7 +228,7 @@ Equivalent local command:
 cd sim
 make compile C_SRC=test_mmio_dma.c
 make drc
-make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
+make all
 ```
 
 ### 8.2 Multi-record storage testcase
@@ -394,4 +394,3 @@ VIVADO_BAT ?= H:\From_software\Vivado\Vivado\Vivado\2024.2\bin\vivado.bat
 ```
 
 If Vivado moved, update `sim/Makefile` or pass `VIVADO_BAT=...`.
-

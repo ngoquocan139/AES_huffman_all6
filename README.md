@@ -54,5 +54,7 @@ flowchart LR
 
 - [Current system spec](docs/00_current_system_spec.md)
 - [Spec flow index](docs/spec_flow_index.md)
+- [Coverage test plan](docs/coverage_test_plan_spec.md)
+- [Coverage regression report](docs/coverage_regression_report.md)
 - [Paper comparison](docs/paper_comparison_huffman_aes_cbc.md)
 - [SoC usage guide](docs/soc_usage_and_fpga_guide.md)

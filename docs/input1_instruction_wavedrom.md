@@ -5,8 +5,7 @@
 This diagram illustrates the RV32I software control flow for:
 
 ```text
-make all TESTNAME=dma_compress_aes_input1 \
-  RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
+make all
 ```
 
 Source data from `sim/log/dma_compress_aes_input1.log`:

@@ -2,10 +2,10 @@
 #This file created by Huy Nguyen
 #Updated date: 6/30/2019
 #Example run string: make TESTNAME={name_of_testcase} {optional}
-#             make TESTNAME=counter_test all 
+#             make TESTNAME=dma_compress_aes_input1 all
 ##################################################################################################
 #Define variables
-TESTNAME 	?= test
+TESTNAME 	?= dma_compress_aes_input1
 TB_NAME 	?= test_bench
 RADIX		?= hex
 RUN_ARGS    ?=
@@ -139,7 +139,7 @@ gen_html:
 	vcover report -zeros -details -code bcesft -annotate -testhitdataAll -html IP.ucdb
 
 wave:
-	@test -f sim.wlf || (echo "[FAIL] sim.wlf not found. Run 'make all TESTNAME=...' first."; exit 1)
+	@test -f sim.wlf || (echo "[FAIL] sim.wlf not found. Run 'make all' or 'make all TESTNAME=...' first."; exit 1)
 	vsim -i -view sim.wlf -do "view wave; delete wave *; \
 	add wave /test_bench/clk; \
 	add wave /test_bench/rst; \
@@ -349,7 +349,7 @@ help:
 	@echo "** make build_cov: build the design in coverage mode"
 	@echo "** make run      : run simulation"
 	@echo "** make run_cov  : run simulation in coverage mode"
-	@echo "** make all      : build and run simulation"
+	@echo "** make all      : build and run simulation (default TESTNAME=dma_compress_aes_input1)"
 	@echo "** make all_cov  : build and run simulation in coverage mode"
 	@echo "** make wave     : open waveform"
 	@echo "** make gen_cov  : merge, generate coverage data base and text coverage report"

@@ -14,7 +14,7 @@ Current verification status:
 |---|---|
 | `tx_compress_only_input1/input4_cov` | Normal transport packing in TX-only storage measurement |
 | `dma_compress_aes_input1/input3/alnum63` | Packing before AES-CBC in full loopback |
-| `tx_short_raw_cov` | Short final-word padding and partial valid bits |
+| `tx_compress_only_short_raw_cov` | Short final-word padding and partial valid bits |
 | `tx_builder_packer_direct_cov` | Direct packer ready/valid and flush corner branches |
 | `rx_depacker_packer_direct_cov` | Cross-check TX packer format against RX depacker assumptions |
 
