@@ -15,7 +15,7 @@ Current verification status:
 |---|---|
 | `dma_compress_aes_input1/input3/alnum63` | Full AES-CBC decrypt + Huffman decode loopback |
 | `rx_backpressure_cov` | Stream input/output FIFO backpressure |
-| `rx_malformed_transport_cov` | Malformed transport word error propagation |
+| `rx_depacker_packer_direct_cov` | Malformed transport word / depacker edge cases |
 | `rx_if_direct_cov` | RX APB output FIFO/status/control behavior |
 | `rx_parser_decoder_cov` | Parser/decoder legal mode coverage |
 | `rx_parser_decoder_error_direct_cov` | Parser/decoder malformed frame branches |

@@ -19,7 +19,7 @@ Current verification status:
 | `dma_compress_aes_input1/input3/alnum63` | Normal DMA polling of `RX_STATUS`, `RX_META`, `RX_DATA` |
 | `rx_if_direct_cov` | FIFO full/empty, control, invalid APB access, legacy staging coverage |
 | `rx_backpressure_cov` | FIFO backpressure and delayed APB drain |
-| `rx_malformed_transport_cov` | Upstream error sticky is visible to DMA/software |
+| `rx_depacker_packer_direct_cov` | Upstream malformed transport/error sticky visible to DMA/software |
 
 ## 1.1 Interface Flow Chart
 

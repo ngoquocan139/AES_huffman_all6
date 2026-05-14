@@ -233,7 +233,7 @@ Regression hien tai:
 ```text
 make compile C_SRC=test_mmio_dma.c
 make drc
-make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
+make all
 ```
 
 Ket qua loopback whole-file AES voi `sim/input1.txt`:

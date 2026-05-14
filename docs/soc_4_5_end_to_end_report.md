@@ -32,7 +32,7 @@ Chay lai rieng nhom 4.5:
 cd sim
 make license SUDO_PASS=1412
 make compile C_SRC=test_mmio_dma.c
-make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
+make all
 make all TESTNAME=dma_compress_aes_input3 RUN_ARGS="+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
 make all TESTNAME=dma_compress_aes_alnum63_cov RUN_ARGS="+CASE_NAME=dma_compress_aes_alnum63_cov +INPUT_FILE=input_cov_alnum63.txt"
 make compile C_SRC=test_mmio_dma_storage_table.c

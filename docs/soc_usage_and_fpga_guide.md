@@ -12,6 +12,7 @@ Trang thai hien tai:
 | Simulation top | `test_bench` only |
 | Testbench file | `tb/tb_rv32_soc_mmio_dma.v` |
 | Testcase wrapper | `testcase/<TESTNAME>.v`, duoc Makefile copy thanh `sim/run_test.v` |
+| Bare `make all` default | `dma_compress_aes_input1` / `input1.txt` |
 | Coverage regression | `cd sim && ./run.csh cov` |
 | Latest pass/fail | `34/34` PASS |
 | Raw DUT full coverage | `93.52%` |
@@ -37,7 +38,7 @@ flowchart TD
 Rule quan trong:
 
 - `make compile` tao `sim/instruction.mem` tu file C.
-- `make all` build va run RTL, nhung khong tu chon lai C file.
+- `make all` build va run RTL; neu khong truyen `TESTNAME`, flow mac dinh chay `dma_compress_aes_input1` voi `input1.txt`.
 - `TESTNAME` chon wrapper Verilog trong `testcase/`.
 - `RUN_ARGS` chon `CASE_NAME`, `INPUT_FILE`, va coverage hook plusargs.
 - `TB_NAME` thuong khong can set vi mac dinh da la `test_bench`.
@@ -139,8 +140,10 @@ Main loopback voi `input1.txt`:
 cd sim
 make compile C_SRC=test_mmio_dma.c
 make drc
-make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
+make all
 ```
+
+Day la baseline mac dinh khi khong truyen `TESTNAME`.
 
 Main loopback voi `input3.txt`:
 

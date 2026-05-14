@@ -44,6 +44,7 @@ Important policy:
 | Main regression | `34/34` testcase PASS |
 | Raw DUT coverage | `93.52%` full `bcesft` |
 | Closed DUT coverage | `95.90%` |
+| Bare `make all` default | `dma_compress_aes_input1` / `input1.txt` |
 | Verilator DRC | `make drc` PASS |
 | FPGA implementation | split TX-only and RX-only bitstreams at 50 MHz |
 | TX-only timing | WNS `+0.217 ns`, power `0.239 W` |
@@ -338,7 +339,14 @@ Simulation commands:
 cd sim
 make compile C_SRC=test_mmio_dma.c
 make drc
-make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
+make all
+```
+
+Specific testcase override:
+
+```bash
+cd sim
+make all TESTNAME=dma_compress_aes_input3 RUN_ARGS="+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
 ```
 
 Coverage commands:

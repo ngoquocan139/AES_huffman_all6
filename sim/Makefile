@@ -2,10 +2,10 @@
 #This file created by Huy Nguyen
 #Updated date: 6/30/2019
 #Example run string: make TESTNAME={name_of_testcase} {optional}
-#             make TESTNAME=counter_test all 
+#             make TESTNAME=dma_compress_aes_input1 all
 ##################################################################################################
 #Define variables
-TESTNAME 	?= test
+TESTNAME 	?= dma_compress_aes_input1
 TB_NAME 	?= test_bench
 RADIX		?= hex
 RUN_ARGS    ?=
@@ -139,8 +139,50 @@ gen_html:
 	vcover report -zeros -details -code bcesft -annotate -testhitdataAll -html IP.ucdb
 
 wave:
-	@test -f sim.wlf || (echo "[FAIL] sim.wlf not found. Run 'make all TESTNAME=...' first."; exit 1)
-	vsim -i -view sim.wlf -do "view wave; add wave -r *; radix -$(RADIX)" &
+	@test -f sim.wlf || (echo "[FAIL] sim.wlf not found. Run 'make all' or 'make all TESTNAME=...' first."; exit 1)
+	vsim -i -view sim.wlf -do "view wave; delete wave *; \
+	add wave /test_bench/clk; \
+	add wave /test_bench/rst; \
+	add wave /test_bench/wf_if_pc; \
+	add wave /test_bench/wf_if_instr; \
+	add wave /test_bench/wf_cpu_hold; \
+	add wave /test_bench/wf_mmio_sel; \
+	add wave /test_bench/wf_mmio_stall; \
+	add wave /test_bench/wf_apb_psel; \
+	add wave /test_bench/wf_apb_penable; \
+	add wave /test_bench/wf_apb_pwrite; \
+	add wave /test_bench/wf_apb_paddr; \
+	add wave /test_bench/wf_apb_pwdata; \
+	add wave /test_bench/wf_apb_prdata; \
+	add wave /test_bench/wf_dma_src; \
+	add wave /test_bench/wf_dma_dst; \
+	add wave /test_bench/wf_dma_len; \
+	add wave /test_bench/wf_dma_dir; \
+	add wave /test_bench/wf_dma_compress_only; \
+	add wave /test_bench/wf_dma_whole_file; \
+	add wave /test_bench/wf_dma_block_size; \
+	add wave /test_bench/wf_dma_start; \
+	add wave /test_bench/wf_tx_state; \
+	add wave /test_bench/wf_tx_busy; \
+	add wave /test_bench/wf_tx_done; \
+	add wave /test_bench/wf_tx_error; \
+	add wave /test_bench/wf_tx_bytes_done; \
+	add wave /test_bench/wf_rx_state; \
+	add wave /test_bench/wf_rx_busy; \
+	add wave /test_bench/wf_rx_done; \
+	add wave /test_bench/wf_rx_error; \
+	add wave /test_bench/wf_rx_bytes_done; \
+	add wave /test_bench/wf_result_signature; \
+	add wave /test_bench/wf_error_mask; \
+	add wave /test_bench/wf_input_len_bytes; \
+	add wave /test_bench/wf_tx_ciphertext_bytes; \
+	add wave /test_bench/wf_rx_plaintext_bytes; \
+	radix -$(RADIX)" &
+
+kill_wave:
+	-@pids="$$(ps -eo pid=,cmd= | rg -i 'vish -- -vsim .*sim\\.wlf|/questasim/linux_x86_64/vlm|/questasim/linux_x86_64/mgls/lib/mgls_asynch' | awk '{print $$1}')" ; \
+	if [ -n "$$pids" ]; then kill $$pids || true; fi
+	-@cmd.exe /C "taskkill /F /IM msrdc.exe >NUL 2>NUL" || true
 
 clean:
 	rm -rf work
@@ -307,7 +349,7 @@ help:
 	@echo "** make build_cov: build the design in coverage mode"
 	@echo "** make run      : run simulation"
 	@echo "** make run_cov  : run simulation in coverage mode"
-	@echo "** make all      : build and run simulation"
+	@echo "** make all      : build and run simulation (default TESTNAME=dma_compress_aes_input1)"
 	@echo "** make all_cov  : build and run simulation in coverage mode"
 	@echo "** make wave     : open waveform"
 	@echo "** make gen_cov  : merge, generate coverage data base and text coverage report"

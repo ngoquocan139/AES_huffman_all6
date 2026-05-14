@@ -481,7 +481,7 @@ De tranh chay nham chuong trinh:
 
 - `input1.txt` full loopback:
   - compile: `make compile C_SRC=test_mmio_dma.c`
-  - run: `make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"`
+  - run: `make all`
   - policy: TX `COMPRESS_AES + whole_file`, RX decrypt/decode.
 
 - `input1.txt` TX-only saving:
