@@ -74,36 +74,36 @@ flowchart LR
 
 ### 4.3 Cau hinh logic can chot
 
-| Thuoc tinh | Gia tri |
-|---|---|
-| Kieu | Single-port synchronous instruction memory |
-| Read width | 32 bit |
-| Write width | khong dung trong model hien tai |
-| Depth hien tai | 2048 words |
-| Dung luong hien tai | 8 KB |
-| Read latency | 1 cycle |
-| Init file | `instruction.mem` |
-| Co output register | Hieu ung tuong duong 1 thanh ghi output |
-| Byte write enable | Khong dung |
+| Thuoc tinh | Gia tri | Data format |
+|---|---|---|
+| Kieu | Single-port synchronous instruction memory | Word-addressed 32-bit instruction storage |
+| Read width | 32 bit | One RV32I instruction word |
+| Write width | khong dung trong model hien tai | N/A in the active model |
+| Depth hien tai | 2048 words | `2048 x 32-bit` words |
+| Dung luong hien tai | 8 KB | `8192` bytes of instruction storage |
+| Read latency | 1 cycle | Registered synchronous read |
+| Init file | `instruction.mem` | Hex memory image |
+| Co output register | Hieu ung tuong duong 1 thanh ghi output | 32-bit registered instruction output |
+| Byte write enable | Khong dung | N/A |
 
 ### 4.4 Cong module
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `clk_i` | in | 1 | Clock IMEM |
-| `en_i` | in | 1 | Enable doc |
-| `instr_addr_i` | in | 11 | Dia chi word |
-| `instruction_o` | out | 32 | Lenh doc ra sau 1 cycle |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `clk_i` | in | 1 | Free-running clock | Clock IMEM |
+| `en_i` | in | 1 | Boolean enable | Enable doc |
+| `instr_addr_i` | in | 11 | Word address | Dia chi word |
+| `instruction_o` | out | 32 | RV32I instruction word | Lenh doc ra sau 1 cycle |
 
 ### 4.5 Cac port dung trong he thong
 
 Trong `rv32_soc_top`, CPU noi vao IMEM nhu sau:
 
-| Tin hieu CPU | Noi vao IMEM | Ghi chu |
-|---|---|---|
-| `imem_en_o` | `en_i` | CPU IF stage bat doc |
-| `imem_addr_o[12:2]` | `instr_addr_i` | Cat bo 2 bit thap de doi byte address sang word index |
-| `imem_instr_i` | `instruction_o` | CPU nhan instruction sau 1 cycle |
+| Tin hieu CPU | Noi vao IMEM | Data format | Ghi chu |
+|---|---|---|---|
+| `imem_en_o` | `en_i` | Boolean enable | CPU IF stage bat doc |
+| `imem_addr_o[12:2]` | `instr_addr_i` | Word address | Cat bo 2 bit thap de doi byte address sang word index |
+| `imem_instr_i` | `instruction_o` | RV32I instruction word | CPU nhan instruction sau 1 cycle |
 
 ### 4.6 Quy tac dung port
 
@@ -126,6 +126,14 @@ Trong `rv32_soc_top`, CPU noi vao IMEM nhu sau:
 | Read latency | 1 |
 | Byte write enable | OFF |
 | Init file | ON |
+
+### 4.8 Internal storage / helper state
+
+| Storage / signal | Width | Data format | Meaning |
+|---|---:|---|---|
+| `instructions_r` | 2048 x 32 | Hex instruction memory image | Simulation-only instruction storage array |
+| `instruction_r` | 32 | RV32I instruction word | Registered instruction output in non-Vivado simulation |
+| `i` | integer | Loop index | Initialisation loop index for `$readmemh` setup |
 
 ## 5. DMEM legacy cho core smoke test
 
@@ -157,6 +165,25 @@ No co cac dac diem:
 - khong phan tach duoc CPU va DMA
 - khong phan anh day du cau hinh BRAM IP cua Vivado
 
+### 5.5 Cong module legacy
+
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `clka` | in | 1 | Free-running clock | Clock cua legacy DMEM |
+| `ena` | in | 1 | Boolean enable | Enable doc/ghi |
+| `wea` | in | 4 | Byte write mask | Mot bit cho moi bank 8-bit |
+| `addra` | in | 8 | Byte address | Dia chi byte trong tung bank |
+| `dina` | in | 32 | Little-endian 32-bit word | Du lieu ghi 4 lane |
+| `douta` | out | 32 | Little-endian 32-bit word | Du lieu doc 4 lane |
+
+### 5.6 Internal storage / helper state
+
+| Storage / signal | Width | Data format | Meaning |
+|---|---:|---|---|
+| `dmem_uut0.mem` .. `dmem_uut3.mem` | 4 x `256 x 8` | Byte-addressed 8-bit memory arrays | Four legacy byte-wide banks that together form one 32-bit word |
+| `dmem_uut0.douta` .. `dmem_uut3.douta` | 4 x 8 | Registered byte lane output | Byte lanes returned by each underlying `dmem_sync` instance |
+| `i` | integer | Loop index | Initialisation index in each `dmem_sync` instance |
+
 ## 6. DMEM cho SoC
 
 ### 6.1 Module dang chot
@@ -175,40 +202,40 @@ DMEM la bo nho data chinh cua he thong:
 
 ### 6.3 Cau hinh logic can chot
 
-| Thuoc tinh | Gia tri |
-|---|---|
-| Kieu | True dual-port RAM |
-| So port | 2 |
-| Clock | Common clock |
-| Data width moi port | 32 bit |
-| Byte write enable | 4 bit moi port |
-| Address mode | `BYTE_ADDRESS` |
-| Read mode | `READ_FIRST` |
-| Read latency | 1 cycle |
-| Depth hien tai | 8192 words |
-| Dung luong hien tai | 32 KB |
+| Thuoc tinh | Gia tri | Data format |
+|---|---|---|
+| Kieu | True dual-port RAM | Dual-port 32-bit byte-addressed memory |
+| So port | 2 | One CPU port, one auxiliary port |
+| Clock | Common clock | Shared clock domain |
+| Data width moi port | 32 bit | 32-bit little-endian word |
+| Byte write enable | 4 bit moi port | One mask bit per byte lane |
+| Address mode | `BYTE_ADDRESS` | Byte-oriented external address space |
+| Read mode | `READ_FIRST` | Synchronous read returns old data on write collision |
+| Read latency | 1 cycle | Registered synchronous read |
+| Depth hien tai | 8192 words | `8192 x 32-bit` storage words |
+| Dung luong hien tai | 32 KB | `32768` bytes of data memory |
 
 ### 6.4 Cong module wrapper
 
 #### Port A: CPU
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `cpu_en_i` | in | 1 | Enable cua CPU |
-| `cpu_we_i` | in | 4 | Byte write enable |
-| `cpu_addr_i` | in | 32 | Byte address |
-| `cpu_wdata_i` | in | 32 | Du lieu ghi |
-| `cpu_rdata_o` | out | 32 | Du lieu doc sau 1 cycle |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `cpu_en_i` | in | 1 | Boolean enable | Enable cua CPU |
+| `cpu_we_i` | in | 4 | Byte write mask | Byte write enable |
+| `cpu_addr_i` | in | 32 | Byte address | Byte address |
+| `cpu_wdata_i` | in | 32 | Little-endian 32-bit word | Du lieu ghi |
+| `cpu_rdata_o` | out | 32 | Little-endian 32-bit word | Du lieu doc sau 1 cycle |
 
 #### Port B: auxiliary master
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `aux_en_i` | in | 1 | Enable port phu |
-| `aux_we_i` | in | 4 | Byte write enable |
-| `aux_addr_i` | in | 32 | Byte address |
-| `aux_wdata_i` | in | 32 | Du lieu ghi |
-| `aux_rdata_o` | out | 32 | Du lieu doc sau 1 cycle |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `aux_en_i` | in | 1 | Boolean enable | Enable port phu |
+| `aux_we_i` | in | 4 | Byte write mask | Byte write enable |
+| `aux_addr_i` | in | 32 | Byte address | Byte address |
+| `aux_wdata_i` | in | 32 | Little-endian 32-bit word | Du lieu ghi |
+| `aux_rdata_o` | out | 32 | Little-endian 32-bit word | Du lieu doc sau 1 cycle |
 
 ### 6.5 Ownership cua tung port
 
@@ -227,18 +254,18 @@ su dung, nhung chi duoc co **mot owner hieu luc tai mot thoi diem**.
 
 ### 6.6 Mapping trong `rv32_soc_top`
 
-| Tin hieu trong `rv32_soc_top` | Noi vao wrapper | Owner |
-|---|---|---|
-| `dmem_en_w` | `cpu_en_i` | CPU |
-| `dmem_we_w[3:0]` | `cpu_we_i` | CPU |
-| `dmem_addr_w[31:0]` | `cpu_addr_i` | CPU |
-| `dmem_wdata_w[31:0]` | `cpu_wdata_i` | CPU |
-| `dmem_rdata_w[31:0]` | `cpu_rdata_o` | CPU |
-| `aux_en_i` | `aux_en_i` | DMA/loader |
-| `aux_we_i[3:0]` | `aux_we_i` | DMA/loader |
-| `aux_addr_i[31:0]` | `aux_addr_i` | DMA/loader |
-| `aux_wdata_i[31:0]` | `aux_wdata_i` | DMA/loader |
-| `aux_rdata_o[31:0]` | `aux_rdata_o` | DMA/loader |
+| Tin hieu trong `rv32_soc_top` | Noi vao wrapper | Data format | Owner |
+|---|---|---|---|
+| `dmem_en_w` | `cpu_en_i` | Boolean enable | CPU |
+| `dmem_we_w[3:0]` | `cpu_we_i` | Byte write mask | CPU |
+| `dmem_addr_w[31:0]` | `cpu_addr_i` | Byte address | CPU |
+| `dmem_wdata_w[31:0]` | `cpu_wdata_i` | Little-endian 32-bit word | CPU |
+| `dmem_rdata_w[31:0]` | `cpu_rdata_o` | Little-endian 32-bit word | CPU |
+| `aux_en_i` | `aux_en_i` | Boolean enable | DMA/loader |
+| `aux_we_i[3:0]` | `aux_we_i` | Byte write mask | DMA/loader |
+| `aux_addr_i[31:0]` | `aux_addr_i` | Byte address | DMA/loader |
+| `aux_wdata_i[31:0]` | `aux_wdata_i` | Little-endian 32-bit word | DMA/loader |
+| `aux_rdata_o[31:0]` | `aux_rdata_o` | Little-endian 32-bit word | DMA/loader |
 
 ### 6.7 Quy tac dia chi
 
@@ -283,6 +310,14 @@ Nhung phan mem van phai dam bao:
 | Output register | OFF o vong dau |
 | ECC | OFF |
 | Depth | 8192 words |
+
+### 6.10 Internal address translation / helper wires
+
+| Signal | Width | Data format | Meaning |
+|---|---:|---|---|
+| `unused_addr_bits_w` | 1 | Boolean alignment check | Flags illegal high/low address bits before word-address conversion |
+| `cpu_word_addr_w` | 13 | Word address | CPU byte address `[14:2]` converted for `DMEM_ip` |
+| `aux_word_addr_w` | 13 | Word address | Auxiliary byte address `[14:2]` converted for `DMEM_ip` |
 
 ## 7. Quy tac dung port trong he thong
 

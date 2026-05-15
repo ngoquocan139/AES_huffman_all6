@@ -115,18 +115,34 @@ Pipeline hien tai gom 5 pha chinh:
 | Output | `imem_en_o`, `imem_addr_o`, `ifid_pc_o`, `ifid_instruction_o` |
 | Chuc nang | Quan ly PC, gui fetch request sang IMEM, nhan instruction tra ve sau 1 chu ky, giu pipeline khi stall, xoa fetch cu khi branch/jump/flush |
 
+Mo ta input/output:
+
+| Tin hieu | Huong | Description |
+|---|---|---|
+| `clk_i` | input | Clock dong bo cho tat ca thanh ghi IF |
+| `rst_i` | input | Reset pipeline IF ve `RESET_PC` va dua instruction output ve NOP |
+| `flush_i` | input | Xoa request/response dang cho va dua IF/ID ve NOP |
+| `stall_i` | input | Dung cap nhat PC/IFID; neu response IMEM ve trong luc stall thi buffer lai |
+| `if_bj_taken_i` | input | Bao EX stage da quyet dinh branch/jump taken |
+| `if_pc_bj_i` | input | Dia chi PC moi khi branch/jump taken |
+| `imem_instr_i` | input | Instruction 32-bit tra ve tu IMEM cho fetch request truoc do |
+| `imem_en_o` | output | Enable request fetch sang IMEM |
+| `imem_addr_o` | output | Dia chi fetch hien tai, lay tu `pc_r` |
+| `ifid_pc_o` | output | PC da chot sang ID stage |
+| `ifid_instruction_o` | output | Instruction da chot sang ID stage; co the la NOP khi reset/flush/khong co response hop le |
+
 Thanh ghi trong IF stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| `pc_r` | PC hien tai cua IF stage, cung cap dia chi fetch cho IMEM |
-| `req_pc_r` | PC cua fetch request dang outstanding, dung de ghep voi response |
-| `req_valid_r` | Danh dau co fetch request dang cho instruction tra ve |
-| `resp_pc_r` | PC duoc buffer lai khi response den trong luc stall |
-| `resp_instr_r` | Instruction duoc buffer lai khi response den trong luc stall |
-| `resp_valid_r` | Danh dau response buffer hop le |
-| `ifid_pc_r` | Thanh ghi IF/ID chot PC sang ID stage |
-| `ifid_instruction_r` | Thanh ghi IF/ID chot instruction sang ID stage |
+| Thanh ghi | Bit width | Data format | Chuc nang |
+|---|---:|---|---|
+| `pc_r` | 32 | PC byte-address, word-aligned (`PC[1:0]=00`) | PC hien tai cua IF stage, cung cap dia chi fetch cho IMEM |
+| `req_pc_r` | 32 | PC byte-address cua request dang outstanding | PC cua fetch request dang outstanding, dung de ghep voi response |
+| `req_valid_r` | 1 | Valid flag (`0/1`) | Danh dau co fetch request dang cho instruction tra ve |
+| `resp_pc_r` | 32 | PC byte-address cua response buffer | PC duoc buffer lai khi response den trong luc stall |
+| `resp_instr_r` | 32 | Raw RV32I instruction word; `opcode=instr[6:0]` | Instruction duoc buffer lai khi response den trong luc stall |
+| `resp_valid_r` | 1 | Valid flag (`0/1`) | Danh dau response buffer hop le |
+| `ifid_pc_r` | 32 | PC byte-address chot sang IF/ID | Thanh ghi IF/ID chot PC sang ID stage |
+| `ifid_instruction_r` | 32 | Raw RV32I instruction word; NOP khi `0x00000013` | Thanh ghi IF/ID chot instruction sang ID stage |
 
 ### 5.2 ID stage (`id_stage`)
 
@@ -136,27 +152,60 @@ Thanh ghi trong IF stage:
 | Output | `rf_rs1_addr_o`, `rf_rs2_addr_o`, `idex_jal_o`, `idex_jalr_o`, `idex_se_alu_src1_o`, `idex_se_alu_src2_o`, `idex_aluop_o`, `idex_rs1_data_o`, `idex_rs2_data_o`, `idex_imm_o`, `idex_rs1_addr_o`, `idex_rs2_addr_o`, `idex_mem_we_o`, `idex_mem_en_o`, `idex_width_se_o`, `idex_wb_se_o`, `idex_regwrite_o`, `idex_rd_addr_o`, `idex_pc_o` |
 | Chuc nang | Decode opcode/funct, chon `rs1/rs2/rd`, sinh immediate, tao control bit cho EX/MEM/WB, lay du lieu tu register file, va lat cac gia tri nay sang ID/EX. `hold_i` giu nguyen trang thai; `bubble_i` va `flush_i` xoa noi dung pipeline. |
 
+Mo ta input/output:
+
+| Tin hieu | Huong | Description |
+|---|---|---|
+| `clk_i` | input | Clock dong bo cho thanh ghi ID/EX |
+| `rst_i` | input | Reset ID/EX ve NOP/control inactive |
+| `ifid_pc_i` | input | PC cua instruction dang decode |
+| `ifid_instruction_i` | input | Instruction 32-bit nhan tu IF/ID |
+| `flush_i` | input | Xoa ID/EX khi branch/jump redirect hoac flush pipeline |
+| `hold_i` | input | Giu nguyen ID/EX, khong chot instruction moi |
+| `bubble_i` | input | Chen NOP vao ID/EX de xu ly hazard |
+| `rf_rs1_data_i` | input | Du lieu doc tu register file tai dia chi `rs1` |
+| `rf_rs2_data_i` | input | Du lieu doc tu register file tai dia chi `rs2` |
+| `rf_rs1_addr_o` | output | Dia chi doc cong rs1 cua register file |
+| `rf_rs2_addr_o` | output | Dia chi doc cong rs2 cua register file |
+| `idex_jal_o` | output | Control bit bao instruction la `jal` |
+| `idex_jalr_o` | output | Control bit bao instruction la `jalr` |
+| `idex_se_alu_src1_o` | output | Chon operand A cua ALU: `1` dung PC, `0` dung rs1 |
+| `idex_se_alu_src2_o` | output | Chon operand B cua ALU: `1` dung rs2, `0` dung immediate |
+| `idex_aluop_o` | output | Ma lenh ALU/branch dua sang EX |
+| `idex_rs1_data_o` | output | Gia tri rs1 da chot sang EX |
+| `idex_rs2_data_o` | output | Gia tri rs2 da chot sang EX |
+| `idex_imm_o` | output | Immediate da decode va extend theo format instruction |
+| `idex_rs1_addr_o` | output | Dia chi rs1 da chot, dung cho forwarding/hazard |
+| `idex_rs2_addr_o` | output | Dia chi rs2 da chot, dung cho forwarding/hazard |
+| `idex_mem_we_o` | output | Store enable; `1` voi `sb/sh/sw` |
+| `idex_mem_en_o` | output | Memory access enable; `1` voi load/store |
+| `idex_width_se_o` | output | Ma do rong load/store: byte, halfword, word, signed/unsigned |
+| `idex_wb_se_o` | output | Chon nguon writeback: ALU, MEM, hoac `PC+4` |
+| `idex_regwrite_o` | output | Cho phep ghi ve register file o WB |
+| `idex_rd_addr_o` | output | Dia chi thanh ghi dich `rd`; bang 0 neu instruction khong ghi rd |
+| `idex_pc_o` | output | PC cua instruction da chot sang EX |
+
 Thanh ghi trong ID stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| `idex_jal_o` | Danh dau lenh `jal`, cho EX stage biet phai jump va ghi `PC+4` ve rd |
-| `idex_jalr_o` | Danh dau lenh `jalr`, cho EX stage biet phai jump qua dia chi tinh toan |
-| `idex_se_alu_src1_o` | Chon `PC` lam operand A cua ALU (vi du `auipc`) |
-| `idex_se_alu_src2_o` | Chon `rs2` lam operand B cua ALU; neu =0 thi dung immediate |
-| `idex_aluop_o` | Ma dieu khien ALU / branch cho EX stage |
-| `idex_rs1_data_o` | Gia tri doc tu register file o `rs1` |
-| `idex_rs2_data_o` | Gia tri doc tu register file o `rs2` |
-| `idex_imm_o` | Immediate da duoc sinh va sign-extend / zero-extend phu hop loai lenh |
-| `idex_rs1_addr_o` | So hieu thanh ghi `rs1`, dung cho forwarding/hazard check |
-| `idex_rs2_addr_o` | So hieu thanh ghi `rs2`, dung cho forwarding/hazard check |
-| `idex_mem_we_o` | Bat ghi memory cho lenh store |
-| `idex_mem_en_o` | Bat truy cap memory cho lenh load/store |
-| `idex_width_se_o` | Chon do rong truy cap: byte/half/word |
-| `idex_wb_se_o` | Chon nguon ghi ve rd: ALU, MEM, hoac `PC+4` |
-| `idex_regwrite_o` | Cho phep ghi ve register file |
-| `idex_rd_addr_o` | So hieu thanh ghi dich `rd` |
-| `idex_pc_o` | PC cua instruction hien tai, dung cho `PC+4` va branch target |
+| Thanh ghi | Bit width | Data format | Chuc nang |
+|---|---:|---|---|
+| `idex_jal_o` | 1 | Control flag (`0/1`) | Danh dau lenh `jal`, cho EX stage biet phai jump va ghi `PC+4` ve rd |
+| `idex_jalr_o` | 1 | Control flag (`0/1`) | Danh dau lenh `jalr`, cho EX stage biet phai jump qua dia chi tinh toan |
+| `idex_se_alu_src1_o` | 1 | Mux select (`1=PC`, `0=rs1`) | Chon `PC` lam operand A cua ALU (vi du `auipc`) |
+| `idex_se_alu_src2_o` | 1 | Mux select (`1=rs2`, `0=imm`) | Chon `rs2` lam operand B cua ALU; neu `0` thi dung immediate |
+| `idex_aluop_o` | 4 | ALU/branch op code theo `defines.vh` | Ma dieu khien ALU / branch cho EX stage |
+| `idex_rs1_data_o` | 32 | Raw register data word | Gia tri doc tu register file o `rs1` |
+| `idex_rs2_data_o` | 32 | Raw register data word | Gia tri doc tu register file o `rs2` |
+| `idex_imm_o` | 32 | Sign/zero-extended immediate word | Immediate da duoc sinh va extend phu hop loai lenh |
+| `idex_rs1_addr_o` | 5 | Register index `x0..x31` | So hieu thanh ghi `rs1`, dung cho forwarding/hazard check |
+| `idex_rs2_addr_o` | 5 | Register index `x0..x31` | So hieu thanh ghi `rs2`, dung cho forwarding/hazard check |
+| `idex_mem_we_o` | 1 | Store enable flag (`0/1`) | Bat ghi memory cho lenh store |
+| `idex_mem_en_o` | 1 | Memory enable flag (`0/1`) | Bat truy cap memory cho lenh load/store |
+| `idex_width_se_o` | 3 | Load/store size code (`LB/LH/LW/LBU/LHU` hoac `SB/SH/SW`) | Chon do rong truy cap |
+| `idex_wb_se_o` | 2 | Writeback select (`00=ALU`, `01=MEM`, `10=PC+4`, `11=INVALID`) | Chon nguon ghi ve rd |
+| `idex_regwrite_o` | 1 | Register write enable (`0/1`) | Cho phep ghi ve register file |
+| `idex_rd_addr_o` | 5 | Register index `x0..x31` | So hieu thanh ghi dich `rd` |
+| `idex_pc_o` | 32 | PC byte-address, word-aligned | PC cua instruction hien tai, dung cho `PC+4` va branch target |
 
 ### 5.3 EX stage (`ex_stage`)
 
@@ -166,19 +215,54 @@ Thanh ghi trong ID stage:
 | Output | `exif_pc_bj_o`, `exif_bj_taken_o`, `exmem_mem_we_o`, `exmem_mem_en_o`, `exmem_width_se_o`, `exmem_wb_se_o`, `exmem_regwrite_o`, `exmem_rd_addr_o`, `exmem_alu_result_o`, `exmem_rs2_data_o`, `exmem_pc_plus_o` |
 | Chuc nang | Chon operand, tinh ALU result, so sanh branch, tinh jump target, phat hien branch/jump taken, va chot thong tin sang EX/MEM cho MEM stage. |
 
+Mo ta input/output:
+
+| Tin hieu | Huong | Description |
+|---|---|---|
+| `clk_i` | input | Clock dong bo cho thanh ghi EX/MEM |
+| `rst_i` | input | Reset EX/MEM ve control inactive va data 0 |
+| `flush_i` | input | Xoa EX/MEM khi branch/jump redirect |
+| `stall_i` | input | Giu nguyen EX/MEM, khong chot ket qua EX moi |
+| `ex_pc_i` | input | PC cua instruction dang o EX |
+| `ex_imm_i` | input | Immediate da decode tu ID stage |
+| `ex_rs1_data_i` | input | Operand rs1 sau forwarding |
+| `ex_rs2_data_i` | input | Operand rs2 sau forwarding; cung la data store neu instruction la store |
+| `ex_jal_i` | input | Control bit cho lenh `jal` |
+| `ex_jalr_i` | input | Control bit cho lenh `jalr` |
+| `ex_alu_src1_i` | input | Chon operand A: `1` dung PC, `0` dung rs1 |
+| `ex_alu_src2_i` | input | Chon operand B: `1` dung rs2, `0` dung immediate |
+| `ex_aluop_i` | input | Ma phep toan ALU hoac so sanh branch |
+| `ex_mem_we_i` | input | Store enable di kem instruction |
+| `ex_mem_en_i` | input | Memory access enable di kem instruction |
+| `ex_width_se_i` | input | Do rong load/store di kem instruction |
+| `ex_wb_se_i` | input | Lua chon nguon writeback di kem instruction |
+| `ex_regwrite_i` | input | Cho phep ghi rd di kem instruction |
+| `ex_rd_addr_i` | input | Dia chi rd di kem instruction |
+| `exif_pc_bj_o` | output | Dia chi PC dich neu branch/jump taken |
+| `exif_bj_taken_o` | output | Tin hieu redirect IF khi branch/jump duoc lay |
+| `exmem_mem_we_o` | output | Store enable da chot sang MEM |
+| `exmem_mem_en_o` | output | Memory enable da chot sang MEM |
+| `exmem_width_se_o` | output | Do rong truy cap memory da chot sang MEM |
+| `exmem_wb_se_o` | output | Lua chon writeback da chot sang MEM/WB |
+| `exmem_regwrite_o` | output | Regwrite da chot sang MEM/WB |
+| `exmem_rd_addr_o` | output | Dia chi rd da chot sang MEM/WB |
+| `exmem_alu_result_o` | output | Ket qua ALU; voi load/store day la effective address |
+| `exmem_rs2_data_o` | output | Data store da chot sang MEM |
+| `exmem_pc_plus_o` | output | `PC + 4` da chot de writeback cho jump |
+
 Thanh ghi trong EX stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| `exmem_mem_we_o` | Giu bit store enable sang MEM stage |
-| `exmem_mem_en_o` | Giu bit memory access enable sang MEM stage |
-| `exmem_width_se_o` | Giu do rong truy cap memory sang MEM stage |
-| `exmem_wb_se_o` | Giu lua chon nguon writeback sang WB stage |
-| `exmem_regwrite_o` | Giu bit cho phep ghi register file sang WB stage |
-| `exmem_rd_addr_o` | Giu so hieu rd sang WB stage |
-| `exmem_alu_result_o` | Giu ALU result, effective address, hoac ket qua branch-related can dung tiep |
-| `exmem_rs2_data_o` | Giu du lieu rs2 thuc te de store vao memory/MMIO |
-| `exmem_pc_plus_o` | Giu `PC + 4` de ghi ve rd khi lenh `jal/jalr` |
+| Thanh ghi | Bit width | Data format | Chuc nang |
+|---|---:|---|---|
+| `exmem_mem_we_o` | 1 | Store enable flag (`0/1`) | Giu bit store enable sang MEM stage |
+| `exmem_mem_en_o` | 1 | Memory enable flag (`0/1`) | Giu bit memory access enable sang MEM stage |
+| `exmem_width_se_o` | 3 | Load/store size code (`LB/LH/LW/LBU/LHU` hoac `SB/SH/SW`) | Giu do rong truy cap memory sang MEM stage |
+| `exmem_wb_se_o` | 2 | Writeback select (`00=ALU`, `01=MEM`, `10=PC+4`, `11=INVALID`) | Giu lua chon nguon writeback sang WB stage |
+| `exmem_regwrite_o` | 1 | Register write enable (`0/1`) | Giu bit cho phep ghi register file sang WB stage |
+| `exmem_rd_addr_o` | 5 | Register index `x0..x31` | Giu so hieu rd sang WB stage |
+| `exmem_alu_result_o` | 32 | ALU result / effective address / branch compare input | Giu ALU result, effective address, hoac ket qua branch-related can dung tiep |
+| `exmem_rs2_data_o` | 32 | Raw store data word | Giu du lieu rs2 thuc te de store vao memory/MMIO |
+| `exmem_pc_plus_o` | 32 | PC byte-address + 4 | Giu `PC + 4` de ghi ve rd khi lenh `jal/jalr` |
 
 ### 5.4 MEM stage (`mem_stage`)
 
@@ -188,20 +272,49 @@ Thanh ghi trong EX stage:
 | Output | `en_o`, `we_o`, `addr_o`, `data_w_o`, `mem_data_w`, `memwb_regwrite_o`, `memwb_rd_addr_o`, `memwb_wb_se_o`, `memwb_pc_plus_o`, `memwb_alu_result_o`, `memwb_mem_data_o`, `mem_stage_err_o` |
 | Chuc nang | Thuc hien read/write DMEM hoac MMIO, canh lane theo byte/half/word, sign/zero-extend du lieu doc, bao loi truy cap khong hop le, va chot du lieu sang MEM/WB. |
 
+Mo ta input/output:
+
+| Tin hieu | Huong | Description |
+|---|---|---|
+| `clk_i` | input | Clock dong bo cho thanh ghi MEM/WB |
+| `rst_i` | input | Reset MEM/WB ve control inactive va data 0 |
+| `mem_we_i` | input | Cho biet transaction hien tai la store |
+| `mem_en_i` | input | Bat truy cap memory/MMIO cho load/store |
+| `mem_width_se_i` | input | Ma do rong va signed/unsigned cua load/store |
+| `mem_alu_result_i` | input | Effective address tu EX stage |
+| `mem_data_i` | input | Data store tu rs2 |
+| `mem_regwrite_i` | input | Regwrite pass-through tu EX/MEM |
+| `mem_rd_addr_i` | input | Dia chi rd pass-through tu EX/MEM |
+| `mem_wb_se_i` | input | Lua chon nguon writeback pass-through |
+| `mem_pc_plus_i` | input | `PC + 4` pass-through cho jump |
+| `data_r_i` | input | Data 32-bit doc tu DMEM/MMIO |
+| `en_o` | output | Enable request sang DMEM/MMIO fabric |
+| `we_o` | output | Byte write enable 4-bit cho store |
+| `addr_o` | output | Dia chi memory/MMIO, lay tu `mem_alu_result_i` khi `mem_en_i=1` |
+| `data_w_o` | output | Data write da canh lane theo byte/half/word |
+| `mem_data_w` | output | Data load da sign/zero-extend, dung cho forwarding |
+| `memwb_regwrite_o` | output | Regwrite da chot sang WB |
+| `memwb_rd_addr_o` | output | Dia chi rd da chot sang WB |
+| `memwb_wb_se_o` | output | Lua chon nguon writeback da chot sang WB |
+| `memwb_pc_plus_o` | output | `PC + 4` da chot sang WB |
+| `memwb_alu_result_o` | output | ALU result/effective address da chot sang WB |
+| `memwb_mem_data_o` | output | Data load da chuan hoa va chot sang WB |
+| `mem_stage_err_o` | output | Ma loi MEM stage: `01` write error, `10` read error, `00` khong loi |
+
 Thanh ghi trong MEM stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| `write_error` | Danh dau store khong hop le (sai canh / sai do rong) |
-| `read_error` | Danh dau load khong hop le (sai canh / sai do rong) |
-| `data_r_cvt_w` | Du lieu doc sau khi da sign/zero extend, se di vao `memwb_mem_data_o` |
-| `memwb_regwrite_o` | Giu bit cho phep ghi register file sang WB stage |
-| `memwb_rd_addr_o` | Giu so hieu thanh ghi dich sang WB stage |
-| `memwb_wb_se_o` | Giu lua chon nguon writeback sang WB stage |
-| `memwb_pc_plus_o` | Giu `PC + 4` cho writeback cua jump |
-| `memwb_alu_result_o` | Giu ALU result / dia chi tinh toan sang WB stage |
-| `memwb_mem_data_o` | Giu du lieu load da chuan hoa sang WB stage |
-| `mem_stage_err_o` | Ma loi 2-bit cua MEM stage: write error hoac read error |
+| Thanh ghi | Bit width | Data format | Chuc nang |
+|---|---:|---|---|
+| `write_error` | 1 | Error flag (`0/1`) | Danh dau store khong hop le (sai canh / sai do rong) |
+| `read_error` | 1 | Error flag (`0/1`) | Danh dau load khong hop le (sai canh / sai do rong) |
+| `data_r_cvt_w` | 32 | Sign/zero-extended data word | Du lieu doc sau khi da sign/zero extend, se di vao `memwb_mem_data_o` |
+| `memwb_regwrite_o` | 1 | Register write enable (`0/1`) | Giu bit cho phep ghi register file sang WB stage |
+| `memwb_rd_addr_o` | 5 | Register index `x0..x31` | Giu so hieu thanh ghi dich sang WB stage |
+| `memwb_wb_se_o` | 2 | Writeback select (`00=ALU`, `01=MEM`, `10=PC+4`, `11=INVALID`) | Giu lua chon nguon writeback sang WB stage |
+| `memwb_pc_plus_o` | 32 | PC byte-address + 4 | Giu `PC + 4` cho writeback cua jump |
+| `memwb_alu_result_o` | 32 | ALU result / effective address | Giu ALU result / dia chi tinh toan sang WB stage |
+| `memwb_mem_data_o` | 32 | Raw or sign/zero-extended memory data word | Giu du lieu load da chuan hoa sang WB stage |
+| `mem_stage_err_o` | 2 | Error code (`00=OK`, `01=write_error`, `10=read_error`) | Ma loi 2-bit cua MEM stage |
 
 ### 5.5 WB stage
 
@@ -211,11 +324,25 @@ Thanh ghi trong MEM stage:
 | Output | `wb_data_w`, `rf_reg_write_w`, `rf_rd_addr_w` |
 | Chuc nang | Chon du lieu ghi ve register file theo `wb_se` va phat xung write enable + rd index sang register file. Day la noi `addi`, `lw`, `jal`, `lui`, `auipc` ket thuc ve mat writeback. `sw` khong ghi rd. |
 
+Mo ta input/output:
+
+| Tin hieu | Huong | Description |
+|---|---|---|
+| `memwb_regwrite_w` | input | Cho phep ghi register file, da duoc chot tu MEM/WB |
+| `memwb_rd_addr_w` | input | Dia chi thanh ghi dich `rd` can ghi |
+| `memwb_wb_se_w` | input | Chon nguon du lieu writeback |
+| `memwb_pc_plus_w` | input | Gia tri `PC + 4` cho `jal/jalr` |
+| `memwb_alu_result_w` | input | Ket qua ALU cho ALU-op, `lui`, `auipc`, hoac CSR/system co ghi rd |
+| `memwb_mem_data_w` | input | Du lieu load tu MEM stage |
+| `wb_data_w` | output | Du lieu 32-bit cuoi cung ghi vao register file |
+| `rf_reg_write_w` | output | Write enable cua register file |
+| `rf_rd_addr_w` | output | Dia chi write port cua register file |
+
 Thanh ghi trong WB stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| Khong co thanh ghi rieng | WB stage khong chot them state moi; no su dung truc tiep cac thanh ghi `memwb_*` da duoc luu o MEM stage |
+| Thanh ghi | Bit width | Data format | Chuc nang |
+|---|---:|---|---|
+| Khong co thanh ghi rieng | - | WB stage khong luu state moi; chi mux tren cac du lieu `memwb_*` | WB stage khong chot them state moi; no su dung truc tiep cac thanh ghi `memwb_*` da duoc luu o MEM stage |
 
 ### 5.6 Control signal mapping theo nhom lenh
 

@@ -90,6 +90,7 @@ Design split:
 |---|---|---|
 | `rv32_soc_top` | Simulation/integration SoC top | this file |
 | `rv32_soc_fpga_demo_top` | FPGA wrapper with UART loader and LEDs | `fpga_uart_dmem_loader_spec.md` |
+| `uart_dmem_loader` | UART protocol loader that preloads DMEM source bytes before CPU release | `fpga_uart_dmem_loader_spec.md` |
 | `top_rv32_sync` | RV32I CPU core | this file, `dma_riscv_instruction_programming_spec.md` |
 | `imem_sync` / `IMEM_ip` | Instruction memory | `bram_port_usage_spec.md` |
 | `dmem_ip_wrapper` / `DMEM_ip` | Shared data memory | `bram_port_usage_spec.md` |

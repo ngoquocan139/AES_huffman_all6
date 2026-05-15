@@ -29,6 +29,7 @@ Current integration status:
 | Default baud | `115200` |
 | Demo clock | `50 MHz` |
 | Build style | TX-only/RX-only split bitstreams |
+| Max input bytes | `7168` |
 | Remaining gap | runtime output readback from board is still future work |
 
 ## 1.1 Loader Flow Chart
@@ -102,6 +103,23 @@ This means:
 - DMEM can be written through Port B before CPU execution starts
 - the CPU sees a fully populated source buffer and a valid `INPUT_LEN_ADDR`
 
+### 3.4 Module Port Contract
+
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `clk_i` | in | 1 | Free-running system clock | Loader and UART clock domain |
+| `rst_i` | in | 1 | Active-high reset | Resets protocol parser, counters, and DMEM writer |
+| `uart_rx_i` | in | 1 | UART 8N1 serial bitstream | Host-to-FPGA receive line |
+| `uart_tx_o` | out | 1 | UART 8N1 serial bitstream | FPGA-to-host ACK/error line |
+| `aux_en_o` | out | 1 | Boolean enable | DMEM Port B enable |
+| `aux_we_o` | out | 4 | Byte write mask | Byte lanes written on Port B |
+| `aux_addr_o` | out | 32 | Byte address | DMEM Port B address, byte addressed |
+| `aux_wdata_o` | out | 32 | Little-endian 32-bit word | Packed payload data written to DMEM |
+| `busy_o` | out | 1 | Boolean flag | Loader is actively parsing or writing |
+| `done_o` | out | 1 | Sticky boolean flag | Valid frame completed successfully |
+| `error_o` | out | 1 | Sticky boolean flag | Invalid frame or payload error |
+| `bytes_loaded_o` | out | 32 | Unsigned byte count | Number of payload bytes accepted into DMEM |
+
 ## 4. UART Electrical/Timing Contract
 
 ### 4.1 UART mode
@@ -140,11 +158,11 @@ The current XDC uses `LVCMOS33` for these Pmod pins and enables a pull-up on
 
 The current frame is fixed and minimal:
 
-```text
-byte[0..3]   = ASCII "LOAD"
-byte[4..7]   = payload_len_bytes, little-endian uint32
-byte[8..]    = payload bytes
-```
+| Byte range | Field | Data format | Meaning |
+|---|---|---|---|
+| `0..3` | Magic | ASCII `"LOAD"` | Start-of-frame marker |
+| `4..7` | Payload length | Little-endian `uint32` | Number of payload bytes that follow |
+| `8..` | Payload | Raw byte stream | Plaintext bytes copied into DMEM source region |
 
 The loader does not currently accept:
 
@@ -186,9 +204,11 @@ So the payload layout inside DMEM is consistent with:
 
 The loader currently accepts at most:
 
-- `8192` bytes
+- `7168` bytes
 
-This matches the practical source buffer window:
+The DMEM source window between `0x0000_2000` and `0x0000_4000` is 8192
+bytes wide. The loader uses a stricter guardrail of `7168` bytes so there is
+explicit headroom before the TX destination region:
 
 ```text
 SRC_BASE_ADDR    = 0x00002000
@@ -196,17 +216,39 @@ TX_DST_BASE_ADDR = 0x00004000
 source bytes     = 0x2000 = 8192
 ```
 
-If `payload_len == 0` or `payload_len > 8192`, the loader enters the error
-path and does not release the SoC reset.
+`MAX_INPUT_BYTES = 7168` is the RTL guardrail, leaving headroom before the TX
+destination region. If `payload_len == 0` or `payload_len > 7168`, the loader
+enters the error path and does not release the SoC reset.
+
+### 5.4 Internal state / registers
+
+| State / reg | Width | Data format | Meaning |
+|---|---:|---|---|
+| `state_r` | 4 | FSM state encoding | Current loader state machine step |
+| `payload_len_r` | 32 | Unsigned byte count | Parsed frame payload length |
+| `payload_rem_r` | 32 | Unsigned byte count | Remaining payload bytes to consume |
+| `bytes_loaded_r` | 32 | Unsigned byte count | Total payload bytes written to DMEM |
+| `curr_word_addr_r` | 32 | Byte address aligned to 32-bit word | Current DMEM destination word address |
+| `curr_lane_r` | 2 | Byte lane index | Which byte lane of the current word is being filled |
+| `pack_word_r` | 32 | Little-endian partial word | Buffered payload word under construction |
+| `pack_we_r` | 4 | Byte write mask | Accumulated byte lanes for `pack_word_r` |
+| `pending_addr_r` | 32 | Byte address | Pending DMEM write address after pack completion |
+| `pending_data_r` | 32 | Little-endian data word | Pending DMEM write payload |
+| `pending_we_r` | 4 | Byte write mask | Pending DMEM write lane mask |
+| `tx_byte_r` | 8 | UART data byte | ACK/error byte queued for transmit |
+| `tx_valid_r` | 1 | Boolean flag | UART TX byte valid strobe |
+| `done_r` | 1 | Sticky boolean flag | Successful load completion flag |
+| `error_r` | 1 | Sticky boolean flag | Loader error flag |
+| `UART_PRESCALE_W` | 16 | Unsigned UART prescale | Derived baud-rate divider used by `uart_rx` / `uart_tx` |
 
 ## 6. ACK / Error Contract
 
 The loader returns one UART byte to the host:
 
-| Byte | Meaning |
-|---:|---|
-| `0x79` | load success |
-| `0x1F` | load error |
+| Byte | Data format | Meaning |
+|---:|---|---|
+| `0x79` | UART ACK byte | Load success |
+| `0x1F` | UART NAK byte | Load error |
 
 Success means:
 

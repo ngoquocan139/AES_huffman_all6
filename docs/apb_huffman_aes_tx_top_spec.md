@@ -102,68 +102,68 @@ whole-file hien ho tro full byte alphabet.
 
 ### 5.1 Clock va reset
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `PCLK` | in | 1 | Clock he thong cho APB, pipeline Huffman va AES. |
-| `PRESETn` | in | 1 | Reset active-low, dung chung cho tat ca submodule trong top. |
-| `cbc_iv_i` | in | 128 | IV cho AES-CBC, lay tu `dma_regfile.iv_o`. |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `PCLK` | in | 1 | `clk` | Clock he thong cho APB, pipeline Huffman va AES. |
+| `PRESETn` | in | 1 | `rst_n` | Reset active-low, dung chung cho tat ca submodule trong top. |
+| `cbc_iv_i` | in | 128 | 128-bit IV word | IV cho AES-CBC, lay tu `dma_regfile.iv_o`. |
 
 ### 5.2 APB slave interface
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `PSEL` | in | 1 | Chon slave APB. |
-| `PENABLE` | in | 1 | Pha enable cua APB transaction. |
-| `PWRITE` | in | 1 | `1`: write, `0`: read. |
-| `PADDR` | in | 32 | Dia chi thanh ghi APB. |
-| `PWDATA` | in | 32 | Du lieu ghi APB. |
-| `PRDATA` | out | 32 | Du lieu doc APB. |
-| `PREADY` | out | 1 | Bao APB transfer co the commit. Co the bi keo `0` de stall. |
-| `PSLVERR` | out | 1 | Bao loi truy cap APB hoac cau hinh khong hop le. |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `PSEL` | in | 1 | APB select | Chon slave APB. |
+| `PENABLE` | in | 1 | APB enable | Pha enable cua APB transaction. |
+| `PWRITE` | in | 1 | APB direction | `1`: write, `0`: read. |
+| `PADDR` | in | 32 | byte address | Dia chi thanh ghi APB. |
+| `PWDATA` | in | 32 | little-endian word | Du lieu ghi APB. |
+| `PRDATA` | out | 32 | little-endian word | Du lieu doc APB. |
+| `PREADY` | out | 1 | handshake | Bao APB transfer co the commit. Co the bi keo `0` de stall. |
+| `PSLVERR` | out | 1 | error flag | Bao loi truy cap APB hoac cau hinh khong hop le. |
 
 ### 5.3 Dau ra AES
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `aes_data_out` | out | 128 | Dau ra ciphertext/ket qua cua `aes128_cipher_top`. |
-| `aes_ready_out` | out | 1 | Tin hieu `ready` xuat truc tiep tu AES encrypt core. |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `aes_data_out` | out | 128 | 128-bit ciphertext block | Dau ra ciphertext/ket qua cua `aes128_cipher_top`. |
+| `aes_ready_out` | out | 1 | ready flag | Tin hieu `ready` xuat truc tiep tu AES encrypt core. |
 
 ### 5.4 Trang thai tong hop
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `tx_busy` | out | 1 | Pipeline TX dang ban xu ly block hoac dang cho nhan transport word. |
-| `tx_done` | out | 1 | Neu block hien tai ket thuc frame thi word cuoi da duoc wrapper chap nhan; neu frame con tiep thi block hien tai da duoc encoder day het vao packer. Khong dong nghia AES da hoan tat dau ra. |
-| `tx_error` | out | 1 | Co loi o adapter, encoder hoac packer. |
-| `encoder_busy` | out | 1 | Trang thai busy cua `dynamic_huffman_encoder`. |
-| `encoder_done` | out | 1 | Trang thai done cua `dynamic_huffman_encoder`. |
-| `encoder_error` | out | 1 | Loi cua `dynamic_huffman_encoder`. |
-| `selected_mode_out` | out | 2 | Mode duoc encoder chon cho block hien tai. |
-| `fsm_state` | out | 4 | State debug cua `control_fsm` trong encoder. |
-| `packer_busy` | out | 1 | Trang thai busy cua `bit_packer_128`. |
-| `packer_done` | out | 1 | Trang thai done cua `bit_packer_128`. |
-| `packer_error` | out | 1 | Loi cua `bit_packer_128`. |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `tx_busy` | out | 1 | busy flag | Pipeline TX dang ban xu ly block hoac dang cho nhan transport word. |
+| `tx_done` | out | 1 | pulse / sticky event | Neu block hien tai ket thuc frame thi word cuoi da duoc wrapper chap nhan; neu frame con tiep thi block hien tai da duoc encoder day het vao packer. Khong dong nghia AES da hoan tat dau ra. |
+| `tx_error` | out | 1 | error flag | Co loi o adapter, encoder hoac packer. |
+| `encoder_busy` | out | 1 | busy flag | Trang thai busy cua `dynamic_huffman_encoder`. |
+| `encoder_done` | out | 1 | done pulse | Trang thai done cua `dynamic_huffman_encoder`. |
+| `encoder_error` | out | 1 | error flag | Loi cua `dynamic_huffman_encoder`. |
+| `selected_mode_out` | out | 2 | 2-bit mode code | Mode duoc encoder chon cho block hien tai. |
+| `fsm_state` | out | 4 | 4-bit state code | State debug cua `control_fsm` trong encoder. |
+| `packer_busy` | out | 1 | busy flag | Trang thai busy cua `bit_packer_128`. |
+| `packer_done` | out | 1 | done pulse | Trang thai done cua `bit_packer_128`. |
+| `packer_error` | out | 1 | error flag | Loi cua `bit_packer_128`. |
 
 ### 5.5 Cong debug
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `transport_word_dbg` | out | 128 | Word 128-bit tu packer truoc khi vao wrapper/AES. |
-| `transport_word_valid_dbg` | out | 1 | `valid` cua transport word. |
-| `adapter_error_dbg` | out | 1 | Loi giao thuc/input adapter ben trong `huffman_aes_tx_top`. |
-| `apb_start_block_dbg` | out | 1 | Pulse `start_block` tu APB wrapper vao TX top. |
-| `apb_block_size_dbg` | out | `BLOCK_SIZE_WIDTH` | Kich thuoc block dang cau hinh. |
-| `apb_word_in_dbg` | out | 32 | Word hien dang xuat tu FIFO APB sang TX top. |
-| `apb_word_valid_dbg` | out | 1 | `valid` cua word stream tu APB wrapper. |
-| `apb_word_ready_dbg` | out | 1 | `ready` cua TX top doi voi APB wrapper. |
-| `cipher_en_dbg` | out | 1 | Pulse kich hoat ma hoa AES. |
-| `decipher_en_dbg` | out | 1 | Debug mode giai ma. Hien tai luon bang 0. |
-| `chain_en_dbg` | out | 1 | Debug mode chaining. Hien tai luon bang 0. |
-| `data_in_dbg` | out | 128 | Du lieu 128-bit sau CBC XOR dua vao AES. |
-| `key_dbg` | out | 128 | Khoa AES wrapper dua vao AES. |
-| `mode_dbg` | out | 4 | Tin hieu debug legacy, khong chon mode AES active. |
-| `init_vector_dbg` | out | 128 | Mirror cua `cbc_iv_i`. |
-| `segment_len_dbg` | out | 16 | Segment length dua tu wrapper ra top. |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `transport_word_dbg` | out | 128 | 128-bit transport frame | Word 128-bit tu packer truoc khi vao wrapper/AES. |
+| `transport_word_valid_dbg` | out | 1 | valid flag | `valid` cua transport word. |
+| `adapter_error_dbg` | out | 1 | error flag | Loi giao thuc/input adapter ben trong `huffman_aes_tx_top`. |
+| `apb_start_block_dbg` | out | 1 | pulse | Pulse `start_block` tu APB wrapper vao TX top. |
+| `apb_block_size_dbg` | out | `BLOCK_SIZE_WIDTH` | unsigned byte count | Kich thuoc block dang cau hinh. |
+| `apb_word_in_dbg` | out | 32 | little-endian word | Word hien dang xuat tu FIFO APB sang TX top. |
+| `apb_word_valid_dbg` | out | 1 | valid flag | `valid` cua word stream tu APB wrapper. |
+| `apb_word_ready_dbg` | out | 1 | ready flag | `ready` cua TX top doi voi APB wrapper. |
+| `cipher_en_dbg` | out | 1 | pulse | Pulse kich hoat ma hoa AES. |
+| `decipher_en_dbg` | out | 1 | debug flag | Debug mode giai ma. Hien tai luon bang 0. |
+| `chain_en_dbg` | out | 1 | debug flag | Debug mode chaining. Hien tai luon bang 0. |
+| `data_in_dbg` | out | 128 | 128-bit CBC input block | Du lieu 128-bit sau CBC XOR dua vao AES. |
+| `key_dbg` | out | 128 | 128-bit AES key | Khoa AES wrapper dua vao AES. |
+| `mode_dbg` | out | 4 | legacy mode code | Tin hieu debug legacy, khong chon mode AES active. |
+| `init_vector_dbg` | out | 128 | 128-bit IV mirror | Mirror cua `cbc_iv_i`. |
+| `segment_len_dbg` | out | 16 | unsigned bit count | Segment length dua tu wrapper ra top. |
 
 ## 6. Kien truc noi bo
 
@@ -236,7 +236,7 @@ O cau hinh RTL hien tai, wrapper legacy van duoc hard-wire nhu sau:
 - `segment_len = 16'b0`
 - `key = AES_KEY_FIXED`
 
-Khi `block_valid && aes_ready`, wrapper:
+Khi block input hop le va `aes_ready`, wrapper:
 
 - latched `block_in` vao `data_in`;
 - tao pulse `block_accept = 1`;
@@ -262,23 +262,23 @@ con la ECB-style independent block encryption.
 
 ## 8. Memory map APB
 
-| Dia chi | Ten | Loai | Mo ta |
-|---|---|---|---|
-| `0x0000_0000` | `START_BLOCK` | W | Ghi bit 0 = 1 de phat dong block da nap xong. Bit 1 = 1 nghia la sau block nay con block tiep theo trong cung frame AES, nen packer chua flush o cuoi block nay. |
-| `0x0000_0004` | `BLOCK_SIZE` | R/W | Kich thuoc block tinh theo byte, hop le trong khoang 1..32. |
-| `0x0000_0008` | `WORD_IN` | W | Nap du lieu 32-bit vao FIFO. |
-| `0x0000_000C` | `STATUS` | R | Trang thai cau hinh, input va tien trinh block. |
-| `0x0000_0010` | `CONTROL` | R/W | Soft reset va xoa sticky flags. |
-| `0x0000_0014` | `DEBUG` | R | Thong tin FIFO va con tro noi bo. |
-| `0x0000_0018` | `TX_POLICY` | R/W | Bit0=`compress_only` |
-| `0x0000_0020` | `AES_OUT_DATA` | R | 32-bit word tu output FIFO |
-| `0x0000_0024` | `AES_OUT_META` | R | Bit0=`last_word`, bit1=`compress_only` |
-| `0x0000_0028` | `AES_OUT_STATUS` | R | Output FIFO status va `compress_only` mirror |
-| `0x0000_002C` | `AES_OUT_DEBUG` | R | Debug output FIFO |
+| Dia chi | Ten | Loai | Data format | Mo ta |
+|---|---|---|---|---|
+| `0x0000_0000` | `START_BLOCK` | W | control pulse | Ghi bit 0 = 1 de phat dong block da nap xong. Bit 1 = 1 nghia la sau block nay con block tiep theo trong cung frame AES, nen packer chua flush o cuoi block nay. |
+| `0x0000_0004` | `BLOCK_SIZE` | R/W | unsigned byte count | Kich thuoc block tinh theo byte, hop le trong khoang 1..32. |
+| `0x0000_0008` | `WORD_IN` | W | little-endian 32-bit word | Nap du lieu 32-bit vao FIFO. |
+| `0x0000_000C` | `STATUS` | R | bitfield | Trang thai cau hinh, input va tien trinh block. |
+| `0x0000_0010` | `CONTROL` | R/W | pulse bits | Soft reset va xoa sticky flags. |
+| `0x0000_0014` | `DEBUG` | R | counters + pointers | Thong tin FIFO va con tro noi bo. |
+| `0x0000_0018` | `TX_POLICY` | R/W | policy bits | Bit0=`compress_only` |
+| `0x0000_0020` | `AES_OUT_DATA` | R | little-endian 32-bit word | 32-bit word tu output FIFO |
+| `0x0000_0024` | `AES_OUT_META` | R | bitfield | Bit0=`last_word`, bit1=`compress_only` |
+| `0x0000_0028` | `AES_OUT_STATUS` | R | bitfield | Output FIFO status va `compress_only` mirror |
+| `0x0000_002C` | `AES_OUT_DEBUG` | R | counters + pointers | Debug output FIFO |
 
 ### 8.1 TX APB Register Function Summary
 
-| Register | Function | Primary user | Side effect / note |
+| Register | Function | Primary user | Data format / note |
 |---|---|---|---|
 | `START_BLOCK` | Launch one loaded TX block | `dma_tx_engine` | Bit0 starts; bit1 marks that more blocks follow in same AES frame |
 | `BLOCK_SIZE` | Declare current plaintext block size | `dma_tx_engine` | Valid `1..32`; must be written before `WORD_IN`/`START_BLOCK` sequence |
@@ -294,44 +294,44 @@ con la ECB-style independent block encryption.
 
 ### 8.2 `STATUS` register
 
-| Bit | Ten | Y nghia |
-|---:|---|---|
-| 0 | `cfg_valid` | Da co cau hinh `block_size` hop le. |
-| 1 | `input_ready` | Co the nap them `WORD_IN`. |
-| 2 | `block_active` | Block da duoc start va dang in-flight trong APB wrapper. |
-| 3 | `tx_busy` | Pipeline TX dang ban. |
-| 4 | `done_sticky` | Block gan nhat da `tx_done`. |
-| 5 | `error_sticky` | Da co loi APB/TX. |
-| 6 | `fifo_nonempty` | FIFO dang co du lieu. |
-| 7 | `can_start` | Da nap du word can thiet, pipeline dang ranh va co the ghi `START_BLOCK`. |
+| Bit | Ten | Data format | Y nghia |
+|---:|---|---|---|
+| 0 | `cfg_valid` | 1-bit config flag | Da co cau hinh `block_size` hop le. |
+| 1 | `input_ready` | 1-bit live flag | Co the nap them `WORD_IN`. |
+| 2 | `block_active` | 1-bit live flag | Block da duoc start va dang in-flight trong APB wrapper. |
+| 3 | `tx_busy` | 1-bit live flag | Pipeline TX dang ban. |
+| 4 | `done_sticky` | 1-bit sticky | Block gan nhat da `tx_done`. |
+| 5 | `error_sticky` | 1-bit sticky | Da co loi APB/TX. |
+| 6 | `fifo_nonempty` | 1-bit live flag | FIFO dang co du lieu. |
+| 7 | `can_start` | 1-bit live flag | Da nap du word can thiet, pipeline dang ranh va co the ghi `START_BLOCK`. |
 
 ### 8.3 `TX_POLICY` register
 
-| Bit | Ten | Y nghia |
-|---:|---|---|
-| 0 | `compress_only` | `1`: bypass AES, `0`: di qua AES |
-| 31:1 | reserved | Ghi `1` se bao `PSLVERR` |
+| Bit | Ten | Data format | Y nghia |
+|---:|---|---|---|
+| 0 | `compress_only` | 1-bit policy | `1`: bypass AES, `0`: di qua AES |
+| 31:1 | reserved | reserved | Ghi `1` se bao `PSLVERR` |
 
 ### 8.4 `CONTROL` register
 
-| Bit | Ten | Ghi `1` de... |
-|---:|---|---|
-| 0 | `soft_reset` | Xoa FIFO, cau hinh, sticky flags va huy block dang pending trong APB wrapper. |
-| 1 | `clear_done` | Xoa `done_sticky`. |
-| 2 | `clear_error` | Xoa `error_sticky`. |
+| Bit | Ten | Data format | Ghi `1` de... |
+|---:|---|---|---|
+| 0 | `soft_reset` | pulse | Xoa FIFO, cau hinh, sticky flags va huy block dang pending trong APB wrapper. |
+| 1 | `clear_done` | pulse | Xoa `done_sticky`. |
+| 2 | `clear_error` | pulse | Xoa `error_sticky`. |
 
 ### 8.5 `DEBUG` register
 
-| Bit | Ten | Y nghia |
-|---:|---|---|
-| `[3:0]` | `fifo_count` | So word dang co trong FIFO. |
-| `[7:4]` | `words_expected` | So word can nap, bang `ceil(block_size/4)`. |
-| `[11:8]` | `words_loaded` | So word da nap vao FIFO. |
-| `[15]` | `stream_active` | Dang stream word tu FIFO vao TX top. |
-| `[16]` | `block_inflight` | Block dang active trong APB wrapper. |
-| `[19:17]` | `wr_ptr` | Con tro ghi FIFO. |
-| `[22:20]` | `rd_ptr` | Con tro doc FIFO. |
-| `[23]` | `compress_only` | Mirror cua policy hien tai. |
+| Bit | Ten | Data format | Y nghia |
+|---:|---|---|---|
+| `[3:0]` | `fifo_count` | unsigned count | So word dang co trong FIFO. |
+| `[7:4]` | `words_expected` | unsigned count | So word can nap, bang `ceil(block_size/4)`. |
+| `[11:8]` | `words_loaded` | unsigned count | So word da nap vao FIFO. |
+| `[15]` | `stream_active` | bool | Dang stream word tu FIFO vao TX top. |
+| `[16]` | `block_inflight` | bool | Block dang active trong APB wrapper. |
+| `[19:17]` | `wr_ptr` | FIFO pointer | Con tro ghi FIFO. |
+| `[22:20]` | `rd_ptr` | FIFO pointer | Con tro doc FIFO. |
+| `[23]` | `compress_only` | policy flag | Mirror cua policy hien tai. |
 
 ## 9. Giao thuc su dung APB
 
@@ -458,6 +458,7 @@ Voi mot block 13 byte:
 
 - RTL top: `rtl/apb_huffman_aes_tx_top.v`
 - APB wrapper: `rtl/apb_huffman_tx_if.v`
+- APB wrapper spec: `docs/apb_huffman_tx_if_spec.md`
 - TX pipeline: `rtl/huffman_aes_tx_top.v`
 - AES wrapper: `rtl/wrapper.v`
 - AES core active: `rtl/aes128_cipher_top.v`

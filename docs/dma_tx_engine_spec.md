@@ -71,54 +71,54 @@ Phien ban trong repo hien tai la engine rieng cho direction `TX`:
 
 ### 3.1 Control and snapshot config
 
-| Port | Dir | Width | Meaning |
-|---|---|---:|---|
-| `clk_i` | in | 1 | System clock |
-| `rst_i` | in | 1 | Active-high reset |
-| `start_i` | in | 1 | Pulse bat dau transfer |
-| `soft_reset_i` | in | 1 | Pulse reset engine state |
-| `clear_done_i` | in | 1 | Pulse clear done/debug state |
-| `clear_error_i` | in | 1 | Pulse clear last error |
-| `src_addr_i` | in | 32 | Byte address plaintext source trong `DMEM` |
-| `dst_addr_i` | in | 32 | Byte address ciphertext destination trong `DMEM` |
-| `len_bytes_i` | in | 32 | Tong plaintext bytes can xu ly |
-| `direction_i` | in | 2 | Phai la `2'b01` de engine nay chay |
-| `compress_only_i` | in | 1 | `1`: TX bypass AES, `0`: TX di qua AES |
-| `block_size_i` | in | 6 | So byte/block, code hien tai cho phep `1..32` |
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `clk_i` | in | 1 | `clk` | System clock |
+| `rst_i` | in | 1 | `rst` | Active-high reset |
+| `start_i` | in | 1 | pulse | Pulse bat dau transfer |
+| `soft_reset_i` | in | 1 | pulse | Pulse reset engine state |
+| `clear_done_i` | in | 1 | pulse | Pulse clear done/debug state |
+| `clear_error_i` | in | 1 | pulse | Pulse clear last error |
+| `src_addr_i` | in | 32 | byte address | Byte address plaintext source trong `DMEM` |
+| `dst_addr_i` | in | 32 | byte address | Byte address ciphertext destination trong `DMEM` |
+| `len_bytes_i` | in | 32 | unsigned byte count | Tong plaintext bytes can xu ly |
+| `direction_i` | in | 2 | direction code | Phai la `2'b01` de engine nay chay |
+| `compress_only_i` | in | 1 | policy flag | `1`: TX bypass AES, `0`: TX di qua AES |
+| `block_size_i` | in | 6 | unsigned byte count | So byte/block, code hien tai cho phep `1..32` |
 
 ### 3.2 DMEM port B master
 
-| Port | Dir | Width | Meaning |
-|---|---|---:|---|
-| `dmem_en_o` | out | 1 | Bat truy cap `DMEM` port B |
-| `dmem_we_o` | out | 4 | Byte write enable; `4'b1111` khi ghi ciphertext |
-| `dmem_addr_o` | out | 32 | Byte address port B |
-| `dmem_wdata_o` | out | 32 | Du lieu ghi ve `DMEM` |
-| `dmem_rdata_i` | in | 32 | Du lieu doc tu `DMEM` |
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `dmem_en_o` | out | 1 | enable flag | Bat truy cap `DMEM` port B |
+| `dmem_we_o` | out | 4 | byte write mask | Byte write enable; `4'b1111` khi ghi ciphertext |
+| `dmem_addr_o` | out | 32 | byte address | Byte address port B |
+| `dmem_wdata_o` | out | 32 | little-endian word | Du lieu ghi ve `DMEM` |
+| `dmem_rdata_i` | in | 32 | little-endian word | Du lieu doc tu `DMEM` |
 
 ### 3.3 Private APB master sang TX
 
-| Port | Dir | Width | Meaning |
-|---|---|---:|---|
-| `tx_psel_o` | out | 1 | APB `PSEL` |
-| `tx_penable_o` | out | 1 | APB `PENABLE` |
-| `tx_pwrite_o` | out | 1 | APB `PWRITE` |
-| `tx_paddr_o` | out | 32 | APB `PADDR` |
-| `tx_pwdata_o` | out | 32 | APB `PWDATA` |
-| `tx_prdata_i` | in | 32 | APB `PRDATA` |
-| `tx_pready_i` | in | 1 | APB `PREADY` |
-| `tx_pslverr_i` | in | 1 | APB `PSLVERR` |
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `tx_psel_o` | out | 1 | APB select | APB `PSEL` |
+| `tx_penable_o` | out | 1 | APB enable | APB `PENABLE` |
+| `tx_pwrite_o` | out | 1 | APB direction | APB `PWRITE` |
+| `tx_paddr_o` | out | 32 | byte address | APB `PADDR` |
+| `tx_pwdata_o` | out | 32 | little-endian word | APB `PWDATA` |
+| `tx_prdata_i` | in | 32 | little-endian word | APB `PRDATA` |
+| `tx_pready_i` | in | 1 | handshake | APB `PREADY` |
+| `tx_pslverr_i` | in | 1 | error flag | APB `PSLVERR` |
 
 ### 3.4 Status outputs
 
-| Port | Dir | Width | Meaning |
-|---|---|---:|---|
-| `dma_busy_o` | out | 1 | Engine dang active |
-| `dma_done_o` | out | 1 | Pulse 1 cycle khi transfer xong |
-| `dma_error_o` | out | 1 | Pulse 1 cycle khi transfer loi |
-| `bytes_done_o` | out | 32 | Output bytes da ghi ve `DMEM` |
-| `last_error_code_o` | out | 8 | Ma loi cuoi |
-| `engine_state_o` | out | 4 | Low nibble cua FSM state |
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `dma_busy_o` | out | 1 | busy flag | Engine dang active |
+| `dma_done_o` | out | 1 | pulse | Pulse 1 cycle khi transfer xong |
+| `dma_error_o` | out | 1 | pulse | Pulse 1 cycle khi transfer loi |
+| `bytes_done_o` | out | 32 | unsigned byte count | Output bytes da ghi ve `DMEM` |
+| `last_error_code_o` | out | 8 | error code | Ma loi cuoi |
+| `engine_state_o` | out | 4 | state nibble | Low nibble cua FSM state |
 
 ## 4. Accepted config in current code
 
@@ -137,17 +137,17 @@ Neu sai mot trong cac dieu kien tren, engine vao `STATE_ERROR` va dat `last_erro
 
 `dma_tx_engine` dung cac offset sau tren `apb_huffman_tx_if`:
 
-| Offset | Register | Access | Engine usage |
-|---|---|---|---|
-| `0x00` | `START_BLOCK` | write | Ghi `0x1` cho block cuoi, `0x3` khi `continue_frame=1` |
-| `0x04` | `BLOCK_SIZE` | write | Ghi so byte cua block hien tai |
-| `0x08` | `WORD_IN` | write | Nap plaintext 32-bit words |
-| `0x0C` | `STATUS` | read | Poll `error_sticky`, `done_sticky`, `tx_busy`, `can_start` |
-| `0x10` | `CONTROL` | write | Ghi `0x1` de soft reset TX wrapper luc start transfer |
-| `0x18` | `TX_POLICY` | write | Ghi bit0 = `compress_only_i` |
-| `0x20` | `AES_OUT_DATA` | read | Lay ciphertext 32-bit word |
-| `0x24` | `AES_OUT_META` | read | Lay bit `last` va `compress_only` cua head word |
-| `0x28` | `AES_OUT_STATUS` | read | Poll output FIFO nonempty va AES output error |
+| Offset | Register | Access | Data format | Engine usage |
+|---|---|---|---|---|
+| `0x00` | `START_BLOCK` | write | control pulse bitfield | Ghi `0x1` cho block cuoi, `0x3` khi `continue_frame=1` |
+| `0x04` | `BLOCK_SIZE` | write | unsigned byte count | Ghi so byte cua block hien tai |
+| `0x08` | `WORD_IN` | write | little-endian 32-bit word | Nap plaintext 32-bit words |
+| `0x0C` | `STATUS` | read | bitfield | Poll `error_sticky`, `done_sticky`, `tx_busy`, `can_start` |
+| `0x10` | `CONTROL` | write | pulse bits | Ghi `0x1` de soft reset TX wrapper luc start transfer |
+| `0x18` | `TX_POLICY` | write | policy bits | Ghi bit0 = `compress_only_i` |
+| `0x20` | `AES_OUT_DATA` | read | little-endian 32-bit word | Lay ciphertext 32-bit word |
+| `0x24` | `AES_OUT_META` | read | bitfield | Lay bit `last` va `compress_only` cua head word |
+| `0x28` | `AES_OUT_STATUS` | read | bitfield | Poll output FIFO nonempty va AES output error |
 
 `dma_tx_engine` khong dung `0x14` (`DEBUG`) hay `0x2C` (`AES_OUT_DEBUG`) trong logic chinh.
 
@@ -155,22 +155,22 @@ Neu sai mot trong cac dieu kien tren, engine vao `STATE_ERROR` va dat `last_erro
 
 ### 6.1 `TX STATUS` (`0x0C`)
 
-Engine dang dung:
-
-- `STATUS[3]`: `tx_busy`
-- `STATUS[4]`: `done_sticky`
-- `STATUS[5]`: `tx_core_error_sticky`
-- `STATUS[7]`: `can_start`
+| Bit | Data format | Meaning |
+|---:|---|---|
+| 3 | 1-bit live flag | `tx_busy` |
+| 4 | 1-bit sticky | `done_sticky` |
+| 5 | 1-bit sticky | `tx_core_error_sticky` |
+| 7 | 1-bit live flag | `can_start` |
 
 Engine khong dua vao `STATUS[1]` hay `STATUS[6]` trong FSM chinh.
 
 ### 6.2 `AES_OUT_STATUS` (`0x28`)
 
-Engine dang dung:
-
-- `STATUS[0]`: output FIFO nonempty
-- `STATUS[9]`: `aes_out_error_sticky`
-- `STATUS[10]`: mirror cua `compress_only`
+| Bit | Data format | Meaning |
+|---:|---|---|
+| 0 | 1-bit live flag | output FIFO nonempty |
+| 9 | 1-bit sticky | `aes_out_error_sticky` |
+| 10 | 1-bit policy flag | mirror cua `compress_only` |
 
 `AES_OUT_META[0]` duoc doc va latch vao `tx_meta_r`, nhung code hien tai khong dung bit nay de chot complete; completion cua block cuoi dang dua vao heuristic empty-and-idle ben duoi. `AES_OUT_META[1]` la mirror cua `compress_only` cho future consumer.
 
@@ -258,7 +258,36 @@ Trong `rv32_soc_top`:
 | `0x04` | `TX STATUS[5] = error_sticky` |
 | `0x05` | `AES_OUT_STATUS[9] = aes_out_error_sticky` |
 
-## 12. Important limitation of the current TX contract
+## 12. Internal state / registers
+
+| Reg / state | Width | Data format | Meaning |
+|---|---:|---|---|
+| `state_r` | 5 | FSM state code | Main engine state machine |
+| `apb_resume_state_r` | 5 | FSM state code | Return state after APB wait |
+| `apb_write_r` | 1 | bool | APB write direction shadow |
+| `apb_addr_r` | 32 | byte address | APB address shadow |
+| `apb_wdata_r` | 32 | little-endian word | APB write-data shadow |
+| `apb_rdata_r` | 32 | little-endian word | APB read-data shadow |
+| `src_ptr_r` | 32 | byte address | Current source pointer |
+| `dst_ptr_r` | 32 | byte address | Current destination pointer |
+| `src_base_r` | 32 | byte address | Base source address |
+| `dst_base_r` | 32 | byte address | Base destination address |
+| `len_bytes_r` | 32 | unsigned byte count | Total transfer length |
+| `bytes_remaining_r` | 32 | unsigned byte count | Remaining bytes to transfer |
+| `cfg_block_size_r` | 6 | unsigned byte count | Configured block size |
+| `current_block_bytes_r` | 32 | unsigned byte count | Current block payload size |
+| `words_remaining_r` | 4 | unsigned word count | Remaining 32-bit input words in block |
+| `current_block_continue_r` | 1 | bool | Current block continues the frame |
+| `final_drain_r` | 1 | bool | Tail drain policy active |
+| `drain_during_block_r` | 1 | bool | Drain output during block processing |
+| `whole_file_r` | 1 | bool | Whole-file mode enabled |
+| `count_phase_r` | 1 | bool | Whole-file count/build phase |
+| `compress_only_r` | 1 | policy flag | Compress-only policy mirror |
+| `final_empty_polls_r` | 7 | unsigned poll count | Tail idle poll counter |
+| `output_word_r` | 32 | little-endian word | Output ciphertext word shadow |
+| `tx_meta_r` | 32 | bitfield | Output metadata shadow |
+
+## 13. Important limitation of the current TX contract
 
 `dma_tx_engine` da phan biet duoc `COMPRESS_AES` va `COMPRESS_ONLY`, nhung no van chua xuat:
 

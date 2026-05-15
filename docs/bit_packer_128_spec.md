@@ -34,7 +34,21 @@ dynamic_huffman_encoder
 - bit-level encoder output
 - word-level crypto/storage datapath
 
-## 3. High-Level Behavior
+## 3. Input Contract
+
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `clk` | in | 1 | `clk` | System clock |
+| `rst_n` | in | 1 | `rst_n` | Active-low reset |
+| `stream_data` | in | 32 | little-endian chunk | Bit chunk from encoder |
+| `stream_len` | in | 6 | unsigned bit count | Number of valid bits in `stream_data` |
+| `stream_valid` | in | 1 | valid flag | Input chunk is valid |
+| `stream_last` | in | 1 | bool | Last chunk of current frame |
+| `flush_on_last` | in | 1 | policy flag | Force flush when `stream_last` arrives |
+| `stream_ready` | out | 1 | ready flag | Packer can accept next chunk |
+| `transport_word_ready` | in | 1 | ready flag | Downstream transport consumer ready |
+
+## 4. High-Level Behavior
 
 ```mermaid
 flowchart LR
@@ -50,36 +64,28 @@ Module:
 - xuat mot transport word 128-bit khi du bit
 - neu frame ket thuc ma chua du 128 bit thi zero-pad va flush
 
-## 4. Input Contract
-
-`bit_packer_128` nhan:
-
-- `chunk_in[31:0]`
-- `chunk_valid`
-- `chunk_bits[5:0]`
-- `frame_last`
-- `ready`
-
-Y nghia:
-
-- `chunk_bits` cho biet bao nhieu bit trong `chunk_in` co y nghia
-- `frame_last = 1` nghia la doan bitstream nay la cuoi frame
-
 ## 5. Output Contract
 
-Module xuat:
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `transport_word_out` | out | 128 | 128-bit transport frame | Packed output word |
+| `transport_word_valid` | out | 1 | valid flag | Packed output word is valid |
+| `transport_word_ready` | in | 1 | ready flag | Downstream accepts packed word |
+| `busy` | out | 1 | busy flag | Packer has buffered bits or pending output |
+| `done` | out | 1 | pulse | Frame packing completed |
+| `error_flag` | out | 1 | error flag | Packing protocol error |
 
-- `transport_word[127:0]`
-- `transport_valid`
-- `transport_ready`
-- `transport_bits[6:0]`
-- `busy`
-- `done`
-- `error`
+Transport word format:
+
+| Field | Width | Data format | Meaning |
+|---|---:|---|---|
+| `frame_last` | 1 | bool | Frame end marker |
+| `valid_bits` | 7 | unsigned bit count | Number of valid payload bits |
+| `payload` | 120 | bit payload | Packed Huffman/raw payload |
 
 Trong flow active hien tai:
 
-- `transport_bits` chi ro so bit that su co y nghia trong word 128-bit
+- `valid_bits` chi ro so bit that su co y nghia trong payload
 - AES can word day de ma hoa, con bypass co the luu transport word truc tiep
 
 ## 6. Packing Rule
@@ -102,13 +108,28 @@ So voi bitstream raw:
 Vi vay mode decision cua TX phai xem ket qua sau packer, khong chi xem
 so bit Huffman thuan.
 
+### 7.1 Internal registers
+
+| Reg | Width | Data format | Meaning |
+|---|---:|---|---|
+| `payload_buf_r` | 120 | bit payload buffer | Buffered payload bits |
+| `payload_count_r` | 7 | unsigned bit count | Number of valid bits buffered |
+| `transport_word_r` | 128 | 128-bit transport frame | Output frame register |
+| `transport_valid_r` | 1 | valid flag | Output frame valid |
+| `pending_payload_r` | 32 | little-endian chunk | Pending chunk not yet merged |
+| `pending_len_r` | 7 | unsigned bit count | Valid bit count for pending chunk |
+| `pending_valid_r` | 1 | bool | Pending chunk present |
+| `busy_r` | 1 | busy flag | Packer busy state |
+| `done_r` | 1 | pulse | Completion pulse |
+| `error_r` | 1 | error flag | Error sticky |
+
 ## 8. Error Conditions
 
 Module co the bao loi neu:
 
-- nhan `chunk_valid` khi dang full ma khong co `ready`
-- `chunk_bits = 0` trong khi `chunk_valid = 1`
-- `chunk_bits > 32`
+- nhan `stream_valid` khi dang full ma khong co `stream_ready`
+- `stream_len = 0` trong khi `stream_valid = 1`
+- `stream_len > 32`
 - frame ket thuc sai protocol
 
 ## 9. Related Specs

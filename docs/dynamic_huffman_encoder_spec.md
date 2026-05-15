@@ -61,12 +61,13 @@ flowchart LR
 
 ## 4. Input Contract
 
-Module nhan:
+Module nhan control va byte stream tu adapter:
 
-- `block_start`
-- `block_valid`
-- `block_end`
-- `byte_in[7:0]`
+- `start_block` bat dau mot block encoder
+- `whole_file_enable`, `whole_file_emit_table`, `whole_file_table_valid` dieu khien whole-file flow
+- `byte_in[7:0]` va `byte_valid` mang du lieu byte
+- `block_start` va `block_end` danh dau dau/cuoi block
+- `stream_ready` la handshake tu packer/consumer phia sau
 
 Quy uoc:
 
@@ -76,6 +77,39 @@ Quy uoc:
 - `block_end` phai noi voi byte cuoi cung
 
 Neu input khong hop le, encoder se phat error sticky va dung transfer.
+
+### 4.1 Interface summary
+
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `clk` | in | 1 | `clk` | System clock |
+| `rst_n` | in | 1 | `rst_n` | Active-low reset |
+| `start_block` | in | 1 | pulse | Start one encoder block |
+| `whole_file_enable` | in | 1 | policy flag | Enable whole-file flow |
+| `whole_file_emit_table` | in | 1 | bool | Emit global codebook table |
+| `whole_file_table_valid` | in | 1 | bool | Global table already valid |
+| `external_symbol_count` | in | 9 | unsigned symbol count | Number of symbols in whole-file table |
+| `external_symbol_read_addr` | out | 9 | unsigned symbol address | Address into external symbol list |
+| `external_symbol_read_data` | in | 8 | symbol byte | External symbol value |
+| `external_code_len_read_index` | out | 8 | unsigned symbol index | Index for code-length lookup |
+| `external_code_len_read_data` | in | 5 | code length | External code length |
+| `external_code_read_index` | out | 8 | unsigned symbol index | Index for code lookup |
+| `external_code_read_data` | in | 13 | canonical code word | External code bit pattern |
+| `byte_in` | in | 8 | symbol byte | Input byte from TX adapter |
+| `byte_valid` | in | 1 | valid flag | Input byte is valid |
+| `byte_ready` | out | 1 | ready flag | Encoder can accept next byte |
+| `block_start` | in | 1 | pulse | First byte of a block |
+| `block_end` | in | 1 | pulse | Last byte of a block |
+| `stream_ready` | in | 1 | ready flag | Downstream packer ready |
+| `stream_data` | out | 32 | little-endian chunk | Output bit chunk |
+| `stream_len` | out | 6 | unsigned bit count | Valid bits in chunk |
+| `stream_valid` | out | 1 | valid flag | Chunk is valid |
+| `stream_last` | out | 1 | bool | Last chunk of frame |
+| `busy` | out | 1 | busy flag | Encoder active |
+| `done` | out | 1 | pulse | Encoder completed block |
+| `error_flag` | out | 1 | error flag | Encoder error |
+| `selected_mode_out` | out | 2 | mode code | Mode selected for block |
+| `fsm_state` | out | 4 | state code | Control FSM state debug |
 
 ## 5. Phase Sequence
 
@@ -124,18 +158,20 @@ dua vao `bit_packer_128`.
 
 ## 6. Output Contract
 
-Encoder xuat:
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `stream_data` | out | 32 | little-endian chunk | Output bit chunk |
+| `stream_len` | out | 6 | unsigned bit count | Number of valid bits in `stream_data` |
+| `stream_valid` | out | 1 | valid flag | Output chunk is valid |
+| `stream_last` | out | 1 | bool | Last chunk of frame |
+| `stream_ready` | in | 1 | ready flag | Downstream consumer ready |
+| `done` | out | 1 | pulse | Encoder completed the block |
+| `busy` | out | 1 | busy flag | Encoder is active |
+| `error_flag` | out | 1 | error flag | Encoder error |
+| `selected_mode_out` | out | 2 | mode code | Selected mode for this block |
+| `fsm_state` | out | 4 | state code | Control FSM state debug |
 
-- `out_chunk[31:0]`
-- `out_chunk_valid`
-- `out_chunk_ready`
-- `out_chunk_bits[5:0]`
-- `done`
-- `busy`
-- `error`
-- `selected_mode[1:0]`
-
-`out_chunk_bits` la so bit hop le trong `out_chunk`.
+`stream_len` la so bit hop le trong `stream_data`.
 
 ## 7. Mode Encoding
 
@@ -205,7 +241,39 @@ one_symbol_value[7:0]
 
 No khong tu lam AES. AES nam o wrapper ben tren.
 
-## 11. Related Specs
+## 11. Internal state / helper outputs
+
+| Signal | Width | Data format | Meaning |
+|---|---:|---|---|
+| `ctrl_state_w` | 4 | state code | Control FSM state |
+| `ctrl_mode_selected_latched_w` | 2 | mode code | Latched mode from control FSM |
+| `ctrl_busy_w` | 1 | busy flag | Encoder busy |
+| `ctrl_done_w` | 1 | pulse | Encoder done |
+| `ctrl_error_flag_w` | 1 | error flag | Encoder error |
+| `collect_busy_w` | 1 | busy flag | Input collect unit busy |
+| `collect_done_w` | 1 | pulse | Input collect unit done |
+| `collect_protocol_error_w` | 1 | error flag | Input protocol error |
+| `collect_overflow_error_w` | 1 | error flag | Input overflow error |
+| `build_busy_w` | 1 | busy flag | Huffman builder busy |
+| `build_done_w` | 1 | pulse | Huffman builder done |
+| `build_error_w` | 1 | error flag | Huffman builder error |
+| `mode_busy_w` | 1 | busy flag | Mode decision logic busy |
+| `mode_done_w` | 1 | pulse | Mode decision logic done |
+| `mode_error_w` | 1 | error flag | Mode decision logic error |
+| `mode_selected_w` | 2 | mode code | Mode chosen by policy |
+| `emit_busy_w` | 1 | busy flag | Emit backend busy |
+| `emit_done_w` | 1 | pulse | Emit backend done |
+| `emit_error_w` | 1 | error flag | Emit backend error |
+| `hb_symbol_read_addr_mux_w` | 9 | unsigned symbol address | Whole-file symbol read address mux |
+| `hb_code_len_read_index_mux_w` | 8 | unsigned symbol index | Code-length read index mux |
+| `hb_code_read_index_mux_w` | 8 | unsigned symbol index | Code read index mux |
+| `raw_total_bits_w` | 16 | unsigned bit count | Raw mode total bits estimate |
+| `compressed_header_bits_w` | 16 | unsigned bit count | Compressed header bits estimate |
+| `compressed_payload_bits_w` | 16 | unsigned bit count | Compressed payload bits estimate |
+| `compressed_total_bits_w` | 16 | unsigned bit count | Compressed total bits estimate |
+| `one_symbol_total_bits_w` | 16 | unsigned bit count | One-symbol mode total bits estimate |
+
+## 12. Related Specs
 
 - [TX path end-to-end](./tx_path_end_to_end_spec.md)
 - [Whole-file Huffman](./14_dynamic_whole_file_huffman_spec.md)

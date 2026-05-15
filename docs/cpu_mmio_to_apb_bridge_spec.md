@@ -67,38 +67,55 @@ Verification status hien tai:
 
 ### 5.1 Clock va reset
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `clk_i` | in | 1 | Clock he thong |
-| `rst_i` | in | 1 | Reset active-high |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `clk_i` | in | 1 | Clock level | Clock he thong |
+| `rst_i` | in | 1 | Reset level active-high | Reset active-high |
 
 ### 5.2 CPU-side request/response interface
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `mmio_req_i` | in | 1 | Yeu cau MMIO hop le |
-| `mmio_write_i` | in | 1 | `1`: write, `0`: read |
-| `mmio_addr_i` | in | 32 | Dia chi MMIO day du |
-| `mmio_wdata_i` | in | 32 | Du lieu write |
-| `mmio_wstrb_i` | in | 4 | Byte enable; current implementation yeu cau `4'b1111` cho write |
-| `mmio_rdata_o` | out | 32 | Du lieu read tra ve |
-| `mmio_done_o` | out | 1 | Pulse 1 cycle khi transfer ket thuc |
-| `mmio_error_o` | out | 1 | Pulse 1 cycle khi transfer loi |
-| `mmio_busy_o` | out | 1 | Bridge dang ban |
-| `cpu_stall_req_o` | out | 1 | Yeu cau stall CPU trong luc APB in-flight |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `mmio_req_i` | in | 1 | Valid flag (`0/1`) | Yeu cau MMIO hop le |
+| `mmio_write_i` | in | 1 | Control flag (`1=write`, `0=read`) | `1`: write, `0`: read |
+| `mmio_addr_i` | in | 32 | Byte address, word-aligned | Dia chi MMIO day du |
+| `mmio_wdata_i` | in | 32 | Raw write data word | Du lieu write |
+| `mmio_wstrb_i` | in | 4 | Byte lane strobes | Byte enable; current implementation yeu cau `4'b1111` cho write |
+| `mmio_rdata_o` | out | 32 | Raw read data word | Du lieu read tra ve |
+| `mmio_done_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse 1 cycle khi transfer ket thuc |
+| `mmio_error_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse 1 cycle khi transfer loi |
+| `mmio_busy_o` | out | 1 | Busy flag (`0/1`) | Bridge dang ban |
+| `cpu_stall_req_o` | out | 1 | Stall request flag (`0/1`) | Yeu cau stall CPU trong luc APB in-flight |
 
 ### 5.3 APB master interface
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `PSEL_o` | out | 1 | Chon APB bus transaction |
-| `PENABLE_o` | out | 1 | Access phase |
-| `PWRITE_o` | out | 1 | `1`: write, `0`: read |
-| `PADDR_o` | out | 32 | Dia chi APB |
-| `PWDATA_o` | out | 32 | Du lieu write |
-| `PRDATA_i` | in | 32 | Du lieu read tu slave |
-| `PREADY_i` | in | 1 | Slave ready |
-| `PSLVERR_i` | in | 1 | Slave error |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `PSEL_o` | out | 1 | APB select flag (`0/1`) | Chon APB bus transaction |
+| `PENABLE_o` | out | 1 | APB access phase flag | Access phase |
+| `PWRITE_o` | out | 1 | APB direction flag (`1=write`, `0=read`) | `1`: write, `0`: read |
+| `PADDR_o` | out | 32 | APB byte address | Dia chi APB |
+| `PWDATA_o` | out | 32 | APB write data word | Du lieu write |
+| `PRDATA_i` | in | 32 | APB read data word | Du lieu read tu slave |
+| `PREADY_i` | in | 1 | APB ready flag (`0/1`) | Slave ready |
+| `PSLVERR_i` | in | 1 | APB error flag (`0/1`) | Slave error |
+
+### 5.4 Thanh ghi va state trong bridge
+
+| Thanh ghi | Bit width | Data format | Chuc nang |
+|---|---:|---|---|
+| `state_r` | 2 | FSM state (`00=IDLE`, `10=ACCESS`) | Trang thai APB bridge |
+| `req_write_r` | 1 | Control flag (`0/1`) | Latch huong request dang in-flight |
+| `req_addr_r` | 32 | Latched byte address | Dia chi request da latch trong SETUP |
+| `req_wdata_r` | 32 | Latched write data word | Du lieu write da latch trong SETUP |
+| `last_req_valid_r` | 1 | Valid flag (`0/1`) | Danh dau request gan nhat da latch |
+| `last_req_write_r` | 1 | Control flag (`0/1`) | Huong request gan nhat |
+| `last_req_addr_r` | 32 | Latched byte address | Dia chi request gan nhat |
+| `last_req_wdata_r` | 32 | Latched write data word | Du lieu write gan nhat |
+| `last_req_wstrb_r` | 4 | Byte lane strobes | Strobe cua request gan nhat |
+| `mmio_rdata_o` | 32 | Raw read data word | Du lieu read tra ve CPU |
+| `mmio_done_o` | 1 | Pulse flag (`1` trong 1 cycle) | Pulse complete transfer |
+| `mmio_error_o` | 1 | Pulse flag (`1` trong 1 cycle) | Pulse error transfer |
 
 ## 6. Hanh vi tong quat
 

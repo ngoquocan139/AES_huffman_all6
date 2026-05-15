@@ -60,9 +60,10 @@ Read in this order when explaining the full system:
 | 1 | [tx_path_end_to_end_spec.md](./tx_path_end_to_end_spec.md) | TX end-to-end data/control flow |
 | 2 | [dma_tx_engine_spec.md](./dma_tx_engine_spec.md) | TX DMA data mover |
 | 3 | [apb_huffman_aes_tx_top_spec.md](./apb_huffman_aes_tx_top_spec.md) | TX APB wrapper, Huffman, AES/bypass |
-| 4 | [dynamic_huffman_encoder_spec.md](./dynamic_huffman_encoder_spec.md) | Whole-file dynamic Huffman encoder |
-| 5 | [bit_packer_128_spec.md](./bit_packer_128_spec.md) | 128-bit transport packing |
-| 6 | [14_dynamic_whole_file_huffman_spec.md](./14_dynamic_whole_file_huffman_spec.md) | Whole-file Huffman policy |
+| 4 | [apb_huffman_tx_if_spec.md](./apb_huffman_tx_if_spec.md) | TX APB register/FIFO wrapper |
+| 5 | [dynamic_huffman_encoder_spec.md](./dynamic_huffman_encoder_spec.md) | Whole-file dynamic Huffman encoder |
+| 6 | [bit_packer_128_spec.md](./bit_packer_128_spec.md) | 128-bit transport packing |
+| 7 | [14_dynamic_whole_file_huffman_spec.md](./14_dynamic_whole_file_huffman_spec.md) | Whole-file Huffman policy |
 
 ## 5. RX Reading Path
 

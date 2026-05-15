@@ -18,11 +18,11 @@ Current verification status:
 
 Transport word gom:
 
-| Field | Width | Meaning |
-|---|---:|---|
-| `frame_last` | 1 | Word cuoi cua frame |
-| `valid_bits` | 7 | So bit payload hop le trong word |
-| `payload` | 120 | Bitstream payload |
+| Field | Width | Data format | Meaning |
+|---|---:|---|---|
+| `frame_last` | 1 | bool | Word cuoi cua frame |
+| `valid_bits` | 7 | unsigned bit count | So bit payload hop le trong word |
+| `payload` | 120 | bit payload | Bitstream payload |
 
 `valid_bits` phai:
 
@@ -41,23 +41,25 @@ flowchart LR
 
 ## 4. Input Contract
 
-Input handshake:
-
-- `transport_word_in`
-- `transport_word_valid`
-- `transport_word_ready`
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `clk` | in | 1 | `clk` | System clock |
+| `rst_n` | in | 1 | `rst_n` | Active-low reset |
+| `transport_word_in` | in | 128 | 128-bit transport frame | Input transport word |
+| `transport_word_valid` | in | 1 | valid flag | Input transport word is valid |
+| `transport_word_ready` | out | 1 | ready flag | Depacker can accept transport word |
 
 RX top chi day word moi khi depacker co kha nang nhan va khong co error.
 
 ## 5. Output Contract
 
-Output handshake:
-
-- `stream_data[31:0]`
-- `stream_len[5:0]`
-- `stream_valid`
-- `stream_last`
-- `stream_ready`
+| Port | Dir | Width | Data format | Meaning |
+|---|---|---:|---|---|
+| `stream_data` | out | 32 | little-endian chunk | Output bit chunk |
+| `stream_len` | out | 6 | unsigned bit count | Number of valid bits in chunk |
+| `stream_valid` | out | 1 | valid flag | Output chunk is valid |
+| `stream_last` | out | 1 | bool | Last output chunk of current frame |
+| `stream_ready` | in | 1 | ready flag | Downstream parser ready |
 
 `stream_data[0]` la bit som nhat cua chunk. Thu tu nay phai khop voi TX
 packer va Huffman parser.
@@ -79,7 +81,22 @@ Khi gap transport word co `frame_last = 1`:
 - final word co `valid_bits > 120`
 - append chunk lam tran buffer noi bo
 
-## 8. Related Specs
+## 8. Internal registers
+
+| Reg | Width | Data format | Meaning |
+|---|---:|---|---|
+| `bit_buffer_r` | 152 | bit buffer | Buffered transport payload bits |
+| `bit_count_r` | 9 | unsigned bit count | Number of buffered bits |
+| `frame_active_r` | 1 | bool | Frame currently active |
+| `frame_last_pending_r` | 1 | bool | Frame-last has been seen but not yet flushed |
+| `stream_data_r` | 32 | little-endian chunk | Output chunk register |
+| `stream_len_r` | 6 | unsigned bit count | Output chunk valid bits |
+| `stream_valid_r` | 1 | valid flag | Output chunk valid |
+| `stream_last_r` | 1 | bool | Output chunk is last in frame |
+| `done_r` | 1 | pulse | Completion pulse |
+| `error_r` | 1 | error flag | Error sticky |
+
+## 9. Related Specs
 
 - [APB Huffman AES RX top](./apb_huffman_aes_rx_top_spec.md)
 - [RX path end-to-end](./rx_path_end_to_end_spec.md)

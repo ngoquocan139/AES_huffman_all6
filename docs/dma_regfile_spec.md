@@ -52,52 +52,52 @@ flowchart LR
 
 ### 4.1 Clock va reset
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `PCLK` | in | 1 | Clock APB va register block |
-| `rst_i` | in | 1 | Reset active-high |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `PCLK` | in | 1 | Clock level | Clock APB va register block |
+| `rst_i` | in | 1 | Reset level active-high | Reset active-high |
 
 ### 4.2 APB slave interface
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `PSEL` | in | 1 | Chon slave |
-| `PENABLE` | in | 1 | APB access phase |
-| `PWRITE` | in | 1 | `1`: write, `0`: read |
-| `PADDR` | in | 32 | Dia chi thanh ghi |
-| `PWDATA` | in | 32 | Du lieu ghi |
-| `PRDATA` | out | 32 | Du lieu doc |
-| `PREADY` | out | 1 | Mac dinh luon `1` trong implementation hien tai |
-| `PSLVERR` | out | 1 | Bao loi truy cap / config khong hop le |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `PSEL` | in | 1 | APB select flag (`0/1`) | Chon slave |
+| `PENABLE` | in | 1 | APB access phase flag | APB access phase |
+| `PWRITE` | in | 1 | APB direction flag (`1=write`, `0=read`) | `1`: write, `0`: read |
+| `PADDR` | in | 32 | Local byte address | Dia chi thanh ghi |
+| `PWDATA` | in | 32 | Raw write data word | Du lieu ghi |
+| `PRDATA` | out | 32 | Raw read data word | Du lieu doc |
+| `PREADY` | out | 1 | Ready flag (`0/1`) | Mac dinh luon `1` trong implementation hien tai |
+| `PSLVERR` | out | 1 | Error flag (`0/1`) | Bao loi truy cap / config khong hop le |
 
 ### 4.3 Dau ra cau hinh sang DMA engine
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `src_addr_o` | out | 32 | Dia chi nguon trong `DMEM` |
-| `dst_addr_o` | out | 32 | Dia chi dich trong `DMEM` |
-| `len_bytes_o` | out | 32 | Tong so byte can xu ly |
-| `direction_o` | out | 2 | `01`: TX, `10`: RX |
-| `compress_only_o` | out | 1 | TX only: `1` de bypass AES |
-| `whole_file_o` | out | 1 | TX only: `1` de dung whole-file dynamic Huffman |
-| `block_size_o` | out | 6 | Kich thuoc block 1..32 byte |
-| `iv_o` | out | 128 | CBC IV xuat sang TX/RX, bang `{IV3, IV2, IV1, IV0}` |
-| `start_pulse_o` | out | 1 | Pulse 1 cycle de khoi dong DMA |
-| `soft_reset_pulse_o` | out | 1 | Pulse reset DMA engine |
-| `clear_done_pulse_o` | out | 1 | Pulse xoa sticky done |
-| `clear_error_pulse_o` | out | 1 | Pulse xoa sticky error |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `src_addr_o` | out | 32 | Byte address, word-aligned | Dia chi nguon trong `DMEM` |
+| `dst_addr_o` | out | 32 | Byte address, word-aligned | Dia chi dich trong `DMEM` |
+| `len_bytes_o` | out | 32 | Transfer length in bytes | Tong so byte can xu ly |
+| `direction_o` | out | 2 | Mode code (`01=TX`, `10=RX`) | `01`: TX, `10`: RX |
+| `compress_only_o` | out | 1 | Policy flag (`0/1`) | TX only: `1` de bypass AES |
+| `whole_file_o` | out | 1 | Policy flag (`0/1`) | TX only: `1` de dung whole-file dynamic Huffman |
+| `block_size_o` | out | 6 | Block size in bytes (`1..32`) | Kich thuoc block 1..32 byte |
+| `iv_o` | out | 128 | CBC IV word `{IV3,IV2,IV1,IV0}` | CBC IV xuat sang TX/RX |
+| `start_pulse_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse 1 cycle de khoi dong DMA |
+| `soft_reset_pulse_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse reset DMA engine |
+| `clear_done_pulse_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse xoa sticky done |
+| `clear_error_pulse_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse xoa sticky error |
 
 ### 4.4 Dau vao trang thai tu DMA engine
 
-| Cong | Huong | Rong | Mo ta |
-|---|---|---:|---|
-| `dma_busy_i` | in | 1 | Engine dang xu ly |
-| `dma_done_i` | in | 1 | Pulse ket thuc |
-| `dma_error_i` | in | 1 | Pulse loi |
-| `bytes_done_i` | in | 32 | Tong so byte da xu ly |
-| `ciphertext_bytes_produced_i` | in | 32 | TX output byte count, expose tai `0x24` |
-| `last_error_code_i` | in | 8 | Ma loi cuoi cung |
-| `engine_state_i` | in | 4 | State debug cua DMA engine |
+| Cong | Huong | Rong | Data format | Mo ta |
+|---|---|---:|---|---|
+| `dma_busy_i` | in | 1 | Busy flag (`0/1`) | Engine dang xu ly |
+| `dma_done_i` | in | 1 | Pulse flag (`1` trong 1 cycle) | Pulse ket thuc |
+| `dma_error_i` | in | 1 | Pulse flag (`1` trong 1 cycle) | Pulse loi |
+| `bytes_done_i` | in | 32 | Byte counter | Tong so byte da xu ly |
+| `ciphertext_bytes_produced_i` | in | 32 | Byte counter | TX output byte count, expose tai `0x24` |
+| `last_error_code_i` | in | 8 | Error code | Ma loi cuoi cung |
+| `engine_state_i` | in | 4 | Low nibble of FSM state | State debug cua DMA engine |
 
 ## 5. Memory map APB
 
@@ -122,29 +122,29 @@ Module nay dung **offset local**. Base address trong he thong SoC duoc chot ben 
 
 ### 5.1 Register Function Summary
 
-| Register | Function | Used by | Side effect / note |
-|---|---|---|---|
-| `CONTROL` | Tao pulse start/reset/clear cho DMA | CPU writes, regfile decodes | W1P; reserved bits set `PSLVERR`; `start` chi hop le khi config valid va not busy |
-| `STATUS` | Tong hop busy/done/error/cfg/mode | CPU polling | Read-only; dung de quyet dinh khi nao duoc cau hinh tiep |
-| `SRC_ADDR` | DMEM source byte address | TX/RX DMA | Can canh 4-byte; TX doc plaintext, RX doc ciphertext |
-| `DST_ADDR` | DMEM destination byte address | TX/RX DMA | Can canh 4-byte; TX ghi transport/ciphertext, RX ghi plaintext |
-| `LEN_BYTES` | So byte transfer dau vao | TX/RX DMA | TX = plaintext input bytes; RX = ciphertext/transport input bytes |
-| `MODE` | Direction va TX policy | Regfile va DMA engines | `0x1` TX AES, `0x5` TX compress-only legacy, `0x9` TX whole-file AES, `0xD` TX whole-file compress-only, `0x2` RX |
-| `BLOCK_CFG` | TX block size | `dma_tx_engine` | Hop le `1..32`; RX khong dung |
-| `BYTES_DONE` | So byte engine da hoan tat | CPU/testbench | Read-only, cap nhat tu engine dang active |
-| `DEBUG` | Engine state va last error code | CPU/testbench | Debug only, khong nen dung lam contract chinh |
-| `CIPHERTEXT_BYTES_PRODUCED` | So byte TX output gan nhat | CPU/RX software flow | Dung lam `LEN_BYTES` cho RX sau khi TX xong |
-| `IV0..IV3` | AES-CBC IV 128-bit | CPU writes, TX/RX consumes | Khong ghi khi busy; `soft_reset` xoa ve `0` |
+| Register | Width | Data format | Function | Used by | Side effect / note |
+|---|---:|---|---|---|---|
+| `CONTROL` | 32 | W1P control bits | Tao pulse start/reset/clear cho DMA | CPU writes, regfile decodes | W1P; reserved bits set `PSLVERR`; `start` chi hop le khi config valid va not busy |
+| `STATUS` | 32 | Live status bitmap | Tong hop busy/done/error/cfg/mode | CPU polling | Read-only; dung de quyet dinh khi nao duoc cau hinh tiep |
+| `SRC_ADDR` | 32 | Byte address, word-aligned | DMEM source byte address | TX/RX DMA | Can canh 4-byte; TX doc plaintext, RX doc ciphertext |
+| `DST_ADDR` | 32 | Byte address, word-aligned | DMEM destination byte address | TX/RX DMA | Can canh 4-byte; TX ghi transport/ciphertext, RX ghi plaintext |
+| `LEN_BYTES` | 32 | Transfer length in bytes | So byte transfer dau vao | TX/RX DMA | TX = plaintext input bytes; RX = ciphertext/transport input bytes |
+| `MODE` | 32 | Mode encoding in low bits | Direction va TX policy | Regfile va DMA engines | `0x1` TX AES, `0x5` TX compress-only legacy, `0x9` TX whole-file AES, `0xD` TX whole-file compress-only, `0x2` RX |
+| `BLOCK_CFG` | 6 | Block size in bytes | TX block size | `dma_tx_engine` | Hop le `1..32`; RX khong dung |
+| `BYTES_DONE` | 32 | Byte counter | So byte engine da hoan tat | CPU/testbench | Read-only, cap nhat tu engine dang active |
+| `DEBUG` | 32 | Packed debug fields | Engine state va last error code | CPU/testbench | Debug only, khong nen dung lam contract chinh |
+| `CIPHERTEXT_BYTES_PRODUCED` | 32 | Byte counter | So byte TX output gan nhat | CPU/RX software flow | Dung lam `LEN_BYTES` cho RX sau khi TX xong |
+| `IV0..IV3` | 32 each | CBC IV words | AES-CBC IV 128-bit | CPU writes, TX/RX consumes | Khong ghi khi busy; `soft_reset` xoa ve `0` |
 
 ### 5.2 `CONTROL`
 
-| Bit | Ten | Loai | Y nghia |
-|---:|---|---|---|
-| 0 | `start` | W1P | Khoi dong DMA neu config hop le va DMA khong busy |
-| 1 | `soft_reset` | W1P | Reset register state lien quan den transfer dang cho / dang chay |
-| 2 | `clear_done` | W1P | Xoa `done_sticky` |
-| 3 | `clear_error` | W1P | Xoa `error_sticky` |
-| 31:4 | reserved | W | Ghi 1 vao bat ky bit nao se tao `PSLVERR` |
+| Bit | Ten | Loai | Data format | Y nghia |
+|---:|---|---|---|---|
+| 0 | `start` | W1P | Pulse request bit | Khoi dong DMA neu config hop le va DMA khong busy |
+| 1 | `soft_reset` | W1P | Pulse reset bit | Reset register state lien quan den transfer dang cho / dang chay |
+| 2 | `clear_done` | W1P | Pulse clear bit | Xoa `done_sticky` |
+| 3 | `clear_error` | W1P | Pulse clear bit | Xoa `error_sticky` |
+| 31:4 | reserved | W | Reserved bits | Ghi 1 vao bat ky bit nao se tao `PSLVERR` |
 
 Ghi `start=1` chi hop le khi:
 
@@ -157,16 +157,16 @@ Neu vi pham cac dieu kien tren, giao dich write van complete voi `PREADY=1` nhun
 
 ### 5.3 `STATUS`
 
-| Bit | Ten | Y nghia |
-|---:|---|---|
-| 0 | `busy` | DMA dang chay |
-| 1 | `done_sticky` | Transfer gan nhat da ket thuc |
-| 2 | `error_sticky` | Transfer gan nhat co loi |
-| 3 | `cfg_valid` | Cau hinh toi thieu hop le |
-| 5:4 | `direction` | Mirror cua `MODE.direction` |
-| 6 | `compress_only` | Mirror cua `MODE.compress_only` |
-| 7 | `whole_file` | Mirror cua `MODE.whole_file` |
-| 31:8 | reserved | Doc `0` |
+| Bit | Ten | Data format | Y nghia |
+|---:|---|---|---|
+| 0 | `busy` | Busy flag | DMA dang chay |
+| 1 | `done_sticky` | Sticky flag | Transfer gan nhat da ket thuc |
+| 2 | `error_sticky` | Sticky flag | Transfer gan nhat co loi |
+| 3 | `cfg_valid` | Boolean config valid | Cau hinh toi thieu hop le |
+| 5:4 | `direction` | 2-bit mode mirror | Mirror cua `MODE.direction` |
+| 6 | `compress_only` | Boolean policy mirror | Mirror cua `MODE.compress_only` |
+| 7 | `whole_file` | Boolean policy mirror | Mirror cua `MODE.whole_file` |
+| 31:8 | reserved | Reserved read-as-zero | Doc `0` |
 
 ### 5.4 `SRC_ADDR`
 
@@ -192,12 +192,12 @@ Neu vi pham cac dieu kien tren, giao dich write van complete voi `PREADY=1` nhun
 
 ### 5.7 `MODE`
 
-| Bit | Ten | Y nghia |
-|---:|---|---|
-| 1:0 | `direction` | `01`: TX, `10`: RX, gia tri khac la invalid |
-| 2 | `compress_only` | `1`: TX bypass AES, `0`: TX di qua AES |
-| 3 | `whole_file` | `1`: TX dung dynamic Huffman toan file |
-| 31:4 | reserved | Doc `0`, ghi 1 se bao `PSLVERR` |
+| Bit | Ten | Data format | Y nghia |
+|---:|---|---|---|
+| 1:0 | `direction` | 2-bit mode code | `01`: TX, `10`: RX, gia tri khac la invalid |
+| 2 | `compress_only` | Boolean policy bit | `1`: TX bypass AES, `0`: TX di qua AES |
+| 3 | `whole_file` | Boolean policy bit | `1`: TX dung dynamic Huffman toan file |
+| 31:4 | reserved | Reserved read-as-zero | Doc `0`, ghi 1 se bao `PSLVERR` |
 
 Quy uoc dung:
 
@@ -212,10 +212,10 @@ AES-CBC co dinh voi key hard-wire trong TX/RX path. `COMPRESS_ONLY` bypass AES.
 
 ### 5.8 `BLOCK_CFG`
 
-| Bit | Ten | Y nghia |
-|---:|---|---|
-| 5:0 | `block_size_bytes` | Kich thuoc block 1..32 byte |
-| 31:6 | reserved | Doc `0` |
+| Bit | Ten | Data format | Y nghia |
+|---:|---|---|---|
+| 5:0 | `block_size_bytes` | Unsigned byte count | Kich thuoc block 1..32 byte |
+| 31:6 | reserved | Reserved read-as-zero | Doc `0` |
 
 Khuyen nghi mac dinh `block_size_bytes = 32`.
 
@@ -226,11 +226,11 @@ Khuyen nghi mac dinh `block_size_bytes = 32`.
 
 ### 5.10 `DEBUG`
 
-| Bit | Ten | Y nghia |
-|---:|---|---|
-| 3:0 | `engine_state` | State debug tu DMA engine |
-| 11:4 | `last_error_code` | Ma loi debug |
-| 31:12 | reserved | Doc `0` |
+| Bit | Ten | Data format | Y nghia |
+|---:|---|---|---|
+| 3:0 | `engine_state` | 4-bit low nibble of FSM state | State debug tu DMA engine |
+| 11:4 | `last_error_code` | 8-bit error code | Ma loi debug |
+| 31:12 | reserved | Reserved read-as-zero | Doc `0` |
 
 ### 5.11 `CIPHERTEXT_BYTES_PRODUCED`
 
@@ -258,6 +258,17 @@ Semantics:
 `dma_regfile` khong sinh IV ngau nhien. Viec tao IV thuoc ve software/host.
 Test hien tai dung IV deterministic do `testcase/test_mmio_dma.c` tao de
 simulation co ket qua lap lai.
+
+### 5.13 Thanh ghi noi bo
+
+| Thanh ghi | Bit width | Data format | Chuc nang |
+|---|---:|---|---|
+| `done_sticky_r` | 1 | Sticky flag (`0/1`) | Luu trang thai done giua cac lan poll |
+| `error_sticky_r` | 1 | Sticky flag (`0/1`) | Luu trang thai error giua cac lan poll |
+| `iv0_r` | 32 | CBC IV word low | Word `[31:0]` cua IV |
+| `iv1_r` | 32 | CBC IV word | Word `[63:32]` cua IV |
+| `iv2_r` | 32 | CBC IV word | Word `[95:64]` cua IV |
+| `iv3_r` | 32 | CBC IV word high | Word `[127:96]` cua IV |
 
 ## 6. Hanh vi APB
 
