@@ -1,0 +1,767 @@
+
+*** Running vivado
+    with args -log rv32_soc_fpga_demo_top.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source rv32_soc_fpga_demo_top.tcl
+
+
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Thu May 14 18:40:37 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source rv32_soc_fpga_demo_top.tcl -notrace
+create_project: Time (s): cpu = 00:00:18 ; elapsed = 00:00:20 . Memory (MB): peak = 622.875 ; gain = 192.793
+Command: synth_design -top rv32_soc_fpga_demo_top -part xc7z020clg484-1
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Device 21-403] Loading part xc7z020clg484-1
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 23212
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:13 ; elapsed = 00:00:15 . Memory (MB): peak = 1319.336 ; gain = 468.961
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'rv32_soc_fpga_demo_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_fpga_demo_top.v:6]
+INFO: [Synth 8-6157] synthesizing module 'uart_dmem_loader' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:1]
+	Parameter CLK_HZ bound to: 50000000 - type: integer 
+	Parameter BAUD_RATE bound to: 115200 - type: integer 
+	Parameter SRC_BASE_ADDR bound to: 8192 - type: integer 
+	Parameter INPUT_LEN_ADDR bound to: 64 - type: integer 
+	Parameter MAX_INPUT_BYTES bound to: 7168 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'uart_rx' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_rx.v:1]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_rx.v:45]
+INFO: [Synth 8-6155] done synthesizing module 'uart_rx' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_rx.v:1]
+INFO: [Synth 8-6157] synthesizing module 'uart_tx' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_tx.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'uart_tx' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_tx.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'uart_dmem_loader' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:1]
+INFO: [Synth 8-6157] synthesizing module 'rv32_soc_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_top.v:12]
+INFO: [Synth 8-6157] synthesizing module 'top_rv32_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/top_rv32_sync.v:2]
+INFO: [Synth 8-6157] synthesizing module 'if_stage_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/if_stage_sync.v:8]
+INFO: [Synth 8-6155] done synthesizing module 'if_stage_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/if_stage_sync.v:8]
+INFO: [Synth 8-6157] synthesizing module 'id_stage' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/id_stage.v:3]
+INFO: [Synth 8-6155] done synthesizing module 'id_stage' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/id_stage.v:3]
+INFO: [Synth 8-6157] synthesizing module 'ex_stage' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/ex_stage.v:3]
+INFO: [Synth 8-6155] done synthesizing module 'ex_stage' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/ex_stage.v:3]
+INFO: [Synth 8-6157] synthesizing module 'mem_stage_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/mem_stage_sync.v:7]
+INFO: [Synth 8-6155] done synthesizing module 'mem_stage_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/mem_stage_sync.v:7]
+INFO: [Synth 8-6157] synthesizing module 'forwarding' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/forwarding.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'forwarding' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/forwarding.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'top_rv32_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/top_rv32_sync.v:2]
+INFO: [Synth 8-6157] synthesizing module 'registers_file' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/registers_file.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'registers_file' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/registers_file.v:1]
+INFO: [Synth 8-6157] synthesizing module 'imem_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:3]
+CRITICAL WARNING: [Synth 8-4445] could not open $readmem data file 'instruction.mem'; please make sure the file is added to project and has read permission, ignoring [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:28]
+INFO: [Synth 8-251] Sync Istr 0: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:29]
+INFO: [Synth 8-251] Sync Istr 1: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:30]
+INFO: [Synth 8-251] Sync Istr 2: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:31]
+INFO: [Synth 8-251] Sync Istr 3: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:32]
+INFO: [Synth 8-6155] done synthesizing module 'imem_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:3]
+INFO: [Synth 8-6157] synthesizing module 'dmem_ip_wrapper' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dmem_ip_wrapper.v:11]
+INFO: [Synth 8-6157] synthesizing module 'DMEM_ip' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/DMEM_ip.v:13]
+INFO: [Synth 8-6155] done synthesizing module 'DMEM_ip' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/DMEM_ip.v:13]
+INFO: [Synth 8-6155] done synthesizing module 'dmem_ip_wrapper' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dmem_ip_wrapper.v:11]
+INFO: [Synth 8-6157] synthesizing module 'apb_huffman_aes_rx_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_rx_top.v:1]
+INFO: [Synth 8-6157] synthesizing module 'wrapper_rx' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/wrapper_rx.v:1]
+	Parameter ROUND_KEY_10_FIXED bound to: 128'b00110110110100000010010001000110000111011000010010111000001101110101111111000000111110011100000001001100101110101011011010111011 
+INFO: [Synth 8-6155] done synthesizing module 'wrapper_rx' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/wrapper_rx.v:1]
+INFO: [Synth 8-6157] synthesizing module 'aes128_cipher_inv_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_inv_top.v:13]
+INFO: [Synth 8-6157] synthesizing module 'aes128_cipher_core_inv' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_core_inv.v:11]
+INFO: [Synth 8-6155] done synthesizing module 'aes128_cipher_core_inv' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_core_inv.v:11]
+INFO: [Synth 8-6157] synthesizing module 'aes128_key_expansion_inv' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_key_expansion_inv.v:11]
+INFO: [Synth 8-6155] done synthesizing module 'aes128_key_expansion_inv' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_key_expansion_inv.v:11]
+INFO: [Synth 8-6155] done synthesizing module 'aes128_cipher_inv_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_inv_top.v:13]
+INFO: [Synth 8-6157] synthesizing module 'bit_depacker_128' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/bit_depacker_128.v:1]
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter TRANSPORT_WORD_WIDTH bound to: 128 - type: integer 
+	Parameter VALID_BITS_WIDTH bound to: 7 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'bit_depacker_128' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/bit_depacker_128.v:1]
+INFO: [Synth 8-6157] synthesizing module 'huffman_block_parser' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_block_parser.v:1]
+	Parameter STREAM_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter STREAM_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6155] done synthesizing module 'huffman_block_parser' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_block_parser.v:1]
+INFO: [Synth 8-6157] synthesizing module 'huffman_block_decoder' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_block_decoder.v:1]
+	Parameter STREAM_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter STREAM_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 31 - type: integer 
+	Parameter MAX_SYMBOLS bound to: 256 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6157] synthesizing module 'HUFFMAN_DECODE_TABLE_IP' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/HUFFMAN_DECODE_TABLE_IP.v:7]
+INFO: [Synth 8-6155] done synthesizing module 'HUFFMAN_DECODE_TABLE_IP' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/HUFFMAN_DECODE_TABLE_IP.v:7]
+INFO: [Synth 8-6155] done synthesizing module 'huffman_block_decoder' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_block_decoder.v:1]
+INFO: [Synth 8-6157] synthesizing module 'rx_byte_packer_32' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rx_byte_packer_32.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'rx_byte_packer_32' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rx_byte_packer_32.v:1]
+INFO: [Synth 8-6157] synthesizing module 'apb_huffman_rx_if' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_rx_if.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'apb_huffman_rx_if' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_rx_if.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'apb_huffman_aes_rx_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_rx_top.v:1]
+INFO: [Synth 8-6157] synthesizing module 'cpu_mmio_to_apb_bridge' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/cpu_mmio_to_apb_bridge.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'cpu_mmio_to_apb_bridge' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/cpu_mmio_to_apb_bridge.v:1]
+INFO: [Synth 8-6157] synthesizing module 'dma_regfile' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_regfile.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'dma_regfile' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_regfile.v:1]
+INFO: [Synth 8-6157] synthesizing module 'dma_rx_engine' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_rx_engine.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'dma_rx_engine' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_rx_engine.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'rv32_soc_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_top.v:12]
+INFO: [Synth 8-6155] done synthesizing module 'rv32_soc_fpga_demo_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_fpga_demo_top.v:6]
+WARNING: [Synth 8-6014] Unused sequential element candidate_len_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:229]
+WARNING: [Synth 8-6014] Unused sequential element merged_word_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:248]
+WARNING: [Synth 8-6014] Unused sequential element merged_we_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:249]
+WARNING: [Synth 8-6014] Unused sequential element next_rem_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:250]
+WARNING: [Synth 8-6014] Unused sequential element debug_error_code_r_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_block_decoder.v:219]
+WARNING: [Synth 8-6014] Unused sequential element debug_error_state_r_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_block_decoder.v:220]
+WARNING: [Synth 8-6014] Unused sequential element debug_error_bytes_remaining_r_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_block_decoder.v:221]
+WARNING: [Synth 8-6014] Unused sequential element debug_error_payload_len_r_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_block_decoder.v:222]
+WARNING: [Synth 8-7129] Port clear_done_i in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[5] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[4] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[3] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[2] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[1] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[0] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port payload_window_data[31] in module huffman_block_decoder is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_n in module aes128_key_expansion_inv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[31] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[30] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[29] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[28] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[27] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[26] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[25] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[24] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[23] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[22] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[21] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[20] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[19] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[18] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[17] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[16] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[15] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[1] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[0] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[31] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[30] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[29] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[28] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[27] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[26] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[25] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[24] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[23] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[22] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[21] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[20] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[19] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[18] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[17] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[16] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[15] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[1] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[0] in module dmem_ip_wrapper is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:01:33 ; elapsed = 00:02:13 . Memory (MB): peak = 2444.551 ; gain = 1594.176
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:01:41 ; elapsed = 00:02:26 . Memory (MB): peak = 2444.551 ; gain = 1594.176
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:01:41 ; elapsed = 00:02:26 . Memory (MB): peak = 2444.551 ; gain = 1594.176
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2444.551 ; gain = 0.000
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]
+Finished Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/rv32_soc_fpga_demo_top_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/rv32_soc_fpga_demo_top_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_rx/auto_clock.xdc]
+Finished Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_rx/auto_clock.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2543.816 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:02:44 ; elapsed = 00:03:41 . Memory (MB): peak = 2543.816 ; gain = 1693.441
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7z020clg484-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:02:45 ; elapsed = 00:03:41 . Memory (MB): peak = 2543.816 ; gain = 1693.441
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:02:45 ; elapsed = 00:03:41 . Memory (MB): peak = 2543.816 ; gain = 1693.441
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'state_r_reg' in module 'uart_rx'
+INFO: [Synth 8-802] inferred FSM for state register 'state_r_reg' in module 'uart_dmem_loader'
+INFO: [Synth 8-802] inferred FSM for state register 'state_r_reg' in module 'huffman_block_decoder'
+INFO: [Synth 8-802] inferred FSM for state register 'state_r_reg' in module 'cpu_mmio_to_apb_bridge'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 ST_IDLE |                               00 |                               00
+                ST_START |                               01 |                               01
+                 ST_DATA |                               10 |                               10
+                 ST_STOP |                               11 |                               11
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'state_r_reg' using encoding 'sequential' in module 'uart_rx'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+               ST_MAGIC0 |                             0000 |                             0000
+               ST_MAGIC1 |                             0001 |                             0001
+               ST_MAGIC2 |                             0010 |                             0010
+               ST_MAGIC3 |                             0011 |                             0011
+                 ST_LEN0 |                             0100 |                             0100
+                 ST_LEN1 |                             0101 |                             0101
+                 ST_LEN2 |                             0110 |                             0110
+                 ST_LEN3 |                             0111 |                             0111
+             ST_SEND_ERR |                             1000 |                             1100
+                ST_ERROR |                             1001 |                             1110
+              ST_PAYLOAD |                             1010 |                             1000
+        ST_WRITE_PAYLOAD |                             1011 |                             1001
+            ST_WRITE_LEN |                             1100 |                             1010
+             ST_SEND_ACK |                             1101 |                             1011
+                 ST_DONE |                             1110 |                             1101
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'state_r_reg' using encoding 'sequential' in module 'uart_dmem_loader'
+WARNING: [Synth 8-6841] Block RAM (mem_reg) originally specified as a Byte Wide Write Enable RAM cannot take advantage of ByteWide feature and is implemented with single write enable per RAM due to following reason.
+(address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired.)
+INFO: [Synth 8-3971] The signal "DMEM_ip:/mem_reg" was recognized as a true dual port RAM template.
+INFO: [Synth 8-3971] The signal "HUFFMAN_DECODE_TABLE_IP:/mem_reg" was recognized as a true dual port RAM template.
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 ST_IDLE |               000000000001000000 |                            00000
+      ST_EMPTY_WAIT_DONE |               000001000000000000 |                            00001
+        ST_ONE_WAIT_DONE |               000000000010000000 |                            00010
+              ST_ONE_RUN |               000000000000010000 |                            00011
+              ST_RAW_RUN |               000010000000000000 |                            00100
+        ST_RAW_WAIT_DONE |               100000000000000000 |                            00101
+           ST_COMP_ENTRY |               000100000000000000 |                            00110
+            ST_COMP_SORT |               001000000000000000 |                            00111
+          ST_COMP_ASSIGN |               010000000000000000 |                            01000
+          ST_TABLE_CLEAR |               000000000000001000 |                            01100
+           ST_TABLE_PREP |               000000000000000010 |                            01101
+           ST_TABLE_FILL |               000000000000000001 |                            01110
+          ST_COMP_DECODE |               000000000000000100 |                            01001
+     ST_COMP_LOOKUP_WAIT |               000000000100000000 |                            10001
+          ST_COMP_LOOKUP |               000000001000000000 |                            10000
+        ST_COMP_FALLBACK |               000000100000000000 |                            01111
+       ST_COMP_WAIT_DONE |               000000010000000000 |                            01010
+            ST_FINAL_OUT |               000000000000100000 |                            01011
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'state_r_reg' using encoding 'one-hot' in module 'huffman_block_decoder'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+              STATE_IDLE |                                0 |                               00
+            STATE_ACCESS |                                1 |                               10
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'state_r_reg' using encoding 'sequential' in module 'cpu_mmio_to_apb_bridge'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:04:26 ; elapsed = 00:05:54 . Memory (MB): peak = 2543.816 ; gain = 1693.441
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   32 Bit       Adders := 13    
+	   3 Input   32 Bit       Adders := 1     
+	   2 Input   31 Bit       Adders := 1     
+	   2 Input   19 Bit       Adders := 2     
+	   2 Input   16 Bit       Adders := 2     
+	   2 Input   15 Bit       Adders := 1     
+	   2 Input   13 Bit       Adders := 2     
+	   2 Input   11 Bit       Adders := 3     
+	   2 Input    9 Bit       Adders := 15    
+	   3 Input    9 Bit       Adders := 3     
+	   2 Input    8 Bit       Adders := 1     
+	   2 Input    6 Bit       Adders := 1     
+	   3 Input    5 Bit       Adders := 1     
+	   2 Input    5 Bit       Adders := 44    
+	   2 Input    4 Bit       Adders := 3     
+	   2 Input    3 Bit       Adders := 2     
+	   2 Input    2 Bit       Adders := 1     
++---XORs : 
+	   2 Input    128 Bit         XORs := 2     
+	   2 Input     32 Bit         XORs := 4     
+	   3 Input     32 Bit         XORs := 1     
+	   2 Input      8 Bit         XORs := 53    
+	   4 Input      8 Bit         XORs := 6     
+	   7 Input      8 Bit         XORs := 4     
+	   5 Input      8 Bit         XORs := 8     
+	   3 Input      8 Bit         XORs := 2     
+	   6 Input      8 Bit         XORs := 5     
+	   2 Input      4 Bit         XORs := 40    
+	   2 Input      2 Bit         XORs := 200   
+	   4 Input      1 Bit         XORs := 41    
+	   2 Input      1 Bit         XORs := 761   
+	   3 Input      1 Bit         XORs := 358   
+	   5 Input      1 Bit         XORs := 6     
+	   6 Input      1 Bit         XORs := 12    
++---XORs : 
+	                4 Bit    Wide XORs := 20    
++---Registers : 
+	              152 Bit    Registers := 1     
+	              128 Bit    Registers := 9     
+	               32 Bit    Registers := 107   
+	               31 Bit    Registers := 513   
+	               19 Bit    Registers := 1     
+	               16 Bit    Registers := 2     
+	               15 Bit    Registers := 2     
+	               13 Bit    Registers := 1     
+	               11 Bit    Registers := 4     
+	                9 Bit    Registers := 8     
+	                8 Bit    Registers := 522   
+	                6 Bit    Registers := 5     
+	                5 Bit    Registers := 524   
+	                4 Bit    Registers := 9     
+	                3 Bit    Registers := 25    
+	                2 Bit    Registers := 11    
+	                1 Bit    Registers := 118   
++---RAMs : 
+	             256K Bit	(8192 X 32 bit)          RAMs := 1     
+	              30K Bit	(2048 X 15 bit)          RAMs := 1     
++---ROMs : 
+	                    ROMs := 1     
++---Muxes : 
+	   2 Input  152 Bit        Muxes := 7     
+	   2 Input  128 Bit        Muxes := 19    
+	   2 Input   32 Bit        Muxes := 62    
+	   4 Input   32 Bit        Muxes := 6     
+	  13 Input   32 Bit        Muxes := 1     
+	   3 Input   32 Bit        Muxes := 2     
+	  28 Input   32 Bit        Muxes := 8     
+	  15 Input   32 Bit        Muxes := 8     
+	   2 Input   31 Bit        Muxes := 2     
+	  18 Input   31 Bit        Muxes := 3     
+	   2 Input   19 Bit        Muxes := 2     
+	  34 Input   18 Bit        Muxes := 1     
+	   3 Input   16 Bit        Muxes := 1     
+	   2 Input   16 Bit        Muxes := 1     
+	   4 Input   16 Bit        Muxes := 1     
+	   3 Input   15 Bit        Muxes := 1     
+	   2 Input   13 Bit        Muxes := 7     
+	   3 Input   11 Bit        Muxes := 1     
+	  18 Input   11 Bit        Muxes := 4     
+	  18 Input    9 Bit        Muxes := 7     
+	   2 Input    9 Bit        Muxes := 132   
+	   6 Input    9 Bit        Muxes := 1     
+	  18 Input    8 Bit        Muxes := 259   
+	   2 Input    8 Bit        Muxes := 69    
+	   6 Input    8 Bit        Muxes := 1     
+	   4 Input    8 Bit        Muxes := 2     
+	   3 Input    8 Bit        Muxes := 1     
+	  15 Input    8 Bit        Muxes := 1     
+	  18 Input    6 Bit        Muxes := 1     
+	   2 Input    6 Bit        Muxes := 5     
+	   6 Input    6 Bit        Muxes := 1     
+	  18 Input    5 Bit        Muxes := 259   
+	   2 Input    5 Bit        Muxes := 14    
+	   7 Input    5 Bit        Muxes := 1     
+	  28 Input    5 Bit        Muxes := 1     
+	   3 Input    4 Bit        Muxes := 3     
+	   2 Input    4 Bit        Muxes := 30    
+	   6 Input    4 Bit        Muxes := 2     
+	   4 Input    4 Bit        Muxes := 3     
+	   7 Input    4 Bit        Muxes := 1     
+	  15 Input    4 Bit        Muxes := 3     
+	   2 Input    3 Bit        Muxes := 41    
+	   3 Input    3 Bit        Muxes := 6     
+	   4 Input    3 Bit        Muxes := 2     
+	   5 Input    3 Bit        Muxes := 2     
+	  28 Input    3 Bit        Muxes := 1     
+	   3 Input    2 Bit        Muxes := 4     
+	   2 Input    2 Bit        Muxes := 18    
+	   6 Input    2 Bit        Muxes := 4     
+	   4 Input    2 Bit        Muxes := 2     
+	  15 Input    2 Bit        Muxes := 1     
+	   2 Input    1 Bit        Muxes := 1054  
+	   3 Input    1 Bit        Muxes := 124   
+	  18 Input    1 Bit        Muxes := 802   
+	   4 Input    1 Bit        Muxes := 10    
+	   6 Input    1 Bit        Muxes := 5     
+	   5 Input    1 Bit        Muxes := 3     
+	  12 Input    1 Bit        Muxes := 1     
+	   7 Input    1 Bit        Muxes := 1     
+	  15 Input    1 Bit        Muxes := 14    
+	  28 Input    1 Bit        Muxes := 16    
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 220 (col length:60)
+BRAMs: 280 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-6014] Unused sequential element u_main_decode_table/mem_reg was removed. 
+INFO: [Synth 8-4652] Swapped enable and write-enable on 1 RAM instances of RAM u_main_decode_table/mem_reg to conserve power
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\payload_consume_len_r_reg[5] )
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "u_aes128_key_expansion_inv/inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "u_aes128_key_expansion_inv/inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "u_aes128_key_expansion_inv/inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "u_aes128_key_expansion_inv/inv_b" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "u_aes128_key_expansion_inv/aes128_rcon_inv" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+WARNING: [Synth 8-7129] Port clear_done_i in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[5] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[4] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[3] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[2] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[1] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port block_size_i[0] in module dma_rx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[31] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[30] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[29] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[28] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[27] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[26] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[25] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[24] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[23] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[22] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[21] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[20] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[19] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[18] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[17] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[16] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[15] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[1] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[0] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[31] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[30] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[29] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[28] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[27] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[26] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[25] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[24] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[23] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[22] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[21] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[20] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[19] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[18] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[17] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[16] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[15] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[1] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[0] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-6841] Block RAM (u_dmem_ip/mem_reg) originally specified as a Byte Wide Write Enable RAM cannot take advantage of ByteWide feature and is implemented with single write enable per RAM due to following reason.
+(address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired.)
+INFO: [Synth 8-3971] The signal "u_dmem/u_dmem_ip/mem_reg" was recognized as a true dual port RAM template.
+INFO: [Synth 8-3886] merging instance 'u_cpu/u_mem_stage/load_alu_result_r_reg[0]' (FDRE) to 'u_cpu/u_mem_stage/load_addr_low_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'u_cpu/u_mem_stage/load_alu_result_r_reg[1]' (FDRE) to 'u_cpu/u_mem_stage/load_addr_low_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_resume_state_r_reg[3]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[0]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[1]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[4]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[4]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[5]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[5]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[6]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[6]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[7]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[7]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[8]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[8]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[9]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[9]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[10]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[10]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[11]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[11]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[12]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[12]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[13]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[13]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[14]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[14]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[15]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[15]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[16]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[16]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[17]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[17]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[18]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[18]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[19]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[19]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[20]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[20]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[21]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[21]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[22]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[22]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[23]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[23]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[24]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[24]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[25]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[25]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[26]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[26]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[27]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[27]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[28]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[28]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[29]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[29]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[30]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_addr_r_reg[30]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[31]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_dma_rx_engine/\apb_addr_r_reg[31] )
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_resume_state_r_reg[4]' (FDRE) to 'u_dma_rx_engine/apb_resume_state_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_resume_state_r_reg[1]' (FDRE) to 'u_dma_rx_engine/apb_addr_r_reg[2]'
+INFO: [Synth 8-3886] merging instance 'u_dma_rx_engine/apb_wdata_r_reg[0]' (FDRE) to 'u_dma_rx_engine/apb_write_r_reg'
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:16:05 ; elapsed = 00:21:13 . Memory (MB): peak = 2543.816 ; gain = 1693.441
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++---------------------------+-----------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name                | RTL Object                  | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++---------------------------+-----------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|huffman_block_decoder__GB0 | u_main_decode_table/mem_reg | 2 K x 15(READ_FIRST)   | W |   | 2 K x 15(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|u_dmem                     | u_dmem_ip/mem_reg           | 8 K x 32(READ_FIRST)   | W | R | 8 K x 32(READ_FIRST)   | W | R | Port A and B     | 0      | 8      | 
++---------------------------+-----------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:16:29 ; elapsed = 00:21:40 . Memory (MB): peak = 2543.816 ; gain = 1693.441
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:18:13 ; elapsed = 00:23:28 . Memory (MB): peak = 2634.445 ; gain = 1784.070
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++---------------------------+-----------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name                | RTL Object                  | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++---------------------------+-----------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|huffman_block_decoder__GB0 | u_main_decode_table/mem_reg | 2 K x 15(READ_FIRST)   | W |   | 2 K x 15(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|u_dmem                     | u_dmem_ip/mem_reg           | 8 K x 32(READ_FIRST)   | W | R | 8 K x 32(READ_FIRST)   | W | R | Port A and B     | 0      | 8      | 
++---------------------------+-----------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_huffman_block_decoderi_1/u_rx_top/u_huffman_block_decoder/u_main_decode_table/mem_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][11] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][27] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][19] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][31] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][15] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][23] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][7] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][13] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][29] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][21] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][5] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][9] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][25] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][17] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][8] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][24] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][16] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][12] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][28] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][20] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][10] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][26] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][18] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][14] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][30] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][22] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][6] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][0] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][3] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][4] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_soc/i_0/\u_reg_file/registers_reg[0][2] )
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_dmem/u_dmem_ip/mem_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_imem/instruction_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/i_0/u_imem/instruction_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:18:46 ; elapsed = 00:24:27 . Memory (MB): peak = 2634.445 ; gain = 1784.070
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_rx_top/u_huffman_block_decoder/u_main_decode_table/mem_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_imem/instruction_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_imem/instruction_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:19:05 ; elapsed = 00:24:47 . Memory (MB): peak = 2655.309 ; gain = 1804.934
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:19:06 ; elapsed = 00:24:47 . Memory (MB): peak = 2655.309 ; gain = 1804.934
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:19:20 ; elapsed = 00:25:02 . Memory (MB): peak = 2655.309 ; gain = 1804.934
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:19:20 ; elapsed = 00:25:02 . Memory (MB): peak = 2655.309 ; gain = 1804.934
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:19:27 ; elapsed = 00:25:10 . Memory (MB): peak = 2655.309 ; gain = 1804.934
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:19:28 ; elapsed = 00:25:10 . Memory (MB): peak = 2655.309 ; gain = 1804.934
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |BUFG     |     1|
+|2     |CARRY4   |   183|
+|3     |LUT1     |   117|
+|4     |LUT2     |  1203|
+|5     |LUT3     |  3306|
+|6     |LUT4     |  2229|
+|7     |LUT5     |  3496|
+|8     |LUT6     | 17169|
+|9     |MUXF7    |  4363|
+|10    |MUXF8    |  2033|
+|11    |RAMB36E1 |    11|
+|15    |FDCE     |  1015|
+|16    |FDPE     |     1|
+|17    |FDRE     | 26647|
+|18    |FDSE     |    16|
+|19    |IBUF     |     2|
+|20    |OBUF     |     5|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:19:28 ; elapsed = 00:25:11 . Memory (MB): peak = 2655.309 ; gain = 1804.934
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 48 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:17:12 ; elapsed = 00:24:34 . Memory (MB): peak = 2655.309 ; gain = 1705.668
+Synthesis Optimization Complete : Time (s): cpu = 00:19:29 ; elapsed = 00:25:14 . Memory (MB): peak = 2655.309 ; gain = 1804.934
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.914 . Memory (MB): peak = 2655.309 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 6590 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2655.309 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Synth Design complete | Checksum: e19460dc
+INFO: [Common 17-83] Releasing license: Synthesis
+218 Infos, 103 Warnings, 1 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:19:50 ; elapsed = 00:25:43 . Memory (MB): peak = 2655.309 ; gain = 2032.434
+INFO: [runtcl-6] Synthesis results are not added to the cache due to CRITICAL_WARNING
+Write ShapeDB Complete: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.181 . Memory (MB): peak = 2655.309 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_rx/rv32_soc_synth_rx.runs/synth_1/rv32_soc_fpga_demo_top.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:11 ; elapsed = 00:00:11 . Memory (MB): peak = 2655.309 ; gain = 0.000
+INFO: [Vivado 12-24828] Executing command : report_utilization -file rv32_soc_fpga_demo_top_utilization_synth.rpt -pb rv32_soc_fpga_demo_top_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Thu May 14 19:07:07 2026...

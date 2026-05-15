@@ -1,0 +1,1185 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Fri May 15 02:22:39 2026
+# Process ID         : 36096
+# Current directory  : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6
+# Command line       : vivado.exe -mode batch -source vivado\run_project_tx.tcl
+# Log file           : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado.log
+# Journal file       : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6\vivado.jou
+# Running On         : An
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
+# CPU Frequency      : 1992 MHz
+# CPU Physical cores : 4
+# CPU Logical cores  : 8
+# Host memory        : 17024 MB
+# Swap memory        : 26843 MB
+# Total Virtual      : 43867 MB
+# Available Virtual  : 20502 MB
+#-----------------------------------------------------------
+source {vivado\run_project_tx.tcl}
+# set script_dir [file dirname [file normalize [info script]]]
+# set repo_root  [file normalize [file join $script_dir ".."]]
+# set project_xpr [file join $repo_root "vivado" "build" "rv32_soc_synth_tx" "rv32_soc_synth_tx.xpr"]
+# set mem_file    [file join $repo_root "instruction.mem"]
+# if {![file exists $project_xpr]} {
+#   error "Missing project: $project_xpr. Run make vivado_synth_tx first."
+# }
+# open_project $project_xpr
+INFO: [ProjectBase 1-489] The host OS only allows 260 characters in a normal path. The project is stored in a path with more than 80 characters. If you experience issues with IP, Block Designs, or files not being found, please consider moving the project to a location with a shorter path. Alternately consider using the OS subst command to map part of the path to a drive letter.
+Current project path is 'H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx'
+INFO: [filemgmt 56-3] Default IP Output Path : Could not find the directory 'H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.gen/sources_1'.
+Scanning sources...
+Finished scanning sources
+open_project: Time (s): cpu = 00:00:14 ; elapsed = 00:00:17 . Memory (MB): peak = 621.438 ; gain = 191.477
+# if {[file exists $mem_file]} {
+#   add_files -quiet -fileset sources_1 $mem_file
+#   set mem_obj [get_files -quiet $mem_file]
+#   if {[llength $mem_obj] > 0} {
+#     set_property file_type {Memory Initialization Files} $mem_obj
+#   }
+# } else {
+#   puts "WARNING: $mem_file does not exist; project-mode synthesis may use empty IMEM init."
+# }
+# catch {reset_run impl_1}
+# catch {reset_run synth_1}
+INFO: [Project 1-1161] Replacing file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.srcs/utils_1/imports/synth_1/rv32_soc_fpga_demo_top.dcp with file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/synth_1/rv32_soc_fpga_demo_top.dcp
+WARNING: [Vivado 12-1017] Problems encountered:
+1. Failed to delete one or more files in run directory H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/synth_1
+
+# set_property STEPS.SYNTH_DESIGN.ARGS.FLATTEN_HIERARCHY rebuilt [get_runs synth_1]
+# set_property STEPS.SYNTH_DESIGN.ARGS.DIRECTIVE AreaOptimized_high [get_runs synth_1]
+# puts "INFO: synth_1 flatten=[get_property STEPS.SYNTH_DESIGN.ARGS.FLATTEN_HIERARCHY [get_runs synth_1]] directive=[get_property STEPS.SYNTH_DESIGN.ARGS.DIRECTIVE [get_runs synth_1]]"
+INFO: synth_1 flatten=rebuilt directive=AreaOptimized_high
+# launch_runs synth_1 -jobs 4
+[Fri May 15 02:23:10 2026] Launched synth_1...
+Run output will be captured here: H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/synth_1/runme.log
+# wait_on_run synth_1
+[Fri May 15 02:23:10 2026] Waiting for synth_1 to finish...
+
+*** Running vivado
+    with args -log rv32_soc_fpga_demo_top.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source rv32_soc_fpga_demo_top.tcl
+
+
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Fri May 15 02:23:17 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source rv32_soc_fpga_demo_top.tcl -notrace
+create_project: Time (s): cpu = 00:00:15 ; elapsed = 00:00:17 . Memory (MB): peak = 618.668 ; gain = 189.898
+Command: read_checkpoint -auto_incremental -incremental H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.srcs/utils_1/imports/synth_1/rv32_soc_fpga_demo_top.dcp
+INFO: [Vivado 12-5825] Read reference checkpoint from H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.srcs/utils_1/imports/synth_1/rv32_soc_fpga_demo_top.dcp for incremental synthesis
+INFO: [Vivado 12-7989] Please ensure there are no constraint changes
+read_checkpoint: Time (s): cpu = 00:00:02 ; elapsed = 00:00:05 . Memory (MB): peak = 624.672 ; gain = 6.004
+Command: synth_design -top rv32_soc_fpga_demo_top -part xc7z020clg484-1 -directive AreaOptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Device 21-403] Loading part xc7z020clg484-1
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 37212
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:09 ; elapsed = 00:00:11 . Memory (MB): peak = 1320.699 ; gain = 468.023
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'rv32_soc_fpga_demo_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_fpga_demo_top.v:6]
+INFO: [Synth 8-6157] synthesizing module 'uart_dmem_loader' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:1]
+	Parameter CLK_HZ bound to: 50000000 - type: integer 
+	Parameter BAUD_RATE bound to: 115200 - type: integer 
+	Parameter SRC_BASE_ADDR bound to: 8192 - type: integer 
+	Parameter INPUT_LEN_ADDR bound to: 64 - type: integer 
+	Parameter MAX_INPUT_BYTES bound to: 7168 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'uart_rx' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_rx.v:1]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_rx.v:45]
+INFO: [Synth 8-6155] done synthesizing module 'uart_rx' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_rx.v:1]
+INFO: [Synth 8-6157] synthesizing module 'uart_tx' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_tx.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'uart_tx' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_tx.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'uart_dmem_loader' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:1]
+INFO: [Synth 8-6157] synthesizing module 'rv32_soc_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_top.v:12]
+INFO: [Synth 8-6157] synthesizing module 'top_rv32_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/top_rv32_sync.v:2]
+INFO: [Synth 8-6157] synthesizing module 'if_stage_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/if_stage_sync.v:8]
+INFO: [Synth 8-6155] done synthesizing module 'if_stage_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/if_stage_sync.v:8]
+INFO: [Synth 8-6157] synthesizing module 'id_stage' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/id_stage.v:3]
+INFO: [Synth 8-6155] done synthesizing module 'id_stage' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/id_stage.v:3]
+INFO: [Synth 8-6157] synthesizing module 'ex_stage' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/ex_stage.v:3]
+INFO: [Synth 8-6155] done synthesizing module 'ex_stage' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/ex_stage.v:3]
+INFO: [Synth 8-6157] synthesizing module 'mem_stage_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/mem_stage_sync.v:7]
+INFO: [Synth 8-6155] done synthesizing module 'mem_stage_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/mem_stage_sync.v:7]
+INFO: [Synth 8-6157] synthesizing module 'forwarding' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/forwarding.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'forwarding' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/forwarding.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'top_rv32_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/top_rv32_sync.v:2]
+INFO: [Synth 8-6157] synthesizing module 'registers_file' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/registers_file.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'registers_file' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/registers_file.v:1]
+INFO: [Synth 8-6157] synthesizing module 'imem_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:3]
+INFO: [Synth 8-3876] $readmem data file 'instruction.mem' is read successfully [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:28]
+INFO: [Synth 8-251] Sync Istr 0: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:29]
+INFO: [Synth 8-251] Sync Istr 1: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:30]
+INFO: [Synth 8-251] Sync Istr 2: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:31]
+INFO: [Synth 8-251] Sync Istr 3: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:32]
+INFO: [Synth 8-6155] done synthesizing module 'imem_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:3]
+INFO: [Synth 8-6157] synthesizing module 'dmem_ip_wrapper' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dmem_ip_wrapper.v:11]
+INFO: [Synth 8-6157] synthesizing module 'DMEM_ip' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/DMEM_ip.v:13]
+INFO: [Synth 8-6155] done synthesizing module 'DMEM_ip' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/DMEM_ip.v:13]
+INFO: [Synth 8-6155] done synthesizing module 'dmem_ip_wrapper' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dmem_ip_wrapper.v:11]
+INFO: [Synth 8-6157] synthesizing module 'apb_huffman_aes_tx_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_tx_top.v:1]
+INFO: [Synth 8-6157] synthesizing module 'apb_huffman_tx_if' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_tx_if.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'apb_huffman_tx_if' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_tx_if.v:1]
+INFO: [Synth 8-6157] synthesizing module 'huffman_aes_tx_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_aes_tx_top.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter BUFFER_ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter HEADER_BITS_WIDTH bound to: 12 - type: integer 
+	Parameter TOTAL_BITS_WIDTH bound to: 16 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 32 - type: integer 
+	Parameter MAX_TREE_NODES bound to: 63 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+	Parameter TRANSPORT_WORD_WIDTH bound to: 128 - type: integer 
+	Parameter VALID_BITS_WIDTH bound to: 7 - type: integer 
+	Parameter AES_KEY_FIXED bound to: 128'b00000000000100010010001000110011010001000101010101100110011101111000100010011001101010101011101111001100110111011110111011111111 
+INFO: [Synth 8-6157] synthesizing module 'frequency_counter' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/frequency_counter.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter COUNT_WIDTH bound to: 16 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+	Parameter DEFAULT_REMAP bound to: 8'b00100000 
+INFO: [Synth 8-6155] done synthesizing module 'frequency_counter' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/frequency_counter.v:1]
+INFO: [Synth 8-6157] synthesizing module 'huffman_builder' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_builder.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 16 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 256 - type: integer 
+	Parameter MAX_TREE_NODES bound to: 511 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+INFO: [Synth 8-6157] synthesizing module 'symbol_list_builder' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/symbol_list_builder.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 16 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 256 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/symbol_list_builder.v:91]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/symbol_list_builder.v:134]
+INFO: [Synth 8-6155] done synthesizing module 'symbol_list_builder' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/symbol_list_builder.v:1]
+INFO: [Synth 8-6157] synthesizing module 'code_length_builder' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/code_length_builder.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 16 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 256 - type: integer 
+	Parameter MAX_TREE_NODES bound to: 511 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+INFO: [Synth 8-6155] done synthesizing module 'code_length_builder' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/code_length_builder.v:1]
+INFO: [Synth 8-6157] synthesizing module 'canonical_code_generator' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/canonical_code_generator.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 256 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+INFO: [Synth 8-6155] done synthesizing module 'canonical_code_generator' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/canonical_code_generator.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'huffman_builder' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_builder.v:1]
+INFO: [Synth 8-6157] synthesizing module 'dynamic_huffman_encoder' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dynamic_huffman_encoder.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter BUFFER_ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter HEADER_BITS_WIDTH bound to: 12 - type: integer 
+	Parameter TOTAL_BITS_WIDTH bound to: 16 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 32 - type: integer 
+	Parameter MAX_TREE_NODES bound to: 63 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6157] synthesizing module 'input_collect_unit' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/input_collect_unit.v:1]
+	Parameter BLOCK_SIZE bound to: 32 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+	Parameter DEFAULT_REMAP bound to: 8'b00100000 
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter COUNT_WIDTH bound to: 6 - type: integer 
+	Parameter ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'block_buffer' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/block_buffer.v:1]
+	Parameter BLOCK_SIZE bound to: 32 - type: integer 
+	Parameter DATA_WIDTH bound to: 8 - type: integer 
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter ADDR_WIDTH bound to: 5 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'block_buffer' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/block_buffer.v:1]
+INFO: [Synth 8-6157] synthesizing module 'frequency_counter__parameterized0' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/frequency_counter.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter COUNT_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+	Parameter DEFAULT_REMAP bound to: 8'b00100000 
+INFO: [Synth 8-6155] done synthesizing module 'frequency_counter__parameterized0' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/frequency_counter.v:1]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/input_collect_unit.v:139]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/input_collect_unit.v:180]
+INFO: [Synth 8-6155] done synthesizing module 'input_collect_unit' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/input_collect_unit.v:1]
+INFO: [Synth 8-6157] synthesizing module 'emit_backend' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/emit_backend.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter BUFFER_ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter HEADER_BITS_WIDTH bound to: 12 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6157] synthesizing module 'header_formatter' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/header_formatter.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter HEADER_BITS_WIDTH bound to: 12 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6155] done synthesizing module 'header_formatter' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/header_formatter.v:1]
+INFO: [Synth 8-6157] synthesizing module 'payload_emitter' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/payload_emitter.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter BUFFER_ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6155] done synthesizing module 'payload_emitter' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/payload_emitter.v:1]
+INFO: [Synth 8-6157] synthesizing module 'stream_output_interface' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/stream_output_interface.v:1]
+	Parameter STREAM_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter STREAM_LEN_WIDTH bound to: 6 - type: integer 
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/stream_output_interface.v:62]
+INFO: [Synth 8-6155] done synthesizing module 'stream_output_interface' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/stream_output_interface.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'emit_backend' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/emit_backend.v:1]
+INFO: [Synth 8-6157] synthesizing module 'control_fsm' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/control_fsm.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'control_fsm' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/control_fsm.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'dynamic_huffman_encoder' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dynamic_huffman_encoder.v:1]
+INFO: [Synth 8-6157] synthesizing module 'bit_packer_128' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/bit_packer_128.v:1]
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter TRANSPORT_WORD_WIDTH bound to: 128 - type: integer 
+	Parameter VALID_BITS_WIDTH bound to: 7 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'bit_packer_128' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/bit_packer_128.v:1]
+INFO: [Synth 8-6157] synthesizing module 'wrapper' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/wrapper.v:1]
+	Parameter AES_KEY_FIXED bound to: 128'b00000000000100010010001000110011010001000101010101100110011101111000100010011001101010101011101111001100110111011110111011111111 
+INFO: [Synth 8-6155] done synthesizing module 'wrapper' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/wrapper.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'huffman_aes_tx_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_aes_tx_top.v:1]
+INFO: [Synth 8-6157] synthesizing module 'aes128_cipher_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_top.v:13]
+INFO: [Synth 8-6157] synthesizing module 'aes128_cipher_core' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_core.v:11]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes_encrypt_funcs.vh:164]
+INFO: [Synth 8-6155] done synthesizing module 'aes128_cipher_core' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_core.v:11]
+INFO: [Synth 8-6157] synthesizing module 'aes128_key_expansion' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_key_expansion.v:11]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes_encrypt_funcs.vh:164]
+INFO: [Synth 8-6155] done synthesizing module 'aes128_key_expansion' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_key_expansion.v:11]
+INFO: [Synth 8-6155] done synthesizing module 'aes128_cipher_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_top.v:13]
+INFO: [Synth 8-6155] done synthesizing module 'apb_huffman_aes_tx_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_tx_top.v:1]
+INFO: [Synth 8-6157] synthesizing module 'cpu_mmio_to_apb_bridge' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/cpu_mmio_to_apb_bridge.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'cpu_mmio_to_apb_bridge' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/cpu_mmio_to_apb_bridge.v:1]
+INFO: [Synth 8-6157] synthesizing module 'dma_regfile' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_regfile.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'dma_regfile' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_regfile.v:1]
+INFO: [Synth 8-6157] synthesizing module 'dma_tx_engine' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_tx_engine.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'dma_tx_engine' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_tx_engine.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'rv32_soc_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_top.v:12]
+INFO: [Synth 8-6155] done synthesizing module 'rv32_soc_fpga_demo_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_fpga_demo_top.v:6]
+WARNING: [Synth 8-6014] Unused sequential element candidate_len_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:229]
+WARNING: [Synth 8-6014] Unused sequential element merged_word_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:248]
+WARNING: [Synth 8-6014] Unused sequential element merged_we_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:249]
+WARNING: [Synth 8-6014] Unused sequential element next_rem_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:250]
+WARNING: [Synth 8-7137] Register symbol_list_mem_reg in module symbol_list_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-4767] Trying to implement RAM 'symbol_list_mem_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "symbol_list_mem_reg" dissolved into registers
+WARNING: [Synth 8-7137] Register leaf_symbol_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register leaf_node_index_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_weight_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_is_leaf_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_symbol_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_order_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_parent_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-4767] Trying to implement RAM 'leaf_symbol_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "leaf_symbol_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_parent_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM has multiple writes via different ports in same process. If RAM inferencing intended, write to one port per process. 
+	2: Unable to determine number of words or word size in RAM. 
+	3: No valid read/write found for RAM. 
+RAM "node_parent_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_weight_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "node_weight_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_is_leaf_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "node_is_leaf_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_symbol_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "node_symbol_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_order_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "node_order_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'leaf_node_index_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "leaf_node_index_reg" dissolved into registers
+WARNING: [Synth 8-6014] Unused sequential element tx_meta_r_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_tx_engine.v:141]
+WARNING: [Synth 8-7129] Port clear_done_i in module dma_tx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_n in module aes128_key_expansion is either unconnected or has no load
+WARNING: [Synth 8-7129] Port whole_file_enable in module dynamic_huffman_encoder is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[7] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[6] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[5] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[4] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[3] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[2] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[1] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[0] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[31] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[30] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[29] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[28] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[27] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[26] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[25] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[24] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[23] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[22] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[21] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[20] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[19] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[18] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[17] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[16] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[15] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[1] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[0] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[31] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[30] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[29] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[28] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[27] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[26] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[25] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[24] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[23] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[22] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[21] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[20] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[19] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[18] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[17] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[16] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[15] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[1] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[0] in module dmem_ip_wrapper is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:44 ; elapsed = 00:00:53 . Memory (MB): peak = 2117.801 ; gain = 1265.125
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:48 ; elapsed = 00:00:57 . Memory (MB): peak = 2117.801 ; gain = 1265.125
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:48 ; elapsed = 00:00:57 . Memory (MB): peak = 2117.801 ; gain = 1265.125
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2117.801 ; gain = 0.000
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]
+Finished Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/rv32_soc_fpga_demo_top_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/rv32_soc_fpga_demo_top_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/auto_clock.xdc]
+Finished Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/auto_clock.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2260.797 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:01:37 ; elapsed = 00:01:53 . Memory (MB): peak = 2260.797 ; gain = 1408.121
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7z020clg484-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:01:37 ; elapsed = 00:01:53 . Memory (MB): peak = 2260.797 ; gain = 1408.121
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:01:37 ; elapsed = 00:01:53 . Memory (MB): peak = 2260.797 ; gain = 1408.121
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Preparing Guide Design
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Doing Graph Differ : Time (s): cpu = 00:01:53 ; elapsed = 00:02:15 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+rv32_soc_fpga_demo_top__GC0bit_packer_128__GB1code_length_builder__GB0code_length_builder__GB3rv32_soc_top__GC0code_length_builder__GB9code_length_builder__GB10apb_huffman_aes_tx_top__GC0bit_packer_128__GB0code_length_builder__GB7bit_packer_128__GB4huffman_builder__GC0code_length_builder__GB6code_length_builder__GB4code_length_builder__GB11code_length_builder__GB5code_length_builder__GB1bit_packer_128__GB3bit_packer_128__GB2code_length_builder__GB8code_length_builder__GB2huffman_aes_tx_top__GC0---------------------------------------------------------------------------------
+Finished Preparing Guide Design : Time (s): cpu = 00:02:00 ; elapsed = 00:02:23 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:02:06 ; elapsed = 00:02:30 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Mimic Skeleton from Reference
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Mimic Skeleton from Reference : Time (s): cpu = 00:02:11 ; elapsed = 00:02:36 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+
+
+Incremental Synthesis Report Summary:
+
+1. Incremental synthesis run: yes
+
+   Stitch points used : changed
+
+
+2. Change Summary
+
+Report Incremental Modules: 
++-+----------------+------------+----------+----------+
+| |Changed Modules |Replication |Instances |Changed % |
++-+----------------+------------+----------+----------+
++-+----------------+------------+----------+----------+
+
+
+   Full Design Size (number of cells) : 331328
+   Resynthesis Design Size (number of cells) : 0
+   Resynth % : 0.0000,  Reuse % : 100.0000
+
+3. Reference Checkpoint Information
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| DCP Location:  | H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.srcs/utils_1/imports/synth_1/rv32_soc_fpga_demo_top.dcp |
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+
++--------------------------------+------------------------------+
+|         DCP Information        |             Value            |
++--------------------------------+------------------------------+
+| Vivado Version                 |                    v2024.2 |
+| DCP State                      |                              |
++--------------------------------+------------------------------+
+
+
+
+Report RTL Partitions: 
++------+------------------------------------+------------+----------+
+|      |RTL Partition                       |Replication |Instances |
++------+------------------------------------+------------+----------+
+|1     |code_length_builder__GB0_#REUSE#    |           1|         0|
+|2     |code_length_builder__GB1_#REUSE#    |           1|         0|
+|3     |code_length_builder__GB2_#REUSE#    |           1|         0|
+|4     |code_length_builder__GB3_#REUSE#    |           1|         0|
+|5     |code_length_builder__GB4_#REUSE#    |           1|         0|
+|6     |code_length_builder__GB5_#REUSE#    |           1|         0|
+|7     |code_length_builder__GB6_#REUSE#    |           1|         0|
+|8     |code_length_builder__GB7_#REUSE#    |           1|         0|
+|9     |code_length_builder__GB8_#REUSE#    |           1|         0|
+|10    |code_length_builder__GB9_#REUSE#    |           1|         0|
+|11    |code_length_builder__GB10_#REUSE#   |           1|         0|
+|12    |code_length_builder__GB11_#REUSE#   |           1|         0|
+|13    |huffman_builder__GC0_#REUSE#        |           1|         0|
+|14    |bit_packer_128__GB0_#REUSE#         |           1|         0|
+|15    |bit_packer_128__GB1_#REUSE#         |           1|         0|
+|16    |bit_packer_128__GB2_#REUSE#         |           1|         0|
+|17    |bit_packer_128__GB3_#REUSE#         |           1|         0|
+|18    |bit_packer_128__GB4_#REUSE#         |           1|         0|
+|19    |huffman_aes_tx_top__GC0_#REUSE#     |           1|         0|
+|20    |apb_huffman_aes_tx_top__GC0_#REUSE# |           1|         0|
+|21    |rv32_soc_top__GC0_#REUSE#           |           1|         0|
+|22    |rv32_soc_fpga_demo_top__GC0_#REUSE# |           1|         0|
++------+------------------------------------+------------+----------+
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 220 (col length:60)
+BRAMs: 280 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+WARNING: [Synth 8-7077] IncrSyn: subsequent runs will still be incremental as the reference run was parallel and that data is reused
+---------------------------------------------------------------------------------
+Start Pre Area Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Iterative Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+WARNING: [Synth 8-7077] IncrSyn: subsequent runs will still be incremental as the reference run was parallel and that data is reused
+---------------------------------------------------------------------------------
+Start Post Area Optimization : Time (s): cpu = 00:02:20 ; elapsed = 00:02:47 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:02:20 ; elapsed = 00:02:47 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Stitch Unchanged AreaOpt Partitions
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Stitch Unchanged AreaOpt Partitions : Time (s): cpu = 00:02:23 ; elapsed = 00:02:51 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:02:37 ; elapsed = 00:03:06 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:02:38 ; elapsed = 00:03:08 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+WARNING: [Synth 8-7077] IncrSyn: subsequent runs will still be incremental as the reference run was parallel and that data is reused
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:02:39 ; elapsed = 00:03:09 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Stitch Unchanged Partitions
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Stitch Unchanged Partitions : Time (s): cpu = 00:02:42 ; elapsed = 00:03:12 . Memory (MB): peak = 2350.418 ; gain = 1497.742
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_imem/instruction_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_imem/instruction_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:03:27 ; elapsed = 00:04:05 . Memory (MB): peak = 2371.039 ; gain = 1518.363
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:03:28 ; elapsed = 00:04:05 . Memory (MB): peak = 2371.039 ; gain = 1518.363
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:03:36 ; elapsed = 00:04:14 . Memory (MB): peak = 2400.227 ; gain = 1547.551
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:03:37 ; elapsed = 00:04:15 . Memory (MB): peak = 2400.227 ; gain = 1547.551
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:03:42 ; elapsed = 00:04:20 . Memory (MB): peak = 2405.277 ; gain = 1552.602
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:03:42 ; elapsed = 00:04:20 . Memory (MB): peak = 2405.277 ; gain = 1552.602
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |BUFG     |     1|
+|2     |CARRY4   |   614|
+|3     |LUT1     |   470|
+|4     |LUT2     |  2670|
+|5     |LUT3     |  1131|
+|6     |LUT4     |  5035|
+|7     |LUT5     |  5761|
+|8     |LUT6     | 40104|
+|9     |MUXF7    | 10169|
+|10    |MUXF8    |  4932|
+|11    |RAM64M   |    32|
+|12    |RAM64X1D |    12|
+|13    |RAMB36E1 |    10|
+|14    |FDCE     |  9073|
+|15    |FDPE     |    12|
+|16    |FDRE     | 31306|
+|17    |FDSE     |    22|
+|18    |IBUF     |     2|
+|19    |OBUF     |     5|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:03:42 ; elapsed = 00:04:21 . Memory (MB): peak = 2405.277 ; gain = 1552.602
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 6 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:02:34 ; elapsed = 00:04:00 . Memory (MB): peak = 2405.277 ; gain = 1409.605
+Synthesis Optimization Complete : Time (s): cpu = 00:03:43 ; elapsed = 00:04:22 . Memory (MB): peak = 2405.277 ; gain = 1552.602
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2415.180 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 15769 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.031 . Memory (MB): peak = 2446.785 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 44 instances were transformed.
+  RAM64M => RAM64M (RAMD64E(x4)): 32 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
+
+Synth Design complete | Checksum: 424a1008
+INFO: [Common 17-83] Releasing license: Synthesis
+128 Infos, 76 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:04:08 ; elapsed = 00:04:53 . Memory (MB): peak = 2446.785 ; gain = 1822.113
+Write ShapeDB Complete: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.243 . Memory (MB): peak = 2446.785 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/synth_1/rv32_soc_fpga_demo_top.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 2446.785 ; gain = 0.000
+INFO: [Vivado 12-24828] Executing command : report_utilization -file rv32_soc_fpga_demo_top_utilization_synth.rpt -pb rv32_soc_fpga_demo_top_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Fri May 15 02:29:01 2026...
+[Fri May 15 02:29:07 2026] synth_1 finished
+wait_on_runs: Time (s): cpu = 00:00:00 ; elapsed = 00:05:56 . Memory (MB): peak = 626.199 ; gain = 0.000
+# set synth_status [get_property STATUS [get_runs synth_1]]
+# puts "INFO: synth_1 status=$synth_status"
+INFO: synth_1 status=synth_design Complete!
+# if {![string match "*Complete*" $synth_status]} {
+#   error "synth_1 did not complete: $synth_status"
+# }
+# launch_runs impl_1 -to_step write_bitstream -jobs 4
+[Fri May 15 02:29:07 2026] Launched impl_1...
+Run output will be captured here: H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/impl_1/runme.log
+# wait_on_run impl_1
+[Fri May 15 02:29:07 2026] Waiting for impl_1 to finish...
+
+*** Running vivado
+    with args -log rv32_soc_fpga_demo_top.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source rv32_soc_fpga_demo_top.tcl -notrace
+
+
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Fri May 15 02:29:17 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source rv32_soc_fpga_demo_top.tcl -notrace
+create_project: Time (s): cpu = 00:00:10 ; elapsed = 00:00:12 . Memory (MB): peak = 618.289 ; gain = 189.934
+Command: link_design -top rv32_soc_fpga_demo_top -part xc7z020clg484-1
+Design is defaulting to srcset: sources_1
+Design is defaulting to constrset: constrs_1
+INFO: [Device 21-403] Loading part xc7z020clg484-1
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.715 . Memory (MB): peak = 956.547 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 15769 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]
+Finished Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]
+Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/auto_clock.xdc]
+Finished Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/auto_clock.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.032 . Memory (MB): peak = 1149.020 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 44 instances were transformed.
+  RAM64M => RAM64M (RAMD64E(x4)): 32 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
+
+7 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+link_design completed successfully
+link_design: Time (s): cpu = 00:00:24 ; elapsed = 00:00:27 . Memory (MB): peak = 1149.020 ; gain = 530.730
+Command: opt_design
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z020'
+Running DRC as a precondition to command opt_design
+
+Starting DRC Task
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Project 1-461] DRC finished with 0 Errors
+INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:02 . Memory (MB): peak = 1155.387 ; gain = 6.367
+
+Starting Cache Timing Information Task
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Ending Cache Timing Information Task | Checksum: 204e2dcce
+
+Time (s): cpu = 00:00:14 ; elapsed = 00:00:14 . Memory (MB): peak = 1774.410 ; gain = 619.023
+
+Starting Logic Optimization Task
+
+Phase 1 Initialization
+
+Phase 1.1 Core Generation And Design Setup
+Phase 1.1 Core Generation And Design Setup | Checksum: 204e2dcce
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.066 . Memory (MB): peak = 2190.004 ; gain = 0.000
+
+Phase 1.2 Setup Constraints And Sort Netlist
+Phase 1.2 Setup Constraints And Sort Netlist | Checksum: 204e2dcce
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.125 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Phase 1 Initialization | Checksum: 204e2dcce
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.132 . Memory (MB): peak = 2190.004 ; gain = 0.000
+
+Phase 2 Timer Update And Timing Data Collection
+
+Phase 2.1 Timer Update
+Phase 2.1 Timer Update | Checksum: 204e2dcce
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:03 . Memory (MB): peak = 2190.004 ; gain = 0.000
+
+Phase 2.2 Timing Data Collection
+Phase 2.2 Timing Data Collection | Checksum: 204e2dcce
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:03 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Phase 2 Timer Update And Timing Data Collection | Checksum: 204e2dcce
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:03 . Memory (MB): peak = 2190.004 ; gain = 0.000
+
+Phase 3 Retarget
+INFO: [Opt 31-1851] Number of loadless carry chains removed were: 0
+INFO: [Opt 31-1834] Total Chains To Be Transformed Were: 0 AND Number of Transformed insts Created are: 0
+INFO: [Opt 31-1566] Pulled 36 inverters resulting in an inversion of 110 pins
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Opt 31-49] Retargeted 0 cell(s).
+Phase 3 Retarget | Checksum: 14d3f2cff
+
+Time (s): cpu = 00:00:06 ; elapsed = 00:00:04 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Retarget | Checksum: 14d3f2cff
+INFO: [Opt 31-389] Phase Retarget created 0 cells and removed 38 cells
+
+Phase 4 Constant propagation
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Phase 4 Constant propagation | Checksum: 1b0edbd77
+
+Time (s): cpu = 00:00:07 ; elapsed = 00:00:05 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Constant propagation | Checksum: 1b0edbd77
+INFO: [Opt 31-389] Phase Constant propagation created 13 cells and removed 17 cells
+
+Phase 5 Sweep
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.020 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Phase 5 Sweep | Checksum: 1c9964d28
+
+Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Sweep | Checksum: 1c9964d28
+INFO: [Opt 31-389] Phase Sweep created 0 cells and removed 0 cells
+
+Phase 6 BUFG optimization
+Phase 6 BUFG optimization | Checksum: 1c9964d28
+
+Time (s): cpu = 00:00:10 ; elapsed = 00:00:07 . Memory (MB): peak = 2190.004 ; gain = 0.000
+BUFG optimization | Checksum: 1c9964d28
+INFO: [Opt 31-662] Phase BUFG optimization created 0 cells of which 0 are BUFGs and removed 0 cells.
+
+Phase 7 Shift Register Optimization
+INFO: [Opt 31-1064] SRL Remap converted 0 SRLs to 0 registers and converted 0 registers of register chains to 0 SRLs
+Phase 7 Shift Register Optimization | Checksum: 1c9964d28
+
+Time (s): cpu = 00:00:10 ; elapsed = 00:00:07 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Shift Register Optimization | Checksum: 1c9964d28
+INFO: [Opt 31-389] Phase Shift Register Optimization created 0 cells and removed 0 cells
+
+Phase 8 Post Processing Netlist
+Phase 8 Post Processing Netlist | Checksum: 1c9964d28
+
+Time (s): cpu = 00:00:10 ; elapsed = 00:00:07 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Post Processing Netlist | Checksum: 1c9964d28
+INFO: [Opt 31-389] Phase Post Processing Netlist created 0 cells and removed 0 cells
+
+Phase 9 Finalization
+
+Phase 9.1 Finalizing Design Cores and Updating Shapes
+Phase 9.1 Finalizing Design Cores and Updating Shapes | Checksum: 20fe966ce
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:08 . Memory (MB): peak = 2190.004 ; gain = 0.000
+
+Phase 9.2 Verifying Netlist Connectivity
+
+Starting Connectivity Check Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.193 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Phase 9.2 Verifying Netlist Connectivity | Checksum: 20fe966ce
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:08 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Phase 9 Finalization | Checksum: 20fe966ce
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:08 . Memory (MB): peak = 2190.004 ; gain = 0.000
+Opt_design Change Summary
+=========================
+
+
+-------------------------------------------------------------------------------------------------------------------------
+|  Phase                        |  #Cells created  |  #Cells Removed  |  #Constrained objects preventing optimizations  |
+-------------------------------------------------------------------------------------------------------------------------
+|  Retarget                     |               0  |              38  |                                              0  |
+|  Constant propagation         |              13  |              17  |                                              0  |
+|  Sweep                        |               0  |               0  |                                              0  |
+|  BUFG optimization            |               0  |               0  |                                              0  |
+|  Shift Register Optimization  |               0  |               0  |                                              0  |
+|  Post Processing Netlist      |               0  |               0  |                                              0  |
+-------------------------------------------------------------------------------------------------------------------------
+
+
+Ending Logic Optimization Task | Checksum: 20fe966ce
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:08 . Memory (MB): peak = 2190.004 ; gain = 0.000
+
+Starting Power Optimization Task
+INFO: [Pwropt 34-132] Skipping clock gating for clocks with a period < 2.00 ns.
+INFO: [Pwropt 34-9] Applying IDT optimizations ...
+INFO: [Pwropt 34-10] Applying ODC optimizations ...
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+
+
+Starting PowerOpt Patch Enables Task
+INFO: [Pwropt 34-162] WRITE_MODE attribute of 0 BRAM(s) out of a total of 10 has been updated to save power. Run report_power_opt to get a complete listing of the BRAMs updated.
+INFO: [Pwropt 34-201] Structural ODC has moved 0 WE to EN ports
+Number of BRAM Ports augmented: 0 newly gated: 0 Total Ports: 20
+Ending PowerOpt Patch Enables Task | Checksum: 20fe966ce
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.322 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Ending Power Optimization Task | Checksum: 20fe966ce
+
+Time (s): cpu = 00:00:49 ; elapsed = 00:00:24 . Memory (MB): peak = 2549.137 ; gain = 359.133
+
+Starting Final Cleanup Task
+Ending Final Cleanup Task | Checksum: 20fe966ce
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2549.137 ; gain = 0.000
+
+Starting Netlist Obfuscation Task
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.040 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Ending Netlist Obfuscation Task | Checksum: 20fe966ce
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.048 . Memory (MB): peak = 2549.137 ; gain = 0.000
+INFO: [Common 17-83] Releasing license: Implementation
+33 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+opt_design completed successfully
+opt_design: Time (s): cpu = 00:01:22 ; elapsed = 00:00:54 . Memory (MB): peak = 2549.137 ; gain = 1400.117
+INFO: [Vivado 12-24828] Executing command : report_drc -file rv32_soc_fpga_demo_top_drc_opted.rpt -pb rv32_soc_fpga_demo_top_drc_opted.pb -rpx rv32_soc_fpga_demo_top_drc_opted.rpx
+Command: report_drc -file rv32_soc_fpga_demo_top_drc_opted.rpt -pb rv32_soc_fpga_demo_top_drc_opted.pb -rpx rv32_soc_fpga_demo_top_drc_opted.rpx
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'H:/From_software/Vivado/Vivado/Vivado/2024.2/data/ip'.
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/impl_1/rv32_soc_fpga_demo_top_drc_opted.rpt.
+report_drc completed successfully
+report_drc: Time (s): cpu = 00:00:10 ; elapsed = 00:00:07 . Memory (MB): peak = 2549.137 ; gain = 0.000
+generate_parallel_reports: Time (s): cpu = 00:00:10 ; elapsed = 00:00:07 . Memory (MB): peak = 2549.137 ; gain = 0.000
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.002 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.310 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Wrote Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.043 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Write Physdb Complete: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.378 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Write ShapeDB Complete: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.570 . Memory (MB): peak = 2549.137 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/impl_1/rv32_soc_fpga_demo_top_opt.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:11 ; elapsed = 00:00:07 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Command: place_design
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Common 17-83] Releasing license: Implementation
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+Running DRC as a precondition to command place_design
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+INFO: [Place 30-611] Multithreading enabled for place_design using a maximum of 2 CPUs
+
+Starting Placer Task
+
+Phase 1 Placer Initialization
+
+Phase 1.1 Placer Initialization Netlist Sorting
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.034 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Phase 1.1 Placer Initialization Netlist Sorting | Checksum: 188befbba
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.051 . Memory (MB): peak = 2549.137 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.032 . Memory (MB): peak = 2549.137 ; gain = 0.000
+
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device | Checksum: 14fd18770
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:10 . Memory (MB): peak = 2549.137 ; gain = 0.000
+
+Phase 1.3 Build Placer Netlist Model
+WARNING: [Place 30-770] High register utilization is forcing place_design to place up to 8 registers per slice which may impact placement success and/or routing congestion.
+WARNING: [Place 30-34] Design utilization is very high. Please run report_utilization command to see design utilization.
+Phase 1.3 Build Placer Netlist Model | Checksum: 1d7b39dec
+
+Time (s): cpu = 00:00:44 ; elapsed = 00:00:32 . Memory (MB): peak = 2633.664 ; gain = 84.527
+
+Phase 1.4 Constrain Clocks/Macros
+Phase 1.4 Constrain Clocks/Macros | Checksum: 1d7b39dec
+
+Time (s): cpu = 00:00:44 ; elapsed = 00:00:32 . Memory (MB): peak = 2633.664 ; gain = 84.527
+Phase 1 Placer Initialization | Checksum: 1d7b39dec
+
+Time (s): cpu = 00:00:44 ; elapsed = 00:00:33 . Memory (MB): peak = 2633.664 ; gain = 84.527
+
+Phase 2 Global Placement
+
+Phase 2.1 Floorplanning
+Phase 2.1 Floorplanning | Checksum: 15b832dfe
+
+Time (s): cpu = 00:01:00 ; elapsed = 00:00:42 . Memory (MB): peak = 2633.664 ; gain = 84.527
+
+Phase 2.2 Update Timing before SLR Path Opt
+Phase 2.2 Update Timing before SLR Path Opt | Checksum: 1c306b731
+
+Time (s): cpu = 00:01:12 ; elapsed = 00:00:50 . Memory (MB): peak = 2633.664 ; gain = 84.527
+
+Phase 2.3 Post-Processing in Floorplanning
+Phase 2.3 Post-Processing in Floorplanning | Checksum: 1c306b731
+
+Time (s): cpu = 00:01:12 ; elapsed = 00:00:50 . Memory (MB): peak = 2633.664 ; gain = 84.527
+
+Phase 2.4 Global Place Phase1
+Phase 2.4 Global Place Phase1 | Checksum: 14c7e2aae
+
+Time (s): cpu = 00:03:11 ; elapsed = 00:02:09 . Memory (MB): peak = 2653.473 ; gain = 104.336
+
+Phase 2.5 Global Place Phase2
+
+Phase 2.5.1 UpdateTiming Before Physical Synthesis
+Phase 2.5.1 UpdateTiming Before Physical Synthesis | Checksum: 20176dde9
+
+Time (s): cpu = 00:03:22 ; elapsed = 00:02:15 . Memory (MB): peak = 2653.473 ; gain = 104.336
+
+Phase 2.5.2 Physical Synthesis In Placer
+INFO: [Physopt 32-1035] Found 0 LUTNM shape to break, 1522 LUT instances to create LUTNM shape
+INFO: [Physopt 32-1044] Break lutnm for timing: one critical 0, two critical 0, total 0, new lutff created 0
+INFO: [Physopt 32-1138] End 1 Pass. Optimized 698 nets or LUTs. Breaked 0 LUT, combined 698 existing LUTs and moved 0 existing LUT
+INFO: [Physopt 32-1408] Pass 1. Identified 1 candidate net for high-fanout optimization.
+INFO: [Physopt 32-81] Processed net u_soc/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_code_length_builder/state[3]. Replicated 46 times.
+INFO: [Physopt 32-232] Optimized 1 net. Created 46 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 1 net or cell. Created 46 new cells, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.734 . Memory (MB): peak = 2653.473 ; gain = 0.000
+INFO: [Physopt 32-670] No setup violation found.  DSP Register Optimization was not performed.
+INFO: [Physopt 32-670] No setup violation found.  Shift Register to Pipeline Optimization was not performed.
+INFO: [Physopt 32-670] No setup violation found.  Shift Register Optimization was not performed.
+INFO: [Physopt 32-670] No setup violation found.  BRAM Register Optimization was not performed.
+INFO: [Physopt 32-670] No setup violation found.  URAM Register Optimization was not performed.
+INFO: [Physopt 32-949] No candidate nets found for dynamic/static region interface net replication
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.033 . Memory (MB): peak = 2653.473 ; gain = 0.000
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization                                     |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  LUT Combining                                    |            0  |            698  |                   698  |           0  |           1  |  00:00:03  |
+|  Retime                                           |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Very High Fanout                                 |           46  |              0  |                     1  |           0  |           1  |  00:00:04  |
+|  DSP Register                                     |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Shift Register to Pipeline                       |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Shift Register                                   |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  BRAM Register                                    |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  URAM Register                                    |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Dynamic/Static Region Interface Net Replication  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Total                                            |           46  |            698  |                   699  |           0  |           4  |  00:00:06  |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Phase 2.5.2 Physical Synthesis In Placer | Checksum: 1b49c1cf0
+
+Time (s): cpu = 00:03:45 ; elapsed = 00:02:33 . Memory (MB): peak = 2653.473 ; gain = 104.336
+Phase 2.5 Global Place Phase2 | Checksum: 6ff53d58
+
+Time (s): cpu = 00:04:03 ; elapsed = 00:02:47 . Memory (MB): peak = 2653.473 ; gain = 104.336
+Phase 2 Global Placement | Checksum: 6ff53d58
+
+Time (s): cpu = 00:04:03 ; elapsed = 00:02:47 . Memory (MB): peak = 2653.473 ; gain = 104.336
+
+Phase 3 Detail Placement
+
+Phase 3.1 Commit Multi Column Macros
+Phase 3.1 Commit Multi Column Macros | Checksum: 7a89ad62
+
+Time (s): cpu = 00:04:19 ; elapsed = 00:02:57 . Memory (MB): peak = 2653.473 ; gain = 104.336
+
+Phase 3.2 Commit Most Macros & LUTRAMs
+Phase 3.2 Commit Most Macros & LUTRAMs | Checksum: 1a1e0c4e0
+
+Time (s): cpu = 00:04:50 ; elapsed = 00:03:16 . Memory (MB): peak = 2653.473 ; gain = 104.336
+
+Phase 3.3 Area Swap Optimization
+Phase 3.3 Area Swap Optimization | Checksum: 17b5b9ce4
+
+Time (s): cpu = 00:04:53 ; elapsed = 00:03:19 . Memory (MB): peak = 2653.473 ; gain = 104.336
+
+Phase 3.4 Pipeline Register Optimization
+Phase 3.4 Pipeline Register Optimization | Checksum: 1692128c9
+
+Time (s): cpu = 00:04:53 ; elapsed = 00:03:19 . Memory (MB): peak = 2653.473 ; gain = 104.336
+
+Phase 3.5 Small Shape Detail Placement
+Phase 3.5 Small Shape Detail Placement | Checksum: 193c6fa58
+
+Time (s): cpu = 00:05:40 ; elapsed = 00:04:07 . Memory (MB): peak = 2653.473 ; gain = 104.336
+Phase 3 Detail Placement | Checksum: 193c6fa58
+
+Time (s): cpu = 00:05:41 ; elapsed = 00:04:07 . Memory (MB): peak = 2653.473 ; gain = 104.336
+ERROR: [Place 30-487] The packing of instances into the device could not be obeyed. There are a total of 13300 slices in the device, of which 12717 slices are available, however, the unplaced instances require 13175 slices. Please analyze your design to determine if the number of LUTs, FFs, and/or control sets can be reduced.
+
+Number of control sets and instances constrained to the design
+	Control sets: 1749
+	Luts: 52489 (combined) 55283 (total), available capacity: 53200 
+	Flip flops: 40457, available capacity: 106400
+	NOTE: each slice can only accommodate 1 unique control set so FFs cannot be packed to fully fill every slice
+
+
+ERROR: [Place 30-99] Placer failed with error: 'Detail Placement failed please check previous errors for details.'
+Please review all ERROR, CRITICAL WARNING, and WARNING messages during placement to understand the cause for failure.
+
+Phase 4 Add Constraints
+
+Phase 4.1 Add User PBlocks
+Phase 4.1 Add User PBlocks | Checksum: 993188b1
+
+Time (s): cpu = 00:05:41 ; elapsed = 00:04:08 . Memory (MB): peak = 2653.473 ; gain = 104.336
+Phase 4 Add Constraints | Checksum: 993188b1
+
+Time (s): cpu = 00:05:41 ; elapsed = 00:04:08 . Memory (MB): peak = 2653.473 ; gain = 104.336
+Ending Placer Task | Checksum: d4523b47
+
+Time (s): cpu = 00:05:41 ; elapsed = 00:04:08 . Memory (MB): peak = 2653.473 ; gain = 104.336
+65 Infos, 2 Warnings, 0 Critical Warnings and 3 Errors encountered.
+place_design failed
+ERROR: [Common 17-69] Command failed: Placer could not place all instances
+INFO: [Common 17-206] Exiting Vivado at Fri May 15 02:35:24 2026...
+[Fri May 15 02:35:29 2026] impl_1 finished
+ERROR: [Vivado 12-13638] Failed runs(s) : 'impl_1'
+wait_on_runs: Time (s): cpu = 00:00:00 ; elapsed = 00:06:22 . Memory (MB): peak = 626.199 ; gain = 0.000
+ERROR: [Common 17-39] 'wait_on_runs' failed due to earlier errors.
+
+    while executing
+"wait_on_run impl_1"
+    (file "vivado\run_project_tx.tcl" line 41)
+INFO: [Common 17-206] Exiting Vivado at Fri May 15 02:35:29 2026...

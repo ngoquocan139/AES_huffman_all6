@@ -51,6 +51,7 @@ Read in this order when explaining the full system:
 | 6 | [dma_regfile_spec.md](./dma_regfile_spec.md) | DMA registers and mode decode |
 | 7 | [iv_generation_and_cbc_contract_spec.md](./iv_generation_and_cbc_contract_spec.md) | IV and AES-CBC contract |
 | 8 | [dma_riscv_instruction_programming_spec.md](./dma_riscv_instruction_programming_spec.md) | RV32I instructions used by control software |
+| 9 | [rv32i_instruction_mem_to_pipeline_flow_spec.md](./rv32i_instruction_mem_to_pipeline_flow_spec.md) | How `instruction.mem` enters IMEM and moves through RV32I pipeline |
 
 ## 4. TX Reading Path
 

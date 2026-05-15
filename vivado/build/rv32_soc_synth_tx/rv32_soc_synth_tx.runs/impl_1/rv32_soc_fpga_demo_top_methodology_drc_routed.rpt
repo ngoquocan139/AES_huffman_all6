@@ -1,0 +1,184 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
+| Date         : Fri May 15 04:10:46 2026
+| Host         : An running 64-bit major release  (build 9200)
+| Command      : report_methodology -file rv32_soc_fpga_demo_top_methodology_drc_routed.rpt -pb rv32_soc_fpga_demo_top_methodology_drc_routed.pb -rpx rv32_soc_fpga_demo_top_methodology_drc_routed.rpx
+| Design       : rv32_soc_fpga_demo_top
+| Device       : xc7z020clg484-1
+| Speed File   : -1
+| Design State : Fully Routed
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Report Methodology
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: design_1
+      Design limits: <entire design considered>
+             Max checks: <unlimited>
+             Checks found: 26
++-----------+----------+---------------------------------------------+--------+
+| Rule      | Severity | Description                                 | Checks |
++-----------+----------+---------------------------------------------+--------+
+| LUTAR-1   | Warning  | LUT drives async reset alert                | 1      |
+| SYNTH-6   | Warning  | Timing of a RAM block might be sub-optimal  | 10     |
+| SYNTH-15  | Warning  | Byte wide write enable not inferred         | 8      |
+| TIMING-18 | Warning  | Missing input or output delay               | 6      |
+| ULMTCS-1  | Warning  | Control Sets use limits recommend reduction | 1      |
++-----------+----------+---------------------------------------------+--------+
+
+2. REPORT DETAILS
+-----------------
+LUTAR-1#1 Warning
+LUT drives async reset alert  
+LUT cell u_uart_dmem_loader/u_soc_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) u_soc/u_tx_top/tx_cbc_chain_r_reg[89]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[8]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[90]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[91]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[92]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[93]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[94]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[95]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[96]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[97]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[98]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[99]/CLR,
+u_soc/u_tx_top/tx_cbc_chain_r_reg[9]/CLR,
+u_soc/u_tx_top/tx_cipher_inflight_r_reg/CLR,
+u_soc/u_tx_top/u_huffman_aes_tx_top/u_file_huffman_builder/u_code_length_builder/scan_node_idx_reg[3]_replica/CLR
+ (the first 15 of 9041 listed). The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+SYNTH-6#1 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#2 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#3 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#4 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#5 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#6 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#7 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#8 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#9 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_imem/instruction_r_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#10 Warning
+Timing of a RAM block might be sub-optimal  
+The timing for the instance u_soc/u_imem/instruction_r_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-15#1 Warning
+Byte wide write enable not inferred  
+Byte wide write enable (BWWE) is not inferred for Block RAM u_soc/u_dmem/u_dmem_ip/mem_reg_0_0 because address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired..
+Related violations: <none>
+
+SYNTH-15#2 Warning
+Byte wide write enable not inferred  
+Byte wide write enable (BWWE) is not inferred for Block RAM u_soc/u_dmem/u_dmem_ip/mem_reg_0_1 because address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired..
+Related violations: <none>
+
+SYNTH-15#3 Warning
+Byte wide write enable not inferred  
+Byte wide write enable (BWWE) is not inferred for Block RAM u_soc/u_dmem/u_dmem_ip/mem_reg_1_0 because address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired..
+Related violations: <none>
+
+SYNTH-15#4 Warning
+Byte wide write enable not inferred  
+Byte wide write enable (BWWE) is not inferred for Block RAM u_soc/u_dmem/u_dmem_ip/mem_reg_1_1 because address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired..
+Related violations: <none>
+
+SYNTH-15#5 Warning
+Byte wide write enable not inferred  
+Byte wide write enable (BWWE) is not inferred for Block RAM u_soc/u_dmem/u_dmem_ip/mem_reg_2_0 because address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired..
+Related violations: <none>
+
+SYNTH-15#6 Warning
+Byte wide write enable not inferred  
+Byte wide write enable (BWWE) is not inferred for Block RAM u_soc/u_dmem/u_dmem_ip/mem_reg_2_1 because address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired..
+Related violations: <none>
+
+SYNTH-15#7 Warning
+Byte wide write enable not inferred  
+Byte wide write enable (BWWE) is not inferred for Block RAM u_soc/u_dmem/u_dmem_ip/mem_reg_3_0 because address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired..
+Related violations: <none>
+
+SYNTH-15#8 Warning
+Byte wide write enable not inferred  
+Byte wide write enable (BWWE) is not inferred for Block RAM u_soc/u_dmem/u_dmem_ip/mem_reg_3_1 because address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired..
+Related violations: <none>
+
+TIMING-18#1 Warning
+Missing input or output delay  
+An input delay is missing on uart_rx_i relative to the rising and/or falling clock edge(s) of clk_i.
+Related violations: <none>
+
+TIMING-18#2 Warning
+Missing input or output delay  
+An output delay is missing on led_o[0] relative to the rising and/or falling clock edge(s) of clk_i.
+Related violations: <none>
+
+TIMING-18#3 Warning
+Missing input or output delay  
+An output delay is missing on led_o[1] relative to the rising and/or falling clock edge(s) of clk_i.
+Related violations: <none>
+
+TIMING-18#4 Warning
+Missing input or output delay  
+An output delay is missing on led_o[2] relative to the rising and/or falling clock edge(s) of clk_i.
+Related violations: <none>
+
+TIMING-18#5 Warning
+Missing input or output delay  
+An output delay is missing on led_o[3] relative to the rising and/or falling clock edge(s) of clk_i.
+Related violations: <none>
+
+TIMING-18#6 Warning
+Missing input or output delay  
+An output delay is missing on uart_tx_o relative to the rising and/or falling clock edge(s) of clk_i.
+Related violations: <none>
+
+ULMTCS-1#1 Warning
+Control Sets use limits recommend reduction  
+This design uses 1765 control sets (vs. available limit of 13300, determined by 1 control set per CLB). This exceeds the control set use guideline of 7.5 percent. This is at a level where reduction is RECOMMENDED (see UG949). Use report_control_sets to get more details.
+Related violations: <none>
+
+

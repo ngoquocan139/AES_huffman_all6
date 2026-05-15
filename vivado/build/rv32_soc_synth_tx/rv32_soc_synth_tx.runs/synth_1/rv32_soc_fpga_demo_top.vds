@@ -1,0 +1,693 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Fri May 15 02:59:42 2026
+# Process ID         : 35436
+# Current directory  : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/synth_1
+# Command line       : vivado.exe -log rv32_soc_fpga_demo_top.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source rv32_soc_fpga_demo_top.tcl
+# Log file           : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/synth_1/rv32_soc_fpga_demo_top.vds
+# Journal file       : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/synth_1\vivado.jou
+# Running On         : An
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
+# CPU Frequency      : 1992 MHz
+# CPU Physical cores : 4
+# CPU Logical cores  : 8
+# Host memory        : 17024 MB
+# Swap memory        : 26843 MB
+# Total Virtual      : 43867 MB
+# Available Virtual  : 20140 MB
+#-----------------------------------------------------------
+source rv32_soc_fpga_demo_top.tcl -notrace
+create_project: Time (s): cpu = 00:00:13 ; elapsed = 00:00:15 . Memory (MB): peak = 620.566 ; gain = 190.777
+Command: read_checkpoint -auto_incremental -incremental H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.srcs/utils_1/imports/synth_1/rv32_soc_fpga_demo_top.dcp
+INFO: [Vivado 12-5825] Read reference checkpoint from H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.srcs/utils_1/imports/synth_1/rv32_soc_fpga_demo_top.dcp for incremental synthesis
+INFO: [Vivado 12-7989] Please ensure there are no constraint changes
+read_checkpoint: Time (s): cpu = 00:00:02 ; elapsed = 00:00:06 . Memory (MB): peak = 625.859 ; gain = 5.293
+Command: synth_design -top rv32_soc_fpga_demo_top -part xc7z020clg484-1 -directive AreaOptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Device 21-403] Loading part xc7z020clg484-1
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 36208
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 1323.773 ; gain = 467.543
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'rv32_soc_fpga_demo_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_fpga_demo_top.v:6]
+INFO: [Synth 8-6157] synthesizing module 'uart_dmem_loader' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:1]
+	Parameter CLK_HZ bound to: 50000000 - type: integer 
+	Parameter BAUD_RATE bound to: 115200 - type: integer 
+	Parameter SRC_BASE_ADDR bound to: 8192 - type: integer 
+	Parameter INPUT_LEN_ADDR bound to: 64 - type: integer 
+	Parameter MAX_INPUT_BYTES bound to: 7168 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'uart_rx' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_rx.v:1]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_rx.v:45]
+INFO: [Synth 8-6155] done synthesizing module 'uart_rx' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_rx.v:1]
+INFO: [Synth 8-6157] synthesizing module 'uart_tx' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_tx.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'uart_tx' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_tx.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'uart_dmem_loader' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:1]
+INFO: [Synth 8-6157] synthesizing module 'rv32_soc_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_top.v:12]
+INFO: [Synth 8-6157] synthesizing module 'top_rv32_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/top_rv32_sync.v:2]
+INFO: [Synth 8-6157] synthesizing module 'if_stage_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/if_stage_sync.v:8]
+INFO: [Synth 8-6155] done synthesizing module 'if_stage_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/if_stage_sync.v:8]
+INFO: [Synth 8-6157] synthesizing module 'id_stage' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/id_stage.v:3]
+INFO: [Synth 8-6155] done synthesizing module 'id_stage' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/id_stage.v:3]
+INFO: [Synth 8-6157] synthesizing module 'ex_stage' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/ex_stage.v:3]
+INFO: [Synth 8-6155] done synthesizing module 'ex_stage' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/ex_stage.v:3]
+INFO: [Synth 8-6157] synthesizing module 'mem_stage_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/mem_stage_sync.v:7]
+INFO: [Synth 8-6155] done synthesizing module 'mem_stage_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/mem_stage_sync.v:7]
+INFO: [Synth 8-6157] synthesizing module 'forwarding' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/forwarding.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'forwarding' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/forwarding.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'top_rv32_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/top_rv32_sync.v:2]
+INFO: [Synth 8-6157] synthesizing module 'registers_file' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/registers_file.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'registers_file' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/registers_file.v:1]
+INFO: [Synth 8-6157] synthesizing module 'imem_sync' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:3]
+INFO: [Synth 8-3876] $readmem data file 'instruction.mem' is read successfully [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:28]
+INFO: [Synth 8-251] Sync Istr 0: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:29]
+INFO: [Synth 8-251] Sync Istr 1: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:30]
+INFO: [Synth 8-251] Sync Istr 2: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:31]
+INFO: [Synth 8-251] Sync Istr 3: xxxxxxxx [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:32]
+INFO: [Synth 8-6155] done synthesizing module 'imem_sync' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/imem_sync.v:3]
+INFO: [Synth 8-6157] synthesizing module 'dmem_ip_wrapper' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dmem_ip_wrapper.v:11]
+INFO: [Synth 8-6157] synthesizing module 'DMEM_ip' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/DMEM_ip.v:13]
+INFO: [Synth 8-6155] done synthesizing module 'DMEM_ip' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/DMEM_ip.v:13]
+INFO: [Synth 8-6155] done synthesizing module 'dmem_ip_wrapper' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dmem_ip_wrapper.v:11]
+INFO: [Synth 8-6157] synthesizing module 'apb_huffman_aes_tx_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_tx_top.v:1]
+INFO: [Synth 8-6157] synthesizing module 'apb_huffman_tx_if' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_tx_if.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'apb_huffman_tx_if' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_tx_if.v:1]
+INFO: [Synth 8-6157] synthesizing module 'huffman_aes_tx_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_aes_tx_top.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter BUFFER_ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter HEADER_BITS_WIDTH bound to: 12 - type: integer 
+	Parameter TOTAL_BITS_WIDTH bound to: 16 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 32 - type: integer 
+	Parameter MAX_TREE_NODES bound to: 63 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+	Parameter TRANSPORT_WORD_WIDTH bound to: 128 - type: integer 
+	Parameter VALID_BITS_WIDTH bound to: 7 - type: integer 
+	Parameter AES_KEY_FIXED bound to: 128'b00000000000100010010001000110011010001000101010101100110011101111000100010011001101010101011101111001100110111011110111011111111 
+INFO: [Synth 8-6157] synthesizing module 'frequency_counter' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/frequency_counter.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter COUNT_WIDTH bound to: 16 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+	Parameter DEFAULT_REMAP bound to: 8'b00100000 
+INFO: [Synth 8-6155] done synthesizing module 'frequency_counter' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/frequency_counter.v:1]
+INFO: [Synth 8-6157] synthesizing module 'huffman_builder' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_builder.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 16 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 256 - type: integer 
+	Parameter MAX_TREE_NODES bound to: 511 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+INFO: [Synth 8-6157] synthesizing module 'symbol_list_builder' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/symbol_list_builder.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 16 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 256 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/symbol_list_builder.v:91]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/symbol_list_builder.v:134]
+INFO: [Synth 8-6155] done synthesizing module 'symbol_list_builder' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/symbol_list_builder.v:1]
+INFO: [Synth 8-6157] synthesizing module 'code_length_builder' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/code_length_builder.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 16 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 256 - type: integer 
+	Parameter MAX_TREE_NODES bound to: 511 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+INFO: [Synth 8-6155] done synthesizing module 'code_length_builder' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/code_length_builder.v:1]
+INFO: [Synth 8-6157] synthesizing module 'canonical_code_generator' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/canonical_code_generator.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 256 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+INFO: [Synth 8-6155] done synthesizing module 'canonical_code_generator' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/canonical_code_generator.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'huffman_builder' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_builder.v:1]
+INFO: [Synth 8-6157] synthesizing module 'dynamic_huffman_encoder' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dynamic_huffman_encoder.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter BUFFER_ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter COUNT_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter HEADER_BITS_WIDTH bound to: 12 - type: integer 
+	Parameter TOTAL_BITS_WIDTH bound to: 16 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter MAX_SYMBOLS_PER_BLOCK bound to: 32 - type: integer 
+	Parameter MAX_TREE_NODES bound to: 63 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6157] synthesizing module 'input_collect_unit' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/input_collect_unit.v:1]
+	Parameter BLOCK_SIZE bound to: 32 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+	Parameter DEFAULT_REMAP bound to: 8'b00100000 
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter COUNT_WIDTH bound to: 6 - type: integer 
+	Parameter ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'block_buffer' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/block_buffer.v:1]
+	Parameter BLOCK_SIZE bound to: 32 - type: integer 
+	Parameter DATA_WIDTH bound to: 8 - type: integer 
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter ADDR_WIDTH bound to: 5 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'block_buffer' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/block_buffer.v:1]
+INFO: [Synth 8-6157] synthesizing module 'frequency_counter__parameterized0' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/frequency_counter.v:1]
+	Parameter ALPHABET_SIZE bound to: 256 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter COUNT_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+	Parameter DEFAULT_REMAP bound to: 8'b00100000 
+INFO: [Synth 8-6155] done synthesizing module 'frequency_counter__parameterized0' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/frequency_counter.v:1]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/input_collect_unit.v:139]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/input_collect_unit.v:180]
+INFO: [Synth 8-6155] done synthesizing module 'input_collect_unit' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/input_collect_unit.v:1]
+INFO: [Synth 8-6157] synthesizing module 'emit_backend' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/emit_backend.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter BUFFER_ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter HEADER_BITS_WIDTH bound to: 12 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6157] synthesizing module 'header_formatter' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/header_formatter.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_COUNT_WIDTH bound to: 9 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter HEADER_BITS_WIDTH bound to: 12 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6155] done synthesizing module 'header_formatter' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/header_formatter.v:1]
+INFO: [Synth 8-6157] synthesizing module 'payload_emitter' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/payload_emitter.v:1]
+	Parameter BLOCK_SIZE_WIDTH bound to: 6 - type: integer 
+	Parameter BUFFER_ADDR_WIDTH bound to: 5 - type: integer 
+	Parameter SYMBOL_WIDTH bound to: 8 - type: integer 
+	Parameter SYMBOL_INDEX_WIDTH bound to: 8 - type: integer 
+	Parameter CODE_LEN_WIDTH bound to: 5 - type: integer 
+	Parameter CODE_WIDTH bound to: 13 - type: integer 
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter ASCII_MIN bound to: 8'b00100000 
+	Parameter ASCII_MAX bound to: 8'b01111110 
+INFO: [Synth 8-6155] done synthesizing module 'payload_emitter' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/payload_emitter.v:1]
+INFO: [Synth 8-6157] synthesizing module 'stream_output_interface' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/stream_output_interface.v:1]
+	Parameter STREAM_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter STREAM_LEN_WIDTH bound to: 6 - type: integer 
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/stream_output_interface.v:62]
+INFO: [Synth 8-6155] done synthesizing module 'stream_output_interface' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/stream_output_interface.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'emit_backend' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/emit_backend.v:1]
+INFO: [Synth 8-6157] synthesizing module 'control_fsm' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/control_fsm.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'control_fsm' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/control_fsm.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'dynamic_huffman_encoder' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dynamic_huffman_encoder.v:1]
+INFO: [Synth 8-6157] synthesizing module 'bit_packer_128' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/bit_packer_128.v:1]
+	Parameter CHUNK_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter CHUNK_LEN_WIDTH bound to: 6 - type: integer 
+	Parameter TRANSPORT_WORD_WIDTH bound to: 128 - type: integer 
+	Parameter VALID_BITS_WIDTH bound to: 7 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'bit_packer_128' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/bit_packer_128.v:1]
+INFO: [Synth 8-6157] synthesizing module 'wrapper' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/wrapper.v:1]
+	Parameter AES_KEY_FIXED bound to: 128'b00000000000100010010001000110011010001000101010101100110011101111000100010011001101010101011101111001100110111011110111011111111 
+INFO: [Synth 8-6155] done synthesizing module 'wrapper' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/wrapper.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'huffman_aes_tx_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_aes_tx_top.v:1]
+INFO: [Synth 8-6157] synthesizing module 'aes128_cipher_top' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_top.v:13]
+INFO: [Synth 8-6157] synthesizing module 'aes128_cipher_core' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_core.v:11]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes_encrypt_funcs.vh:164]
+INFO: [Synth 8-6155] done synthesizing module 'aes128_cipher_core' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_core.v:11]
+INFO: [Synth 8-6157] synthesizing module 'aes128_key_expansion' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_key_expansion.v:11]
+INFO: [Synth 8-226] default block is never used [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes_encrypt_funcs.vh:164]
+INFO: [Synth 8-6155] done synthesizing module 'aes128_key_expansion' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_key_expansion.v:11]
+INFO: [Synth 8-6155] done synthesizing module 'aes128_cipher_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/aes128_cipher_top.v:13]
+INFO: [Synth 8-6155] done synthesizing module 'apb_huffman_aes_tx_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_tx_top.v:1]
+INFO: [Synth 8-6157] synthesizing module 'cpu_mmio_to_apb_bridge' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/cpu_mmio_to_apb_bridge.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'cpu_mmio_to_apb_bridge' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/cpu_mmio_to_apb_bridge.v:1]
+INFO: [Synth 8-6157] synthesizing module 'dma_regfile' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_regfile.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'dma_regfile' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_regfile.v:1]
+INFO: [Synth 8-6157] synthesizing module 'dma_tx_engine' [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_tx_engine.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'dma_tx_engine' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_tx_engine.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'rv32_soc_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_top.v:12]
+INFO: [Synth 8-6155] done synthesizing module 'rv32_soc_fpga_demo_top' (0#1) [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_fpga_demo_top.v:6]
+WARNING: [Synth 8-6014] Unused sequential element candidate_len_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:229]
+WARNING: [Synth 8-6014] Unused sequential element merged_word_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:248]
+WARNING: [Synth 8-6014] Unused sequential element merged_we_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:249]
+WARNING: [Synth 8-6014] Unused sequential element next_rem_v_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/uart_dmem_loader.v:250]
+WARNING: [Synth 8-7137] Register symbol_list_mem_reg in module symbol_list_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-4767] Trying to implement RAM 'symbol_list_mem_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "symbol_list_mem_reg" dissolved into registers
+WARNING: [Synth 8-7137] Register leaf_symbol_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register leaf_node_index_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_weight_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_is_leaf_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_symbol_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_order_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-7137] Register node_parent_reg in module code_length_builder has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code 
+WARNING: [Synth 8-4767] Trying to implement RAM 'leaf_symbol_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "leaf_symbol_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_parent_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM has multiple writes via different ports in same process. If RAM inferencing intended, write to one port per process. 
+	2: Unable to determine number of words or word size in RAM. 
+	3: No valid read/write found for RAM. 
+RAM "node_parent_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_weight_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "node_weight_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_is_leaf_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "node_is_leaf_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_symbol_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "node_symbol_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'node_order_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "node_order_reg" dissolved into registers
+WARNING: [Synth 8-4767] Trying to implement RAM 'leaf_node_index_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons.
+Reason is one or more of the following :
+	1: RAM is sensitive to asynchronous reset signal. this RTL style is not supported. 
+RAM "leaf_node_index_reg" dissolved into registers
+WARNING: [Synth 8-6014] Unused sequential element tx_meta_r_reg was removed.  [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dma_tx_engine.v:141]
+WARNING: [Synth 8-7129] Port clear_done_i in module dma_tx_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_n in module aes128_key_expansion is either unconnected or has no load
+WARNING: [Synth 8-7129] Port whole_file_enable in module dynamic_huffman_encoder is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[7] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[6] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[5] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[4] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[3] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[2] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[1] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port symbol_read_data[0] in module canonical_code_generator is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[31] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[30] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[29] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[28] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[27] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[26] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[25] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[24] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[23] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[22] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[21] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[20] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[19] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[18] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[17] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[16] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[15] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[1] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpu_addr_i[0] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[31] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[30] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[29] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[28] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[27] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[26] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[25] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[24] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[23] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[22] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[21] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[20] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[19] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[18] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[17] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[16] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[15] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[1] in module dmem_ip_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port aux_addr_i[0] in module dmem_ip_wrapper is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:31 ; elapsed = 00:00:34 . Memory (MB): peak = 2122.051 ; gain = 1265.820
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:34 ; elapsed = 00:00:38 . Memory (MB): peak = 2122.051 ; gain = 1265.820
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:34 ; elapsed = 00:00:38 . Memory (MB): peak = 2122.051 ; gain = 1265.820
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2122.051 ; gain = 0.000
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]
+Finished Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/constraints/zedboard_demo.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/rv32_soc_fpga_demo_top_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/rv32_soc_fpga_demo_top_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/auto_clock.xdc]
+Finished Parsing XDC File [H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/auto_clock.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2270.781 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.427 . Memory (MB): peak = 2270.781 ; gain = 0.000
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:01:14 ; elapsed = 00:01:19 . Memory (MB): peak = 2270.781 ; gain = 1414.551
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7z020clg484-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:01:14 ; elapsed = 00:01:19 . Memory (MB): peak = 2270.781 ; gain = 1414.551
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:01:14 ; elapsed = 00:01:19 . Memory (MB): peak = 2270.781 ; gain = 1414.551
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Preparing Guide Design
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Doing Graph Differ : Time (s): cpu = 00:01:27 ; elapsed = 00:01:36 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+bit_packer_128__GB0code_length_builder__GB4code_length_builder__GB7code_length_builder__GB10rv32_soc_fpga_demo_top__GC0bit_packer_128__GB1code_length_builder__GB5code_length_builder__GB1code_length_builder__GB6apb_huffman_aes_tx_top__GC0huffman_aes_tx_top__GC0code_length_builder__GB8bit_packer_128__GB2code_length_builder__GB0code_length_builder__GB9code_length_builder__GB3code_length_builder__GB2huffman_builder__GC0rv32_soc_top__GC0---------------------------------------------------------------------------------
+Finished Preparing Guide Design : Time (s): cpu = 00:01:32 ; elapsed = 00:01:42 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:01:37 ; elapsed = 00:01:48 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Mimic Skeleton from Reference
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Mimic Skeleton from Reference : Time (s): cpu = 00:01:42 ; elapsed = 00:01:52 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+
+
+Incremental Synthesis Report Summary:
+
+1. Incremental synthesis run: yes
+
+   Stitch points used : changed
+
+
+2. Change Summary
+
+Report Incremental Modules: 
++-+----------------+------------+----------+----------+
+| |Changed Modules |Replication |Instances |Changed % |
++-+----------------+------------+----------+----------+
++-+----------------+------------+----------+----------+
+
+
+   Full Design Size (number of cells) : 324595
+   Resynthesis Design Size (number of cells) : 0
+   Resynth % : 0.0000,  Reuse % : 100.0000
+
+3. Reference Checkpoint Information
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| DCP Location:  | H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.srcs/utils_1/imports/synth_1/rv32_soc_fpga_demo_top.dcp |
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+
++--------------------------------+------------------------------+
+|         DCP Information        |             Value            |
++--------------------------------+------------------------------+
+| Vivado Version                 |                    v2024.2 |
+| DCP State                      |                              |
++--------------------------------+------------------------------+
+
+
+
+Report RTL Partitions: 
++------+------------------------------------+------------+----------+
+|      |RTL Partition                       |Replication |Instances |
++------+------------------------------------+------------+----------+
+|1     |code_length_builder__GB0_#REUSE#    |           1|         0|
+|2     |code_length_builder__GB1_#REUSE#    |           1|         0|
+|3     |code_length_builder__GB2_#REUSE#    |           1|         0|
+|4     |code_length_builder__GB3_#REUSE#    |           1|         0|
+|5     |code_length_builder__GB4_#REUSE#    |           1|         0|
+|6     |code_length_builder__GB5_#REUSE#    |           1|         0|
+|7     |code_length_builder__GB6_#REUSE#    |           1|         0|
+|8     |code_length_builder__GB7_#REUSE#    |           1|         0|
+|9     |code_length_builder__GB8_#REUSE#    |           1|         0|
+|10    |code_length_builder__GB9_#REUSE#    |           1|         0|
+|11    |code_length_builder__GB10_#REUSE#   |           1|         0|
+|12    |huffman_builder__GC0_#REUSE#        |           1|         0|
+|13    |bit_packer_128__GB0_#REUSE#         |           1|         0|
+|14    |bit_packer_128__GB1_#REUSE#         |           1|         0|
+|15    |bit_packer_128__GB2_#REUSE#         |           1|         0|
+|16    |huffman_aes_tx_top__GC0_#REUSE#     |           1|         0|
+|17    |apb_huffman_aes_tx_top__GC0_#REUSE# |           1|         0|
+|18    |rv32_soc_top__GC0_#REUSE#           |           1|         0|
+|19    |rv32_soc_fpga_demo_top__GC0_#REUSE# |           1|         0|
++------+------------------------------------+------------+----------+
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 220 (col length:60)
+BRAMs: 280 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+WARNING: [Synth 8-7077] IncrSyn: subsequent runs will still be incremental as the reference run was parallel and that data is reused
+---------------------------------------------------------------------------------
+Start Pre Area Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Iterative Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+WARNING: [Synth 8-7077] IncrSyn: subsequent runs will still be incremental as the reference run was parallel and that data is reused
+---------------------------------------------------------------------------------
+Start Post Area Optimization : Time (s): cpu = 00:01:49 ; elapsed = 00:02:01 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:01:49 ; elapsed = 00:02:01 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Stitch Unchanged AreaOpt Partitions
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Stitch Unchanged AreaOpt Partitions : Time (s): cpu = 00:01:52 ; elapsed = 00:02:05 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:02:07 ; elapsed = 00:02:21 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:02:08 ; elapsed = 00:02:22 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+WARNING: [Synth 8-7077] IncrSyn: subsequent runs will still be incremental as the reference run was parallel and that data is reused
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:02:09 ; elapsed = 00:02:23 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Stitch Unchanged Partitions
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Stitch Unchanged Partitions : Time (s): cpu = 00:02:11 ; elapsed = 00:02:26 . Memory (MB): peak = 2344.637 ; gain = 1488.406
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_dmem/u_dmem_ip/mem_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_imem/instruction_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_soc/u_imem/instruction_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:02:31 ; elapsed = 00:02:48 . Memory (MB): peak = 2356.324 ; gain = 1500.094
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:02:32 ; elapsed = 00:02:48 . Memory (MB): peak = 2356.324 ; gain = 1500.094
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:02:39 ; elapsed = 00:02:56 . Memory (MB): peak = 2380.258 ; gain = 1524.027
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:02:40 ; elapsed = 00:02:57 . Memory (MB): peak = 2380.258 ; gain = 1524.027
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:02:43 ; elapsed = 00:03:00 . Memory (MB): peak = 2387.094 ; gain = 1530.863
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:02:43 ; elapsed = 00:03:01 . Memory (MB): peak = 2387.094 ; gain = 1530.863
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |BUFG     |     1|
+|2     |CARRY4   |   552|
+|3     |LUT1     |   510|
+|4     |LUT2     |  3737|
+|5     |LUT3     |  2312|
+|6     |LUT4     |  4543|
+|7     |LUT5     |  6950|
+|8     |LUT6     | 31339|
+|9     |MUXF7    | 10382|
+|10    |MUXF8    |  4878|
+|11    |RAM64M   |    32|
+|12    |RAM64X1D |    12|
+|13    |RAMB36E1 |    10|
+|14    |FDCE     |  9023|
+|15    |FDPE     |    14|
+|16    |FDRE     | 31296|
+|17    |FDSE     |    35|
+|18    |IBUF     |     2|
+|19    |OBUF     |     5|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:02:44 ; elapsed = 00:03:01 . Memory (MB): peak = 2387.094 ; gain = 1530.863
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 6 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:01:48 ; elapsed = 00:02:42 . Memory (MB): peak = 2387.094 ; gain = 1382.133
+Synthesis Optimization Complete : Time (s): cpu = 00:02:44 ; elapsed = 00:03:03 . Memory (MB): peak = 2387.094 ; gain = 1530.863
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2396.227 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 15866 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.028 . Memory (MB): peak = 2424.672 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 44 instances were transformed.
+  RAM64M => RAM64M (RAMD64E(x4)): 32 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
+
+Synth Design complete | Checksum: d19972d7
+INFO: [Common 17-83] Releasing license: Synthesis
+128 Infos, 76 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:03:08 ; elapsed = 00:03:31 . Memory (MB): peak = 2424.672 ; gain = 1798.812
+Write ShapeDB Complete: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.273 . Memory (MB): peak = 2424.672 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/rv32_soc_synth_tx.runs/synth_1/rv32_soc_fpga_demo_top.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:15 ; elapsed = 00:00:15 . Memory (MB): peak = 2424.672 ; gain = 0.000
+INFO: [Vivado 12-24828] Executing command : report_utilization -file rv32_soc_fpga_demo_top_utilization_synth.rpt -pb rv32_soc_fpga_demo_top_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Fri May 15 03:03:57 2026...

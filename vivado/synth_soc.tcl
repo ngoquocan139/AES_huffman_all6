@@ -30,6 +30,28 @@ proc copy_reports_to_sim {report_dir sim_dir project_name} {
   }
 }
 
+proc set_run_property_if_present {run_name prop_name prop_value} {
+  if {$prop_value eq ""} {
+    return
+  }
+  set run_obj [get_runs -quiet $run_name]
+  if {[llength $run_obj] == 0} {
+    return
+  }
+  if {[catch {set_property $prop_name $prop_value $run_obj} result]} {
+    puts "WARNING: could not set $prop_name=$prop_value on $run_name: $result"
+  }
+}
+
+proc configure_project_runs {synth_directive opt_directive place_directive phys_opt_directive route_directive} {
+  set_run_property_if_present synth_1 STEPS.SYNTH_DESIGN.ARGS.FLATTEN_HIERARCHY rebuilt
+  set_run_property_if_present synth_1 STEPS.SYNTH_DESIGN.ARGS.DIRECTIVE $synth_directive
+  set_run_property_if_present impl_1 STEPS.OPT_DESIGN.ARGS.DIRECTIVE $opt_directive
+  set_run_property_if_present impl_1 STEPS.PLACE_DESIGN.ARGS.DIRECTIVE $place_directive
+  set_run_property_if_present impl_1 STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE $phys_opt_directive
+  set_run_property_if_present impl_1 STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE $route_directive
+}
+
 set script_dir [file dirname [file normalize [info script]]]
 set repo_root  [file normalize [file join $script_dir ".."]]
 set sim_dir    [file join $repo_root "sim"]
@@ -157,6 +179,19 @@ if {$can_reuse_impl} {
   eval $read_cmd
 
   set_property top $top_name [current_fileset]
+
+  # Keep Vivado GUI/project runs equivalent to this batch flow. Without these
+  # settings, synth_1 uses Vivado defaults and leaves the TX netlist too large
+  # for xc7z020 placement. Adding instruction.mem prevents project-mode
+  # synthesis from falling back to an empty IMEM initialization.
+  if {[file exists $root_instruction_mem]} {
+    add_files -quiet -fileset sources_1 $root_instruction_mem
+    set mem_file [get_files -quiet $root_instruction_mem]
+    if {[llength $mem_file] > 0} {
+      set_property file_type {Memory Initialization Files} $mem_file
+    }
+  }
+  configure_project_runs $synth_directive $opt_directive $place_directive $phys_opt_directive $route_directive
 
   if {$xdc_path ne ""} {
     if {[file pathtype $xdc_path] eq "relative"} {

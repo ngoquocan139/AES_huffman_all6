@@ -1,0 +1,366 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Fri May 15 00:43:57 2026
+# Process ID         : 26728
+# Current directory  : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6
+# Command line       : vivado.exe -mode batch -source vivado\synth_soc.tcl
+# Log file           : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado.log
+# Journal file       : H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6\vivado.jou
+# Running On         : An
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
+# CPU Frequency      : 1992 MHz
+# CPU Physical cores : 4
+# CPU Logical cores  : 8
+# Host memory        : 17024 MB
+# Swap memory        : 26843 MB
+# Total Virtual      : 43867 MB
+# Available Virtual  : 22656 MB
+#-----------------------------------------------------------
+source {vivado\synth_soc.tcl}
+# proc env_or_default {name default_value} {
+#   if {[info exists ::env($name)] && $::env($name) ne ""} {
+#     return $::env($name)
+#   }
+#   return $default_value
+# }
+# proc append_unique {list_var item} {
+#   upvar $list_var values
+#   set norm_item [file normalize $item]
+#   if {[lsearch -exact $values $norm_item] < 0} {
+#     lappend values $norm_item
+#   }
+# }
+# proc copy_reports_to_sim {report_dir sim_dir project_name} {
+#   file mkdir [file join $sim_dir "vivado_reports" $project_name]
+#   foreach rpt [glob -nocomplain [file join $report_dir "*"]] {
+#     file copy -force $rpt [file join $sim_dir "vivado_reports" $project_name [file tail $rpt]]
+#   }
+# }
+# set script_dir [file dirname [file normalize [info script]]]
+# set repo_root  [file normalize [file join $script_dir ".."]]
+# set sim_dir    [file join $repo_root "sim"]
+# set rtl_dir    [file join $repo_root "rtl"]
+# set project_name [env_or_default PROJECT_NAME "rv32_soc_synth_tx"]
+# set top_name     [env_or_default TOP_NAME "rv32_soc_fpga_demo_top"]
+# set fpga_build   [env_or_default FPGA_BUILD "tx_only"]
+# set flow         [env_or_default VIVADO_FLOW "synth"]
+# set xdc_path     [env_or_default VIVADO_XDC ""]
+# set clock_mhz    [env_or_default VIVADO_CLOCK_MHZ "50"]
+# set synth_directive [env_or_default VIVADO_SYNTH_DIRECTIVE "RuntimeOptimized"]
+# set opt_directive   [env_or_default VIVADO_OPT_DIRECTIVE ""]
+# set place_directive [env_or_default VIVADO_PLACE_DIRECTIVE ""]
+# set phys_opt_directive [env_or_default VIVADO_PHYS_OPT_DIRECTIVE ""]
+# set route_directive [env_or_default VIVADO_ROUTE_DIRECTIVE ""]
+# set reuse_synth  [env_or_default VIVADO_REUSE_SYNTH "0"]
+# set reuse_impl   [env_or_default VIVADO_REUSE_IMPL "0"]
+# set part_name    "xc7z020clg484-1"
+# set build_dir  [file join $repo_root "vivado" "build" $project_name]
+# set report_dir [file join $build_dir "reports"]
+# set post_synth_dcp [file join $build_dir "post_synth.dcp"]
+# set post_route_dcp [file join $build_dir "post_route.dcp"]
+# file mkdir $build_dir
+# file mkdir $report_dir
+# set sim_instruction_mem [file join $sim_dir "instruction.mem"]
+# set root_instruction_mem [file join $repo_root "instruction.mem"]
+# if {[file exists $sim_instruction_mem]} {
+#   file copy -force $sim_instruction_mem $root_instruction_mem
+#   puts "INFO: copied $sim_instruction_mem to $root_instruction_mem for IMEM initialization"
+# } elseif {![file exists $root_instruction_mem]} {
+#   puts "WARNING: no instruction.mem found in sim/ or repo root; IMEM will synthesize with empty/default init if supported"
+# }
+INFO: copied H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim/instruction.mem to H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/instruction.mem for IMEM initialization
+# puts "INFO: repo_root=$repo_root"
+INFO: repo_root=H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6
+# puts "INFO: project_name=$project_name"
+INFO: project_name=rv32_soc_synth_tx
+# puts "INFO: top_name=$top_name"
+INFO: top_name=rv32_soc_fpga_demo_top
+# puts "INFO: fpga_build=$fpga_build"
+INFO: fpga_build=tx_only
+# puts "INFO: flow=$flow"
+INFO: flow=bit
+# puts "INFO: clock_mhz=$clock_mhz"
+INFO: clock_mhz=50
+# puts "INFO: synth_directive=$synth_directive"
+INFO: synth_directive=AreaOptimized_high
+# puts "INFO: opt_directive=$opt_directive"
+INFO: opt_directive=
+# puts "INFO: place_directive=$place_directive"
+INFO: place_directive=
+# puts "INFO: phys_opt_directive=$phys_opt_directive"
+INFO: phys_opt_directive=
+# puts "INFO: route_directive=$route_directive"
+INFO: route_directive=
+# puts "INFO: reuse_synth=$reuse_synth"
+INFO: reuse_synth=1
+# puts "INFO: reuse_impl=$reuse_impl"
+INFO: reuse_impl=1
+# set clk_period_ns [expr {1000.0 / double($clock_mhz)}]
+# set auto_clock_xdc [file join $build_dir "auto_clock.xdc"]
+# set auto_fh [open $auto_clock_xdc w]
+# puts $auto_fh "create_clock -name clk_i -period $clk_period_ns \[get_ports clk_i\]"
+# close $auto_fh
+# set can_reuse_synth [expr {($flow eq "impl" || $flow eq "bit") && $reuse_synth eq "1" && [file exists $post_synth_dcp]}]
+# set can_reuse_impl  [expr {$flow eq "bit" && $reuse_impl eq "1" && [file exists $post_route_dcp]}]
+# if {$can_reuse_impl} {
+#   puts "INFO: reusing existing post-route checkpoint: $post_route_dcp"
+#   open_checkpoint $post_route_dcp
+# } elseif {$can_reuse_synth} {
+#   puts "INFO: reusing existing post-synth checkpoint: $post_synth_dcp"
+#   open_checkpoint $post_synth_dcp
+# } else {
+#   create_project -force $project_name $build_dir -part $part_name
+#   set_property target_language Verilog [current_project]
+#   set_property simulator_language Verilog [current_project]
+# 
+#   set defines {}
+#   lappend defines SYNTHESIS
+#   if {$fpga_build eq "tx_only"} {
+#     lappend defines FPGA_TX_ONLY
+#   } elseif {$fpga_build eq "rx_only"} {
+#     lappend defines FPGA_RX_ONLY
+#   } elseif {$fpga_build eq "full"} {
+#     puts "INFO: full build selected; TX and RX are both included."
+#   } else {
+#     error "Unsupported FPGA_BUILD=$fpga_build. Use tx_only, rx_only, or full."
+#   }
+# 
+#   set rtl_files {}
+#   set rtl_f [file join $sim_dir "rtl.f"]
+#   if {![file exists $rtl_f]} {
+#     error "Missing RTL file list: $rtl_f"
+#   }
+# 
+#   set fh [open $rtl_f r]
+#   while {[gets $fh line] >= 0} {
+#     set line [string trim $line]
+#     if {$line eq ""} {
+#       continue
+#     }
+#     if {[string match "#*" $line]} {
+#       continue
+#     }
+#     if {[string match "-f*" $line]} {
+#       continue
+#     }
+#     append_unique rtl_files [file join $sim_dir $line]
+#   }
+#   close $fh
+# 
+#   # FPGA wrapper and UART loader are not part of sim/rtl.f because the simulation
+#   # top uses the auxiliary loader directly.
+#   append_unique rtl_files [file join $rtl_dir "uart_rx.v"]
+#   append_unique rtl_files [file join $rtl_dir "uart_tx.v"]
+#   append_unique rtl_files [file join $rtl_dir "uart_dmem_loader.v"]
+#   append_unique rtl_files [file join $rtl_dir "rv32_soc_fpga_demo_top.v"]
+# 
+#   foreach src $rtl_files {
+#     if {![file exists $src]} {
+#       error "Missing RTL source: $src"
+#     }
+#   }
+# 
+#   set_property include_dirs $rtl_dir [current_fileset]
+#   set_property verilog_define $defines [current_fileset]
+#   set read_cmd [list read_verilog -sv]
+#   foreach src $rtl_files {
+#     lappend read_cmd $src
+#   }
+#   puts "INFO: read_verilog defines=$defines files=[llength $rtl_files]"
+#   eval $read_cmd
+# 
+#   set_property top $top_name [current_fileset]
+# 
+#   if {$xdc_path ne ""} {
+#     if {[file pathtype $xdc_path] eq "relative"} {
+#       set xdc_path [file normalize [file join $repo_root $xdc_path]]
+#     }
+#     if {[file exists $xdc_path]} {
+#       puts "INFO: read_xdc $xdc_path"
+#       read_xdc $xdc_path
+#     } else {
+#       puts "WARNING: VIVADO_XDC does not exist: $xdc_path"
+#     }
+#   }
+# 
+#   read_xdc $auto_clock_xdc
+#   puts "INFO: create_clock clk_i period=${clk_period_ns}ns"
+# 
+#   update_compile_order -fileset sources_1
+# 
+#   synth_design -top $top_name -part $part_name -flatten_hierarchy rebuilt -directive $synth_directive
+#   report_utilization -file [file join $report_dir "post_synth_utilization.rpt"]
+#   report_timing_summary -file [file join $report_dir "post_synth_timing_summary.rpt"]
+#   report_drc -file [file join $report_dir "post_synth_drc.rpt"]
+#   write_checkpoint -force $post_synth_dcp
+# }
+INFO: reusing existing post-route checkpoint: H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/post_route.dcp
+Command: open_checkpoint H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/post_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.137 . Memory (MB): peak = 443.797 ; gain = 6.238
+INFO: [Device 21-403] Loading part xc7z020clg484-1
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.599 . Memory (MB): peak = 944.598 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 15866 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.246 . Memory (MB): peak = 1103.332 ; gain = 21.203
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.235 . Memory (MB): peak = 1788.230 ; gain = 0.000
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.024 . Memory (MB): peak = 1788.230 ; gain = 0.000
+Read PlaceDB: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1877.227 ; gain = 88.043
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 1877.227 ; gain = 0.000
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 1927.723 ; gain = 50.496
+Read Physdb Files: Time (s): cpu = 00:00:09 ; elapsed = 00:00:07 . Memory (MB): peak = 1927.723 ; gain = 139.492
+Restored from archive | CPU: 10.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:09 ; elapsed = 00:00:08 . Memory (MB): peak = 1927.723 ; gain = 139.492
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.027 . Memory (MB): peak = 1927.723 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 44 instances were transformed.
+  RAM64M => RAM64M (RAMD64E(x4)): 32 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2024.2 (64-bit) build 5239630
+open_checkpoint: Time (s): cpu = 00:00:45 ; elapsed = 00:00:59 . Memory (MB): peak = 1927.723 ; gain = 1498.473
+# if {$flow eq "synth"} {
+#   puts "INFO: synth flow completed."
+# } elseif {$flow eq "impl" || $flow eq "bit"} {
+#   if {!$can_reuse_impl} {
+#     if {$opt_directive ne ""} {
+#       opt_design -directive $opt_directive
+#     } else {
+#       opt_design
+#     }
+# 
+#     if {$place_directive ne ""} {
+#       place_design -directive $place_directive
+#     } else {
+#       place_design
+#     }
+# 
+#     if {$phys_opt_directive ne ""} {
+#       phys_opt_design -directive $phys_opt_directive
+#     } else {
+#       phys_opt_design
+#     }
+# 
+#     if {$route_directive ne ""} {
+#       route_design -directive $route_directive
+#     } else {
+#       route_design
+#     }
+# 
+#     if {$phys_opt_directive ne ""} {
+#       phys_opt_design -directive $phys_opt_directive
+#     } else {
+#       phys_opt_design
+#     }
+#   } else {
+#     puts "INFO: implementation is already loaded from post-route checkpoint."
+#   }
+# 
+#   report_route_status -file [file join $report_dir "post_impl_route_status.rpt"]
+#   report_utilization -file [file join $report_dir "post_impl_utilization.rpt"]
+#   report_timing_summary -file [file join $report_dir "post_impl_timing_summary.rpt"]
+#   report_drc -file [file join $report_dir "post_impl_drc.rpt"]
+#   report_power -file [file join $report_dir "post_impl_power.rpt"]
+#   write_checkpoint -force [file join $build_dir "post_route.dcp"]
+#   copy_reports_to_sim $report_dir $sim_dir $project_name
+# 
+#   set setup_paths [get_timing_paths -max_paths 1 -nworst 1 -setup]
+#   if {[llength $setup_paths] > 0} {
+#     set wns [get_property SLACK [lindex $setup_paths 0]]
+#     puts "INFO: post-route setup WNS=$wns ns"
+#     if {$wns < 0.0} {
+#       error "Post-route timing failed: WNS=$wns ns"
+#     }
+#   } else {
+#     puts "WARNING: no setup timing path returned by get_timing_paths"
+#   }
+# 
+#   if {$flow eq "bit"} {
+#     set bit_file [file join $report_dir "${top_name}.bit"]
+#     write_bitstream -force $bit_file
+#     file mkdir [file join $sim_dir "vivado_bitstreams"]
+#     file copy -force $bit_file [file join $sim_dir "vivado_bitstreams" "${project_name}.bit"]
+#     file copy -force $bit_file [file join $sim_dir "vivado_bitstreams" "${project_name}_${top_name}.bit"]
+#   }
+# } else {
+#   error "Unsupported VIVADO_FLOW=$flow. Use synth, impl, or bit."
+# }
+INFO: implementation is already loaded from post-route checkpoint.
+report_route_status: Time (s): cpu = 00:00:11 ; elapsed = 00:00:07 . Memory (MB): peak = 2025.078 ; gain = 97.355
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 2 CPUs
+report_timing_summary: Time (s): cpu = 00:00:39 ; elapsed = 00:00:21 . Memory (MB): peak = 2159.055 ; gain = 133.977
+Command: report_drc -file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/reports/post_impl_drc.rpt
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'H:/From_software/Vivado/Vivado/Vivado/2024.2/data/ip'.
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/reports/post_impl_drc.rpt.
+report_drc completed successfully
+report_drc: Time (s): cpu = 00:00:21 ; elapsed = 00:00:12 . Memory (MB): peak = 2328.617 ; gain = 169.562
+Command: report_power -file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/reports/post_impl_power.rpt
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+WARNING: [Power 33-332] Found switching activity that implies high-fanout reset nets being asserted for excessive periods of time which may result in inaccurate power analysis.
+Resolution: To review and fix problems, please run Power Constraints Advisor in the GUI from Tools > Power Constraints Advisor or run report_power with the -advisory option to generate a text report.
+7 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:41 ; elapsed = 00:00:24 . Memory (MB): peak = 2384.652 ; gain = 56.035
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Write ShapeDB Complete: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.429 . Memory (MB): peak = 2384.652 ; gain = 0.000
+Wrote PlaceDB: Time (s): cpu = 00:00:14 ; elapsed = 00:00:08 . Memory (MB): peak = 2385.035 ; gain = 0.383
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2385.035 ; gain = 0.000
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2385.055 ; gain = 0.020
+Wrote Netlist Cache: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.206 . Memory (MB): peak = 2385.055 ; gain = 0.000
+Wrote Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.011 . Memory (MB): peak = 2385.055 ; gain = 0.000
+Write Physdb Complete: Time (s): cpu = 00:00:17 ; elapsed = 00:00:09 . Memory (MB): peak = 2385.055 ; gain = 0.402
+INFO: [Common 17-1381] The checkpoint 'H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/post_route.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:19 ; elapsed = 00:00:13 . Memory (MB): peak = 2385.055 ; gain = 0.402
+INFO: post-route setup WNS=1.167 ns
+Command: write_bitstream -force H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/reports/rv32_soc_fpga_demo_top.bit
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z020'
+Running DRC as a precondition to command write_bitstream
+INFO: [IP_Flow 19-1839] IP Catalog is up to date.
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado 12-3199] DRC finished with 0 Errors
+INFO: [Vivado 12-3200] Please refer to the DRC report (report_drc) for more information.
+INFO: [Designutils 20-2272] Running write_bitstream with 2 threads.
+Loading data files...
+Loading site data...
+Loading route data...
+Processing options...
+Creating bitmap...
+Creating bitstream...
+Writing bitstream H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/reports/rv32_soc_fpga_demo_top.bit...
+INFO: [Vivado 12-1842] Bitgen Completed Successfully.
+INFO: [Project 1-1876] WebTalk data collection is mandatory when using a ULT device. To see the specific WebTalk data collected for your design, open the usage_statistics_webtalk.html or usage_statistics_webtalk.xml file in the implementation directory.
+INFO: [Common 17-83] Releasing license: Implementation
+18 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+write_bitstream completed successfully
+write_bitstream: Time (s): cpu = 00:01:28 ; elapsed = 00:00:52 . Memory (MB): peak = 3011.129 ; gain = 626.074
+# copy_reports_to_sim $report_dir $sim_dir $project_name
+# puts "INFO: Vivado flow completed successfully."
+INFO: Vivado flow completed successfully.
+INFO: [Common 17-206] Exiting Vivado at Fri May 15 00:47:24 2026...

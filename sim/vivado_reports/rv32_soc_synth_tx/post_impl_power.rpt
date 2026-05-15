@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
-| Date             : Sun May 10 08:19:11 2026
+| Date             : Fri May 15 00:46:18 2026
 | Host             : An running 64-bit major release  (build 9200)
 | Command          : report_power -file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_tx/reports/post_impl_power.rpt
 | Design           : rv32_soc_fpga_demo_top
@@ -30,10 +30,10 @@ Table of Contents
 ----------
 
 +--------------------------+--------------+
-| Total On-Chip Power (W)  | 0.239        |
+| Total On-Chip Power (W)  | 0.238        |
 | Design Power Budget (W)  | Unspecified* |
 | Power Budget Margin (W)  | NA           |
-| Dynamic (W)              | 0.134        |
+| Dynamic (W)              | 0.133        |
 | Device Static (W)        | 0.105        |
 | Effective TJA (C/W)      | 11.5         |
 | Max Ambient (C)          | 82.2         |
@@ -53,18 +53,18 @@ Table of Contents
 | On-Chip                  | Power (W) | Used     | Available | Utilization (%) |
 +--------------------------+-----------+----------+-----------+-----------------+
 | Clocks                   |     0.027 |        3 |       --- |             --- |
-| Slice Logic              |     0.042 |   105820 |       --- |             --- |
-|   LUT as Logic           |     0.041 |    45349 |     53200 |           85.24 |
+| Slice Logic              |     0.041 |   105758 |       --- |             --- |
+|   LUT as Logic           |     0.041 |    45350 |     53200 |           85.24 |
 |   CARRY4                 |    <0.001 |      552 |     13300 |            4.15 |
-|   Register               |    <0.001 |    40428 |    106400 |           38.00 |
+|   Register               |    <0.001 |    40366 |    106400 |           37.94 |
 |   F7/F8 Muxes            |    <0.001 |    15260 |     53200 |           28.68 |
 |   LUT as Distributed RAM |    <0.001 |      152 |     17400 |            0.87 |
 |   Others                 |     0.000 |       54 |       --- |             --- |
-| Signals                  |     0.063 |    65592 |       --- |             --- |
+| Signals                  |     0.063 |    65520 |       --- |             --- |
 | Block RAM                |     0.002 |       10 |       140 |            7.14 |
 | I/O                      |    <0.001 |        7 |       200 |            3.50 |
 | Static Power             |     0.105 |          |           |                 |
-| Total                    |     0.239 |          |           |                 |
+| Total                    |     0.238 |          |           |                 |
 +--------------------------+-----------+----------+-----------+-----------------+
 
 
@@ -74,7 +74,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) | Powerup (A) | Budget (A)  | Margin (A) |
 +-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
-| Vccint    |       1.000 |     0.142 |       0.134 |      0.008 |       NA    | Unspecified | NA         |
+| Vccint    |       1.000 |     0.141 |       0.133 |      0.008 |       NA    | Unspecified | NA         |
 | Vccaux    |       1.800 |     0.011 |       0.000 |      0.011 |       NA    | Unspecified | NA         |
 | Vcco33    |       3.300 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
@@ -150,15 +150,14 @@ Table of Contents
 +----------------------------+-----------+
 | Name                       | Power (W) |
 +----------------------------+-----------+
-| rv32_soc_fpga_demo_top     |     0.134 |
+| rv32_soc_fpga_demo_top     |     0.133 |
 |   u_soc                    |     0.133 |
 |     u_cpu                  |     0.004 |
 |       u_mem_stage          |     0.002 |
-|     u_dma_tx_engine        |     0.003 |
+|     u_dma_tx_engine        |     0.002 |
 |     u_imem                 |     0.002 |
-|     u_tx_top               |     0.124 |
+|     u_tx_top               |     0.123 |
 |       u_AES_top_tx         |     0.065 |
-|       u_apb_huffman_tx_if  |     0.001 |
 |       u_huffman_aes_tx_top |     0.057 |
 +----------------------------+-----------+
 
