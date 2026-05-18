@@ -1,34 +1,34 @@
 # 09. RV32I `instruction.mem` To Pipeline Flow Specification
 
-## 1. Muc dich
+## 1. Mục đích
 
-Tai lieu nay giai thich luong **RV32I CPU** tu luc file `instruction.mem`
-duoc nap vao `IMEM` cho toi khi CPU:
+Tài liệu này giai thich lượng **RV32I CPU** tu lúc file `instruction.mem`
+được nạp vao `IMEM` cho toi khi CPU:
 
 1. fetch lenh
 2. decode
-3. thuc thi
-4. truy cap `DMEM` hoac `MMIO`
-5. ghi ket qua ve thanh ghi hoac DMEM
+3. thuc thì
+4. truy cap `DMEM` hoặc `MMIO`
+5. ghi kết quả ve thanh ghi hoặc DMEM
 
-Tai lieu nay tap trung vao **CPU pipeline**. No khong mo ta chi tiet TX/RX,
-ngoai tru nhung cho CPU phai dung `lw/sw` de cau hinh DMA.
+Tài liệu này tập trung vao **CPU pipeline**. No không mô tả chỉ tiet TX/RX,
+ngoài tru nhưng cho CPU phải dung `lw/sw` để cấu hình DMA.
 
 ## 2. Pham vi file `.mem`
 
-Trong he thong hien tai:
+Trong hệ thống hiện tại:
 
-- `instruction.mem` la image cua chuong trinh RV32I
-- file nay duoc tao khi `make compile`
-- `imem_sync` nap file bang `$readmemh("instruction.mem", ...)`
-- `instruction.mem` khong phai input data file
+- `instruction.mem` là image của chương trình RV32I
+- file này được tạo khi `make compile`
+- `imem_sync` nạp file bằng `$readmemh("instruction.mem", ...)`
+- `instruction.mem` không phải input data file
 
-Luon phai tach 2 luong:
+Luon phải tách 2 lượng:
 
-| Loai file | Noi nap | Muc dich |
+| Loại file | Noi nạp | Mục đích |
 |---|---|---|
-| `instruction.mem` | `IMEM` | Chuong trinh RV32I |
-| `input*.txt` / `input*.bin` | `DMEM` | Du lieu de CPU/DMA xu ly |
+| `instruction.mem` | `IMEM` | Chương trình RV32I |
+| `input*.txt` / `input*.bin` | `DMEM` | Dữ liệu để CPU/DMA xu ly |
 
 ## 3. Tong quan flow
 
@@ -47,17 +47,17 @@ flowchart TD
 
 ## 4. `instruction.mem` vao `IMEM`
 
-### 4.1 Tao file
+### 4.1 Tạo file
 
-Flow build hien tai:
+Flow build hiện tại:
 
 1. `make compile` build C testcase thanh ELF/BIN/MEM
-2. file output duoc copy thanh `sim/instruction.mem`
-3. `imem_sync` nap file nay khi simulation bat dau
+2. file output được copy thanh `sim/instruction.mem`
+3. `imem_sync` nạp file này khi simulation bắt đầu
 
 ### 4.2 IMEM load trong RTL
 
-`rtl/imem_sync.v` co 2 che do:
+`rtl/imem_sync.v` có 2 che do:
 
 - simulation behavioral:
   - dung `reg [31:0] instructions_r [0:2047]`
@@ -65,7 +65,7 @@ Flow build hien tai:
 - Vivado IP:
   - dung `IMEM_ip`
 
-Neu simulation:
+Nếu simulation:
 
 ```verilog
 always @(posedge clk_i) begin
@@ -76,30 +76,30 @@ always @(posedge clk_i) begin
 end
 ```
 
-Nghia la:
+Nghĩa là:
 
-- khi CPU enable fetch, IMEM tra ve lenh tai `PC[12:2]`
-- khi khong enable, output ve NOP
+- khi CPU enable fetch, IMEM trả ve lenh tai `PC[12:2]`
+- khi không enable, output ve NOP
 
-### 4.3 Chu ky dau tien sau khi reset
+### 4.3 Chu kỳ đầu tiên sau khi reset
 
-Sau khi simulation bat dau:
+Sau khi simulation bắt đầu:
 
-1. `instruction.mem` da nam trong `IMEM`
-2. `rst_i` giu CPU o trang thai reset
+1. `instruction.mem` da nằm trong `IMEM`
+2. `rst_i` giữ CPU o trạng thái reset
 3. `PC` quay ve `RESET_PC = 0x00000000`
-4. khi reset duoc tha, IF stage bat dau fetch word dau tien tai `PC = 0`
-5. `instruction_o` tu IMEM cap nhat theo clock sync, sau do di qua ID/EX/MEM/WB
+4. khi reset được tha, IF stage bắt đầu fetch word đầu tiên tai `PC = 0`
+5. `instruction_o` tu IMEM cập nhật theo clock sync, sau đó di qua ID/EX/MEM/WB
 
 Noi don gian:
 
-- `instruction.mem` khong di qua DMA
-- `instruction.mem` khong nam trong DMEM
-- CPU chi fetch lenh tu IMEM, con data phai duoc nap vao DMEM bang loader/testbench/UART
+- `instruction.mem` không di qua DMA
+- `instruction.mem` không nằm trong DMEM
+- CPU chỉ fetch lenh tu IMEM, còn data phải được nạp vao DMEM bằng loader/testbench/UART
 
 ## 5. RV32I pipeline trong `top_rv32_sync`
 
-Pipeline hien tai gom 5 pha chinh:
+Pipeline hiện tại gom 5 pha chính:
 
 1. IF
 2. ID
@@ -113,36 +113,36 @@ Pipeline hien tai gom 5 pha chinh:
 |---|---|
 | Input | `clk_i`, `rst_i`, `flush_i`, `stall_i`, `if_bj_taken_i`, `if_pc_bj_i`, `imem_instr_i` |
 | Output | `imem_en_o`, `imem_addr_o`, `ifid_pc_o`, `ifid_instruction_o` |
-| Chuc nang | Quan ly PC, gui fetch request sang IMEM, nhan instruction tra ve sau 1 chu ky, giu pipeline khi stall, xoa fetch cu khi branch/jump/flush |
+| Chức năng | Quan ly PC, gửi fetch request sang IMEM, nhận instruction trả về sau 1 chu kỳ, giữ pipeline khi stall, xoa fetch cũ khi branch/jump/flush |
 
-Mo ta input/output:
+Mô tả input/output:
 
-| Tin hieu | Huong | Description |
+| Tín hiệu | Hướng | Description |
 |---|---|---|
-| `clk_i` | input | Clock dong bo cho tat ca thanh ghi IF |
-| `rst_i` | input | Reset pipeline IF ve `RESET_PC` va dua instruction output ve NOP |
-| `flush_i` | input | Xoa request/response dang cho va dua IF/ID ve NOP |
-| `stall_i` | input | Dung cap nhat PC/IFID; neu response IMEM ve trong luc stall thi buffer lai |
+| `clk_i` | input | Clock đồng bộ cho tat ca thanh ghi IF |
+| `rst_i` | input | Reset pipeline IF ve `RESET_PC` và dua instruction output ve NOP |
+| `flush_i` | input | Xoa request/response dang cho và dua IF/ID ve NOP |
+| `stall_i` | input | Dung cập nhật PC/IFID; nếu response IMEM ve trong lúc stall thì buffer lại |
 | `if_bj_taken_i` | input | Bao EX stage da quyet dinh branch/jump taken |
-| `if_pc_bj_i` | input | Dia chi PC moi khi branch/jump taken |
-| `imem_instr_i` | input | Instruction 32-bit tra ve tu IMEM cho fetch request truoc do |
+| `if_pc_bj_i` | input | Địa chỉ PC mới khi branch/jump taken |
+| `imem_instr_i` | input | Instruction 32-bit trả ve tu IMEM cho fetch request trước đó |
 | `imem_en_o` | output | Enable request fetch sang IMEM |
-| `imem_addr_o` | output | Dia chi fetch hien tai, lay tu `pc_r` |
+| `imem_addr_o` | output | Địa chỉ fetch hiện tại, lay tu `pc_r` |
 | `ifid_pc_o` | output | PC da chot sang ID stage |
-| `ifid_instruction_o` | output | Instruction da chot sang ID stage; co the la NOP khi reset/flush/khong co response hop le |
+| `ifid_instruction_o` | output | Instruction da chot sang ID stage; có thể là NOP khi reset/flush/không có response hợp lệ |
 
 Thanh ghi trong IF stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| `pc_r` | PC hien tai cua IF stage, cung cap dia chi fetch cho IMEM |
-| `req_pc_r` | PC cua fetch request dang outstanding, dung de ghep voi response |
-| `req_valid_r` | Danh dau co fetch request dang cho instruction tra ve |
-| `resp_pc_r` | PC duoc buffer lai khi response den trong luc stall |
-| `resp_instr_r` | Instruction duoc buffer lai khi response den trong luc stall |
-| `resp_valid_r` | Danh dau response buffer hop le |
-| `ifid_pc_r` | Thanh ghi IF/ID chot PC sang ID stage |
-| `ifid_instruction_r` | Thanh ghi IF/ID chot instruction sang ID stage |
+| Thanh ghi | Bit width | Định dạng dữ liệu | Chức năng |
+|---|---:|---|---|
+| `pc_r` | 32 | PC byte-address, word-aligned (`PC[1:0]=00`) | PC hiện tại của IF stage, cung cấp địa chỉ fetch cho IMEM |
+| `req_pc_r` | 32 | PC byte-address của request dang outstanding | PC của fetch request dang outstanding, dung để ghep với response |
+| `req_valid_r` | 1 | Valid flag (`0/1`) | Danh đầu có fetch request dang cho instruction trả ve |
+| `resp_pc_r` | 32 | PC byte-address của response buffer | PC được buffer lại khi response đến trong lúc stall |
+| `resp_instr_r` | 32 | Raw RV32I instruction word; `opcode=instr[6:0]` | Instruction được buffer lại khi response đến trong lúc stall |
+| `resp_valid_r` | 1 | Valid flag (`0/1`) | Danh đầu response buffer hợp lệ |
+| `ifid_pc_r` | 32 | PC byte-address chot sang IF/ID | Thanh ghi IF/ID chot PC sang ID stage |
+| `ifid_instruction_r` | 32 | Raw RV32I instruction word; NOP khi `0x00000013` | Thanh ghi IF/ID chot instruction sang ID stage |
 
 ### 5.2 ID stage (`id_stage`)
 
@@ -150,62 +150,62 @@ Thanh ghi trong IF stage:
 |---|---|
 | Input | `clk_i`, `rst_i`, `ifid_pc_i`, `ifid_instruction_i`, `flush_i`, `hold_i`, `bubble_i`, `rf_rs1_data_i`, `rf_rs2_data_i` |
 | Output | `rf_rs1_addr_o`, `rf_rs2_addr_o`, `idex_jal_o`, `idex_jalr_o`, `idex_se_alu_src1_o`, `idex_se_alu_src2_o`, `idex_aluop_o`, `idex_rs1_data_o`, `idex_rs2_data_o`, `idex_imm_o`, `idex_rs1_addr_o`, `idex_rs2_addr_o`, `idex_mem_we_o`, `idex_mem_en_o`, `idex_width_se_o`, `idex_wb_se_o`, `idex_regwrite_o`, `idex_rd_addr_o`, `idex_pc_o` |
-| Chuc nang | Decode opcode/funct, chon `rs1/rs2/rd`, sinh immediate, tao control bit cho EX/MEM/WB, lay du lieu tu register file, va lat cac gia tri nay sang ID/EX. `hold_i` giu nguyen trang thai; `bubble_i` va `flush_i` xoa noi dung pipeline. |
+| Chức năng | Decode opcode/funct, chọn `rs1/rs2/rd`, sinh immediate, tạo control bit cho EX/MEM/WB, lay dữ liệu tu register file, và lat các giá trị này sang ID/EX. `hold_i` giữ nguyên trạng thái; `bubble_i` và `flush_i` xoa noi dừng pipeline. |
 
-Mo ta input/output:
+Mô tả input/output:
 
-| Tin hieu | Huong | Description |
+| Tín hiệu | Hướng | Description |
 |---|---|---|
-| `clk_i` | input | Clock dong bo cho thanh ghi ID/EX |
+| `clk_i` | input | Clock đồng bộ cho thanh ghi ID/EX |
 | `rst_i` | input | Reset ID/EX ve NOP/control inactive |
-| `ifid_pc_i` | input | PC cua instruction dang decode |
-| `ifid_instruction_i` | input | Instruction 32-bit nhan tu IF/ID |
-| `flush_i` | input | Xoa ID/EX khi branch/jump redirect hoac flush pipeline |
-| `hold_i` | input | Giu nguyen ID/EX, khong chot instruction moi |
-| `bubble_i` | input | Chen NOP vao ID/EX de xu ly hazard |
-| `rf_rs1_data_i` | input | Du lieu doc tu register file tai dia chi `rs1` |
-| `rf_rs2_data_i` | input | Du lieu doc tu register file tai dia chi `rs2` |
-| `rf_rs1_addr_o` | output | Dia chi doc cong rs1 cua register file |
-| `rf_rs2_addr_o` | output | Dia chi doc cong rs2 cua register file |
-| `idex_jal_o` | output | Control bit bao instruction la `jal` |
-| `idex_jalr_o` | output | Control bit bao instruction la `jalr` |
-| `idex_se_alu_src1_o` | output | Chon operand A cua ALU: `1` dung PC, `0` dung rs1 |
-| `idex_se_alu_src2_o` | output | Chon operand B cua ALU: `1` dung rs2, `0` dung immediate |
+| `ifid_pc_i` | input | PC của instruction dang decode |
+| `ifid_instruction_i` | input | Instruction 32-bit nhận tu IF/ID |
+| `flush_i` | input | Xoa ID/EX khi branch/jump redirect hoặc flush pipeline |
+| `hold_i` | input | Giữ nguyên ID/EX, không chot instruction mới |
+| `bubble_i` | input | Chen NOP vao ID/EX để xu ly hazard |
+| `rf_rs1_data_i` | input | Dữ liệu đọc tu register file tai địa chỉ `rs1` |
+| `rf_rs2_data_i` | input | Dữ liệu đọc tu register file tai địa chỉ `rs2` |
+| `rf_rs1_addr_o` | output | Địa chỉ đọc cổng rs1 của register file |
+| `rf_rs2_addr_o` | output | Địa chỉ đọc cổng rs2 của register file |
+| `idex_jal_o` | output | Control bit bao instruction là `jal` |
+| `idex_jalr_o` | output | Control bit bao instruction là `jalr` |
+| `idex_se_alu_src1_o` | output | Chọn operand A của ALU: `1` dung PC, `0` dung rs1 |
+| `idex_se_alu_src2_o` | output | Chọn operand B của ALU: `1` dung rs2, `0` dung immediate |
 | `idex_aluop_o` | output | Ma lenh ALU/branch dua sang EX |
-| `idex_rs1_data_o` | output | Gia tri rs1 da chot sang EX |
-| `idex_rs2_data_o` | output | Gia tri rs2 da chot sang EX |
-| `idex_imm_o` | output | Immediate da decode va extend theo format instruction |
-| `idex_rs1_addr_o` | output | Dia chi rs1 da chot, dung cho forwarding/hazard |
-| `idex_rs2_addr_o` | output | Dia chi rs2 da chot, dung cho forwarding/hazard |
-| `idex_mem_we_o` | output | Store enable; `1` voi `sb/sh/sw` |
-| `idex_mem_en_o` | output | Memory access enable; `1` voi load/store |
-| `idex_width_se_o` | output | Ma do rong load/store: byte, halfword, word, signed/unsigned |
-| `idex_wb_se_o` | output | Chon nguon writeback: ALU, MEM, hoac `PC+4` |
+| `idex_rs1_data_o` | output | Giá trị rs1 da chot sang EX |
+| `idex_rs2_data_o` | output | Giá trị rs2 da chot sang EX |
+| `idex_imm_o` | output | Immediate da decode và extend theo format instruction |
+| `idex_rs1_addr_o` | output | Địa chỉ rs1 da chot, dùng cho forwarding/hazard |
+| `idex_rs2_addr_o` | output | Địa chỉ rs2 da chot, dùng cho forwarding/hazard |
+| `idex_mem_we_o` | output | Store enable; `1` với `sb/sh/sw` |
+| `idex_mem_en_o` | output | Memory access enable; `1` với load/store |
+| `idex_width_se_o` | output | Mã độ rộng load/store: byte, halfword, word, signed/unsigned |
+| `idex_wb_se_o` | output | Chọn nguồn writeback: ALU, MEM, hoặc `PC+4` |
 | `idex_regwrite_o` | output | Cho phep ghi ve register file o WB |
-| `idex_rd_addr_o` | output | Dia chi thanh ghi dich `rd`; bang 0 neu instruction khong ghi rd |
-| `idex_pc_o` | output | PC cua instruction da chot sang EX |
+| `idex_rd_addr_o` | output | Địa chỉ thanh ghi dich `rd`; bằng 0 nếu instruction không ghi rd |
+| `idex_pc_o` | output | PC của instruction da chot sang EX |
 
 Thanh ghi trong ID stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| `idex_jal_o` | Danh dau lenh `jal`, cho EX stage biet phai jump va ghi `PC+4` ve rd |
-| `idex_jalr_o` | Danh dau lenh `jalr`, cho EX stage biet phai jump qua dia chi tinh toan |
-| `idex_se_alu_src1_o` | Chon `PC` lam operand A cua ALU (vi du `auipc`) |
-| `idex_se_alu_src2_o` | Chon `rs2` lam operand B cua ALU; neu =0 thi dung immediate |
-| `idex_aluop_o` | Ma dieu khien ALU / branch cho EX stage |
-| `idex_rs1_data_o` | Gia tri doc tu register file o `rs1` |
-| `idex_rs2_data_o` | Gia tri doc tu register file o `rs2` |
-| `idex_imm_o` | Immediate da duoc sinh va sign-extend / zero-extend phu hop loai lenh |
-| `idex_rs1_addr_o` | So hieu thanh ghi `rs1`, dung cho forwarding/hazard check |
-| `idex_rs2_addr_o` | So hieu thanh ghi `rs2`, dung cho forwarding/hazard check |
-| `idex_mem_we_o` | Bat ghi memory cho lenh store |
-| `idex_mem_en_o` | Bat truy cap memory cho lenh load/store |
-| `idex_width_se_o` | Chon do rong truy cap: byte/half/word |
-| `idex_wb_se_o` | Chon nguon ghi ve rd: ALU, MEM, hoac `PC+4` |
-| `idex_regwrite_o` | Cho phep ghi ve register file |
-| `idex_rd_addr_o` | So hieu thanh ghi dich `rd` |
-| `idex_pc_o` | PC cua instruction hien tai, dung cho `PC+4` va branch target |
+| Thanh ghi | Bit width | Định dạng dữ liệu | Chức năng |
+|---|---:|---|---|
+| `idex_jal_o` | 1 | Control flag (`0/1`) | Danh đầu lenh `jal`, cho EX stage biet phải jump và ghi `PC+4` ve rd |
+| `idex_jalr_o` | 1 | Control flag (`0/1`) | Danh đầu lenh `jalr`, cho EX stage biet phải jump qua địa chỉ tính toàn |
+| `idex_se_alu_src1_o` | 1 | Mux select (`1=PC`, `0=rs1`) | Chọn `PC` làm operand A của ALU (vi đủ `auipc`) |
+| `idex_se_alu_src2_o` | 1 | Mux select (`1=rs2`, `0=imm`) | Chọn `rs2` làm operand B của ALU; nếu `0` thì dung immediate |
+| `idex_aluop_o` | 4 | ALU/branch op code theo `defines.vh` | Ma điều khiển ALU / branch cho EX stage |
+| `idex_rs1_data_o` | 32 | Raw register data word | Giá trị đọc tu register file o `rs1` |
+| `idex_rs2_data_o` | 32 | Raw register data word | Giá trị đọc tu register file o `rs2` |
+| `idex_imm_o` | 32 | Sign/zero-extended immediate word | Immediate đã được sinh và extend phụ hop loại lenh |
+| `idex_rs1_addr_o` | 5 | Thanh ghi index `x0..x31` | Số hiệu thanh ghi `rs1`, dùng cho forwarding/hazard check |
+| `idex_rs2_addr_o` | 5 | Thanh ghi index `x0..x31` | Số hiệu thanh ghi `rs2`, dùng cho forwarding/hazard check |
+| `idex_mem_we_o` | 1 | Store enable flag (`0/1`) | Bat ghi memory cho lenh store |
+| `idex_mem_en_o` | 1 | Memory enable flag (`0/1`) | Bat truy cap memory cho lenh load/store |
+| `idex_width_se_o` | 3 | Load/store size code (`LB/LH/LW/LBU/LHU` hoặc `SB/SH/SW`) | Chọn độ rộng truy cap |
+| `idex_wb_se_o` | 2 | Writeback select (`00=ALU`, `01=MEM`, `10=PC+4`, `11=INVALID`) | Chọn nguồn ghi ve rd |
+| `idex_regwrite_o` | 1 | Thanh ghi write enable (`0/1`) | Cho phep ghi ve register file |
+| `idex_rd_addr_o` | 5 | Thanh ghi index `x0..x31` | Số hiệu thanh ghi dich `rd` |
+| `idex_pc_o` | 32 | PC byte-address, word-aligned | PC của instruction hiện tại, dùng cho `PC+4` và branch target |
 
 ### 5.3 EX stage (`ex_stage`)
 
@@ -213,56 +213,56 @@ Thanh ghi trong ID stage:
 |---|---|
 | Input | `clk_i`, `rst_i`, `flush_i`, `stall_i`, `ex_pc_i`, `ex_imm_i`, `ex_rs1_data_i`, `ex_rs2_data_i`, `ex_jal_i`, `ex_jalr_i`, `ex_alu_src1_i`, `ex_alu_src2_i`, `ex_aluop_i`, `ex_mem_we_i`, `ex_mem_en_i`, `ex_width_se_i`, `ex_wb_se_i`, `ex_regwrite_i`, `ex_rd_addr_i` |
 | Output | `exif_pc_bj_o`, `exif_bj_taken_o`, `exmem_mem_we_o`, `exmem_mem_en_o`, `exmem_width_se_o`, `exmem_wb_se_o`, `exmem_regwrite_o`, `exmem_rd_addr_o`, `exmem_alu_result_o`, `exmem_rs2_data_o`, `exmem_pc_plus_o` |
-| Chuc nang | Chon operand, tinh ALU result, so sanh branch, tinh jump target, phat hien branch/jump taken, va chot thong tin sang EX/MEM cho MEM stage. |
+| Chức năng | Chọn operand, tính ALU result, so sánh branch, tính jump target, phat hien branch/jump taken, và chot thông tin sang EX/MEM cho MEM stage. |
 
-Mo ta input/output:
+Mô tả input/output:
 
-| Tin hieu | Huong | Description |
+| Tín hiệu | Hướng | Description |
 |---|---|---|
-| `clk_i` | input | Clock dong bo cho thanh ghi EX/MEM |
-| `rst_i` | input | Reset EX/MEM ve control inactive va data 0 |
+| `clk_i` | input | Clock đồng bộ cho thanh ghi EX/MEM |
+| `rst_i` | input | Reset EX/MEM ve control inactive và data 0 |
 | `flush_i` | input | Xoa EX/MEM khi branch/jump redirect |
-| `stall_i` | input | Giu nguyen EX/MEM, khong chot ket qua EX moi |
-| `ex_pc_i` | input | PC cua instruction dang o EX |
+| `stall_i` | input | Giữ nguyên EX/MEM, không chot kết quả EX mới |
+| `ex_pc_i` | input | PC của instruction dang o EX |
 | `ex_imm_i` | input | Immediate da decode tu ID stage |
 | `ex_rs1_data_i` | input | Operand rs1 sau forwarding |
-| `ex_rs2_data_i` | input | Operand rs2 sau forwarding; cung la data store neu instruction la store |
+| `ex_rs2_data_i` | input | Operand rs2 sau forwarding; cung là data store nếu instruction là store |
 | `ex_jal_i` | input | Control bit cho lenh `jal` |
 | `ex_jalr_i` | input | Control bit cho lenh `jalr` |
-| `ex_alu_src1_i` | input | Chon operand A: `1` dung PC, `0` dung rs1 |
-| `ex_alu_src2_i` | input | Chon operand B: `1` dung rs2, `0` dung immediate |
-| `ex_aluop_i` | input | Ma phep toan ALU hoac so sanh branch |
+| `ex_alu_src1_i` | input | Chọn operand A: `1` dung PC, `0` dung rs1 |
+| `ex_alu_src2_i` | input | Chọn operand B: `1` dung rs2, `0` dung immediate |
+| `ex_aluop_i` | input | Ma phep toàn ALU hoặc so sánh branch |
 | `ex_mem_we_i` | input | Store enable di kem instruction |
 | `ex_mem_en_i` | input | Memory access enable di kem instruction |
-| `ex_width_se_i` | input | Do rong load/store di kem instruction |
-| `ex_wb_se_i` | input | Lua chon nguon writeback di kem instruction |
+| `ex_width_se_i` | input | Độ rộng load/store di kem instruction |
+| `ex_wb_se_i` | input | Lua chọn nguồn writeback di kem instruction |
 | `ex_regwrite_i` | input | Cho phep ghi rd di kem instruction |
-| `ex_rd_addr_i` | input | Dia chi rd di kem instruction |
-| `exif_pc_bj_o` | output | Dia chi PC dich neu branch/jump taken |
-| `exif_bj_taken_o` | output | Tin hieu redirect IF khi branch/jump duoc lay |
+| `ex_rd_addr_i` | input | Địa chỉ rd di kem instruction |
+| `exif_pc_bj_o` | output | Địa chỉ PC dich nếu branch/jump taken |
+| `exif_bj_taken_o` | output | Tín hiệu redirect IF khi branch/jump được lay |
 | `exmem_mem_we_o` | output | Store enable da chot sang MEM |
 | `exmem_mem_en_o` | output | Memory enable da chot sang MEM |
-| `exmem_width_se_o` | output | Do rong truy cap memory da chot sang MEM |
-| `exmem_wb_se_o` | output | Lua chon writeback da chot sang MEM/WB |
+| `exmem_width_se_o` | output | Độ rộng truy cap memory da chot sang MEM |
+| `exmem_wb_se_o` | output | Lua chọn writeback da chot sang MEM/WB |
 | `exmem_regwrite_o` | output | Regwrite da chot sang MEM/WB |
-| `exmem_rd_addr_o` | output | Dia chi rd da chot sang MEM/WB |
-| `exmem_alu_result_o` | output | Ket qua ALU; voi load/store day la effective address |
+| `exmem_rd_addr_o` | output | Địa chỉ rd da chot sang MEM/WB |
+| `exmem_alu_result_o` | output | Kết quả ALU; với load/store đây là effective address |
 | `exmem_rs2_data_o` | output | Data store da chot sang MEM |
-| `exmem_pc_plus_o` | output | `PC + 4` da chot de writeback cho jump |
+| `exmem_pc_plus_o` | output | `PC + 4` da chot để writeback cho jump |
 
 Thanh ghi trong EX stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| `exmem_mem_we_o` | Giu bit store enable sang MEM stage |
-| `exmem_mem_en_o` | Giu bit memory access enable sang MEM stage |
-| `exmem_width_se_o` | Giu do rong truy cap memory sang MEM stage |
-| `exmem_wb_se_o` | Giu lua chon nguon writeback sang WB stage |
-| `exmem_regwrite_o` | Giu bit cho phep ghi register file sang WB stage |
-| `exmem_rd_addr_o` | Giu so hieu rd sang WB stage |
-| `exmem_alu_result_o` | Giu ALU result, effective address, hoac ket qua branch-related can dung tiep |
-| `exmem_rs2_data_o` | Giu du lieu rs2 thuc te de store vao memory/MMIO |
-| `exmem_pc_plus_o` | Giu `PC + 4` de ghi ve rd khi lenh `jal/jalr` |
+| Thanh ghi | Bit width | Định dạng dữ liệu | Chức năng |
+|---|---:|---|---|
+| `exmem_mem_we_o` | 1 | Store enable flag (`0/1`) | Giữ bit store enable sang MEM stage |
+| `exmem_mem_en_o` | 1 | Memory enable flag (`0/1`) | Giữ bit memory access enable sang MEM stage |
+| `exmem_width_se_o` | 3 | Load/store size code (`LB/LH/LW/LBU/LHU` hoặc `SB/SH/SW`) | Giữ độ rộng truy cap memory sang MEM stage |
+| `exmem_wb_se_o` | 2 | Writeback select (`00=ALU`, `01=MEM`, `10=PC+4`, `11=INVALID`) | Giữ lua chọn nguồn writeback sang WB stage |
+| `exmem_regwrite_o` | 1 | Thanh ghi write enable (`0/1`) | Giữ bit cho phep ghi register file sang WB stage |
+| `exmem_rd_addr_o` | 5 | Thanh ghi index `x0..x31` | Giữ số hiệu rd sang WB stage |
+| `exmem_alu_result_o` | 32 | ALU result / effective address / branch compare input | Giữ ALU result, effective address, hoặc kết quả branch-related can dung tiep |
+| `exmem_rs2_data_o` | 32 | Raw store data word | Giữ dữ liệu rs2 thực tế để store vao memory/MMIO |
+| `exmem_pc_plus_o` | 32 | PC byte-address + 4 | Giữ `PC + 4` để ghi ve rd khi lenh `jal/jalr` |
 
 ### 5.4 MEM stage (`mem_stage`)
 
@@ -270,51 +270,51 @@ Thanh ghi trong EX stage:
 |---|---|
 | Input | `clk_i`, `rst_i`, `mem_we_i`, `mem_en_i`, `mem_width_se_i`, `mem_alu_result_i`, `mem_data_i`, `mem_regwrite_i`, `mem_rd_addr_i`, `mem_wb_se_i`, `mem_pc_plus_i`, `data_r_i` |
 | Output | `en_o`, `we_o`, `addr_o`, `data_w_o`, `mem_data_w`, `memwb_regwrite_o`, `memwb_rd_addr_o`, `memwb_wb_se_o`, `memwb_pc_plus_o`, `memwb_alu_result_o`, `memwb_mem_data_o`, `mem_stage_err_o` |
-| Chuc nang | Thuc hien read/write DMEM hoac MMIO, canh lane theo byte/half/word, sign/zero-extend du lieu doc, bao loi truy cap khong hop le, va chot du lieu sang MEM/WB. |
+| Chức năng | Thực hiện read/write DMEM hoặc MMIO, canh lane theo byte/half/word, sign/zero-extend dữ liệu đọc, báo lỗi truy cap không hợp lệ, và chot dữ liệu sang MEM/WB. |
 
-Mo ta input/output:
+Mô tả input/output:
 
-| Tin hieu | Huong | Description |
+| Tín hiệu | Hướng | Description |
 |---|---|---|
-| `clk_i` | input | Clock dong bo cho thanh ghi MEM/WB |
-| `rst_i` | input | Reset MEM/WB ve control inactive va data 0 |
-| `mem_we_i` | input | Cho biet transaction hien tai la store |
+| `clk_i` | input | Clock đồng bộ cho thanh ghi MEM/WB |
+| `rst_i` | input | Reset MEM/WB ve control inactive và data 0 |
+| `mem_we_i` | input | Cho biet transaction hiện tại là store |
 | `mem_en_i` | input | Bat truy cap memory/MMIO cho load/store |
-| `mem_width_se_i` | input | Ma do rong va signed/unsigned cua load/store |
+| `mem_width_se_i` | input | Mã độ rộng và signed/unsigned của load/store |
 | `mem_alu_result_i` | input | Effective address tu EX stage |
 | `mem_data_i` | input | Data store tu rs2 |
 | `mem_regwrite_i` | input | Regwrite pass-through tu EX/MEM |
-| `mem_rd_addr_i` | input | Dia chi rd pass-through tu EX/MEM |
-| `mem_wb_se_i` | input | Lua chon nguon writeback pass-through |
+| `mem_rd_addr_i` | input | Địa chỉ rd pass-through tu EX/MEM |
+| `mem_wb_se_i` | input | Lua chọn nguồn writeback pass-through |
 | `mem_pc_plus_i` | input | `PC + 4` pass-through cho jump |
-| `data_r_i` | input | Data 32-bit doc tu DMEM/MMIO |
+| `data_r_i` | input | Data 32-bit đọc tu DMEM/MMIO |
 | `en_o` | output | Enable request sang DMEM/MMIO fabric |
 | `we_o` | output | Byte write enable 4-bit cho store |
-| `addr_o` | output | Dia chi memory/MMIO, lay tu `mem_alu_result_i` khi `mem_en_i=1` |
+| `addr_o` | output | Địa chỉ memory/MMIO, lay tu `mem_alu_result_i` khi `mem_en_i=1` |
 | `data_w_o` | output | Data write da canh lane theo byte/half/word |
-| `mem_data_w` | output | Data load da sign/zero-extend, dung cho forwarding |
+| `mem_data_w` | output | Data load da sign/zero-extend, dùng cho forwarding |
 | `memwb_regwrite_o` | output | Regwrite da chot sang WB |
-| `memwb_rd_addr_o` | output | Dia chi rd da chot sang WB |
-| `memwb_wb_se_o` | output | Lua chon nguon writeback da chot sang WB |
+| `memwb_rd_addr_o` | output | Địa chỉ rd da chot sang WB |
+| `memwb_wb_se_o` | output | Lua chọn nguồn writeback da chot sang WB |
 | `memwb_pc_plus_o` | output | `PC + 4` da chot sang WB |
 | `memwb_alu_result_o` | output | ALU result/effective address da chot sang WB |
-| `memwb_mem_data_o` | output | Data load da chuan hoa va chot sang WB |
-| `mem_stage_err_o` | output | Ma loi MEM stage: `01` write error, `10` read error, `00` khong loi |
+| `memwb_mem_data_o` | output | Data load da chuan hoa và chot sang WB |
+| `mem_stage_err_o` | output | Ma lỗi MEM stage: `01` write error, `10` read error, `00` không lỗi |
 
 Thanh ghi trong MEM stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| `write_error` | Danh dau store khong hop le (sai canh / sai do rong) |
-| `read_error` | Danh dau load khong hop le (sai canh / sai do rong) |
-| `data_r_cvt_w` | Du lieu doc sau khi da sign/zero extend, se di vao `memwb_mem_data_o` |
-| `memwb_regwrite_o` | Giu bit cho phep ghi register file sang WB stage |
-| `memwb_rd_addr_o` | Giu so hieu thanh ghi dich sang WB stage |
-| `memwb_wb_se_o` | Giu lua chon nguon writeback sang WB stage |
-| `memwb_pc_plus_o` | Giu `PC + 4` cho writeback cua jump |
-| `memwb_alu_result_o` | Giu ALU result / dia chi tinh toan sang WB stage |
-| `memwb_mem_data_o` | Giu du lieu load da chuan hoa sang WB stage |
-| `mem_stage_err_o` | Ma loi 2-bit cua MEM stage: write error hoac read error |
+| Thanh ghi | Bit width | Định dạng dữ liệu | Chức năng |
+|---|---:|---|---|
+| `write_error` | 1 | Error flag (`0/1`) | Danh đầu store không hợp lệ (sai căn / sai độ rộng) |
+| `read_error` | 1 | Error flag (`0/1`) | Danh đầu load không hợp lệ (sai căn / sai độ rộng) |
+| `data_r_cvt_w` | 32 | Sign/zero-extended data word | Dữ liệu đọc sau khi da sign/zero extend, sẽ di vao `memwb_mem_data_o` |
+| `memwb_regwrite_o` | 1 | Thanh ghi write enable (`0/1`) | Giữ bit cho phep ghi register file sang WB stage |
+| `memwb_rd_addr_o` | 5 | Thanh ghi index `x0..x31` | Giữ số hiệu thanh ghi dich sang WB stage |
+| `memwb_wb_se_o` | 2 | Writeback select (`00=ALU`, `01=MEM`, `10=PC+4`, `11=INVALID`) | Giữ lua chọn nguồn writeback sang WB stage |
+| `memwb_pc_plus_o` | 32 | PC byte-address + 4 | Giữ `PC + 4` cho writeback của jump |
+| `memwb_alu_result_o` | 32 | ALU result / effective address | Giữ ALU result / địa chỉ tính toàn sang WB stage |
+| `memwb_mem_data_o` | 32 | Raw or sign/zero-extended memory data word | Giữ dữ liệu load da chuan hoa sang WB stage |
+| `mem_stage_err_o` | 2 | Error code (`00=OK`, `01=write_error`, `10=read_error`) | Ma lỗi 2-bit của MEM stage |
 
 ### 5.5 WB stage
 
@@ -322,43 +322,43 @@ Thanh ghi trong MEM stage:
 |---|---|
 | Input | `memwb_regwrite_w`, `memwb_rd_addr_w`, `memwb_wb_se_w`, `memwb_pc_plus_w`, `memwb_alu_result_w`, `memwb_mem_data_w` |
 | Output | `wb_data_w`, `rf_reg_write_w`, `rf_rd_addr_w` |
-| Chuc nang | Chon du lieu ghi ve register file theo `wb_se` va phat xung write enable + rd index sang register file. Day la noi `addi`, `lw`, `jal`, `lui`, `auipc` ket thuc ve mat writeback. `sw` khong ghi rd. |
+| Chức năng | Chọn dữ liệu ghi ve register file theo `wb_se` và phat xung write enable + rd index sang register file. Đây là noi `addi`, `lw`, `jal`, `lui`, `auipc` kết thúc ve mất writeback. `sw` không ghi rd. |
 
-Mo ta input/output:
+Mô tả input/output:
 
-| Tin hieu | Huong | Description |
+| Tín hiệu | Hướng | Description |
 |---|---|---|
-| `memwb_regwrite_w` | input | Cho phep ghi register file, da duoc chot tu MEM/WB |
-| `memwb_rd_addr_w` | input | Dia chi thanh ghi dich `rd` can ghi |
-| `memwb_wb_se_w` | input | Chon nguon du lieu writeback |
-| `memwb_pc_plus_w` | input | Gia tri `PC + 4` cho `jal/jalr` |
-| `memwb_alu_result_w` | input | Ket qua ALU cho ALU-op, `lui`, `auipc`, hoac CSR/system co ghi rd |
-| `memwb_mem_data_w` | input | Du lieu load tu MEM stage |
-| `wb_data_w` | output | Du lieu 32-bit cuoi cung ghi vao register file |
-| `rf_reg_write_w` | output | Write enable cua register file |
-| `rf_rd_addr_w` | output | Dia chi write port cua register file |
+| `memwb_regwrite_w` | input | Cho phep ghi register file, đã được chot tu MEM/WB |
+| `memwb_rd_addr_w` | input | Địa chỉ thanh ghi dich `rd` cần ghi |
+| `memwb_wb_se_w` | input | Chọn nguồn dữ liệu writeback |
+| `memwb_pc_plus_w` | input | Giá trị `PC + 4` cho `jal/jalr` |
+| `memwb_alu_result_w` | input | Kết quả ALU cho ALU-op, `lui`, `auipc`, hoặc CSR/system có ghi rd |
+| `memwb_mem_data_w` | input | Dữ liệu load tu MEM stage |
+| `wb_data_w` | output | Dữ liệu 32-bit cuối cùng ghi vao register file |
+| `rf_reg_write_w` | output | Write enable của register file |
+| `rf_rd_addr_w` | output | Địa chỉ write port của register file |
 
 Thanh ghi trong WB stage:
 
-| Thanh ghi | Chuc nang |
-|---|---|
-| Khong co thanh ghi rieng | WB stage khong chot them state moi; no su dung truc tiep cac thanh ghi `memwb_*` da duoc luu o MEM stage |
+| Thanh ghi | Bit width | Định dạng dữ liệu | Chức năng |
+|---|---:|---|---|
+| Không có thanh ghi riêng | - | WB stage không lưu state mới; chỉ mux trên các dữ liệu `memwb_*` | WB stage không chot thêm state mới; no sử dụng trực tiếp các thanh ghi `memwb_*` đã được lưu o MEM stage |
 
 ### 5.6 Control signal mapping theo nhom lenh
 
-| Nhom lenh | `idex_mem_en_o` | `idex_mem_we_o` | `idex_wb_se_o` | `idex_regwrite_o` | Ghi chu |
+| Nhom lenh | `idex_mem_en_o` | `idex_mem_we_o` | `idex_wb_se_o` | `idex_regwrite_o` | Ghi chú |
 |---|---|---|---|---|---|
 | `lw/lh/lb/lhu/lbu` | `1` | `0` | `MEM` | `1` | load vao rd o WB |
-| `sw/sh/sb` | `1` | `1` | invalid / don't care | `0` | chi ghi DMEM/MMIO |
+| `sw/sh/sb` | `1` | `1` | invalid / don't care | `0` | chỉ ghi DMEM/MMIO |
 | `add/sub/xor/...` | `0` | `0` | `ALU` | `1` | ALU result vao rd |
-| `addi/ori/andi/xori/slli/srli/srai/slti/sltiu` | `0` | `0` | `ALU` | `1` | ALU voi immediate |
+| `addi/ori/andi/xori/slli/srli/srai/slti/sltiu` | `0` | `0` | `ALU` | `1` | ALU với immediate |
 | `lui/auipc` | `0` | `0` | `ALU` | `1` | `lui` ghi imm, `auipc` ghi `PC+imm` |
-| `jal/jalr` | `0` | `0` | `PC+4` | `1` | jump va ghi return address |
-| `beq/bne/blt/bge/bltu/bgeu` | `0` | `0` | invalid | `0` | chi tao branch control |
-| `fence` | `0` | `0` | invalid | `0` | placeholder, khong tao data result |
+| `jal/jalr` | `0` | `0` | `PC+4` | `1` | jump và ghi return address |
+| `beq/bne/blt/bge/bltu/bgeu` | `0` | `0` | invalid | `0` | chỉ tạo branch control |
+| `fence` | `0` | `0` | invalid | `0` | placeholder, không tạo data result |
 | `ebreak` | `0` | `0` | invalid | `0` | testcase terminator |
 
-## 6. Data flow theo tung loai instruction
+## 6. Data flow theo từng loại instruction
 
 ### 6.1 `lw`
 
@@ -370,20 +370,20 @@ flowchart LR
   D --> E["WB write rd"]
 ```
 
-Trong project nay, `lw` duoc dung de:
+Trong project này, `lw` được dùng để:
 
-- doc `INPUT_LEN_ADDR`
-- doc `DMA_STATUS`
-- doc `BYTES_DONE`
-- doc `CIPHERTEXT_BYTES_PRODUCED`
-- doc result words tu DMEM
+- đọc `INPUT_LEN_ADDR`
+- đọc `DMA_STATUS`
+- đọc `BYTES_DONE`
+- đọc `CIPHERTEXT_BYTES_PRODUCED`
+- đọc result words tu DMEM
 
-`lw` trong flow DMA la instruction quan trong nhat vi no tao polling loop:
+`lw` trong flow DMA là instruction quan trong nhất vi no tạo polling loop:
 
-1. CPU doc `STATUS`
+1. CPU đọc `STATUS`
 2. CPU check `busy/done/error`
-3. CPU lap lai neu chua xong
-4. `mem_stage_sync` co the giu 1 cycle cho synchronous read
+3. CPU lặp lại nếu chưa xong
+4. `mem_stage_sync` có thể giữ 1 cycle cho synchronous read
 
 ### 6.2 `sw`
 
@@ -395,59 +395,59 @@ flowchart LR
   D --> E["No WB writeback"]
 ```
 
-Trong project nay, `sw` duoc dung de:
+Trong project này, `sw` được dùng để:
 
 - ghi `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`
 - ghi `IV0..IV3`
 - ghi result words vao DMEM
 
-`sw` trong flow DMA la cach CPU:
+`sw` trong flow DMA là cach CPU:
 
-- chon vung source/destination
-- nap mode cho TX/RX
+- chọn vung source/destination
+- nạp mode cho TX/RX
 - start transfer
-- luu summary ket qua
+- lưu summary kết quả
 
 ### 6.3 Branch / jump
 
-Branch/jump khong phai data-plane, nhung rat quan trong voi CPU:
+Branch/jump không phải data-plane, nhưng rất quan trong với CPU:
 
 - `beq`, `bne`
 - `jal`
 - `jalr`
 
-Chung dung de:
+Chung dung để:
 
 - thoat vong polling
 - nhay sang error handler
-- lap check status
+- lặp check status
 
-Trong testcase hien tai:
+Trong testcase hiện tại:
 
-- `beq`/`bne` dung de thoat vong polling
-- `jal`/`jalr` dung de nhay giua cac block code hoac vao `main`
-- nhung lenh nay khong can MMIO, nhung van di qua IF/ID/EX/WB nhu binh thuong
+- `beq`/`bne` dung để thoat vong polling
+- `jal`/`jalr` dung để nhay giua các block code hoặc vao `main`
+- nhưng lenh này không cần MMIO, nhưng vẫn di qua IF/ID/EX/WB như bình thường
 
 ### 6.4 ALU immediate
 
-`addi`, `andi`, `ori`, `xori`, `slli`, `srli`, `lui` duoc dung nhieu cho:
+`addi`, `andi`, `ori`, `xori`, `slli`, `srli`, `lui` được dùng nhieu cho:
 
-- tinh dia chi MMIO
-- tao IV demo
+- tính địa chỉ MMIO
+- tạo IV demo
 - mask bit status
-- shift/pack gia tri
+- shift/pack giá trị
 
-Day la nhom lenh RV32I dung nhieu de tao IV demo trong `test_mmio_dma.c`.
-Vi du:
+Đây là nhom lenh RV32I dung nhieu để tạo IV demo trong `test_mmio_dma.c`.
+Vi đủ:
 
-- `lui` tao gia tri base 20-bit tren
+- `lui` tạo giá trị base 20-bit trên
 - `xori` tron input length, address, counter
-- `slli/srli` tao entropy lua chon tu bit pattern
-- `ori/andi` mask hoac gan bit control
+- `slli/srli` tạo entropy lua chọn tu bit pattern
+- `ori/andi` mask hoặc gan bit control
 
-## 7.1.1 Vi du flow voi `input1`
+## 7.1.1 Vi đủ flow với `input1`
 
-Mot testcase `input1` dien hinh co the hieu theo cac lenh sau:
+Một testcase `input1` dien hinh có thể hiểu theo các lenh sau:
 
 ```asm
 lw    a2, 64(zero)        # doc input_len tu DMEM[0x40]
@@ -467,17 +467,17 @@ lw    a5, 28(a3)          # BYTES_DONE / result
 ebreak                    # testcase end marker
 ```
 
-Khong phai assembly nay luc nao cung giong 100% binary thuc te, nhung
-day la luong logic ma CPU dang chay.
+Không phải assembly này lúc nào cung giong 100% binary thực tế, nhưng
+đây là lượng logic mà CPU dang chạy.
 
-## 7. Luong CPU dung trong testcase DMA
+## 7. Lượng CPU dùng trong testcase DMA
 
-### 7.1 Bat dau
+### 7.1 Bắt đầu
 
-CPU chay tu `instruction.mem`, roi:
+CPU chạy tu `instruction.mem`, rồi:
 
 1. `lw input_len` tu `DMEM[0x40]`
-2. tao `IV0..IV3` bang instruction RV32I
+2. tạo `IV0..IV3` bằng instruction RV32I
 3. ghi `DMA_SRC_ADDR`
 4. ghi `DMA_DST_ADDR`
 5. ghi `DMA_LEN_BYTES`
@@ -487,177 +487,177 @@ CPU chay tu `instruction.mem`, roi:
 
 ### 7.2 Polling
 
-CPU lap:
+CPU lặp:
 
 1. `lw DMA_STATUS`
-2. kiem tra `busy/done/error`
-3. neu chua xong thi lap lai
+2. kiểm trả `busy/done/error`
+3. nếu chưa xong thì lặp lại
 
-Day la **software polling**, khong phai interrupt.
+Đây là **software polling**, không phải interrupt.
 
-### 7.3 Ket thuc
+### 7.3 Kết thúc
 
-CPU doc:
+CPU đọc:
 
 - `BYTES_DONE`
 - `CIPHERTEXT_BYTES_PRODUCED`
 - `DEBUG`
 
-Sau do ghi:
+Sau đó ghi:
 
 - signature
 - error mask
 - status summary
 - result head
 
-vao DMEM de testbench doc lai.
+vao DMEM để testbench đọc lại.
 
 ## 8. Pipeline semantics quan trong
 
 ### 8.1 Load-use hazard
 
-`top_rv32_sync` co hazard detection cho load-use.
-Neu `lw` tao ra gia tri ma instruction sau dung ngay, pipeline se bubble/hold.
+`top_rv32_sync` có hazard detection cho load-use.
+Nếu `lw` tạo ra giá trị mã instruction sau dung ngay, pipeline sẽ bubble/hold.
 
 ### 8.2 MMIO hold
 
 Khi CPU truy cap MMIO:
 
-- `cpu_mmio_to_apb_bridge` tao `cpu_stall_req_o`
+- `cpu_mmio_to_apb_bridge` tạo `cpu_stall_req_o`
 - `top_rv32_sync` hold front-end pipeline
-- instruction hien tai khong duoc chay tiep cho toi khi APB xong
+- instruction hiện tại không được chạy tiep cho toi khi APB xong
 
-Day la ly do `lw DMA_STATUS` co the stall, con `DMA busy` khong lam CPU global stall.
+Đây là lý do `lw DMA_STATUS` có thể stall, còn `DMA busy` không làm CPU global stall.
 
 ### 8.3 Branch flush
 
 Khi branch taken:
 
-- IF va ID bi flush
-- PC duoc nap lai dia chi branch target
+- IF và ID bị flush
+- PC được nạp lại địa chỉ branch target
 
 ### 8.4 Synchronous IMEM/DMEM
 
-He thong hien tai giam sat synchronous BRAM behavior:
+Hệ thống hiện tại giảm sat synchronous BRAM behavior:
 
 - instruction vao sau 1 cycle fetch
-- load/store co response theo timing cua memory model
+- load/store có response theo timing của memory model
 
-## 9. RV32I instruction set thuc su dung trong project
+## 9. RV32I instruction set thực sự dùng trong project
 
-Chu yeu gom cac nhom sau:
+Chủ yếu gom các nhom sau:
 
-### 9.1 Bang instruction ho tro
+### 9.1 Bằng instruction hỗ trợ
 
-| Nhom | Lenh | Trang thai hien tai | Cach thuc thi trong RTL |
+| Nhom | Lenh | Trạng thái hiện tại | Cach thuc thì trong RTL |
 |---|---|---|---|
-| U-type | `lui` | Ho tro | ID tao `imm_u`, EX khong can rs1, WB ghi `imm_u` vao `rd` |
-| U-type | `auipc` | Ho tro | ID tao `imm_u`, EX dung `PC + imm_u`, WB ghi ket qua vao `rd` |
-| J-type | `jal` | Ho tro | ID tao `imm_j`, EX tinh `PC + imm_j`, IF/ID bi flush khi taken, WB ghi `PC+4` |
-| I-jump | `jalr` | Ho tro | ID tao `imm_i`, EX tinh `(rs1 + imm_i) & ~1`, IF/ID bi flush khi taken, WB ghi `PC+4` |
-| Branch | `beq` | Ho tro | EX so sanh rs1/rs2 bang ALU branch opcode |
-| Branch | `bne` | Ho tro | EX so sanh rs1/rs2 bang ALU branch opcode |
-| Branch | `blt` | Ho tro | EX so sanh signed `<` |
-| Branch | `bge` | Ho tro | EX so sanh signed `>=` |
-| Branch | `bltu` | Ho tro | EX so sanh unsigned `<` |
-| Branch | `bgeu` | Ho tro | EX so sanh unsigned `>=` |
-| Load | `lb` | Ho tro | MEM doc 1 byte, sign-extend ve `rd` |
-| Load | `lh` | Ho tro | MEM doc 2 byte, sign-extend ve `rd` |
-| Load | `lw` | Ho tro | MEM doc 4 byte, write-back qua `MEM` path |
-| Load | `lbu` | Ho tro | MEM doc 1 byte, zero-extend ve `rd` |
-| Load | `lhu` | Ho tro | MEM doc 2 byte, zero-extend ve `rd` |
-| Store | `sb` | Ho tro | MEM ghi 1 byte theo `we_o` byte-enable |
-| Store | `sh` | Ho tro | MEM ghi 2 byte theo halfword alignment |
-| Store | `sw` | Ho tro | MEM ghi 4 byte vao DMEM hoac MMIO |
-| OP-IMM | `addi` | Ho tro | ID tao `imm_i`, EX thuc hien `ADD` voi immediate |
-| OP-IMM | `slti` | Ho tro | ID tao `imm_i`, EX thuc hien signed compare |
-| OP-IMM | `sltiu` | Ho tro | ID tao `imm_i`, EX thuc hien unsigned compare |
-| OP-IMM | `xori` | Ho tro | ID tao `imm_i`, EX thuc hien XOR |
-| OP-IMM | `ori` | Ho tro | ID tao `imm_i`, EX thuc hien OR |
-| OP-IMM | `andi` | Ho tro | ID tao `imm_i`, EX thuc hien AND |
-| OP-IMM | `slli` | Ho tro | ID tao `shamt`, EX shift left logical |
-| OP-IMM | `srli` | Ho tro | ID tao `shamt`, EX shift right logical |
-| OP-IMM | `srai` | Ho tro | ID tao `shamt`, EX shift right arithmetic |
-| OP | `add` | Ho tro | EX ALU `ADD` |
-| OP | `sub` | Ho tro | EX ALU `SUB` |
-| OP | `sll` | Ho tro | EX ALU `SLL` |
-| OP | `slt` | Ho tro | EX ALU `SLT` |
-| OP | `sltu` | Ho tro | EX ALU `SLTU` |
-| OP | `xor` | Ho tro | EX ALU `XOR` |
-| OP | `srl` | Ho tro | EX ALU `SRL` |
-| OP | `sra` | Ho tro | EX ALU `SRA` |
-| OP | `or` | Ho tro | EX ALU `OR` |
-| OP | `and` | Ho tro | EX ALU `AND` |
-| Fence | `fence` | Placeholder | Decoder cho qua nhu instruction non-data; khong co memory ordering engine rieng |
-| System | `ebreak` | Used as testcase terminator | Assembly testcase dung `ebreak` de danh dau ket thuc; CPU hien tai khong co trap/interrupt handler day du |
-| System | `ecall` / CSR ops | Khong dung trong flow chinh | Decoder co nhan `SYSTEM` baseline, nhung SoC hien tai chua co CSR/trap architecture day du |
+| U-type | `lui` | Hỗ trợ | ID tạo `imm_u`, EX không cần rs1, WB ghi `imm_u` vao `rd` |
+| U-type | `auipc` | Hỗ trợ | ID tạo `imm_u`, EX dung `PC + imm_u`, WB ghi kết quả vao `rd` |
+| J-type | `jal` | Hỗ trợ | ID tạo `imm_j`, EX tính `PC + imm_j`, IF/ID bị flush khi taken, WB ghi `PC+4` |
+| I-jump | `jalr` | Hỗ trợ | ID tạo `imm_i`, EX tính `(rs1 + imm_i) & ~1`, IF/ID bị flush khi taken, WB ghi `PC+4` |
+| Branch | `beq` | Hỗ trợ | EX so sánh rs1/rs2 bằng ALU branch opcode |
+| Branch | `bne` | Hỗ trợ | EX so sánh rs1/rs2 bằng ALU branch opcode |
+| Branch | `blt` | Hỗ trợ | EX so sánh signed `<` |
+| Branch | `bge` | Hỗ trợ | EX so sánh signed `>=` |
+| Branch | `bltu` | Hỗ trợ | EX so sánh unsigned `<` |
+| Branch | `bgeu` | Hỗ trợ | EX so sánh unsigned `>=` |
+| Load | `lb` | Hỗ trợ | MEM đọc 1 byte, sign-extend ve `rd` |
+| Load | `lh` | Hỗ trợ | MEM đọc 2 byte, sign-extend ve `rd` |
+| Load | `lw` | Hỗ trợ | MEM đọc 4 byte, write-back qua `MEM` path |
+| Load | `lbu` | Hỗ trợ | MEM đọc 1 byte, zero-extend ve `rd` |
+| Load | `lhu` | Hỗ trợ | MEM đọc 2 byte, zero-extend ve `rd` |
+| Store | `sb` | Hỗ trợ | MEM ghi 1 byte theo `we_o` byte-enable |
+| Store | `sh` | Hỗ trợ | MEM ghi 2 byte theo halfword alignment |
+| Store | `sw` | Hỗ trợ | MEM ghi 4 byte vao DMEM hoặc MMIO |
+| OP-IMM | `addi` | Hỗ trợ | ID tạo `imm_i`, EX thực hiện `ADD` với immediate |
+| OP-IMM | `slti` | Hỗ trợ | ID tạo `imm_i`, EX thực hiện signed compare |
+| OP-IMM | `sltiu` | Hỗ trợ | ID tạo `imm_i`, EX thực hiện unsigned compare |
+| OP-IMM | `xori` | Hỗ trợ | ID tạo `imm_i`, EX thực hiện XOR |
+| OP-IMM | `ori` | Hỗ trợ | ID tạo `imm_i`, EX thực hiện OR |
+| OP-IMM | `andi` | Hỗ trợ | ID tạo `imm_i`, EX thực hiện AND |
+| OP-IMM | `slli` | Hỗ trợ | ID tạo `shamt`, EX shift left logical |
+| OP-IMM | `srli` | Hỗ trợ | ID tạo `shamt`, EX shift right logical |
+| OP-IMM | `srai` | Hỗ trợ | ID tạo `shamt`, EX shift right arithmetic |
+| OP | `add` | Hỗ trợ | EX ALU `ADD` |
+| OP | `sub` | Hỗ trợ | EX ALU `SUB` |
+| OP | `sll` | Hỗ trợ | EX ALU `SLL` |
+| OP | `slt` | Hỗ trợ | EX ALU `SLT` |
+| OP | `sltu` | Hỗ trợ | EX ALU `SLTU` |
+| OP | `xor` | Hỗ trợ | EX ALU `XOR` |
+| OP | `srl` | Hỗ trợ | EX ALU `SRL` |
+| OP | `sra` | Hỗ trợ | EX ALU `SRA` |
+| OP | `or` | Hỗ trợ | EX ALU `OR` |
+| OP | `and` | Hỗ trợ | EX ALU `AND` |
+| Fence | `fence` | Placeholder | Decoder cho qua như instruction non-data; không có memory ordering engine riêng |
+| System | `ebreak` | Used as testcase terminator | Assembly testcase dung `ebreak` để danh đầu kết thúc; CPU hiện tại không có trap/interrupt handler đây đủ |
+| System | `ecall` / CSR ops | Không dùng trong flow chính | Decoder có nhận `SYSTEM` baseline, nhưng SoC hiện tại chưa có CSR/trap architecture đây đủ |
 
-### 9.2 Ghi chu ve `SYSTEM`
+### 9.2 Ghi chú ve `SYSTEM`
 
-Trong RTL hien tai:
+Trong RTL hiện tại:
 
-- `opcode == SYSTEM` duoc decoder nhan dien
-- nhung he thong chua co trap handler/CSR block day du
-- testcase dung `ebreak` nhu mot terminal marker trong assembly, khong phai
-  mot trap flow hoan chinh
+- `opcode == SYSTEM` được decoder nhận dien
+- nhưng hệ thống chưa có trap handler/CSR block đây đủ
+- testcase dung `ebreak` như một terminal marker trong assembly, không phải
+  một trap flow hoàn chính
 
-### 9.3 Cach tung nhom lenh di qua pipeline
+### 9.3 Cach từng nhom lenh di qua pipeline
 
 | Nhom lenh | IF | ID | EX | MEM | WB |
 |---|---|---|---|---|---|
-| `lui`, `auipc` | fetch | decode imm_u | tinh/lay gia tri | khong dung memory | ghi `rd` |
-| `jal`, `jalr` | fetch | decode jump | tinh target, flush IF/ID | khong dung memory | ghi `PC+4` |
-| Branch | fetch | decode branch | so sanh va quyet dinh taken | khong dung memory | khong writeback |
-| `lb/lh/lw/lbu/lhu` | fetch | decode load | tinh address | doc DMEM/MMIO, co synchronous wait | ghi `rd` |
-| `sb/sh/sw` | fetch | decode store | tinh address | ghi DMEM/MMIO | khong writeback |
-| OP/OP-IMM | fetch | decode ALU | tinh ket qua ALU | khong dung memory | ghi `rd` |
-| `fence` | fetch | decode placeholder | khong co hanh dong data-plane | khong co hanh dong | khong writeback |
-| `ebreak` | fetch | decode terminal marker | khong co trap handler day du | khong co hanh dong | khong writeback |
+| `lui`, `auipc` | fetch | decode imm_u | tính/lay giá trị | không dùng memory | ghi `rd` |
+| `jal`, `jalr` | fetch | decode jump | tính target, flush IF/ID | không dùng memory | ghi `PC+4` |
+| Branch | fetch | decode branch | so sánh và quyet dinh taken | không dùng memory | không writeback |
+| `lb/lh/lw/lbu/lhu` | fetch | decode load | tính address | đọc DMEM/MMIO, có synchronous wait | ghi `rd` |
+| `sb/sh/sw` | fetch | decode store | tính address | ghi DMEM/MMIO | không writeback |
+| OP/OP-IMM | fetch | decode ALU | tính kết quả ALU | không dùng memory | ghi `rd` |
+| `fence` | fetch | decode placeholder | không có hanh dong data-plane | không có hanh dong | không writeback |
+| `ebreak` | fetch | decode terminal marker | không có trap handler đây đủ | không có hanh dong | không writeback |
 
-Khong can cac lenh phuc tap hon de chay flow chinh.
+Không cần các lenh phuc tap hơn để chạy flow chính.
 
-### 9.4 Ghi chu chi tiet cho tung lenh quan trong
+### 9.4 Ghi chú chỉ tiet cho từng lenh quan trong
 
-| Lenh | Mo ta chi tiet trong design hien tai |
+| Lenh | Mô tả chỉ tiet trong design hiện tại |
 |---|---|
-| `lui` | Doc 20 bit tren cua immediate, dat len thanh ghi rd; dung de tao constant 0x4000_0000, 0x0000_2000, 0x0000_6000, ... |
-| `auipc` | Cong `PC + imm_u`; khong dung trong control-path chinh nhieu bang `lui`, nhung pipeline van ho tro |
-| `addi` | Dung de cong offset nho, tao `sp`, tang counter, cong dia chi, cong lenh loop |
-| `lw` | Dung de doc `INPUT_LEN_ADDR`, `DMA_STATUS`, `BYTES_DONE`, `CIPHERTEXT_BYTES_PRODUCED`, result words |
-| `sw` | Dung de ghi thanh ghi DMA va result words; day la lenh chinh de cau hinh TX/RX |
-| `beq/bne` | Dung de lap polling loop va thoat khi `done/error` |
-| `jal/jalr` | Dung de nhay vao `main`, goi block control, va quay ve neu can |
-| `xori/ori/andi` | Dung de tao IV demo, mask flag, and bit twiddle |
-| `slli/srli/srai` | Dung de mix bit khi tao IV va xu ly gia tri control |
-| `ebreak` | Dung nhu dau hieu ket thuc testcase trong simulation, khong phai trap handler day du |
-| `fence` | Khong phai instruction mainline trong testcase; hien tai chi la decode placeholder va khong co memory-order engine rieng |
+| `lui` | Đọc 20 bit trên của immediate, dat len thanh ghi rd; dung để tạo constant 0x4000_0000, 0x0000_2000, 0x0000_6000, ... |
+| `auipc` | Cổng `PC + imm_u`; không dùng trong control-path chính nhieu bằng `lui`, nhưng pipeline vẫn hỗ trợ |
+| `addi` | Dung để cổng offset nhỏ, tạo `sp`, tăng counter, cổng địa chỉ, cổng lenh loop |
+| `lw` | Dung để đọc `INPUT_LEN_ADDR`, `DMA_STATUS`, `BYTES_DONE`, `CIPHERTEXT_BYTES_PRODUCED`, result words |
+| `sw` | Dung để ghi thanh ghi DMA và result words; đây là lenh chính để cấu hình TX/RX |
+| `beq/bne` | Dung để lặp polling loop và thoat khi `done/error` |
+| `jal/jalr` | Dung để nhay vao `main`, goi block control, và quay ve nếu cần |
+| `xori/ori/andi` | Dung để tạo IV demo, mask flag, and bit twiddle |
+| `slli/srli/srai` | Dung để mix bit khi tạo IV và xu ly giá trị control |
+| `ebreak` | Dung như đầu hieu kết thúc testcase trong simulation, không phải trap handler đây đủ |
+| `fence` | Không phải instruction mainline trong testcase; hiện tại chỉ là decode placeholder và không có memory-order engine riêng |
 
 ## 10. Instruction-to-use summary for this SoC
 
-Trong cac testcase control-plane cua he thong nay, nhung lenh RV32I quan trong
-nhat la:
+Trong các testcase control-plane của hệ thống này, nhưng lenh RV32I quan trong
+nhất là:
 
-- `lw` de doc `INPUT_LEN_ADDR`, `STATUS`, `BYTES_DONE`, result words
-- `sw` de ghi `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`, `IV0..IV3`
-- `addi` / `lui` / `xori` / `ori` / `andi` / shift ops de tao IV demo va mask flag
-- `beq` / `bne` de polling loop thoat khi done/error
-- `jal` / `jalr` de control luong program
+- `lw` để đọc `INPUT_LEN_ADDR`, `STATUS`, `BYTES_DONE`, result words
+- `sw` để ghi `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`, `IV0..IV3`
+- `addi` / `lui` / `xori` / `ori` / `andi` / shift ops để tạo IV demo và mask flag
+- `beq` / `bne` để polling loop thoat khi done/error
+- `jal` / `jalr` để control lượng program
 
 ## 11. Ket luan
 
-`instruction.mem` chi chua **chuong trinh**.
-Du lieu thuc su ma CPU xu ly nam trong `DMEM`.
+`instruction.mem` chỉ chưa **chương trình**.
+Dữ liệu thực sự mà CPU xu ly nằm trong `DMEM`.
 
-Luong chinh cua RV32I hien tai la:
+Lượng chính của RV32I hiện tại là:
 
 1. fetch lenh tu `IMEM`
-2. doc input length va status tu `DMEM/MMIO`
+2. đọc input length và status tu `DMEM/MMIO`
 3. ghi config DMA qua MMIO
 4. polling `STATUS`
-5. ghi ket qua/metadata ve `DMEM`
+5. ghi kết quả/metadata ve `DMEM`
 
-Nghia la:
+Nghĩa là:
 
-- file `.mem` khong phai data stream
-- CPU khong “parse file input” truc tiep
-- CPU chi dieu khien he thong va quan sat ket qua qua memory-mapped registers
+- file `.mem` không phải data stream
+- CPU không “parse file input” trực tiếp
+- CPU chỉ điều khiển hệ thống và quan sat kết quả qua memory-mapped registers

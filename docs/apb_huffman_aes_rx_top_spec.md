@@ -1,15 +1,15 @@
 # APB Huffman AES RX Top Specification
 
-## 1. Purpose
+## 1. Mục đích
 
-`apb_huffman_aes_rx_top` la top-level RX accelerator. Module nay nhan
-ciphertext transport word 128-bit, giai ma AES-128 CBC, tach transport bitstream,
-decode Huffman, pack lai plaintext thanh word 32-bit va dua ra APB readback FIFO.
+`apb_huffman_aes_rx_top` là top-level RX accelerator. Module này nhận
+ciphertext transport word 128-bit, giải mã AES-128 CBC, tách transport bitstream,
+decode Huffman, pack lại plaintext thanh word 32-bit và dua ra APB readback FIFO.
 
-Module nay khong tu doc/ghi `DMEM`. `dma_rx_engine` la khoi doc ciphertext tu
-`DMEM`, feed RX top, sau do drain plaintext output ve `DMEM`.
+Module này không tu đọc/ghi `DMEM`. `dma_rx_engine` là khoi đọc ciphertext tu
+`DMEM`, feed RX top, sau đó drain plaintext output ve `DMEM`.
 
-Current verification status:
+Trạng thái kiểm chứng hiện tại:
 
 | Case | Coverage/use |
 |---|---|
@@ -45,13 +45,14 @@ flowchart LR
 
 ## 4. Main Interfaces
 
-| Interface | Direction | Role |
-|---|---|---|
-| `ciphertext_word_in[127:0]` | input stream | Ciphertext transport word from `dma_rx_engine` |
-| `ciphertext_word_valid` / `ciphertext_word_ready` | handshake | Backpressure between RX DMA and RX top |
-| `PSEL/PENABLE/PWRITE/PADDR/PWDATA/PRDATA/PREADY/PSLVERR` | APB | Output/status readback and legacy ciphertext staging |
-| `cbc_iv_i[127:0]` | input | CBC IV from `dma_regfile.iv_o` |
-| `rx_busy/rx_done/rx_error` | status | Top-level status to SoC |
+| Interface | Hướng | Độ rộng | Định dạng dữ liệu | Vai trò |
+|---|---|---:|---|---|
+| `ciphertext_word_in[127:0]` | input stream | 128 | 128-bit ciphertext transport word | Ciphertext transport word from `dma_rx_engine` |
+| `ciphertext_word_valid` / `ciphertext_word_ready` | handshake | 1 / 1 | valid/ready | Backpressure between RX DMA and RX top |
+| `PSEL/PENABLE/PWRITE/PADDR/PWDATA/PRDATA/PREADY/PSLVERR` | APB | 1 / 1 / 1 / 32 / 32 / 32 / 1 / 1 | APB control + little-endian word | Output/status readback and legacy ciphertext staging |
+| `cbc_iv_i[127:0]` | input | 128 | 128-bit IV | CBC IV from `dma_regfile.iv_o` |
+| `aes_ready_out` | status | 1 | ready flag | AES decrypt core ready |
+| `rx_busy/rx_done/rx_error` | status | 1 / 1 / 1 | busy/done/error flags | Top-level status to SoC |
 
 ## 5. AES-CBC Behavior
 
@@ -92,16 +93,58 @@ bit_depacker_128
 - `RX_META`
 - `RX_DATA`
 
-### 6.1 RX Top Register Interface Summary
+### 6.1 RX Top Thanh ghi Interface Summary
 
-| Register / interface | Function | Owner | Note |
+| Thanh ghi / interface | Chức năng | Chủ sở hữu | Định dạng dữ liệu / ghi chú |
 |---|---|---|---|
-| Direct ciphertext stream | Feed 128-bit AES-CBC ciphertext blocks into RX | `dma_rx_engine` | Primary SoC path; bypasses legacy APB staging registers |
-| `RX_STATUS` | Tell DMA whether plaintext FIFO has data/error | `apb_huffman_rx_if` | DMA polls before reading data |
-| `RX_META` | Expose valid-byte count and last flags | `apb_huffman_rx_if` | DMA reads before `RX_DATA` |
-| `RX_DATA` | Return 32-bit plaintext word | `apb_huffman_rx_if` | Read pops output FIFO head |
-| `RX_CONTROL` | Local soft reset for RX APB interface | debug/reset software | Detailed bit field in `apb_huffman_rx_if_spec.md` |
-| `CTXT_W0..W3/START/STATUS` | Legacy APB ciphertext staging | legacy/debug flow | Not the main DMA path |
+| Direct ciphertext stream | Feed 128-bit AES-CBC ciphertext blocks into RX | `dma_rx_engine` | 128-bit transport word; primary SoC path, bypasses legacy APB staging registers |
+| `RX_STATUS` | Tell DMA whether plaintext FIFO has data/error | `apb_huffman_rx_if` | Bitfield status, DMA polls before reading data |
+| `RX_META` | Expose valid-byte count and last flags | `apb_huffman_rx_if` | Small bitfield; DMA reads before `RX_DATA` |
+| `RX_DATA` | Return 32-bit plaintext word | `apb_huffman_rx_if` | 32-bit little-endian word; read pops output FIFO head |
+| `RX_CONTROL` | Local soft reset for RX APB interface | debug/reset software | Control pulse bitfield; detailed map in `apb_huffman_rx_if_spec.md` |
+| `CTXT_W0..W3/START/STATUS` | Legacy APB ciphertext staging | legacy/debug flow | 32-bit staging words plus control/status; not the main DMA path |
+
+### 6.2 Internal RX state
+
+| Thanh ghi / buffer | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+|---|---:|---|---|
+| `cipher_buf_data_r` | 128 | 128-bit ciphertext block | Buffered ciphertext waiting for AES input |
+| `cipher_buf_valid_r` | 1 | bool | Buffered ciphertext valid flag |
+| `aes_ready_dly_r` | 1 | bool | Delayed AES ready tracking |
+| `aes_inflight_r` | 1 | bool | AES block currently in flight |
+| `aes_path_error_r` | 1 | sticky | AES path error sticky |
+| `aes_current_cipher_r` | 128 | 128-bit ciphertext block | Ciphertext currently under AES processing |
+| `rx_cbc_chain_r` | 128 | 128-bit CBC chain word | Previous ciphertext for CBC XOR |
+| `rx_cbc_active_r` | 1 | bool | CBC chain has been initialized |
+| `transport_buf_data_r` | 128 | 128-bit transport word | Buffered transport word after AES/CBC |
+| `transport_buf_valid_r` | 1 | bool | Transport buffer valid flag |
+
+### 6.3 Stage and debug outputs
+
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+|---|---|---:|---|---|
+| `depacker_busy` | out | 1 | busy flag | `bit_depacker_128` busy |
+| `depacker_done` | out | 1 | pulse | `bit_depacker_128` done |
+| `depacker_error` | out | 1 | error flag | `bit_depacker_128` error |
+| `parser_busy` | out | 1 | busy flag | `huffman_block_parser` busy |
+| `parser_block_done` | out | 1 | pulse | Parser block done |
+| `parser_frame_done` | out | 1 | pulse | Parser frame done |
+| `parser_error` | out | 1 | error flag | Parser error |
+| `decoder_busy` | out | 1 | busy flag | `huffman_block_decoder` busy |
+| `decoder_block_done` | out | 1 | pulse | Decoder block done |
+| `decoder_frame_done` | out | 1 | pulse | Decoder frame done |
+| `decoder_error` | out | 1 | error flag | Decoder error |
+| `word_packer_busy` | out | 1 | busy flag | `rx_byte_packer_32` busy |
+| `word_packer_block_done` | out | 1 | pulse | Word packer block done |
+| `word_packer_frame_done` | out | 1 | pulse | Word packer frame done |
+| `word_packer_error` | out | 1 | error flag | Word packer error |
+| `transport_word_dbg` | out | 128 | 128-bit transport frame | Transport word after AES/CBC |
+| `transport_word_valid_dbg` | out | 1 | valid flag | Transport debug word valid |
+| `rx_word_dbg` | out | 32 | little-endian word | Packed plaintext word debug |
+| `rx_word_valid_bytes_dbg` | out | 3 | unsigned byte count | Valid bytes in packed word |
+| `rx_word_last_in_block_dbg` | out | 1 | bool | Debug last-in-block flag |
+| `rx_word_last_in_frame_dbg` | out | 1 | bool | Debug last-in-frame flag |
+| `rx_word_valid_dbg` | out | 1 | valid flag | Packed plaintext debug word valid |
 
 ## 7. Error Policy
 
@@ -116,7 +159,7 @@ bit_depacker_128
 Errors propagate through `apb_huffman_rx_if` status and then into
 `dma_rx_engine`.
 
-## 8. Related Specs
+## 8. Spec liên quan
 
 - [RX path end-to-end](./rx_path_end_to_end_spec.md)
 - [DMA RX engine](./dma_rx_engine_spec.md)

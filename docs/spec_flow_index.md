@@ -51,6 +51,7 @@ Read in this order when explaining the full system:
 | 6 | [dma_regfile_spec.md](./dma_regfile_spec.md) | DMA registers and mode decode |
 | 7 | [iv_generation_and_cbc_contract_spec.md](./iv_generation_and_cbc_contract_spec.md) | IV and AES-CBC contract |
 | 8 | [dma_riscv_instruction_programming_spec.md](./dma_riscv_instruction_programming_spec.md) | RV32I instructions used by control software |
+| 9 | [rv32i_instruction_mem_to_pipeline_flow_spec.md](./rv32i_instruction_mem_to_pipeline_flow_spec.md) | How `instruction.mem` enters IMEM and moves through RV32I pipeline |
 
 ## 4. TX Reading Path
 
@@ -59,9 +60,10 @@ Read in this order when explaining the full system:
 | 1 | [tx_path_end_to_end_spec.md](./tx_path_end_to_end_spec.md) | TX end-to-end data/control flow |
 | 2 | [dma_tx_engine_spec.md](./dma_tx_engine_spec.md) | TX DMA data mover |
 | 3 | [apb_huffman_aes_tx_top_spec.md](./apb_huffman_aes_tx_top_spec.md) | TX APB wrapper, Huffman, AES/bypass |
-| 4 | [dynamic_huffman_encoder_spec.md](./dynamic_huffman_encoder_spec.md) | Whole-file dynamic Huffman encoder |
-| 5 | [bit_packer_128_spec.md](./bit_packer_128_spec.md) | 128-bit transport packing |
-| 6 | [14_dynamic_whole_file_huffman_spec.md](./14_dynamic_whole_file_huffman_spec.md) | Whole-file Huffman policy |
+| 4 | [apb_huffman_tx_if_spec.md](./apb_huffman_tx_if_spec.md) | TX APB register/FIFO wrapper |
+| 5 | [dynamic_huffman_encoder_spec.md](./dynamic_huffman_encoder_spec.md) | Whole-file dynamic Huffman encoder |
+| 6 | [bit_packer_128_spec.md](./bit_packer_128_spec.md) | 128-bit transport packing |
+| 7 | [14_dynamic_whole_file_huffman_spec.md](./14_dynamic_whole_file_huffman_spec.md) | Whole-file Huffman policy |
 
 ## 5. RX Reading Path
 
