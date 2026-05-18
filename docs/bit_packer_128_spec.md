@@ -1,14 +1,14 @@
 # Bit Packer 128 Specification
 
-## 1. Purpose
+## 1. Mục đích
 
-`bit_packer_128` nhan bitstream tu `dynamic_huffman_encoder`, gom cac bit do
-thanh 128-bit transport word, sau do cap cho layer AES hoac bypass FIFO.
+`bit_packer_128` nhận bitstream tu `dynamic_huffman_encoder`, gom các bit do
+thanh 128-bit transport word, sau đó cap cho layer AES hoặc bypass FIFO.
 
-Module nay khong biet gi ve Huffman tree, codebook hay DMA. No chi dam bao
-bitstream lien tuc duoc dong goi thanh `transport_word`.
+Module này không biet gi ve Huffman tree, codebook hay DMA. No chỉ đảm bảo
+bitstream liên tục được đóng gói thanh `transport_word`.
 
-Current verification status:
+Trạng thái kiểm chứng hiện tại:
 
 | Case | Coverage/use |
 |---|---|
@@ -18,7 +18,7 @@ Current verification status:
 | `tx_builder_packer_direct_cov` | Direct packer ready/valid and flush corner branches |
 | `rx_depacker_packer_direct_cov` | Cross-check TX packer format against RX depacker assumptions |
 
-## 2. Role In TX Stack
+## 2. Vai trò In TX Stack
 
 Vi tri trong stack:
 
@@ -29,14 +29,14 @@ dynamic_huffman_encoder
 -> AES or bypass
 ```
 
-`bit_packer_128` la cau noi giua:
+`bit_packer_128` là cau noi giua:
 
 - bit-level encoder output
 - word-level crypto/storage datapath
 
-## 3. Input Contract
+## 3. Contract input
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `clk` | in | 1 | `clk` | System clock |
 | `rst_n` | in | 1 | `rst_n` | Active-low reset |
@@ -48,7 +48,7 @@ dynamic_huffman_encoder
 | `stream_ready` | out | 1 | ready flag | Packer can accept next chunk |
 | `transport_word_ready` | in | 1 | ready flag | Downstream transport consumer ready |
 
-## 4. High-Level Behavior
+## 4. Hành vi mức cao
 
 ```mermaid
 flowchart LR
@@ -59,14 +59,14 @@ flowchart LR
 
 Module:
 
-- tiep nhan chunk bit 32-bit
-- luu bit du trong thanh ghi dem
-- xuat mot transport word 128-bit khi du bit
-- neu frame ket thuc ma chua du 128 bit thi zero-pad va flush
+- tiep nhận chunk bit 32-bit
+- lưu bit đủ trong thanh ghi đếm
+- xuất một transport word 128-bit khi đủ bit
+- nếu frame kết thúc mà chưa đủ 128 bit thì zero-pad và flush
 
-## 5. Output Contract
+## 5. Contract output
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `transport_word_out` | out | 128 | 128-bit transport frame | Packed output word |
 | `transport_word_valid` | out | 1 | valid flag | Packed output word is valid |
@@ -77,40 +77,40 @@ Module:
 
 Transport word format:
 
-| Field | Width | Data format | Meaning |
+| Trường | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---:|---|---|
 | `frame_last` | 1 | bool | Frame end marker |
 | `valid_bits` | 7 | unsigned bit count | Number of valid payload bits |
 | `payload` | 120 | bit payload | Packed Huffman/raw payload |
 
-Trong flow active hien tai:
+Trong flow active hiện tại:
 
-- `valid_bits` chi ro so bit that su co y nghia trong payload
-- AES can word day de ma hoa, con bypass co the luu transport word truc tiep
+- `valid_bits` chỉ ro số bit thật sự có ý nghĩa trong payload
+- AES cần word đây để mã hóa, còn bypass có thể lưu transport word trực tiếp
 
-## 6. Packing Rule
+## 6. Quy tắc pack
 
-Packer lam viec theo quy tac:
+Packer làm việc theo quy tac:
 
 1. load chunk bit vao buffer
-2. chen bit vao vi tri LSB-first cua buffer noi bo
-3. khi buffer >= 128 bit thi cat 128 bit ra mot word
-4. neu frame ket thuc ma buffer con bit le thi pad 0 den du 128 bit
+2. chen bit vao vi tri LSB-first của buffer nội bộ
+3. khi buffer >= 128 bit thì cat 128 bit ra một word
+4. nếu frame kết thúc ma buffer còn bit le thì pad 0 đến đủ 128 bit
 
-## 7. Storage Semantics
+## 7. Ngữ nghĩa lưu trữ
 
-So voi bitstream raw:
+So với bitstream raw:
 
-- `bit_packer_128` khong doi noi dung Huffman
-- no chi thay doi cach luu/truyen
-- storage cost sau cung duoc quantize theo transport word 128-bit
+- `bit_packer_128` không đổi nội dung Huffman
+- no chỉ thay đổi cách lưu/truyền
+- storage cost sau cung được quantize theo transport word 128-bit
 
-Vi vay mode decision cua TX phai xem ket qua sau packer, khong chi xem
-so bit Huffman thuan.
+Vi vay mode decision của TX phải xem kết quả sau packer, không chỉ xem
+số bit Huffman thuan.
 
-### 7.1 Internal registers
+### 7.1 Thanh ghi nội bộ
 
-| Reg | Width | Data format | Meaning |
+| Reg | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---:|---|---|
 | `payload_buf_r` | 120 | bit payload buffer | Buffered payload bits |
 | `payload_count_r` | 7 | unsigned bit count | Number of valid bits buffered |
@@ -123,16 +123,16 @@ so bit Huffman thuan.
 | `done_r` | 1 | pulse | Completion pulse |
 | `error_r` | 1 | error flag | Error sticky |
 
-## 8. Error Conditions
+## 8. Điều kiện lỗi
 
-Module co the bao loi neu:
+Module có thể báo lỗi nếu:
 
-- nhan `stream_valid` khi dang full ma khong co `stream_ready`
+- nhận `stream_valid` khi dang full mà không có `stream_ready`
 - `stream_len = 0` trong khi `stream_valid = 1`
 - `stream_len > 32`
-- frame ket thuc sai protocol
+- frame kết thúc sai protocol
 
-## 9. Related Specs
+## 9. Spec liên quan
 
 - [TX path end-to-end](./tx_path_end_to_end_spec.md)
 - [System top `apb_huffman_aes_tx_top`](./apb_huffman_aes_tx_top_spec.md)

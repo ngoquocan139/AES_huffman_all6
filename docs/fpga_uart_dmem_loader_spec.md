@@ -1,6 +1,6 @@
 # FPGA UART DMEM Loader Specification
 
-## 1. Purpose
+## 1. Mục đích
 
 This spec defines the active FPGA-side runtime input loader used by the
 `rv32_soc_fpga_demo_top` flow.
@@ -20,9 +20,9 @@ host file
 The loader is intentionally small and fixed-purpose. It is a bring-up path for
 loading the plaintext source buffer into `DMEM` before the CPU starts.
 
-Current integration status:
+Trạng thái tích hợp hiện tại:
 
-| Item | Status |
+| Item | Trạng thái |
 |---|---|
 | FPGA wrapper | `rv32_soc_fpga_demo_top` |
 | Input protocol | `"LOAD" + payload_len_le32 + payload` |
@@ -30,7 +30,7 @@ Current integration status:
 | Demo clock | `50 MHz` |
 | Build style | TX-only/RX-only split bitstreams |
 | Max input bytes | `7168` |
-| Remaining gap | runtime output readback from board is still future work |
+| Remaining gặp | runtime output readback from board is still future work |
 
 ## 1.1 Loader Flow Chart
 
@@ -50,7 +50,7 @@ flowchart TD
   K --> L["Release SoC reset"]
 ```
 
-## 2. Scope
+## 2. Phạm vi
 
 This loader is active only in:
 
@@ -63,12 +63,12 @@ inside `rv32_soc_top` itself.
 
 ### 3.1 Modules
 
-| Module | Role |
+| Module | Vai trò |
 |---|---|
 | `rv32_soc_fpga_demo_top` | FPGA wrapper top |
 | `uart_dmem_loader` | UART RX/TX protocol parser + DMEM auxiliary writer |
 | `rv32_soc_top` | Main SoC |
-| `dmem_ip_wrapper` | DMEM wrapper exposing Port A for CPU and Port B for auxiliary master |
+| `dmem_ip_wrapper` | DMEM wrapper exposing Cổng A for CPU and Cổng B for auxiliary master |
 | `DMEM_ip` | Vivado true dual-port BRAM |
 
 ### 3.2 Connection graph
@@ -100,20 +100,20 @@ uart_dmem_loader.done
 
 This means:
 
-- DMEM can be written through Port B before CPU execution starts
+- DMEM can be written through Cổng B before CPU execution starts
 - the CPU sees a fully populated source buffer and a valid `INPUT_LEN_ADDR`
 
-### 3.4 Module Port Contract
+### 3.4 Contract cổng module
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `clk_i` | in | 1 | Free-running system clock | Loader and UART clock domain |
 | `rst_i` | in | 1 | Active-high reset | Resets protocol parser, counters, and DMEM writer |
 | `uart_rx_i` | in | 1 | UART 8N1 serial bitstream | Host-to-FPGA receive line |
 | `uart_tx_o` | out | 1 | UART 8N1 serial bitstream | FPGA-to-host ACK/error line |
-| `aux_en_o` | out | 1 | Boolean enable | DMEM Port B enable |
-| `aux_we_o` | out | 4 | Byte write mask | Byte lanes written on Port B |
-| `aux_addr_o` | out | 32 | Byte address | DMEM Port B address, byte addressed |
+| `aux_en_o` | out | 1 | Boolean enable | DMEM Cổng B enable |
+| `aux_we_o` | out | 4 | Byte write mask | Byte lanes written on Cổng B |
+| `aux_addr_o` | out | 32 | Byte address | DMEM Cổng B address, byte addressed |
 | `aux_wdata_o` | out | 32 | Little-endian 32-bit word | Packed payload data written to DMEM |
 | `busy_o` | out | 1 | Boolean flag | Loader is actively parsing or writing |
 | `done_o` | out | 1 | Sticky boolean flag | Valid frame completed successfully |
@@ -138,7 +138,7 @@ prescale = CLK_HZ / BAUD_RATE = 50_000_000 / 115200 = 434
 
 Current ZedBoard demo constraints:
 
-| Signal | Port | Pin | Note |
+| Tín hiệu | Cổng | Pin | Ghi chú |
 |---|---|---|---|
 | `uart_rx_i` | JA1 | `Y11` | host TX -> FPGA RX |
 | `uart_tx_o` | JA2 | `AA11` | FPGA TX -> host RX |
@@ -154,11 +154,11 @@ The current XDC uses `LVCMOS33` for these Pmod pins and enables a pull-up on
 
 ## 5. Loader Data Contract
 
-### 5.1 Host frame format
+### 5.1 Định dạng frame host
 
 The current frame is fixed and minimal:
 
-| Byte range | Field | Data format | Meaning |
+| Dải byte | Trường | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---|---|
 | `0..3` | Magic | ASCII `"LOAD"` | Start-of-frame marker |
 | `4..7` | Payload length | Little-endian `uint32` | Number of payload bytes that follow |
@@ -173,13 +173,13 @@ The loader does not currently accept:
 
 It is a single-shot input loader.
 
-### 5.2 DMEM write behavior
+### 5.2 Hành vi ghi DMEM
 
 On a valid frame:
 
 1. payload bytes are written sequentially starting at:
    - `SRC_BASE_ADDR = 0x0000_2000`
-2. bytes are packed into 32-bit words using byte enables on DMEM Port B
+2. bytes are packed into 32-bit words using byte enables on DMEM Cổng B
 3. when the full payload is drained, the loader writes:
    - `INPUT_LEN_ADDR = 0x0000_0040`
    - value = `payload_len_bytes`
@@ -200,7 +200,7 @@ So the payload layout inside DMEM is consistent with:
 - `test_mmio_tx_only.c`
 - `test_mmio_dma.c`
 
-### 5.3 Size limit
+### 5.3 Giới hạn kích thước
 
 The loader currently accepts at most:
 
@@ -220,9 +220,9 @@ source bytes     = 0x2000 = 8192
 destination region. If `payload_len == 0` or `payload_len > 7168`, the loader
 enters the error path and does not release the SoC reset.
 
-### 5.4 Internal state / registers
+### 5.4 Trạng thái / thanh ghi nội bộ
 
-| State / reg | Width | Data format | Meaning |
+| State / reg | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---:|---|---|
 | `state_r` | 4 | FSM state encoding | Current loader state machine step |
 | `payload_len_r` | 32 | Unsigned byte count | Parsed frame payload length |
@@ -241,11 +241,11 @@ enters the error path and does not release the SoC reset.
 | `error_r` | 1 | Sticky boolean flag | Loader error flag |
 | `UART_PRESCALE_W` | 16 | Unsigned UART prescale | Derived baud-rate divider used by `uart_rx` / `uart_tx` |
 
-## 6. ACK / Error Contract
+## 6. Contract ACK / lỗi
 
 The loader returns one UART byte to the host:
 
-| Byte | Data format | Meaning |
+| Byte | Định dạng dữ liệu | Ý nghĩa |
 |---:|---|---|
 | `0x79` | UART ACK byte | Load success |
 | `0x1F` | UART NAK byte | Load error |
@@ -262,11 +262,11 @@ Error means:
 - invalid length contract
 - CPU stays held in reset
 
-## 7. LED Contract
+## 7. Contract LED
 
 Current `rv32_soc_fpga_demo_top` LEDs:
 
-| LED | Meaning |
+| LED | Ý nghĩa |
 |---|---|
 | `led_o[0]` | heartbeat |
 | `led_o[1]` | loader busy |
@@ -278,14 +278,14 @@ Practical interpretation:
 - `LD2 = 1` and `LD3 = 0`: input load finished, CPU released
 - `LD3 = 1`: loader error or memory error
 
-## 8. Software/Bitstream Contract
+## 8. Contract software / bitstream
 
 The loader only prepares `DMEM`.
 
 What happens next depends on the `instruction.mem` that was built into the
 bitstream.
 
-### 8.1 Recommended active flow
+### 8.1 Luồng đang dùng được khuyến nghị
 
 Current practical FPGA demo flow:
 
@@ -330,7 +330,7 @@ It is a host-side command for the FPGA demo flow:
 - send that file over UART
 - let `uart_dmem_loader` write it into `DMEM`
 
-## 10. Current Limitations
+## 10. Giới hạn hiện tại
 
 The current loader does not yet provide:
 

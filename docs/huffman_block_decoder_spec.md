@@ -1,13 +1,13 @@
 # Huffman Block Decoder Specification
 
-## 1. Purpose
+## 1. Mục đích
 
-`huffman_block_decoder` nhan metadata/payload tu `huffman_block_parser`, phuc hoi
-plaintext byte stream va dua byte sang `rx_byte_packer_32`.
+`huffman_block_decoder` nhận metadata/payload tu `huffman_block_parser`, phục hồi
+plaintext byte stream và dua byte sang `rx_byte_packer_32`.
 
-Module nay khong biet AES hay DMA. No chi decode tung Huffman/raw block.
+Module này không biet AES hay DMA. No chỉ decode từng Huffman/raw block.
 
-Current verification status:
+Trạng thái kiểm chứng hiện tại:
 
 | Case | Coverage/use |
 |---|---|
@@ -16,9 +16,9 @@ Current verification status:
 | `rx_decoder_direct_cov` | Direct canonical lookup/fallback and byte-output branches |
 | `rx_parser_decoder_error_direct_cov` | Duplicate/invalid code length/lookup miss/error paths |
 
-## 2. Supported Modes
+## 2. Mode được hỗ trợ
 
-| Mode | Data format | Decoder behavior |
+| Mode | Định dạng dữ liệu | Decoder behavior |
 |---|---|---|
 | `RAW_FULL` | 2-bit mode code | Emit 32 raw bytes |
 | `RAW_PARTIAL` | 2-bit mode code | Emit `block_size` raw bytes |
@@ -59,7 +59,7 @@ This keeps decode architecture general while moving the common lookup into BRAM.
 
 ### 4.1 Decoder Inputs
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `block_mode` | in | 2 | mode code | Block mode from parser |
 | `block_size` | in | 6 | unsigned byte count | Expected bytes in current block |
@@ -69,7 +69,7 @@ This keeps decode architecture general while moving the common lookup into BRAM.
 
 ## 5. Parser Handshake
 
-| Signal | Dir | Width | Data format | Meaning |
+| Tín hiệu | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `block_meta_valid` | in | 1 | valid flag | Parser metadata valid |
 | `block_meta_ready` | out | 1 | ready flag | Decoder can accept metadata |
@@ -87,9 +87,9 @@ This keeps decode architecture general while moving the common lookup into BRAM.
 | `parser_block_done` | in | 1 | pulse | Parser block-done notification |
 | `parser_frame_done` | in | 1 | pulse | Parser frame-done notification |
 
-## 6. Byte Output Contract
+## 6. Byte Contract output
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `out_byte` | out | 8 | symbol byte | Decoded plaintext byte |
 | `out_valid` | out | 1 | valid flag | Output byte valid |
@@ -104,9 +104,9 @@ This keeps decode architecture general while moving the common lookup into BRAM.
 `out_last_in_frame` is only asserted on the last plaintext byte of the full
 frame, not just the last block.
 
-## 7. Internal registers
+## 7. Thanh ghi nội bộ
 
-| Reg | Width | Data format | Meaning |
+| Reg | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---:|---|---|
 | `state_r` | 5 | state code | Decoder state machine |
 | `symbol_count_r` | 9 | unsigned symbol count | Current block symbol count |
@@ -153,7 +153,7 @@ frame, not just the last block.
 | `fallback_len[]` | 256 x 5 | code length array | Fallback code lengths |
 | `fallback_code[]` | 256 x 31 | code word array | Fallback code words |
 
-## 8. Error Conditions
+## 8. Điều kiện lỗi
 
 Decoder can raise `error_flag` for:
 
@@ -166,7 +166,7 @@ Decoder can raise `error_flag` for:
 - payload ended before enough bytes were decoded
 - no matching long-code fallback entry
 
-## 9. Related Specs
+## 9. Spec liên quan
 
 - [RX path end-to-end](./rx_path_end_to_end_spec.md)
 - [Huffman block parser](./huffman_block_parser_spec.md)

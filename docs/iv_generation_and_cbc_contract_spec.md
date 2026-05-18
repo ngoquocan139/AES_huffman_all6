@@ -1,17 +1,17 @@
 # IV Generation and CBC Contract Specification
 
-## 1. Purpose
+## 1. Mục đích
 
-Tai lieu nay chot 3 diem cho he thong hien tai:
+Tài liệu này chot 3 diem cho hệ thống hiện tại:
 
-1. IV duoc tao o dau
-2. CPU RV32I ghi IV xuong phan cung theo contract nao
-3. TX/RX dung IV do trong AES-CBC theo cach nao
+1. IV được tạo o đầu
+2. CPU RV32I ghi IV xuong phần cứng theo contract nào
+3. TX/RX dung IV do trong AES-CBC theo cach nào
 
-Spec nay mo ta **flow active hien tai trong repo**, khong mo ta cac huong cu
-nhu ECB hay host-preprocess.
+Spec này mô tả **flow active hiện tại trong repo**, không mô tả các hướng cũ
+như ECB hay host-preprocess.
 
-Current verification status:
+Trạng thái kiểm chứng hiện tại:
 
 | Case | Coverage/use |
 |---|---|
@@ -40,16 +40,16 @@ flowchart TD
 
 ## 2. Current Ownership
 
-IV hien tai do **software RV32I** tao.
+IV hiện tại do **software RV32I** tạo.
 
-Phan cung hien tai:
+Phần cứng hiện tại:
 
-- khong co TRNG
-- khong tu sinh IV
-- khong co key register runtime
-- khong co mode register de chon ECB/CBC
+- không có TRNG
+- không tu sinh IV
+- không có key register runtime
+- không có mode register để chọn ECB/CBC
 
-Phan cung chi cung cap:
+Phần cứng chỉ cung cấp:
 
 - `IV0` tai `0x4000_0028`
 - `IV1` tai `0x4000_002C`
@@ -58,9 +58,9 @@ Phan cung chi cung cap:
 
 trong `dma_regfile`.
 
-## 3. Register Contract
+## 3. Thanh ghi Contract
 
-Bon thanh ghi 32-bit tao thanh IV 128-bit:
+Bon thanh ghi 32-bit tạo thanh IV 128-bit:
 
 ```text
 cbc_iv = {IV3, IV2, IV1, IV0}
@@ -68,16 +68,16 @@ cbc_iv = {IV3, IV2, IV1, IV0}
 
 Rule:
 
-- CPU phai ghi `IV0..IV3` truoc `CONTROL.start` khi dung `COMPRESS_AES`
-- khong duoc ghi IV khi `STATUS.busy = 1`
+- CPU phải ghi `IV0..IV3` trước `CONTROL.start` khi dung `COMPRESS_AES`
+- không được ghi IV khi `STATUS.busy = 1`
 - `CONTROL.soft_reset` xoa IV ve `0`
-- RX phai dung lai dung cung IV da dung luc TX encrypt
+- RX phải dùng lại dung cung IV da dung lúc TX encrypt
 
-`COMPRESS_ONLY` bypass AES, vi vay khong dung IV.
+`COMPRESS_ONLY` bypass AES, vi vay không dùng IV.
 
-### 3.1 IV Register Function Table
+### 3.1 IV Thanh ghi Chức năng Table
 
-| Register | Bits in `cbc_iv` | Writer | Consumer | Note |
+| Thanh ghi | Bits in `cbc_iv` | Bên ghi | Bên dùng | Ghi chú |
 |---|---:|---|---|---|
 | `IV0` | `[31:0]` | RV32I software | TX/RX CBC logic | Least significant IV word; write before AES transfer start |
 | `IV1` | `[63:32]` | RV32I software | TX/RX CBC logic | Part of same 128-bit IV snapshot |
@@ -88,26 +88,26 @@ Rule:
 
 ## 4. Current Software IV Generation
 
-Implementation hien tai nam trong:
+Implementation hiện tại nằm trong:
 
-- [test_mmio_dma.c](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/testcase/test_mmio_dma.c)
+- [test_mmio_dma.c](/mnt/h/Academic/senior_project/DATN/work/lúc/AES_huffman_all6/testcase/test_mmio_dma.c)
 
-Ham dang duoc dung:
+Ham dang được dùng:
 
 ```c
 static void write_demo_iv(uint32_t input_len);
 ```
 
-IV hien tai la **demo deterministic IV**, duoc tao tu:
+IV hiện tại là **demo deterministic IV**, được tạo tu:
 
 - `sw_iv_counter`
 - `input_len`
 - `SRC_BASE_ADDR`
 - `TX_DST_BASE_ADDR`
 - `RX_DST_BASE_ADDR`
-- cac constant co dinh
+- các constant cố định
 
-No khong doc:
+No không đọc:
 
 - timer MMIO
 - cycle counter hardware
@@ -118,9 +118,9 @@ No khong doc:
 
 ### 5.1 Inputs
 
-Software su dung:
+Software sử dụng:
 
-- `sw_iv_counter` khoi tao `0x10203040`
+- `sw_iv_counter` khoi tạo `0x10203040`
 - `input_len`
 - `SRC_BASE_ADDR`
 - `TX_DST_BASE_ADDR`
@@ -132,10 +132,10 @@ Software su dung:
 sw_iv_counter = sw_iv_counter + 1u;
 ```
 
-Y nghia:
+Ý nghĩa:
 
-- moi lan goi ham, counter tang len
-- tranh viec IV giong het nhau neu lap lai cung input trong cung mot session
+- mới lần goi ham, counter tăng len
+- tránh việc IV giong het nhau nếu lặp lại cung input trong cùng một session
 
 ### 5.3 Step 2: create initial mix
 
@@ -144,7 +144,7 @@ mix = input_len ^ SRC_BASE_ADDR ^ TX_DST_BASE_ADDR ^ RX_DST_BASE_ADDR;
 mix = mix ^ sw_iv_counter ^ 0x43424331u;
 ```
 
-`0x43424331` la constant debug theo y nghia `"CBC1"`.
+`0x43424331` là constant debug theo ý nghĩa `"CBC1"`.
 
 ### 5.4 Step 3: whitening by shift-xor
 
@@ -154,10 +154,10 @@ mix = mix ^ (mix >> 17);
 mix = mix ^ (mix << 5);
 ```
 
-Muc dich:
+Mục đích:
 
 - phan tan bit
-- tranh output chi la XOR tho giua vai field input
+- tránh output chỉ là XOR tho giua vai field input
 
 ### 5.5 Step 4: derive IV words
 
@@ -187,7 +187,7 @@ CPU ghi xuong:
 
 ## 6. RV32I Instruction-Level View
 
-IV hien tai duoc CPU tinh bang instruction RV32I thuong:
+IV hiện tại được CPU tính bằng instruction RV32I thuong:
 
 - `lw`
 - `sw`
@@ -197,7 +197,7 @@ IV hien tai duoc CPU tinh bang instruction RV32I thuong:
 - `srli`
 - `or`
 
-Khong can:
+Không cần:
 
 - `mul`
 - CSR counter
@@ -236,11 +236,11 @@ sw    iv3, DMA_IV3
 
 ## 7. CBC Use In TX
 
-TX top nhan:
+TX top nhận:
 
 - `cbc_iv_i = {IV3, IV2, IV1, IV0}`
 
-Contract hien tai:
+Contract hiện tại:
 
 ```text
 C0 = AES_encrypt(P0 XOR IV)
@@ -249,19 +249,19 @@ Cn = AES_encrypt(Pn XOR Cn-1)
 
 Trong implementation:
 
-- word plaintext transport dau tien XOR voi `cbc_iv_i`
-- cac word sau XOR voi ciphertext word truoc
-- chain reset khi reset, soft reset, hoac clear pipeline
+- word plaintext transport đầu tiên XOR với `cbc_iv_i`
+- các word sau XOR với ciphertext word trước
+- chain reset khi reset, soft reset, hoặc clear pipeline
 
 File RTL lien quan:
 
-- [apb_huffman_aes_tx_top.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_tx_top.v)
+- [apb_huffman_aes_tx_top.v](/mnt/h/Academic/senior_project/DATN/work/lúc/AES_huffman_all6/rtl/apb_huffman_aes_tx_top.v)
 
 ## 8. CBC Use In RX
 
-RX top nhan cung `cbc_iv_i`.
+RX top nhận cung `cbc_iv_i`.
 
-Contract hien tai:
+Contract hiện tại:
 
 ```text
 P0 = AES_decrypt(C0) XOR IV
@@ -270,47 +270,47 @@ Pn = AES_decrypt(Cn) XOR Cn-1
 
 Trong implementation:
 
-- RX giu lai ciphertext block truoc
-- output cua `aes128_cipher_inv_top` duoc XOR voi previous ciphertext
-- block dau tien XOR voi `cbc_iv_i`
+- RX giữ lại ciphertext block trước
+- output của `aes128_cipher_inv_top` được XOR với previous ciphertext
+- block đầu tiên XOR với `cbc_iv_i`
 
 File RTL lien quan:
 
-- [apb_huffman_aes_rx_top.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_rx_top.v)
+- [apb_huffman_aes_rx_top.v](/mnt/h/Academic/senior_project/DATN/work/lúc/AES_huffman_all6/rtl/apb_huffman_aes_rx_top.v)
 
-## 9. Current Security Status
+## 9. Current Security Trạng thái
 
-IV hien tai:
+IV hiện tại:
 
-- do RV32I tao
-- co thay doi theo software counter va input context
-- phu hop de simulation lap lai va debug
-- **khong** duoc xem la IV entropy manh cho san pham that
+- do RV32I tạo
+- có thay đổi theo software counter và input context
+- phụ hop để simulation lặp lại và debug
+- **không** được xem là IV entropy manh cho san pham that
 
-Ly do:
+Lý do:
 
-- khong co nguon random that
-- khong co timer/cycle counter hardware trong cong thuc hien tai
-- input/context co the doan duoc
+- không có nguồn random that
+- không có timer/cycle counter hardware trong cổng thuc hiện tại
+- input/context có thể doan được
 
 ## 10. Current Source Of Truth
 
-Neu can biet thiet ke hien tai dang lam gi, uu tien cac file sau:
+Nếu cần biết thiết kế hiện tại dang làm gi, ưu tiên các file sau:
 
-1. [00_current_system_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/00_current_system_spec.md)
-2. [memory_map_dma_software_contract.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/memory_map_dma_software_contract.md)
-3. [dma_riscv_instruction_programming_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/dma_riscv_instruction_programming_spec.md)
-4. [test_mmio_dma.c](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/testcase/test_mmio_dma.c)
+1. [00_current_system_spec.md](/mnt/h/Academic/senior_project/DATN/work/lúc/AES_huffman_all6/docs/00_current_system_spec.md)
+2. [memory_map_dma_software_contract.md](/mnt/h/Academic/senior_project/DATN/work/lúc/AES_huffman_all6/docs/memory_map_dma_software_contract.md)
+3. [dma_riscv_instruction_programming_spec.md](/mnt/h/Academic/senior_project/DATN/work/lúc/AES_huffman_all6/docs/dma_riscv_instruction_programming_spec.md)
+4. [test_mmio_dma.c](/mnt/h/Academic/senior_project/DATN/work/lúc/AES_huffman_all6/testcase/test_mmio_dma.c)
 
 ## 11. Recommended Next Revision
 
-Neu can nang cap IV sau nay, thu tu hop ly la:
+Nếu cần nang cap IV sau này, thứ tự hop ly là:
 
 1. demo FPGA:
-   - RV32I doc them timer/counter MMIO roi tron vao IV
-2. board demo co host:
-   - host gui nonce moi cho moi message
+   - RV32I đọc thêm timer/counter MMIO rồi tron vao IV
+2. board demo có host:
+   - host gửi nonce mới cho mới message
 3. secure mode:
-   - bo sung TRNG hoac PRNG co seed/entropy phu hop
+   - bo sung TRNG hoặc PRNG có seed/entropy phụ hop
 
-Nhung cac huong tren hien **chua** nam trong implementation active.
+Nhưng các hướng trên hien **chưa** nằm trong implementation active.

@@ -1,15 +1,15 @@
 # APB Huffman AES RX Top Specification
 
-## 1. Purpose
+## 1. Mục đích
 
-`apb_huffman_aes_rx_top` la top-level RX accelerator. Module nay nhan
-ciphertext transport word 128-bit, giai ma AES-128 CBC, tach transport bitstream,
-decode Huffman, pack lai plaintext thanh word 32-bit va dua ra APB readback FIFO.
+`apb_huffman_aes_rx_top` là top-level RX accelerator. Module này nhận
+ciphertext transport word 128-bit, giải mã AES-128 CBC, tách transport bitstream,
+decode Huffman, pack lại plaintext thanh word 32-bit và dua ra APB readback FIFO.
 
-Module nay khong tu doc/ghi `DMEM`. `dma_rx_engine` la khoi doc ciphertext tu
-`DMEM`, feed RX top, sau do drain plaintext output ve `DMEM`.
+Module này không tu đọc/ghi `DMEM`. `dma_rx_engine` là khoi đọc ciphertext tu
+`DMEM`, feed RX top, sau đó drain plaintext output ve `DMEM`.
 
-Current verification status:
+Trạng thái kiểm chứng hiện tại:
 
 | Case | Coverage/use |
 |---|---|
@@ -45,7 +45,7 @@ flowchart LR
 
 ## 4. Main Interfaces
 
-| Interface | Direction | Width | Data format | Role |
+| Interface | Hướng | Độ rộng | Định dạng dữ liệu | Vai trò |
 |---|---|---:|---|---|
 | `ciphertext_word_in[127:0]` | input stream | 128 | 128-bit ciphertext transport word | Ciphertext transport word from `dma_rx_engine` |
 | `ciphertext_word_valid` / `ciphertext_word_ready` | handshake | 1 / 1 | valid/ready | Backpressure between RX DMA and RX top |
@@ -93,9 +93,9 @@ bit_depacker_128
 - `RX_META`
 - `RX_DATA`
 
-### 6.1 RX Top Register Interface Summary
+### 6.1 RX Top Thanh ghi Interface Summary
 
-| Register / interface | Function | Owner | Data format / note |
+| Thanh ghi / interface | Chức năng | Chủ sở hữu | Định dạng dữ liệu / ghi chú |
 |---|---|---|---|
 | Direct ciphertext stream | Feed 128-bit AES-CBC ciphertext blocks into RX | `dma_rx_engine` | 128-bit transport word; primary SoC path, bypasses legacy APB staging registers |
 | `RX_STATUS` | Tell DMA whether plaintext FIFO has data/error | `apb_huffman_rx_if` | Bitfield status, DMA polls before reading data |
@@ -106,7 +106,7 @@ bit_depacker_128
 
 ### 6.2 Internal RX state
 
-| Register / buffer | Width | Data format | Meaning |
+| Thanh ghi / buffer | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---:|---|---|
 | `cipher_buf_data_r` | 128 | 128-bit ciphertext block | Buffered ciphertext waiting for AES input |
 | `cipher_buf_valid_r` | 1 | bool | Buffered ciphertext valid flag |
@@ -121,7 +121,7 @@ bit_depacker_128
 
 ### 6.3 Stage and debug outputs
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `depacker_busy` | out | 1 | busy flag | `bit_depacker_128` busy |
 | `depacker_done` | out | 1 | pulse | `bit_depacker_128` done |
@@ -159,7 +159,7 @@ bit_depacker_128
 Errors propagate through `apb_huffman_rx_if` status and then into
 `dma_rx_engine`.
 
-## 8. Related Specs
+## 8. Spec liên quan
 
 - [RX path end-to-end](./rx_path_end_to_end_spec.md)
 - [DMA RX engine](./dma_rx_engine_spec.md)

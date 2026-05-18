@@ -1,20 +1,20 @@
 # APB Huffman TX Interface Specification
 
-## 1. Purpose
+## 1. Mục đích
 
-`apb_huffman_tx_if` la APB slave dung o dau vao TX stack. No cung cap:
+`apb_huffman_tx_if` là APB slave dung o đầu vao TX stack. No cung cấp:
 
-- thanh ghi cau hinh block size
-- FIFO nap `WORD_IN` 32-bit
+- thanh ghi cấu hình block size
+- FIFO nạp `WORD_IN` 32-bit
 - pulse `START_BLOCK`
 - sticky status cho done/error
-- output FIFO cho ciphertext 32-bit doc ra boi CPU hoac DMA
-- policy bits cho `COMPRESS_ONLY` va whole-file mode
+- output FIFO cho ciphertext 32-bit đọc ra bởi CPU hoặc DMA
+- policy bits cho `COMPRESS_ONLY` và whole-file mode
 
-Module nay la cau noi giua APB master va `huffman_aes_tx_top`. No khong tu
-nen Huffman va khong tu ma hoa AES.
+Module này là cau noi giua APB master và `huffman_aes_tx_top`. No không tu
+nén Huffman và không tu mã hóa AES.
 
-Current verification status:
+Trạng thái kiểm chứng hiện tại:
 
 | Case | Coverage/use |
 |---|---|
@@ -22,7 +22,7 @@ Current verification status:
 | `tx_compress_only_input1/input4_cov` | Normal data load and block launch through TX APB path |
 | `dma_compress_aes_input1/input3/alnum63` | SoC TX path uses this wrapper before encoder/AES |
 
-## 2. Role In TX Stack
+## 2. Vai trò In TX Stack
 
 ```text
 APB master
@@ -52,7 +52,7 @@ TX top AES output
 
 ### 3.1 APB slave
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `PCLK` | in | 1 | `clk` | APB clock |
 | `PRESETn` | in | 1 | `rst_n` | Active-low reset |
@@ -67,7 +67,7 @@ TX top AES output
 
 ### 3.2 Downstream TX-top control
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `start_block_o` | out | 1 | pulse | Launch one loaded block |
 | `continue_frame_o` | out | 1 | bool | `1` means more blocks follow in the same frame |
@@ -81,7 +81,7 @@ TX top AES output
 
 ### 3.3 AES output stream
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `aes_out_word_i` | in | 32 | little-endian word | Ciphertext/output word from TX top |
 | `aes_out_word_last_i` | in | 1 | bool | Last word of output frame |
@@ -91,7 +91,7 @@ TX top AES output
 
 ### 3.4 TX-top status
 
-| Port | Dir | Width | Data format | Meaning |
+| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---|---:|---|---|
 | `tx_busy_i` | in | 1 | bool | TX top is busy |
 | `tx_done_i` | in | 1 | pulse / sticky event | TX top completed the current block |
@@ -102,9 +102,9 @@ TX top AES output
 | `global_table_valid_i` | in | 1 | bool | Whole-file table valid |
 | `global_symbol_count_i` | in | 9 | unsigned symbol count | Number of symbols in current global table |
 
-## 4. Register Map
+## 4. Bản đồ thanh ghi
 
-| Offset | Name | Access | Data format | Meaning |
+| Offset | Name | Truy cập | Định dạng dữ liệu | Ý nghĩa |
 |---:|---|---|---|---|
 | `0x00` | `START_BLOCK` | W | control pulse | Bit0 starts block, bit1 marks continue-frame |
 | `0x04` | `BLOCK_SIZE` | R/W | unsigned byte count | Current block size, valid `1..32` |
@@ -118,9 +118,9 @@ TX top AES output
 | `0x28` | `AES_OUT_STATUS` | R | bitfield | Output FIFO status and error mirror |
 | `0x2C` | `AES_OUT_DEBUG` | R | counters + pointers | Output FIFO debug view |
 
-### 4.1 Register function summary
+### 4.1 Thanh ghi function summary
 
-| Register | Function | Primary user | Data format / note |
+| Thanh ghi | Chức năng | Người dùng chính | Định dạng dữ liệu / ghi chú |
 |---|---|---|---|
 | `START_BLOCK` | Launch one loaded block | `huffman_aes_tx_top` / software | Bit0 must be `1`; bit1 preserves frame continuity |
 | `BLOCK_SIZE` | Declare current plaintext block size | Software or DMA | Unsigned bytes, must be `1..32` |
@@ -136,7 +136,7 @@ TX top AES output
 
 ### 4.2 `STATUS` register
 
-| Bit | Data format | Meaning |
+| Bit | Định dạng dữ liệu | Ý nghĩa |
 |---:|---|---|
 | 0 | 1-bit config flag | `cfg_valid` |
 | 1 | 1-bit live flag | `input_ready` |
@@ -155,7 +155,7 @@ TX top AES output
 
 ### 4.3 `TX_POLICY` register
 
-| Bits | Data format | Meaning |
+| Bits | Định dạng dữ liệu | Ý nghĩa |
 |---:|---|---|
 | 0 | 1-bit policy | `compress_only` |
 | 1 | 1-bit policy | `whole_file_enable` |
@@ -164,7 +164,7 @@ TX top AES output
 
 ### 4.4 `CONTROL` register
 
-| Bit | Data format | Meaning |
+| Bit | Định dạng dữ liệu | Ý nghĩa |
 |---:|---|---|
 | 0 | pulse | Soft reset wrapper state and FIFOs |
 | 1 | pulse | Clear `done_sticky` |
@@ -174,7 +174,7 @@ TX top AES output
 
 ### 4.5 `AES_OUT_STATUS` register
 
-| Bit | Data format | Meaning |
+| Bit | Định dạng dữ liệu | Ý nghĩa |
 |---:|---|---|
 | 0 | 1-bit live flag | Output FIFO nonempty |
 | 1 | 1-bit live flag | Output FIFO full |
@@ -187,14 +187,14 @@ TX top AES output
 
 ### 4.6 `AES_OUT_META` register
 
-| Bit | Data format | Meaning |
+| Bit | Định dạng dữ liệu | Ý nghĩa |
 |---:|---|---|
 | 0 | 1-bit meta flag | Last word in output frame |
 | 1 | 1-bit policy flag | `compress_only` mirror |
 
 ### 4.7 `DEBUG` register
 
-| Bit | Data format | Meaning |
+| Bit | Định dạng dữ liệu | Ý nghĩa |
 |---:|---|---|
 | `4:0` | unsigned count | Input FIFO occupancy |
 | `8:5` | FIFO pointer | Input write pointer |
@@ -210,7 +210,7 @@ TX top AES output
 
 ### 4.8 `AES_OUT_DEBUG` register
 
-| Bit | Data format | Meaning |
+| Bit | Định dạng dữ liệu | Ý nghĩa |
 |---:|---|---|
 | `4:0` | unsigned count | Output FIFO occupancy |
 | `8:5` | FIFO pointer | Output write pointer |
@@ -236,7 +236,7 @@ Read order:
 
 ## 6. Internal State / Registers
 
-| Reg / FIFO | Width | Data format | Meaning |
+| Reg / FIFO | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
 |---|---:|---|---|
 | `fifo_mem[0:7]` | 8 x 32 | little-endian words | Input FIFO for `WORD_IN` |
 | `out_fifo_mem[0:15]` | 16 x 32 | little-endian words | Output FIFO for AES/top output |
@@ -262,7 +262,7 @@ Read order:
 | `whole_file_enable_o` | 1 | bool | Whole-file mode mirror |
 | `whole_file_count_mode_o` | 1 | bool | Whole-file count mode mirror |
 
-## 7. Error Conditions
+## 7. Điều kiện lỗi
 
 `PSLVERR` or sticky error can be raised when:
 
@@ -273,7 +273,7 @@ Read order:
 - invalid APB address is accessed
 - downstream TX-top reports error
 
-## 8. Related Specs
+## 8. Spec liên quan
 
 - [APB Huffman AES TX top](./apb_huffman_aes_tx_top_spec.md)
 - [Dynamic Huffman encoder](./dynamic_huffman_encoder_spec.md)

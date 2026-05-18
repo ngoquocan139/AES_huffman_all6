@@ -1,16 +1,16 @@
 # GitHub Sync And Self-Hosted Runner Usage Spec
 
-## 1. Purpose
+## 1. Mục đích
 
-Tai lieu nay huong dan cach dong bo repo local voi GitHub va cach dung GitHub
-Actions de chay `make` tren 2 moi truong:
+Tài liệu này hướng dan cach đồng bộ repo local với GitHub và cach dung GitHub
+Actions để chạy `make` trên 2 mới trường:
 
-| Environment | Runs where | Purpose |
+| Environment | Runs where | Mục đích |
 |---|---|---|
-| GitHub-hosted runner | GitHub cloud Ubuntu runner | Check nhe: `make drc` bang Verilator |
-| Self-hosted runner | May WSL local cua user | Full local flow: Questa simulation va Vivado Windows |
+| GitHub-hosted runner | GitHub cloud Ubuntu runner | Check nhe: `make drc` bằng Verilator |
+| Self-hosted runner | May WSL local của user | Full local flow: Questa simulation và Vivado Windows |
 
-Repo GitHub hien tai:
+Repo GitHub hiện tại:
 
 ```text
 git@github.com:ngoquocan139/AES_huffman_all6.git
@@ -85,7 +85,7 @@ Nen push len GitHub:
 | `vivado/*.tcl`, `vivado/constraints/*.xdc` | FPGA build scripts and constraints |
 | `.github/workflows/*.yml` | GitHub Actions workflows |
 
-Khong nen push:
+Không nên push:
 
 | Path / file type | Reason |
 |---|---|
@@ -105,7 +105,7 @@ Workflow:
 .github/workflows/ci.yml
 ```
 
-Purpose:
+Mục đích:
 
 - runs on GitHub cloud Ubuntu runner;
 - installs Verilator and Make;
@@ -136,7 +136,7 @@ Workflow:
 .github/workflows/self-hosted-local.yml
 ```
 
-Purpose:
+Mục đích:
 
 - runs on the local WSL machine;
 - can see local Questa installation and license;
@@ -200,7 +200,7 @@ Steps:
 
 Default inputs:
 
-| Input | Default | Meaning |
+| Input | Default | Ý nghĩa |
 |---|---|---|
 | `run_sim` | `true` | Run Questa simulation flow |
 | `run_vivado` | `false` | Skip Vivado unless explicitly requested |
@@ -287,7 +287,7 @@ local-sim-<testname>
 
 Contains:
 
-| Path | Meaning |
+| Path | Ý nghĩa |
 |---|---|
 | `sim/sim.log` | Latest simulation log |
 | `sim/log/` | Per-test logs |
@@ -302,7 +302,7 @@ local-vivado-split
 
 Contains:
 
-| Path | Meaning |
+| Path | Ý nghĩa |
 |---|---|
 | `sim/vivado_reports/` | Collected Vivado reports |
 | `sim/vivado_bitstreams/` | Generated `.bit` files |
