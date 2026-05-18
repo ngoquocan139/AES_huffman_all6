@@ -1,22 +1,22 @@
 # 11. DMA TX Engine Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-`dma_tx_engine` là data-plane engine cho hướng:
+`dma_tx_engine` is the data-plane engine for direction:
 
 - `DMEM plaintext -> TX accelerator -> DMEM ciphertext`
 
-Trong SoC hiện tại, module này nhận config tu `dma_regfile`, chiem `DMEM` port B trong lúc transfer dang chạy, điều khiển `apb_huffman_aes_tx_top` bằng private APB master, và ghi ciphertext tro lại `DMEM`.
+In the current SoC, this module receives configuration from `dma_regfile`, monitors `DMEM` port B while transfer is running, controls `apb_huffman_aes_tx_top` with private APB master, and writes ciphertext back to `DMEM`.
 
-Trạng thái kiểm chứng hiện tại:
+Current verification status:
 
 | Case | Coverage/use |
 |---|---|
-| `dma_compress_aes_input1/input3/alnum63` | Normal whole-file `COMPRESS_AES` TX phase trong loopback SoC |
-| `tx_compress_only_input1/input4_cov` | TX-only `COMPRESS_ONLY` path để do saving trực tiếp |
-| `tx_apb_wait_cov` | Private APB wait-state giua DMA TX và TX accelerator |
-| `tx_apb_error_cov` | Private APB error path và `last_error_code_o` |
-| `dma_bridge_direct_cov` | Defensive config/error branches của DMA/APB path |
+| `dma_compress_aes_input1/input3/alnum63` | Normal whole-file `COMPRESS_AES` TX phase in loopback SoC |
+| `tx_compress_only_input1/input4_cov` | TX-only `COMPRESS_ONLY` path for direct saving |
+| `tx_apb_wait_cov` | Private APB wait-state between DMA TX and TX accelerator |
+| `tx_apb_error_cov` | Private APB error path and `last_error_code_o` |
+| `dma_bridge_direct_cov` | Defensive config/error branches of DMA/APB path |
 | Full coverage regression | Included in `34/34` PASS baseline |
 
 ## 1.1 Flow Chart
@@ -44,61 +44,61 @@ flowchart TD
   O -->|"complete"| P["Pulse dma_done_o"]
 ```
 
-## 2. Phạm vi of the current code
+## 2. Scope of the current code
 
-Phien ban trong repo hiện tại là engine riêng cho direction `TX`:
+The version in the current repo is a separate engine for direction `TX`:
 
-1. nhận `start_i` tu `dma_regfile`
-2. chỉ xu ly khi `direction_i == 2'b01`
-3. nhận thêm `compress_only_i` tu `dma_regfile`
-4. validate alignment và block size
+1. get `start_i` from `dma_regfile`
+2. only issue when `direction_i == 2'b01`
+3. receive additional `compress_only_i` from `dma_regfile`
+4. validate alignment and block size
 5. soft-reset TX wrapper
-6. lặp trinh `TX_POLICY`
-7. chia transfer thanh các block theo `block_size_i`
-8. đọc plaintext 32-bit word tu `DMEM`
-9. ghi `BLOCK_SIZE`, `WORD_IN`, `START_BLOCK` vao TX APB slave
-10. poll `STATUS` để đợi `can_start` và `done_sticky`
+6. loop `TX_POLICY`
+7. Divide transfer into blocks according to `block_size_i`
+8. Read plaintext 32-bit word from `DMEM`
+9. Write `BLOCK_SIZE`, `WORD_IN`, and `START_BLOCK` to the TX APB slave
+10. poll `STATUS` to wait for `can_start` and `done_sticky`
 11. drain `AES_OUT_STATUS`, `AES_OUT_META`, `AES_OUT_DATA`
-12. ghi output 32-bit word ve `DMEM`
-13. phat `dma_done_o` hoặc `dma_error_o`
+12. Write output 32-bit word to `DMEM`
+13. play `dma_done_o` or `dma_error_o`
 
-`bytes_done_o` hiện tại đếm số byte output da ghi ve `DMEM`:
+`bytes_done_o` currently counts the number of output bytes registered in `DMEM`:
 
-- nếu `compress_only_i = 0`: đây là AES output bytes
-- nếu `compress_only_i = 1`: đây là compressed transport bytes
+- if `compress_only_i = 0`: this is AES output bytes
+- if `compress_only_i = 1`: this is compressed transport bytes
 
 ## 3. Interface
 
 ### 3.1 Control and snapshot config
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `clk_i` | in | 1 | `clk` | System clock |
 | `rst_i` | in | 1 | `rst` | Active-high reset |
-| `start_i` | in | 1 | pulse | Pulse bắt đầu transfer |
+| `start_i` | in | 1 | pulse | Pulse starts transferring |
 | `soft_reset_i` | in | 1 | pulse | Pulse reset engine state |
 | `clear_done_i` | in | 1 | pulse | Pulse clear done/debug state |
 | `clear_error_i` | in | 1 | pulse | Pulse clear last error |
-| `src_addr_i` | in | 32 | byte address | Byte address plaintext source trong `DMEM` |
-| `dst_addr_i` | in | 32 | byte address | Byte address ciphertext destination trong `DMEM` |
-| `len_bytes_i` | in | 32 | unsigned byte count | Tong plaintext bytes cần xử lý |
-| `direction_i` | in | 2 | direction code | Phải là `2'b01` để engine này chạy |
-| `compress_only_i` | in | 1 | policy flag | `1`: TX bypass AES, `0`: TX di qua AES |
-| `block_size_i` | in | 6 | unsigned byte count | Số byte/block, code hiện tại cho phep `1..32` |
+| `src_addr_i` | in | 32 | byte address | Byte address plaintext source in `DMEM` |
+| `dst_addr_i` | in | 32 | byte address | Byte address ciphertext destination in `DMEM` |
+| `len_bytes_i` | in | 32 | unsigned byte count | All plaintext bytes need to be processed |
+| `direction_i` | in | 2 | direction code | Must be `2'b01` for this engine to run |
+| `compress_only_i` | in | 1 | policy flag | `1`: TX bypass AES, `0`: TX bypass AES |
+| `block_size_i` | in | 6 | unsigned byte count | Number of bytes/block, currently allowed code `1..32` |
 
 ### 3.2 DMEM port B master
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
-| `dmem_en_o` | out | 1 | enable flag | Bat truy cap `DMEM` port B |
-| `dmem_we_o` | out | 4 | byte write mask | Byte write enable; `4'b1111` khi ghi ciphertext |
+| `dmem_en_o` | out | 1 | enable flag | Access `DMEM` port B |
+| `dmem_we_o` | out | 4 | byte write mask | Byte write enable; `4'b1111` when writing ciphertext |
 | `dmem_addr_o` | out | 32 | byte address | Byte address port B |
-| `dmem_wdata_o` | out | 32 | little-endian word | Dữ liệu ghi ve `DMEM` |
-| `dmem_rdata_i` | in | 32 | little-endian word | Dữ liệu đọc tu `DMEM` |
+| `dmem_wdata_o` | out | 32 | little-endian word | Data registers `DMEM` |
+| `dmem_rdata_i` | in | 32 | little-endian word | Data read from `DMEM` |
 
-### 3.3 Private APB master sang TX
+### 3.3 Private APB Master To TX
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `tx_psel_o` | out | 1 | APB select | APB `PSEL` |
 | `tx_penable_o` | out | 1 | APB enable | APB `PENABLE` |
@@ -109,20 +109,20 @@ Phien ban trong repo hiện tại là engine riêng cho direction `TX`:
 | `tx_pready_i` | in | 1 | handshake | APB `PREADY` |
 | `tx_pslverr_i` | in | 1 | error flag | APB `PSLVERR` |
 
-### 3.4 Trạng thái outputs
+### 3.4 Status outputs
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
-| `dma_busy_o` | out | 1 | busy flag | Engine dang active |
-| `dma_done_o` | out | 1 | pulse | Pulse 1 cycle khi transfer xong |
-| `dma_error_o` | out | 1 | pulse | Pulse 1 cycle khi transfer lỗi |
-| `bytes_done_o` | out | 32 | unsigned byte count | Output bytes da ghi ve `DMEM` |
-| `last_error_code_o` | out | 8 | error code | Ma lỗi cuối |
-| `engine_state_o` | out | 4 | state nibble | Low nibble của FSM state |
+| `dma_busy_o` | out | 1 | busy flag | Engine is active |
+| `dma_done_o` | out | 1 | pulse | Pulse 1 cycle when transfer is complete |
+| `dma_error_o` | out | 1 | pulse | Pulse 1 cycle when transfer error |
+| `bytes_done_o` | out | 32 | unsigned byte count | Output bytes are written to `DMEM` |
+| `last_error_code_o` | out | 8 | error code | Ghost last error |
+| `engine_state_o` | out | 4 | state nibble | Low nibble of FSM state |
 
 ## 4. Accepted config in current code
 
-`dma_tx_engine` chỉ nhận `start_i` nếu:
+`dma_tx_engine` only receives `start_i` if:
 
 - `direction_i == 2'b01`
 - `len_bytes_i != 0`
@@ -131,136 +131,136 @@ Phien ban trong repo hiện tại là engine riêng cho direction `TX`:
 - `src_addr_i[1:0] == 2'b00`
 - `dst_addr_i[1:0] == 2'b00`
 
-Nếu sai một trong các điều kiện trên, engine vao `STATE_ERROR` và dat `last_error_code_o = 8'h02`.
+If one of the above conditions is false, the engine enters `STATE_ERROR` and sets `last_error_code_o = 8'h02`.
 
 ## 5. TX-side APB register usage
 
-`dma_tx_engine` dung các offset sau trên `apb_huffman_tx_if`:
+`dma_tx_engine` uses the following offsets on `apb_huffman_tx_if`:
 
-| Offset | Thanh ghi | Truy cập | Định dạng dữ liệu | Engine usage |
+| Offset | Register | Access | Data format | Engine usage |
 |---|---|---|---|---|
-| `0x00` | `START_BLOCK` | write | control pulse bitfield | Ghi `0x1` cho block cuối, `0x3` khi `continue_frame=1` |
-| `0x04` | `BLOCK_SIZE` | write | unsigned byte count | Ghi số byte của block hiện tại |
-| `0x08` | `WORD_IN` | write | little-endian 32-bit word | Nạp plaintext 32-bit words |
+| `0x00` | `START_BLOCK` | write | control pulse bitfield | Register `0x1` for the last block, `0x3` when `continue_frame=1` |
+| `0x04` | `BLOCK_SIZE` | write | unsigned byte count | Register the number of bytes of the current block |
+| `0x08` | `WORD_IN` | write | little-endian 32-bit word | Load plaintext 32-bit words |
 | `0x0C` | `STATUS` | read | bitfield | Poll `error_sticky`, `done_sticky`, `tx_busy`, `can_start` |
-| `0x10` | `CONTROL` | write | pulse bits | Ghi `0x1` để soft reset TX wrapper lúc start transfer |
-| `0x18` | `TX_POLICY` | write | policy bits | Ghi bit0 = `compress_only_i` |
+| `0x10` | `CONTROL` | write | pulse bits | Write `0x1` to soft reset TX wrapper at start transfer |
+| `0x18` | `TX_POLICY` | write | policy bits | Write bit0 = `compress_only_i` |
 | `0x20` | `AES_OUT_DATA` | read | little-endian 32-bit word | Lay ciphertext 32-bit word |
-| `0x24` | `AES_OUT_META` | read | bitfield | Lay bit `last` và `compress_only` của head word |
-| `0x28` | `AES_OUT_STATUS` | read | bitfield | Poll output FIFO nonempty và AES output error |
+| `0x24` | `AES_OUT_META` | read | bitfield | Lay bits `last` and `compress_only` of the head word |
+| `0x28` | `AES_OUT_STATUS` | read | bitfield | Poll output FIFO nonempty and AES output error |
 
-`dma_tx_engine` không dùng `0x14` (`DEBUG`) hay `0x2C` (`AES_OUT_DEBUG`) trong logic chính.
+`dma_tx_engine` does not use `0x14` (`DEBUG`) or `0x2C` (`AES_OUT_DEBUG`) in the main logic.
 
-## 6. Trạng thái bits the engine actually relies on
+## 6. Status bits the engine actually relies on
 
 ### 6.1 `TX STATUS` (`0x0C`)
 
-| Bit | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Data format | Meaning |
 |---:|---|---|
 | 3 | 1-bit live flag | `tx_busy` |
 | 4 | 1-bit sticky | `done_sticky` |
 | 5 | 1-bit sticky | `tx_core_error_sticky` |
 | 7 | 1-bit live flag | `can_start` |
 
-Engine không dua vao `STATUS[1]` hay `STATUS[6]` trong FSM chính.
+The engine does not input `STATUS[1]` or `STATUS[6]` in the main FSM.
 
 ### 6.2 `AES_OUT_STATUS` (`0x28`)
 
-| Bit | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Data format | Meaning |
 |---:|---|---|
 | 0 | 1-bit live flag | output FIFO nonempty |
 | 9 | 1-bit sticky | `aes_out_error_sticky` |
-| 10 | 1-bit policy flag | mirror của `compress_only` |
+| 10 | 1-bit policy flag | mirror of `compress_only` |
 
-`AES_OUT_META[0]` được đọc và latch vao `tx_meta_r`, nhưng code hiện tại không dùng bit này để chot complete; completion của block cuối dang dua vao heuristic empty-and-idle ben dưới. `AES_OUT_META[1]` là mirror của `compress_only` cho future consumer.
+`AES_OUT_META[0]` is read and latched into `tx_meta_r`, but the current code does not use this bit for completion; The completion of the last block is being fed into the empty-and-idle heuristic below. `AES_OUT_META[1]` is a mirror of `compress_only` for future consumers.
 
 ## 7. FSM in the current code
 
-| State | Value | Ý nghĩa |
+| State | Value | Meaning |
 |---|---:|---|
-| `STATE_IDLE` | 0 | Đợi `start_i` cho mode TX |
-| `STATE_CAPTURE_CFG` | 1 | Snapshot config và reset counters |
-| `STATE_RESET_TX` | 2 | Sau APB write `CONTROL=1` |
-| `STATE_PREP_BLOCK` | 3 | Chot `current_block_bytes` và so words can nạp |
-| `STATE_LOAD_WORD_CHECK` | 4 | Kiểm trả da nạp het words của block chưa |
-| `STATE_DMEM_READ_ISSUE` | 5 | Phat lenh đọc 1 word plaintext tu `DMEM` |
-| `STATE_DMEM_READ_CAPTURE` | 6 | Latch `dmem_rdata_i`, tăng `src_ptr`, write `WORD_IN` |
-| `STATE_CHECK_CAN_START` | 7 | Bắt đầu poll `TX STATUS` |
-| `STATE_CHECK_CAN_START_EVAL` | 8 | Đợi `can_start=1`, nếu lỗi thì abort |
-| `STATE_WAIT_BLOCK_DONE` | 9 | Poll `TX STATUS` sau `START_BLOCK` |
-| `STATE_WAIT_BLOCK_DONE_EVAL` | 10 | Đợi `done_sticky=1`, cập nhật `bytes_done_o` |
+| `STATE_IDLE` | 0 | Wait for `start_i` for TX mode |
+| `STATE_CAPTURE_CFG` | 1 | Snapshot config and reset counters |
+| `STATE_RESET_TX` | 2 | After APB write `CONTROL=1` |
+| `STATE_PREP_BLOCK` | 3 | Select `current_block_bytes` and compare words to load |
+| `STATE_LOAD_WORD_CHECK` | 4 | Check to see if all the words of the block have been loaded |
+| `STATE_DMEM_READ_ISSUE` | 5 | Issue a command to read a plaintext word from `DMEM` |
+| `STATE_DMEM_READ_CAPTURE` | 6 | Latch `dmem_rdata_i`, increment `src_ptr`, write `WORD_IN` |
+| `STATE_CHECK_CAN_START` | 7 | Start polling `TX STATUS` |
+| `STATE_CHECK_CAN_START_EVAL` | 8 | Wait for `can_start=1`, if error then abort |
+| `STATE_WAIT_BLOCK_DONE` | 9 | Poll `TX STATUS` after `START_BLOCK` |
+| `STATE_WAIT_BLOCK_DONE_EVAL` | 10 | Wait for `done_sticky=1`, update `bytes_done_o` |
 | `STATE_DRAIN_STATUS` | 11 | Poll `AES_OUT_STATUS` |
-| `STATE_DRAIN_STATUS_EVAL` | 12 | Nếu FIFO nonempty thì đọc output; nếu block cuối và empty thì vao final-drain check |
+| `STATE_DRAIN_STATUS_EVAL` | 12 | If FIFO is nonempty, read output; If the last block is empty, enter the final-drain check |
 | `STATE_DRAIN_META` | 13 | Read `AES_OUT_META` |
 | `STATE_DRAIN_META_EVAL` | 14 | Latch `tx_meta_r` |
 | `STATE_DRAIN_DATA` | 15 | Read `AES_OUT_DATA` |
 | `STATE_DRAIN_DATA_EVAL` | 16 | Latch output word |
-| `STATE_DMEM_WRITE_ISSUE` | 17 | Ghi ciphertext word ve `DMEM`, tăng `dst_ptr` |
-| `STATE_FINAL_IDLE_CHECK` | 18 | Poll lại `TX STATUS` o tail của transfer |
-| `STATE_FINAL_IDLE_EVAL` | 19 | Nếu `tx_busy==0` on dinh thì complete |
+| `STATE_DMEM_WRITE_ISSUE` | 17 | Write ciphertext word to `DMEM`, increase `dst_ptr` |
+| `STATE_FINAL_IDLE_CHECK` | 18 | Poll again `TX STATUS` at the tail of transfer |
+| `STATE_FINAL_IDLE_EVAL` | 19 | If `tx_busy==0` is on, complete |
 | `STATE_APB_SETUP` | 20 | APB setup phase |
-| `STATE_APB_ACCESS` | 21 | APB access phase, đợi `PREADY` |
+| `STATE_APB_ACCESS` | 21 | APB access phase, wait for `PREADY` |
 | `STATE_COMPLETE` | 22 | Pulse `dma_done_o` |
 | `STATE_ERROR` | 23 | Pulse `dma_error_o` |
 
 ## 8. Block handling and `START_BLOCK` policy
 
-Mới transfer được cat thanh nhieu block:
+Just transferred many blocks:
 
 - `current_block_bytes_r = min(bytes_remaining_r, block_size_i)`
 - `words_remaining_r = ceil(current_block_bytes_r / 4)`
 
-Sau khi nạp đủ word cho block hiện tại:
+After loading enough words for the current block:
 
-- engine đợi `STATUS[7] = can_start`
-- nếu đây không phải block cuối, ghi `START_BLOCK = 0x0000_0003`
+- engine waits for `STATUS[7] = can_start`
+- If this is not the last block, write `START_BLOCK = 0x0000_0003`
   - bit0 = `start`
   - bit1 = `continue_frame`
-- nếu đây là block cuối, ghi `START_BLOCK = 0x0000_0001`
+- If this is the last block, write `START_BLOCK = 0x0000_0001`
 
-Dieu này khop với APB TX wrapper: `continue_frame_o <= PWDATA[1]`.
+This specification is compatible with APB TX wrapper: `continue_frame_o <= PWDATA[1]`.
 
 ## 9. Completion policy in current code
 
-Completion của `dma_tx_engine` được chia làm 2 lop:
+Completion of `dma_tx_engine` is divided into 2 batches:
 
-1. Khi `TX STATUS[4] = done_sticky`, engine coi block hiện tại đã được TX core xu ly xong và cập nhật `bytes_remaining_r`.
-2. Engine drain output FIFO; mới lần ghi một word output ve `DMEM`, `bytes_done_o += 4`.
-3. Nếu đây là block cuối, engine không complete ngay. No tiếp tục:
-   - drain `AES_OUT_STATUS/META/DATA` cho toi khi output FIFO rộng
-   - poll lại `TX STATUS[3] = tx_busy`
-   - nếu `tx_busy == 0` lien tiep `64` lần, engine mới vao `STATE_COMPLETE`
+1. When `TX STATUS[4] = done_sticky`, the engine considers the current block to have been processed by the TX core and updates `bytes_remaining_r`.
+2. Engine drain output FIFO; Just write an output word to `DMEM`, `bytes_done_o += 4`.
+3. If this is the last block, the engine does not complete immediately. It continues with:
+   - drain `AES_OUT_STATUS/META/DATA` for me when the FIFO output is wide
+   - poll again `TX STATUS[3] = tx_busy`
+   - If `tx_busy == 0` is followed by `64` several times, the new engine enters `STATE_COMPLETE`
 
-Heuristic tail-idle này được điều khiển bởi:
+This tail-idle heuristic is driven by:
 
 - `FINAL_EMPTY_POLLS_REQUIRED = 64`
 
-Lý do là output ciphertext có thể ra cham hơn su kien `done_sticky`, dac biet o tail của frame cuối.
+The reason is that output ciphertext may be smaller than the result `done_sticky`, especially at the tail of the last frame.
 
 ## 10. Ownership of DMEM port B in SoC
 
-Trong `rv32_soc_top`:
+In `rv32_soc_top`:
 
-- khi `tx_dma_busy_w = 1`, `dma_tx_engine` chiem `DMEM` port B
-- khi `rx_dma_busy_w = 1`, port B thuoc `dma_rx_engine`
-- khi ca hai DMA đều idle, port B trả lại cho `aux_*`
+- when `tx_dma_busy_w = 1`, `dma_tx_engine` read `DMEM` port B
+- when `rx_dma_busy_w = 1`, port B must be `dma_rx_engine`
+- When both DMAs are idle, port B returns to `aux_*`
 
-`dma_regfile` chỉ nhận 1 bo status tong hop, nen top dang mux status ve theo `dma_active_dir_r`.
+`dma_regfile` only receives 1 status message in combination, number top status mux according to `dma_active_dir_r`.
 
 ## 11. Error codes used by the current code
 
-| Code | Ý nghĩa |
+| Code | Meaning |
 |---:|---|
 | `0x00` | No error |
 | `0x01` | Default/unexpected state path |
 | `0x02` | Bad alignment / invalid config |
-| `0x03` | APB `PSLVERR` tu TX wrapper |
+| `0x03` | APB `PSLVERR` from TX wrapper |
 | `0x04` | `TX STATUS[5] = error_sticky` |
 | `0x05` | `AES_OUT_STATUS[9] = aes_out_error_sticky` |
 
-## 12. Trạng thái / thanh ghi nội bộ
+## 12. Internal status/registers
 
-| Reg / state | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Reg / state | Width | Data format | Meaning |
 |---|---:|---|---|
 | `state_r` | 5 | FSM state code | Main engine state machine |
 | `apb_resume_state_r` | 5 | FSM state code | Return state after APB wait |
@@ -289,13 +289,13 @@ Trong `rv32_soc_top`:
 
 ## 13. Important limitation of the current TX contract
 
-`dma_tx_engine` da phan biet được `COMPRESS_AES` và `COMPRESS_ONLY`, nhưng no vẫn chưa xuất:
+`dma_tx_engine` detects `COMPRESS_AES` and `COMPRESS_ONLY`, but it is not exported yet:
 
-- so transport words da ghi ve `DMEM`
+- number transport words write `DMEM`
 - final `dst_ptr`
 - RX-side policy metadata consume
 
-Dieu này có nghia:
+This means:
 
-- TX-side user policy da có
-- nhưng loopback đối xứng cho `COMPRESS_ONLY` chưa được hoàn tất o RX
+- TX-side user policy is available
+- but the symmetric loopback for `COMPRESS_ONLY` has not been completed in RX

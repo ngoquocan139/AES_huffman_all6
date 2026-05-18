@@ -1,24 +1,24 @@
-# 03. BRAM and Cổng Usage Specification
+# 03. BRAM and Port Usage Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-Tài liệu này chot ro:
+This document is correct:
 
-- hệ thống đang dùng nhưng khoi BRAM nào;
-- mới BRAM được cấu hình theo kiểu nào;
-- port nào thuoc ve khoi nào;
-- port nào dang dùng trong flow `RV32I sync` và `SoC sync`;
-- port nào là legacy, không dùng cho hướng SoC cuối.
+- What BRAM is the system using?
+- What type of BRAM is configured?
+- Which port goes to which point?
+- Which port is being used in flows `RV32I sync` and `SoC sync`;
+- Which port is legacy, not used for final SoC direction.
 
-Mục tiêu là tránh nham lần giua:
+The goal is to avoid mistakes:
 
-- flow core sync cũ;
-- flow SoC sync dung BRAM gan với FPGA;
-- hướng SoC hiện tại da tích hợp DMA/TX/RX.
+- old flow core sync;
+- flow SoC sync using BRAM to FPGA;
+- Current SoC direction has integrated DMA/TX/RX.
 
-## 2. Pham vi
+## 2. Scope
 
-Spec này ap dùng cho các module sau:
+This spec applies to the following modules:
 
 - `imem_sync`
 - `dmem_sync_wrab`
@@ -26,19 +26,19 @@ Spec này ap dùng cho các module sau:
 - `DMEM_ip`
 - `rv32_soc_top`
 
-Tài liệu này không mô tả chỉ tiet protocol APB của DMA/TX/RX. No chỉ chot phân bố nhỏ và ownership của các port BRAM.
+This document does not describe the DMA/TX/RX APB protocol only. This indicates the small distribution and ownership of BRAM ports.
 
-Trạng thái hiện tại:
+Current status:
 
-| Item | Trạng thái |
+| Item | Status |
 |---|---|
-| IMEM init | `sim/instruction.mem` tạo bằng `make compile C_SRC=...` |
-| Simulation input load | `test_bench` nạp `+INPUT_FILE` vao DMEM Cổng B khi DMA idle |
-| FPGA input load | `uart_dmem_loader` nạp payload vao DMEM Cổng B trước khi release CPU reset |
-| DMA ownership | TX/RX DMA chiem DMEM Cổng B khi engine busy |
+| IMEM init | `sim/instruction.mem` created with `make compile C_SRC=...` |
+| Simulation input load | `test_bench` loads `+INPUT_FILE` into DMEM Port B when DMA idle |
+| FPGA input load | `uart_dmem_loader` loads the payload into DMEM Port B before releasing the CPU reset |
+| DMA ownership | TX/RX DMA monitors DMEM Port B when engine is busy |
 | Clean regression | included in `34/34` PASS baseline |
 
-## 2.1 Cổng Ownership Flow Chart
+## 2.1 Port Ownership Flow Chart
 
 ```mermaid
 flowchart LR
@@ -50,211 +50,211 @@ flowchart LR
   IMEM["IMEM_ip"] -->|"instruction fetch only"| CPU
 ```
 
-## 3. Tong quan các khoi bộ nhớ
+## 3. Overview of memory stores
 
-| Khoi | Module | Vai tro | Trạng thái |
+| Khoi | Module | Ash role | Status |
 |---|---|---|---|
-| IMEM sync model | `imem_sync` | Bộ nhớ lenh đồng bộ cho CPU | Đang dùng |
-| DMEM sync legacy | `dmem_sync_wrab` + `dmem_sync` | Bộ nhớ data don gian cho smoke test core cũ | Legacy |
-| DMEM SoC wrapper | `dmem_ip_wrapper` | Wrapper cho dual-port BRAM | Hướng dùng cho SoC |
-| DMEM SoC model | `DMEM_ip` | Model hành vi cho Vivado BRAM IP | Hướng dùng cho SoC |
+| IMEM sync model | `imem_sync` | Synchronous command memory for CPU | Using |
+| DMEM sync legacy | `dmem_sync_wrab` + `dmem_sync` | Data storage space for old smoke test core | Legacy |
+| DMEM SoC wrapper | `dmem_ip_wrapper` | Wrapper for dual-port BRAM | Direction used for SoC |
+| DMEM SoC model | `DMEM_ip` | Behavioral model for Vivado BRAM IP | Direction used for SoC |
 
 ## 4. IMEM
 
-### 4.1 Module đang dùng
+### 4.1 Module in use
 
 `imem_sync`
 
-### 4.2 Vai tro
+### 4.2 Role
 
-- chưa chương trình `RV32I`
-- chỉ phuc vu instruction fetch
-- CPU đọc, không có master thu hai
-- runtime write vao IMEM chưa được dùng; chương trình được nạp qua `instruction.mem` / Vivado IMEM init
+- not yet program `RV32I`
+- only serves instruction fetch
+- CPU reads, no master receives two
+- runtime write to unused IMEM; The program is loaded via `instruction.mem` / Vivado IMEM init
 
-### 4.3 Cấu hình logic cần chốt
+### 4.3 Configure the logic to be latched
 
-| Thuoc tính | Giá trị | Định dạng dữ liệu |
+| Medicinal properties | Value | Data format |
 |---|---|---|
-| Kiểu | Single-port synchronous instruction memory | Word-addressed 32-bit instruction storage |
+| Type | Single-port synchronous instruction memory | Word-addressed 32-bit instruction storage |
 | Read width | 32 bit | One RV32I instruction word |
-| Write width | không dùng trong model hiện tại | N/A in the active model |
-| Depth hiện tại | 2048 words | `2048 x 32-bit` words |
-| Dung lượng hiện tại | 8 KB | `8192` bytes of instruction storage |
+| Write width | Not used in current model | N/A in the active model |
+| Current Depth | 2048 words | `2048 x 32-bit` words |
+| Current capacity | 8 KB | `8192` bytes of instruction storage |
 | Read latency | 1 cycle | Registered synchronous read |
 | Init file | `instruction.mem` | Hex memory image |
-| Có output register | Hieu ung tương đương 1 thanh ghi output | 32-bit registered instruction output |
-| Byte write enable | Không dùng | N/A |
+| There is an output register | Understanding is equivalent to 1 output register | 32-bit registered instruction output |
+| Byte write enable | Do not use | N/A |
 
-### 4.4 Cổng module
+### 4.4 Module ports
 
-| Cổng | Hướng | Rộng | Định dạng dữ liệu | Mô tả |
+| Port | Direction | Width | Data format | Description |
 |---|---|---:|---|---|
 | `clk_i` | in | 1 | Free-running clock | Clock IMEM |
-| `en_i` | in | 1 | Boolean enable | Enable đọc |
-| `instr_addr_i` | in | 11 | Word address | Địa chỉ word |
-| `instruction_o` | out | 32 | RV32I instruction word | Lenh đọc ra sau 1 cycle |
+| `en_i` | in | 1 | Boolean enable | Enable reading |
+| `instr_addr_i` | in | 11 | Word address | Address word |
+| `instruction_o` | out | 32 | RV32I instruction word | Lenh reads out after 1 cycle |
 
-### 4.5 Các port dùng trong hệ thống
+### 4.5 Ports used in the system
 
-Trong `rv32_soc_top`, CPU nối vào IMEM như sau:
+In `rv32_soc_top`, the CPU connects to IMEM as follows:
 
-| Tín hiệu CPU | Nối vào IMEM | Định dạng dữ liệu | Ghi chú |
+| Signal CPU | Connect to IMEM | Data format | Note |
 |---|---|---|---|
-| `imem_en_o` | `en_i` | Boolean enable | CPU IF stage bật đọc |
-| `imem_addr_o[12:2]` | `instr_addr_i` | Word address | Cat bo 2 bit thấp để đổi byte address sang word index |
-| `imem_instr_i` | `instruction_o` | RV32I instruction word | CPU nhận instruction sau 1 cycle |
+| `imem_en_o` | `en_i` | Boolean enable | CPU IF stage turns on reading |
+| `imem_addr_o[12:2]` | `instr_addr_i` | Word address | Cat the 2 low bits to convert byte address to word index |
+| `imem_instr_i` | `instruction_o` | RV32I instruction word | The CPU receives instructions after 1 cycle |
 
-### 4.6 Quy tac dung port
+### 4.6 Port usage rules
 
-- IMEM chỉ có 1 port và chỉ danh cho CPU fetch
-- không dùng port này cho DMA
-- không dùng IMEM để lưu data runtime
-- nếu sau này thay bằng Vivado BRAM IP, phải giữ hành vi sync read 1 cycle
+- IMEM has only 1 port and is designated for CPU fetch
+- Do not use this port for DMA
+- Do not use IMEM to store runtime data
+- If later replaced with Vivado BRAM IP, the sync read behavior must be kept for 1 cycle
 
-### 4.7 Khuyến nghị cấu hình Vivado
+### 4.7 Vivado configuration recommendations
 
-| Thuoc tính | Giá trị khuyến nghị |
+| Medicinal properties | Recommended value |
 |---|---|
 | Interface | Native |
-| Memory type | Single Cổng ROM hoặc Single Cổng RAM |
+| Memory type | Single Port ROM or Single Port RAM |
 | Read width | 32 |
-| Depth | 2048 words hoặc lớn hơn nếu cần |
+| Depth | 2048 words or larger if needed |
 | Enable pin | ON |
 | Mode | `READ_FIRST` |
-| Output register | OFF o vòng đầu |
+| Output register | OFF in the first round |
 | Read latency | 1 |
 | Byte write enable | OFF |
 | Init file | ON |
 
 ### 4.8 Internal storage / helper state
 
-| Storage / signal | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Storage / signal | Width | Data format | Meaning |
 |---|---:|---|---|
 | `instructions_r` | 2048 x 32 | Hex instruction memory image | Simulation-only instruction storage array |
 | `instruction_r` | 32 | RV32I instruction word | Registered instruction output in non-Vivado simulation |
 | `i` | integer | Loop index | Initialisation loop index for `$readmemh` setup |
 
-## 5. DMEM legacy cho core smoke test
+## 5. DMEM legacy for core smoke test
 
 ### 5.1 Module
 
 - `dmem_sync_wrab`
 - `dmem_sync`
 
-### 5.2 Vai tro
+### 5.2 Role
 
-Đây là đường DMEM cũ dùng cho testbench core sync don le.
+This is the old DMEM line used for the core sync simple le testbench.
 
-No có các dac diem:
+It has the following points:
 
 - single-port
-- ghep 4 bank 8-bit thanh 32-bit
-- byte write enable từng byte
-- không có port B
+- Merge 4 8-bit banks into 32-bit bars
+- byte write enable each byte
+- There is no port B
 
-### 5.3 Trạng thái
+### 5.3 Status
 
-- chỉ nen dùng cho smoke test core cũ
-- không nên dùng cho hướng SoC có DMA
-- không được coi đây là DMEM cuối cùng của hệ thống
+- Only used for old smoke test cores
+- Not recommended for SoC orientation with DMA
+- This should not be considered the final DMEM of the system
 
-### 5.4 Lý do không dùng cho SoC cuối
+### 5.4 Reasons not to use for final SoC
 
-- không có dual-port
-- không phan tách được CPU và DMA
-- không phan anh đây đủ cấu hình BRAM IP của Vivado
+- No dual-ports
+- CPU and DMA cannot be separated
+- This image does not show the full configuration of Vivado's BRAM IP
 
-### 5.5 Cổng module legacy
+### 5.5 Module ports legacy
 
-| Cổng | Hướng | Rộng | Định dạng dữ liệu | Mô tả |
+| Port | Direction | Width | Data format | Description |
 |---|---|---:|---|---|
-| `clka` | in | 1 | Free-running clock | Clock của legacy DMEM |
-| `ena` | in | 1 | Boolean enable | Enable đọc/ghi |
-| `wea` | in | 4 | Byte write mask | Một bit cho mới bank 8-bit |
-| `addra` | in | 8 | Byte address | Địa chỉ byte trong từng bank |
-| `dina` | in | 32 | Little-endian 32-bit word | Dữ liệu ghi 4 lane |
-| `douta` | out | 32 | Little-endian 32-bit word | Dữ liệu đọc 4 lane |
+| `clka` | in | 1 | Free-running clock | Clock of legacy DMEM |
+| `ena` | in | 1 | Boolean enable | Enable read/write |
+| `wea` | in | 4 | Byte write mask | One bit for the new 8-bit bank |
+| `addra` | in | 8 | Byte address | Address bytes in each bank |
+| `dina` | in | 32 | Little-endian 32-bit word | Data registers 4 lanes |
+| `douta` | out | 32 | Little-endian 32-bit word | Data reads 4 lanes |
 
 ### 5.6 Internal storage / helper state
 
-| Storage / signal | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Storage / signal | Width | Data format | Meaning |
 |---|---:|---|---|
 | `dmem_uut0.mem` .. `dmem_uut3.mem` | 4 x `256 x 8` | Byte-addressed 8-bit memory arrays | Four legacy byte-wide banks that together form one 32-bit word |
 | `dmem_uut0.douta` .. `dmem_uut3.douta` | 4 x 8 | Registered byte lane output | Byte lanes returned by each underlying `dmem_sync` instance |
 | `i` | integer | Loop index | Initialisation index in each `dmem_sync` instance |
 
-## 6. DMEM cho SoC
+## 6. DMEM for SoCs
 
-### 6.1 Module dang chot
+### 6.1 Module is running
 
 - `dmem_ip_wrapper`
 - `DMEM_ip`
 
-### 6.2 Vai tro
+### 6.2 Role
 
-DMEM là bộ nhớ data chính của hệ thống:
+DMEM is the system's main data memory:
 
-- CPU đọc/ghi data bình thường
-- DMA đọc source buffer
-- DMA ghi destination buffer
-- về sau có thể cho UART loader hoặc PS/Zynq dung port phụ
+- CPU reads/writes data normally
+- DMA reads the source buffer
+- DMA writes destination buffer
+- Later, you can let the UART loader or PS/Zynq use the secondary port
 
-### 6.3 Cấu hình logic cần chốt
+### 6.3 Configure the logic to be latched
 
-| Thuoc tính | Giá trị | Định dạng dữ liệu |
+| Medicinal properties | Value | Data format |
 |---|---|---|
-| Kiểu | True dual-port RAM | Dual-port 32-bit byte-addressed memory |
-| Số port | 2 | One CPU port, one auxiliary port |
+| Type | True dual-port RAM | Dual-port 32-bit byte-addressed memory |
+| Port number | 2 | One CPU port, one auxiliary port |
 | Clock | Common clock | Shared clock domain |
-| Data width mỗi port | 32 bit | 32-bit little-endian word |
-| Byte write enable | 4 bit mỗi port | One mask bit per byte lane |
+| Data width per port | 32 bit | 32-bit little-endian word |
+| Byte write enable | 4 bits per port | One mask bit per byte lane |
 | Address mode | `BYTE_ADDRESS` | Byte-oriented external address space |
 | Read mode | `READ_FIRST` | Synchronous read returns old data on write collision |
 | Read latency | 1 cycle | Registered synchronous read |
-| Depth hiện tại | 8192 words | `8192 x 32-bit` storage words |
-| Dung lượng hiện tại | 32 KB | `32768` bytes of data memory |
+| Current Depth | 8192 words | `8192 x 32-bit` storage words |
+| Current capacity | 32 KB | `32768` bytes of data memory |
 
-### 6.4 Cổng module wrapper
+### 6.4 Module ports wrapper
 
-#### Cổng A: CPU
+#### Port A: CPU
 
-| Cổng | Hướng | Rộng | Định dạng dữ liệu | Mô tả |
+| Port | Direction | Width | Data format | Description |
 |---|---|---:|---|---|
-| `cpu_en_i` | in | 1 | Boolean enable | Enable của CPU |
+| `cpu_en_i` | in | 1 | Boolean enable | Enable of CPU |
 | `cpu_we_i` | in | 4 | Byte write mask | Byte write enable |
 | `cpu_addr_i` | in | 32 | Byte address | Byte address |
-| `cpu_wdata_i` | in | 32 | Little-endian 32-bit word | Dữ liệu ghi |
-| `cpu_rdata_o` | out | 32 | Little-endian 32-bit word | Dữ liệu đọc sau 1 cycle |
+| `cpu_wdata_i` | in | 32 | Little-endian 32-bit word | Write data |
+| `cpu_rdata_o` | out | 32 | Little-endian 32-bit word | Data is read after 1 cycle |
 
-#### Cổng B: auxiliary master
+#### Port B: auxiliary master
 
-| Cổng | Hướng | Rộng | Định dạng dữ liệu | Mô tả |
+| Port | Direction | Width | Data format | Description |
 |---|---|---:|---|---|
-| `aux_en_i` | in | 1 | Boolean enable | Enable port phụ |
+| `aux_en_i` | in | 1 | Boolean enable | Enable secondary port |
 | `aux_we_i` | in | 4 | Byte write mask | Byte write enable |
 | `aux_addr_i` | in | 32 | Byte address | Byte address |
-| `aux_wdata_i` | in | 32 | Little-endian 32-bit word | Dữ liệu ghi |
-| `aux_rdata_o` | out | 32 | Little-endian 32-bit word | Dữ liệu đọc sau 1 cycle |
+| `aux_wdata_i` | in | 32 | Little-endian 32-bit word | Write data |
+| `aux_rdata_o` | out | 32 | Little-endian 32-bit word | Data is read after 1 cycle |
 
-### 6.5 Ownership của từng port
+### 6.5 Ownership of each port
 
-| Cổng | Chủ sở hữu trong hướng SoC | Mục đích |
+| Port | Owner in SoC direction | Purpose |
 |---|---|---|
-| Cổng A | CPU | load/store data bình thường |
-| Cổng B | DMA | đọc/ghi buffer cho TX/RX |
+| Port A | CPU | load/store data normally |
+| Port B | DMA | read/write buffer for TX/RX |
 
-Trong giai đoạn bring-up, Cổng B có thể tạm thời do:
+During the bring-up phase, Port B may be temporarily due to:
 
 - testbench
 - UART loader
 - PS/Zynq
 
-sử dụng, nhưng chỉ được có **một owner hiệu lực tai một thời điểm**.
+used, but can only have **one valid owner at a time**.
 
-### 6.6 Mapping trong `rv32_soc_top`
+### 6.6 Mapping in `rv32_soc_top`
 
-| Tín hiệu trong `rv32_soc_top` | Nối vào wrapper | Định dạng dữ liệu | Chủ sở hữu |
+| Signal in `rv32_soc_top` | Connect to wrapper | Data format | Owner |
 |---|---|---|---|
 | `dmem_en_w` | `cpu_en_i` | Boolean enable | CPU |
 | `dmem_we_w[3:0]` | `cpu_we_i` | Byte write mask | CPU |
@@ -267,39 +267,39 @@ sử dụng, nhưng chỉ được có **một owner hiệu lực tai một th�
 | `aux_wdata_i[31:0]` | `aux_wdata_i` | Little-endian 32-bit word | DMA/loader |
 | `aux_rdata_o[31:0]` | `aux_rdata_o` | Little-endian 32-bit word | DMA/loader |
 
-### 6.7 Quy tac địa chỉ
+### 6.7 Address rules
 
-- DMEM nhận **byte address** ở cả 2 port
-- căn word nội bộ được xử lý bằng cách bo 2 bit thấp khi truy cap mảng byte
-- `wea/web[3:0]` quyet dinh byte nào được ghi
+- DMEM receives **byte address** on both ports
+- Internal word alignment is handled by flashing the lower 2 bits when accessing the byte array
+- `wea/web[3:0]` decides which bytes are written
 
-He qua:
+He passed:
 
-- `sb`, `sh`, `sw` có thể chia sẽ cung một word
-- DMA hiện tại ưu tiên transfer 32-bit aligned
-- CPU vẫn giữ kha nang byte/halfword access qua `we[3:0]`
+- `sb`, `sh`, `sw` can be shared as one word
+- DMA currently prioritizes 32-bit aligned transfers
+- The CPU still retains byte/halfword access via `we[3:0]`
 
-### 6.8 Quy tac đồng thời
+### 6.8 Simultaneous rules
 
-DMEM là dual-port nen:
+DMEM is dual-port:
 
-- CPU có thể dung Cổng A trong lúc DMA dung Cổng B
-- CPU không cần stall chỉ vi DMA dang busy
+- CPU can use Port A while DMA can use Port B
+- The CPU does not need to stall just because the DMA is busy
 
-Nhưng phần mềm vẫn phải đảm bảo:
+But the software still must ensure:
 
-- CPU không đọc/ghi vao buffer ma DMA dang xu ly
-- không tạo race trên cung vung data
+- The CPU does not read/write into the DMA buffer that is being processed
+- Do not create a race on the data area
 
-### 6.9 Khuyến nghị cấu hình Vivado
+### 6.9 Vivado configuration recommendations
 
-| Thuoc tính | Giá trị khuyến nghị |
+| Medicinal properties | Recommended value |
 |---|---|
 | Interface | Native |
-| Memory type | True Dual Cổng RAM |
+| Memory type | True Dual Port RAM |
 | Common clock | ON |
-| Cổng A width | 32/32 |
-| Cổng B width | 32/32 |
+| Port A width | 32/32 |
+| Port B width | 32/32 |
 | Byte write enable | ON |
 | Byte size | 8 |
 | `wea/web` | 4 bit |
@@ -307,73 +307,73 @@ Nhưng phần mềm vẫn phải đảm bảo:
 | Mode A | `READ_FIRST` |
 | Mode B | `READ_FIRST` |
 | Enable pin | `ENA`, `ENB` |
-| Output register | OFF o vòng đầu |
+| Output register | OFF in the first round |
 | ECC | OFF |
 | Depth | 8192 words |
 
 ### 6.10 Internal address translation / helper wires
 
-| Tín hiệu | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Signal | Width | Data format | Meaning |
 |---|---:|---|---|
 | `unused_addr_bits_w` | 1 | Boolean alignment check | Flags illegal high/low address bits before word-address conversion |
 | `cpu_word_addr_w` | 13 | Word address | CPU byte address `[14:2]` converted for `DMEM_ip` |
 | `aux_word_addr_w` | 13 | Word address | Auxiliary byte address `[14:2]` converted for `DMEM_ip` |
 
-## 7. Quy tac dung port trong hệ thống
+## 7. Rules for using ports in the system
 
-### 7.1 Cổng nào danh cho CPU
+### 7.1 Which port is for CPU?
 
-- IMEM port duy nhất
-- DMEM Cổng A
+- Single IMEM port
+- DMEM Port A
 
-CPU không được dung:
+CPU not used:
 
-- DMEM Cổng B trong hướng SoC bình thường
-- output FIFO hay BRAM nội bộ của TX/RX như một RAM thông thường
+- DMEM Port B in normal SoC orientation
+- output FIFO or internal BRAM of TX/RX as a regular RAM
 
-### 7.2 Cổng nào danh cho DMA
+### 7.2 Which port is suitable for DMA?
 
-- DMEM Cổng B
+- DMEM Port B
 
-DMA không được dung:
+DMA must not be used:
 
 - IMEM port
-- DMEM Cổng A
+- DMEM Port A
 
-### 7.3 Cổng nào danh cho testbench / loader
+### 7.3 Which port is used for testbench / loader?
 
-Trong bring-up hoặc debug, `aux_*` có thể do:
+During bring-up or debug, `aux_*` can be caused by:
 
 - testbench
 - UART loader
 - PS/Zynq
 
-nằm giữ tạm thời. Khi DMA được tích hợp that, owner mặc định của `aux_*` phải là DMA.
+temporary stay. When DMA is integrated, the default owner of `aux_*` must be DMA.
 
-## 8. Quy tac implementation cần giữ
+## 8. Implementation rules need to be kept
 
-1. Không bien IMEM thanh async read.
-2. Không đổi DMEM SoC thanh single-port.
-3. Không bo byte write enable của DMEM.
-4. Không đổi DMEM sang word-addressed interface ở tầng trên.
-5. Không noi ca DMA và loader vao cung `aux_*` nếu chưa có arbiter.
+1. Do not change IMEM to async read.
+2. No change to single-port DMEM SoC.
+3. Do not cover the write enable byte of DMEM.
+4. Do not change DMEM to the word-addressed interface on the upper layer.
+5. Do not add DMA and loader to `aux_*` if there is no arbiter.
 
-## 9. Chot hướng dùng cho các file
+## 9. Enter the direction for the files
 
-| File | Vai tro | Nên dùng hay không |
+| File | Ash role | Should you use it or not? |
 |---|---|---|
-| `rtl/imem_sync.v` | IMEM sync model | Có |
-| `rtl/dmem_sync_wrab.v` | DMEM legacy cho core smoke | Không cho SoC cuối |
-| `rtl/dmem_ip_wrapper.v` | Wrapper dual-port DMEM | Có |
-| `rtl/DMEM_ip.v` | Model hành vi DMEM IP | Có trong sim SoC |
-| `rtl/rv32_soc_top.v` | Top noi CPU vao IMEM/DMEM | Có |
+| `rtl/imem_sync.v` | IMEM sync model | Have |
+| `rtl/dmem_sync_wrab.v` | DMEM legacy for core smoke | Not for final SoC |
+| `rtl/dmem_ip_wrapper.v` | Wrapper dual-port DMEM | Have |
+| `rtl/DMEM_ip.v` | DMEM IP behavioral model | Available in SoC sim |
+| `rtl/rv32_soc_top.v` | Top connects the CPU to IMEM/DMEM | Have |
 
-## 10. Ket luan
+## 10. Conclusion
 
-Hệ thống cần chốt theo hướng sau:
+The system needs to latch in the following direction:
 
-- `IMEM`: single-port sync, chỉ cho CPU fetch
-- `DMEM`: true dual-port sync, Cổng A cho CPU, Cổng B cho DMA
-- `dmem_sync_wrab`: chỉ là flow cũ để smoke test, không phải DMEM cuối
+- `IMEM`: single-port sync, only for CPU fetch
+- `DMEM`: true dual-port sync, Port A for CPU, Port B for DMA
+- `dmem_sync_wrab`: just the old flow for smoke testing, not the final DMEM
 
-Nếu giữ dung quy tac này, buoc tiếp theo là thêm DMA vao `aux_*` của `rv32_soc_top` mà không cần thay đổi kiến trúc bộ nhớ nữa.
+If this rule is kept, the next step is to add DMA to `aux_*` of `rv32_soc_top` without changing the memory architecture anymore.

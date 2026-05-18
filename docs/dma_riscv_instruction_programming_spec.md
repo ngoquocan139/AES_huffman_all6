@@ -1,44 +1,44 @@
-# 08. DMA RISC-V Programming and Instruction Specification
+# 08. DMA RV32I Programming and Instruction Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-Tài liệu này giai thich 2 phan:
+This document explains 2 parts:
 
-1. CPU `RV32I` cấu hình `DMA` bằng cách nào trong hệ thống hiện tại
-2. Các instruction `RISC-V` nào thực sự được dùng để:
-   - đọc dữ liệu tu `DMEM`
-   - ghi thanh ghi `DMA MMIO`
+1. How does CPU `RV32I` configure `DMA` in the current system?
+2. Which `RV32I` instructions are actually used to:
+   - Read data from `DMEM`
+   - write register `DMA MMIO`
    - polling `STATUS`
-   - bắt đầu `TX` và `RX`
+   - start `TX` and `RX`
 
-Spec này dựa trên:
+This spec is based on:
 
-- implementation hiện tại của `dma_regfile`
-- memory map hiện tại của SoC
-- chương trình `testcase/test_mmio_dma.c`
-- disassembly của `testcase/test_mmio_dma.elf`
+- Current implementation of `dma_regfile`
+- SoC's current memory map
+- program `testcase/test_mmio_dma.c`
+- disassembly of `testcase/test_mmio_dma.elf`
 
-Regression baseline hiện tại dung một testbench chính `test_bench`; testcase
-wrapper được chọn bằng `TESTNAME` và plusargs được chọn bằng `RUN_ARGS`.
+Regression baseline currently uses a main testbench `test_bench`; testcase
+wrapper is selected with `TESTNAME` and plusargs is selected with `RUN_ARGS`.
 
-## 2. Tong quan kiến trúc lặp trinh
+## 2. Overview of iterative architecture
 
-CPU `RV32I` không “goi ham DMA” theo kiểu software library.
+CPU `RV32I` does not "call DMA" like a software library.
 
-Thay vao do, CPU điều khiển DMA bằng cách:
+Instead, the CPU controls DMA by:
 
-1. ghi giá trị vao các địa chỉ `MMIO`
-2. đọc lại `STATUS`
-3. polling cho toi khi `DMA` xong
+1. Write the value to the addresses `MMIO`
+2. Reread `STATUS`
+3. polling me when `DMA` is done
 
-Mo hinh này goi là:
+This model is called:
 
 - **memory-mapped I/O**
 
-Tuc là tu góc nhìn của CPU:
+Tuc is from the CPU's perspective:
 
-- `DMA register` chỉ là các o nhỏ dac biet
-- `lw` và `sw` là hai instruction quan trong nhất để giao tiếp với DMA
+- `DMA registers` are just small special memory locations
+- `lw` and `sw` are the two most important instructions for communicating with DMA.
 
 ## 2.1 RV32I Programming Flow Chart
 
@@ -58,120 +58,120 @@ flowchart TD
   I -->|"done"| K["lw BYTES_DONE / CIPHERTEXT_BYTES_PRODUCED"]
 ```
 
-## 3. Memory map can nhỏ
+## 3. Memory map can be simple
 
-### 3.1 Vung bộ nhớ chính
+### 3.1 Expanding main memory
 
-| Vung | Base | End | Ý nghĩa |
+| Vung | Base | End | Meaning |
 |---|---|---|---|
-| `DMEM` | `0x0000_0000` | `0x0000_7FFF` | dữ liệu của CPU và DMA |
-| `DMA MMIO` | `0x4000_0000` | `0x4000_00FF` | thanh ghi cấu hình DMA |
+| `DMEM` | `0x0000_0000` | `0x0000_7FFF` | CPU and DMA data |
+| `DMA MMIO` | `0x4000_0000` | `0x4000_00FF` | DMA configuration register |
 
 ### 3.2 DMA register map
 
-| Offset | Tên | Truy cập | Ý nghĩa |
+| Offset | Name | Access | Meaning |
 |---|---|---|---|
 | `0x00` | `CONTROL` | W | bit `start`, `soft_reset`, `clear_done`, `clear_error` |
 | `0x04` | `STATUS` | R | `busy`, `done_sticky`, `error_sticky`, `cfg_valid`, `direction` |
-| `0x08` | `SRC_ADDR` | R/W | địa chỉ nguồn trong `DMEM` |
-| `0x0C` | `DST_ADDR` | R/W | địa chỉ đích trong `DMEM` |
-| `0x10` | `LEN_BYTES` | R/W | số byte engine phải xu ly |
+| `0x08` | `SRC_ADDR` | R/W | source address in `DMEM` |
+| `0x0C` | `DST_ADDR` | R/W | destination address in `DMEM` |
+| `0x10` | `LEN_BYTES` | R/W | Number of bytes the engine must save |
 | `0x14` | `MODE` | R/W | `0x1 = TX COMPRESS_AES`, `0x5 = TX COMPRESS_ONLY legacy`, `0x9 = TX whole-file COMPRESS_AES`, `0xD = TX whole-file COMPRESS_ONLY`, `0x2 = RX` |
 | `0x18` | `BLOCK_CFG` | R/W | block size |
-| `0x1C` | `BYTES_DONE` | R | số byte da xong |
-| `0x20` | `DEBUG` | R | engine state và error code |
-| `0x24` | `CIPHERTEXT_BYTES_PRODUCED` | R | do dài ciphertext của TX |
+| `0x1C` | `BYTES_DONE` | R | Number of bytes done |
+| `0x20` | `DEBUG` | R | engine state and error code |
+| `0x24` | `CIPHERTEXT_BYTES_PRODUCED` | R | due to the long ciphertext of TX |
 | `0x28` | `IV0` | R/W | CBC IV bits `[31:0]` |
 | `0x2C` | `IV1` | R/W | CBC IV bits `[63:32]` |
 | `0x30` | `IV2` | R/W | CBC IV bits `[95:64]` |
 | `0x34` | `IV3` | R/W | CBC IV bits `[127:96]` |
 
-## 4. Cach CPU RV32I cấu hình DMA
+## 4. How to configure RV32I CPU with DMA
 
 ### 4.1 Sequence tong quat
 
-Mới lần chạy DMA, CPU thực hiện dung chuoi sau:
+The first time the DMA is run, the CPU executes the following sequence:
 
-1. ghi `SRC_ADDR`
-2. ghi `DST_ADDR`
-3. ghi `LEN_BYTES`
-4. ghi `MODE`
-5. ghi `BLOCK_CFG`
-6. nếu chạy AES, ghi `IV0..IV3`
-7. đọc `STATUS`
-8. ghi `CONTROL.start = 1`
+1. write `SRC_ADDR`
+2. write `DST_ADDR`
+3. write `LEN_BYTES`
+4. write `MODE`
+5. write `BLOCK_CFG`
+6. If running AES, write `IV0..IV3`
+7. read `STATUS`
+8. write `CONTROL.start = 1`
 9. polling `STATUS`
-10. đọc `BYTES_DONE`
-11. nếu là TX thì đọc thêm `CIPHERTEXT_BYTES_PRODUCED`
+10. read `BYTES_DONE`
+11. If it is TX, read `CIPHERTEXT_BYTES_PRODUCED`
 
 ### 4.2 Sequence TX
 
-CPU muon chạy TX:
+CPU wants to run TX:
 
 - `SRC_ADDR = plaintext`
 - `DST_ADDR = ciphertext buffer`
 - `LEN_BYTES = plaintext length`
-- `MODE = 0x1` nếu muon `COMPRESS_AES`
-- `MODE = 0xD` nếu muon default `COMPRESS_ONLY + whole_file`
-- `MODE = 0x9` nếu muon `COMPRESS_AES` + whole-file dynamic Huffman, đây là mode loopback chính hiện tại
-- `IV0..IV3` nếu dung `COMPRESS_AES`
+- `MODE = 0x1` if you want `COMPRESS_AES`
+- `MODE = 0xD` if you want to default to `COMPRESS_ONLY + whole_file`
+- `MODE = 0x9` if you want `COMPRESS_AES` + whole-file dynamic Huffman, this is the current main loopback mode
+- `IV0..IV3` if using `COMPRESS_AES`
 
-Trong RTL hiện tại, `COMPRESS_AES` là AES-CBC. CPU phải tạo/ghi IV trước
-`CONTROL.start`. `testcase/test_mmio_dma.c` dang tạo IV demo deterministic bằng
-các instruction RV32I có ban, không dùng `mul`.
+In the current RTL, `COMPRESS_AES` is AES-CBC. The CPU must create/write the IV first
+`CONTROL.start`. `testcase/test_mmio_dma.c` is creating a deterministic IV demo with
+RV32I instructions have a ban, do not use `mul`.
 
-Sau khi TX xong:
+After TX is completed:
 
 - `BYTES_DONE` = ciphertext bytes
 - `CIPHERTEXT_BYTES_PRODUCED` = ciphertext bytes
 
 ### 4.3 Sequence RX
 
-CPU muon chạy RX:
+CPU wants to run RX:
 
 - `SRC_ADDR = ciphertext buffer`
 - `DST_ADDR = plaintext output buffer`
 - `LEN_BYTES = ciphertext length`
 - `MODE = 0x2`
-- `IV0..IV3` phải bằng dung IV da dung khi TX encrypt
+- `IV0..IV3` must be equal to the IV used when TX encrypt
 
-Sau khi RX xong:
+After RX is done:
 
 - `BYTES_DONE` = plaintext bytes recovered
 
-### 4.4 `Polling STATUS` là gi
+### 4.4 What is `Polling STATUS`?
 
-`Polling STATUS` nghĩa là:
+`Polling STATUS` means:
 
-- CPU liên tục đọc thanh ghi `DMA_STATUS`
-- sau mới lần đọc, CPU tu kiểm trả các bit quan trong
-- nếu DMA chưa xong thì CPU lặp lại vong đọc
+- The CPU continuously reads the `DMA_STATUS` register
+- After a new read, the CPU checks the important bits
+- If DMA is not completed, the CPU repeats the reading
 
-Đây là cơ chế **thay interrupt bằng vong lặp software**.
+This is the mechanism of **replacing interrupts with software loops**.
 
-Trong hệ thống hiện tại:
+In the current system:
 
-- CPU không nhận interrupt khi DMA xong
-- vi vay CPU phải tu theo dõi `STATUS`
+- The CPU does not receive an interrupt when DMA is completed
+- For CPU usage, you must monitor `STATUS`
 
-CPU thuong quan tam 3 bit:
+CPU usually cares about 3 bits:
 
 - `busy`
 - `done_sticky`
 - `error_sticky`
 
-Trinh tu dung:
+Trinh tu use:
 
-1. CPU ghi `CONTROL.start = 1`
-2. CPU đọc `STATUS` cho toi khi thay `busy = 1`
-3. CPU tiếp tục đọc `STATUS`
-4. CPU dung khi:
-   - `error_sticky = 1`, hoặc
-   - `busy = 0` và `done_sticky = 1`
+1. CPU writes `CONTROL.start = 1`
+2. The CPU read `STATUS` to me when replacing `busy = 1`
+3. The CPU continues reading `STATUS`
+4. CPU used when:
+   - `error_sticky = 1`, or
+   - `busy = 0` and `done_sticky = 1`
 
-Nếu chỉ đọc `STATUS` một lần duy nhất thì không goi là polling.
+If you only read `STATUS` once, it is not called polling.
 
-Nếu CPU lặp lại:
+If CPU repeats:
 
 ```c
 while (1) {
@@ -180,25 +180,25 @@ while (1) {
 }
 ```
 
-thì đây chính là polling.
+then this is polling.
 
-Ý nghĩa thực tế:
+Actual meaning:
 
-- don gian
-- để debug
-- hợp với giai đoạn bring-up
+- Don't bother
+- to debug
+- suitable for the bring-up phase
 
-Nhưng nhuoc diem là:
+But the point is:
 
-- CPU bị ban việc cho DMA
-- CPU phải ton cycle để đọc `STATUS`
-- về sau có thể thay bằng interrupt để dep hơn
+- CPU is banned from DMA
+- The CPU must cycle to read `STATUS`
+- Later, polling can be replaced with interrupts
 
-## 5. Các instruction RV32I thực sự được dùng
+## 5. RV32I instructions are actually used
 
-## 5.1 Boot và vao `main`
+## 5.1 Boot and enter `main`
 
-Disassembly hiện tại bắt đầu như sau:
+The current disassembly begins as follows:
 
 ```asm
 00000000 <_start>:
@@ -207,127 +207,127 @@ Disassembly hiện tại bắt đầu như sau:
    8: 0040006f   j    c <main>
 ```
 
-Ý nghĩa:
+Meaning:
 
 - `lui sp,0x8`
-  - nạp phan cao của `sp`
+  - high load of `sp`
 - `addi sp,sp,-256`
-  - tạo stack pointer cuối cùng `0x00007f00`
+  - create final stack pointer `0x00007f00`
 - `j main`
-  - nhay vao `main`
+  - Click on `main`
 
-Đây là cach dung có ban để bắt đầu một chương trình `RV32I` standalone.
+This is the original way to start a `RV32I` standalone program.
 
-## 5.2 Đọc một word tu DMEM
+## 5.2 Read a word from DMEM
 
-Vi đủ:
+Enough:
 
 ```asm
 20: 04002f03   lw t5,64(zero)
 ```
 
-Ý nghĩa:
+Meaning:
 
-- đọc word tai địa chỉ `0x00000040`
-- đây là `INPUT_LEN_ADDR`
+- Read word at address `0x00000040`
+- This is `INPUT_LEN_ADDR`
 
-Instruction được dùng:
+Instructions are used:
 
 - `lw rd, imm(rs1)`
 
-Trong hệ thống này:
+In this system:
 
-- `lw` được dùng để đọc:
+- `lw` is used to read:
   - input length
   - DMA status
   - DMA bytes done
   - ciphertext length
 
-## 5.3 Tạo địa chỉ MMIO DMA
+## 5.3 Create MMIO DMA address
 
-Để ghi vao `DMA_BASE = 0x40000000`, compiler dung:
+To write to `DMA_BASE = 0x40000000`, the compiler uses:
 
 ```asm
 24: 400007b7   lui a5,0x40000
 ```
 
-Ý nghĩa:
+Meaning:
 
 - `a5 = 0x40000000`
 
-Vi `RV32I` không có instruction “load full 32-bit immediate” một buoc, nen thuong phải:
+Since `RV32I` does not have a "load full 32-bit immediate" instruction, you should:
 
-- dung `lui`
-- nếu cần thì cổng thêm bằng `addi`
+- use `lui`
+- If necessary, add the port using `addi`
 
-Trong vi đủ này, `0x40000000` da tron 12 bit thấp, nen chỉ can `lui`.
+In this scenario, `0x40000000` is in the lower 12 bits, number only `lui` is needed.
 
-## 5.4 Ghi thanh ghi DMA bằng `sw`
+## 5.4 Write DMA register using `sw`
 
-Vi đủ TX:
+Microenzyme TX:
 
 ```asm
 28: 40000713   li  a4,1024
 2c: 00e7a423   sw  a4,8(a5)
 ```
 
-Ý nghĩa:
+Meaning:
 
 - `a5 = DMA_BASE`
 - `a4 = 1024 = 0x00000400`
-- `sw a4,8(a5)` ghi vao `DMA_SRC_ADDR`
+- `sw a4,8(a5)` is written to `DMA_SRC_ADDR`
 
-Tiếp theo:
+Next:
 
 ```asm
 34: 00002737   lui a4,0x2
 38: 00e7a623   sw  a4,12(a5)
 ```
 
-Ý nghĩa:
+Meaning:
 
 - `a4 = 0x00002000`
-- ghi vao `DMA_DST_ADDR`
+- write to `DMA_DST_ADDR`
 
-Tiếp theo:
+Next:
 
 ```asm
 40: 01e7a823   sw t5,16(a5)
 ```
 
-Ý nghĩa:
+Meaning:
 
-- ghi `LEN_BYTES`
+- write `LEN_BYTES`
 
-Tiếp theo:
+Next:
 
 ```asm
 48: 00100713   li a4,1
 4c: 00e7aa23   sw a4,20(a5)
 ```
 
-Ý nghĩa:
+Meaning:
 
-- `MODE = 0x1` (`TX COMPRESS_AES`) hoặc `MODE = 0xD` (`TX COMPRESS_ONLY + whole_file`)
+- `MODE = 0x1` (`TX COMPRESS_AES`) or `MODE = 0xD` (`TX COMPRESS_ONLY + whole_file`)
 
-Tiếp theo:
+Next:
 
 ```asm
 54: 02000693   li a3,32
 58: 00d7ac23   sw a3,24(a5)
 ```
 
-Ý nghĩa:
+Meaning:
 
 - `BLOCK_CFG = 32`
 
-Instruction được dùng:
+Instructions are used:
 
 - `sw rs2, imm(rs1)`
 
-Đây là instruction quan trong nhất để cấu hình DMA.
+This is the most important instruction to configure DMA.
 
-Nếu chạy AES-CBC, chương trình còn ghi thêm IV:
+If you run AES-CBC, the program also registers IV:
 
 ```asm
 sw value0, 40(base)   # IV0, offset 0x28
@@ -336,49 +336,49 @@ sw value2, 48(base)   # IV2, offset 0x30
 sw value3, 52(base)   # IV3, offset 0x34
 ```
 
-IV demo trong `test_mmio_dma.c` được tạo bằng các instruction RV32I như:
+IV demo in `test_mmio_dma.c` is created using RV32I instructions such as:
 
-- `xor` để tron counter/input length
-- `slli` và `srli` để tạo rotate
-- `or` để ghep kết quả rotate
-- `addi`/`add` để cổng constant
-- `sw` để ghi IV vao MMIO
+- `xor` for counter/input length
+- `slli` and `srli` to create rotate
+- `or` to merge the rotate results
+- `addi`/`add` to constant port
+- `sw` to write IV to MMIO
 
-## 5.5 Đọc `STATUS` trước khi start
+## 5.5 Read `STATUS` before starting
 
 ```asm
 5c: 400007b7   lui a5,0x40000
 60: 0047af83   lw  t6,4(a5)
 ```
 
-Ý nghĩa:
+Meaning:
 
-- đọc `DMA_STATUS`
-- lưu vao `t6`
+- read `DMA_STATUS`
+- Save to `t6`
 
-Trong code C, đây là:
+In C code, this is:
 
 ```c
 *status_before = DMA_STATUS;
 ```
 
-## 5.6 Bắt đầu DMA
+## 5.6 Start DMA
 
 ```asm
 64: 400007b7   lui a5,0x40000
 68: 00e7a023   sw  a4,0(a5)
 ```
 
-Ý nghĩa:
+Meaning:
 
 - `a4 = 1`
-- ghi `CONTROL.start = 1`
+- write `CONTROL.start = 1`
 
-Đây là lúc DMA thực sự bắt đầu chạy.
+This is when the DMA really starts running.
 
 ## 5.7 Polling `STATUS`
 
-Doan loop polling hiện tại trong disassembly có dang:
+The current polling loop in disassembly is:
 
 ```asm
 274: 00052683   lw   a3,0(a0)
@@ -390,20 +390,20 @@ Doan loop polling hiện tại trong disassembly có dang:
 28c: fd5ff06f   j    260
 ```
 
-Ý nghĩa:
+Meaning:
 
 - `lw`:
-  - đọc `STATUS`
+  - read `STATUS`
 - `andi a5,a3,1`
   - test bit `busy`
 - `bnez`
-  - nếu `busy=1` thì nhay
+  - If `busy=1` then ok
 - `andi a5,a3,4`
   - test bit `error`
 - `beqz`, `j`
-  - lặp lại vong polling
+  - Repeat polling
 
-Instruction dùng trong polling:
+Instructions used in polling:
 
 - `lw`
 - `andi`
@@ -411,16 +411,16 @@ Instruction dùng trong polling:
 - `beqz`
 - `j`
 
-Đây là bo instruction toi thiếu của `RV32I` để thực hiện polling MMIO.
+This is the instruction board I am missing of `RV32I` to perform MMIO polling.
 
-## 5.8 Kiểm trả và ghi kết quả ra DMEM
+## 5.8 Check and write results to DMEM
 
-Cuối chương trình, CPU dung:
+At the end of the program, the CPU uses:
 
-- `lw` để đọc word đầu của ciphertext / plaintext output
-- `sw` để ghi `RESULT_WORD(0..15)` vao `DMEM`
+- `lw` to read the first word of ciphertext / plaintext output
+- `sw` to write `RESULT_WORD(0..15)` to `DMEM`
 
-Vi đủ:
+Enough:
 
 ```asm
 214: 00f02023   sw a5,0(zero)
@@ -430,16 +430,16 @@ Vi đủ:
 250: 02802e23   sw s0,60(zero)
 ```
 
-Ý nghĩa:
+Meaning:
 
-- CPU ghi kết quả tong hop ve vung `RESULT_BASE_ADDR = 0`
-- testbench chỉ cần đọc DMEM để biet test pass/fail
+- The CPU writes the hop result to area `RESULT_BASE_ADDR = 0`
+- testbench only needs to read DMEM to know test pass/fail
 
-## 6. Mapping giua C và instruction
+## 6. Mapping between C and instruction
 
-### 6.1 Macro MMIO trong C
+### 6.1 MMIO Macro in C
 
-Trong `test_mmio_dma.c`, DMA được dùng theo kiểu:
+In `test_mmio_dma.c`, DMA is used in the following way:
 
 ```c
 #define DMA_BASE_ADDR 0x40000000u
@@ -448,19 +448,19 @@ Trong `test_mmio_dma.c`, DMA được dùng theo kiểu:
 #define DMA_SRC_ADDR  (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x08u))
 ```
 
-Tu khoa quan trong là:
+The important principles of practice are:
 
 - `volatile`
 
-Nếu bo `volatile`, compiler có thể:
+If the pointer is `volatile`, the compiler can:
 
-- bo qua read/write
+- bypass read/write
 - reorder instruction
-- cache thanh ghi trong register
+- register cache in register
 
-Dieu này sẽ làm sai hoàn toàn semantics MMIO.
+This rule will completely distort MMIO semantics.
 
-### 6.2 Tu C sang assembly
+### 6.2 Convert C to assembly
 
 | C statement | Assembly pattern |
 |---|---|
@@ -469,19 +469,19 @@ Dieu này sẽ làm sai hoàn toàn semantics MMIO.
 | `DMA_CONTROL = 1;` | `lui reg, 0x40000` + `sw one, 0(reg)` |
 | `if (status & 1)` | `andi tmp, status, 1` + branch |
 
-## 7. Cach tu viet chương trình RISC-V cho repo này
+## 7. How to edit the RV32I program for this repo
 
-## 7.1 Viet bằng C
+## 7.1 Write in C
 
-Cach để nhất:
+Best way:
 
-1. tạo file mới trong `testcase/`
-   - vi đủ `testcase/test_dma_poll.c`
-2. dinh nghia macro MMIO bằng `volatile uint32_t *`
-3. viet `_start()` và `main()`
-4. compile bằng `make compile C_SRC=test_dma_poll.c`
+1. Create a new file in `testcase/`
+   - en enough `testcase/test_dma_poll.c`
+2. Define MMIO macro using `volatile uint32_t *`
+3. viet `_start()` and `main()`
+4. compile with `make compile C_SRC=test_dma_poll.c`
 
-Template toi thiếu:
+Template I'm missing:
 
 ```c
 typedef unsigned int uint32_t;
@@ -507,16 +507,16 @@ int main(void) {
 }
 ```
 
-## 7.2 Viet bằng assembly thuần
+## 7.2 Write in pure assembly
 
-Nếu muon viet trực tiếp `.S`, cần có:
+If you want to edit `.S` directly, you need:
 
 1. dat `sp`
-2. tạo base `DMA_BASE`
-3. dung `sw` / `lw`
-4. polling bằng branch
+2. create base `DMA_BASE`
+3. content `sw` / `lw`
+4. polling using branch
 
-Vi đủ:
+Enough:
 
 ```asm
     .section .text
@@ -538,9 +538,9 @@ hang:
     j hang
 ```
 
-## 7.3 Build và simulate
+## 7.3 Build and simulate
 
-Quy trinh dùng trong repo:
+Procedure used in repo:
 
 ```bash
 cd /mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim
@@ -549,74 +549,74 @@ make drc
 make all
 ```
 
-Kết quả của `make compile`:
+Result of `make compile`:
 
 - build `../testcase/<name>.S`
 - build `../testcase/<name>.elf`
 - build `../testcase/<name>.bin`
 - build `../testcase/<name>.mem`
-- copy `.mem` vao `sim/instruction.mem`
+- Copy `.mem` into `sim/instruction.mem`
 
-Từ đó:
+Since:
 
-- `instruction.mem` được nạp vao `IMEM`
-- CPU boot tu file này khi simulate
+- `instruction.mem` is loaded into `IMEM`
+- The CPU boots from this file when simulating
 
-## 8. Giới hạn lặp trinh hiện tại
+## 8. Current iteration limit
 
-He `RISC-V` của repo hiện tại nen được xem là:
+The `RV32I` of the current repo should be considered:
 
 - `RV32I`
-- không có standard runtime
-- không có libc
-- không có syscall environment đây đủ
-- không nên phụ thuộc vao stack frame phuc tap hay compiler runtime lớn
+- There is no standard runtime
+- no libc
+- No syscall environment is required
+- Should not depend on a large frame stack or runtime compiler
 
-Nên dùng:
+Should use:
 
-- integer 32-bit có ban
+- 32-bit integer is available
 - pointer MMIO `volatile`
-- loop polling don gian
-- startup `_start` thu cổng
+- loop polling does not take time
+- startup `_start` collects the port
 
-Không nên ky vong:
+You should not swear:
 
 - printf
 - file I/O
-- interrupt runtime software đây đủ
+- interrupt runtime software here is enough
 - heap / malloc
 
-## 9. Checklist lặp trinh DMA bằng RISC-V
+## 9. Checklist for DMA iteration using RV32I
 
-Khi viet chương trình mới, can check:
+When writing a new program, check:
 
-1. có `_start` dat `sp`
-2. có `volatile` cho tat ca MMIO register
-3. `SRC_ADDR` và `DST_ADDR` canh `4-byte`
-4. `MODE = 0x1` cho `TX COMPRESS_AES`, `MODE = 0xD` cho TX whole-file `COMPRESS_ONLY`, `MODE = 0x9` cho TX whole-file COMPRESS_AES, `MODE = 0x2` cho RX
-5. nếu dung AES-CBC, ghi `IV0..IV3` trước `CONTROL.start`
-6. `RX LEN_BYTES = CIPHERTEXT_BYTES_PRODUCED`, không dùng plaintext length
-7. RX phải dung cung IV với TX
-8. polling dung trên `STATUS`
-9. nếu cần self-check, ghi result ra `DMEM` để testbench đọc
+1. there is `_start` dat `sp`
+2. There is `volatile` for all MMIO registers
+3. `SRC_ADDR` and `DST_ADDR` overlap `4-byte`
+4. `MODE = 0x1` for `TX COMPRESS_AES`, `MODE = 0xD` for TX whole-file `COMPRESS_ONLY`, `MODE = 0x9` for TX whole-file COMPRESS_AES, `MODE = 0x2` for RX
+5. If using AES-CBC, write `IV0..IV3` before `CONTROL.start`
+6. `RX LEN_BYTES = CIPHERTEXT_BYTES_PRODUCED`, do not use plaintext length
+7. RX must use arc IV with TX
+8. polling content on `STATUS`
+9. If you need to self-check, write the result to `DMEM` for testbench to read
 
-## 10. Ket luan
+## 10. Conclusion
 
-Để cấu hình DMA trong hệ thống này, CPU `RISC-V` thuc chat chỉ can:
+To configure DMA in this system, the chat CPU `RV32I` only needs:
 
-- `lui` / `addi` để tạo địa chỉ
-- `lw` để đọc `STATUS` và kết quả
-- `sw` để ghi thanh ghi DMA
-- `andi` + branch để polling
-- `xor`, `slli`, `srli`, `or`, `add/addi` nếu CPU tu tạo IV demo
+- `lui` / `addi` to generate the address
+- `lw` to read `STATUS` and results
+- `sw` to write DMA register
+- `andi` + branch for polling
+- `xor`, `slli`, `srli`, `or`, `add/addi` if CPU repair IV demo
 
-Do đó, việc “sử dụng RISC-V” trong do an này có thể hieu rất cũ the là:
+Therefore, "using RV32I" in this document means:
 
-- viet một chương trình `RV32I`
-- dung `lw/sw` trên vung `MMIO`
-- để CPU điều khiển accelerator thong qua DMA
+- write a program `RV32I`
+- Use `lw/sw` on `MMIO`
+- Let the CPU control the accelerator via DMA
 
-Đây là dung mo hinh SoC hiện tại:
+This is the current SoC model:
 
 - CPU = control plane
 - DMA = data mover

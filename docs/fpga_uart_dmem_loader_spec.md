@@ -1,6 +1,6 @@
 # FPGA UART DMEM Loader Specification
 
-## 1. Mục đích
+## 1. Purpose
 
 This spec defines the active FPGA-side runtime input loader used by the
 `rv32_soc_fpga_demo_top` flow.
@@ -20,9 +20,9 @@ host file
 The loader is intentionally small and fixed-purpose. It is a bring-up path for
 loading the plaintext source buffer into `DMEM` before the CPU starts.
 
-Trạng thái tích hợp hiện tại:
+Current integration status:
 
-| Item | Trạng thái |
+| Item | Status |
 |---|---|
 | FPGA wrapper | `rv32_soc_fpga_demo_top` |
 | Input protocol | `"LOAD" + payload_len_le32 + payload` |
@@ -30,7 +30,7 @@ Trạng thái tích hợp hiện tại:
 | Demo clock | `50 MHz` |
 | Build style | TX-only/RX-only split bitstreams |
 | Max input bytes | `7168` |
-| Remaining gặp | runtime output readback from board is still future work |
+| Remaining met | runtime output readback from board is still future work |
 
 ## 1.1 Loader Flow Chart
 
@@ -50,7 +50,7 @@ flowchart TD
   K --> L["Release SoC reset"]
 ```
 
-## 2. Phạm vi
+## 2. Scope
 
 This loader is active only in:
 
@@ -63,12 +63,12 @@ inside `rv32_soc_top` itself.
 
 ### 3.1 Modules
 
-| Module | Vai trò |
+| Module | Role |
 |---|---|
 | `rv32_soc_fpga_demo_top` | FPGA wrapper top |
 | `uart_dmem_loader` | UART RX/TX protocol parser + DMEM auxiliary writer |
 | `rv32_soc_top` | Main SoC |
-| `dmem_ip_wrapper` | DMEM wrapper exposing Cổng A for CPU and Cổng B for auxiliary master |
+| `dmem_ip_wrapper` | DMEM wrapper exposing Port A for CPU and Port B for auxiliary master |
 | `DMEM_ip` | Vivado true dual-port BRAM |
 
 ### 3.2 Connection graph
@@ -100,20 +100,20 @@ uart_dmem_loader.done
 
 This means:
 
-- DMEM can be written through Cổng B before CPU execution starts
+- DMEM can be written through Port B before CPU execution starts
 - the CPU sees a fully populated source buffer and a valid `INPUT_LEN_ADDR`
 
-### 3.4 Contract cổng module
+### 3.4 Contract port module
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `clk_i` | in | 1 | Free-running system clock | Loader and UART clock domain |
 | `rst_i` | in | 1 | Active-high reset | Resets protocol parser, counters, and DMEM writer |
 | `uart_rx_i` | in | 1 | UART 8N1 serial bitstream | Host-to-FPGA receive line |
 | `uart_tx_o` | out | 1 | UART 8N1 serial bitstream | FPGA-to-host ACK/error line |
-| `aux_en_o` | out | 1 | Boolean enable | DMEM Cổng B enable |
-| `aux_we_o` | out | 4 | Byte write mask | Byte lanes written on Cổng B |
-| `aux_addr_o` | out | 32 | Byte address | DMEM Cổng B address, byte addressed |
+| `aux_en_o` | out | 1 | Boolean enable | DMEM Port B enable |
+| `aux_we_o` | out | 4 | Byte write mask | Byte lanes written on Port B |
+| `aux_addr_o` | out | 32 | Byte address | DMEM Port B address, byte addressed |
 | `aux_wdata_o` | out | 32 | Little-endian 32-bit word | Packed payload data written to DMEM |
 | `busy_o` | out | 1 | Boolean flag | Loader is actively parsing or writing |
 | `done_o` | out | 1 | Sticky boolean flag | Valid frame completed successfully |
@@ -138,7 +138,7 @@ prescale = CLK_HZ / BAUD_RATE = 50_000_000 / 115200 = 434
 
 Current ZedBoard demo constraints:
 
-| Tín hiệu | Cổng | Pin | Ghi chú |
+| Signal | Port | Pin | Note |
 |---|---|---|---|
 | `uart_rx_i` | JA1 | `Y11` | host TX -> FPGA RX |
 | `uart_tx_o` | JA2 | `AA11` | FPGA TX -> host RX |
@@ -150,15 +150,15 @@ Board wiring:
 3. connect common GND
 
 The current XDC uses `LVCMOS33` for these Pmod pins and enables a pull-up on
-`uart_rx_i` so the line idles high.
+`uart_rx_i` number the line idles high.
 
 ## 5. Loader Data Contract
 
-### 5.1 Định dạng frame host
+### 5.1 Frame host format
 
 The current frame is fixed and minimal:
 
-| Dải byte | Trường | Định dạng dữ liệu | Ý nghĩa |
+| Byte range | Field | Data format | Meaning |
 |---|---|---|---|
 | `0..3` | Magic | ASCII `"LOAD"` | Start-of-frame marker |
 | `4..7` | Payload length | Little-endian `uint32` | Number of payload bytes that follow |
@@ -173,17 +173,17 @@ The loader does not currently accept:
 
 It is a single-shot input loader.
 
-### 5.2 Hành vi ghi DMEM
+### 5.2 DMEM write behavior
 
 On a valid frame:
 
 1. payload bytes are written sequentially starting at:
    - `SRC_BASE_ADDR = 0x0000_2000`
-2. bytes are packed into 32-bit words using byte enables on DMEM Cổng B
+2. bytes are packed into 32-bit words using byte enables on DMEM Port B
 3. when the full payload is drained, the loader writes:
    - `INPUT_LEN_ADDR = 0x0000_0040`
    - value = `payload_len_bytes`
-4. after that, it releases the SoC reset
+4. After that, it releases the SoC reset
 
 Byte packing matches the simulation loader:
 
@@ -200,14 +200,14 @@ So the payload layout inside DMEM is consistent with:
 - `test_mmio_tx_only.c`
 - `test_mmio_dma.c`
 
-### 5.3 Giới hạn kích thước
+### 5.3 Size limitations
 
 The loader currently accepts at most:
 
 - `7168` bytes
 
 The DMEM source window between `0x0000_2000` and `0x0000_4000` is 8192
-bytes wide. The loader uses a stricter guardrail of `7168` bytes so there is
+bytes wide. The loader uses a stricter guardrail of `7168` bytes number there is
 explicit headroom before the TX destination region:
 
 ```text
@@ -220,9 +220,9 @@ source bytes     = 0x2000 = 8192
 destination region. If `payload_len == 0` or `payload_len > 7168`, the loader
 enters the error path and does not release the SoC reset.
 
-### 5.4 Trạng thái / thanh ghi nội bộ
+### 5.4 Internal status/registers
 
-| State / reg | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| State / reg | Width | Data format | Meaning |
 |---|---:|---|---|
 | `state_r` | 4 | FSM state encoding | Current loader state machine step |
 | `payload_len_r` | 32 | Unsigned byte count | Parsed frame payload length |
@@ -241,11 +241,11 @@ enters the error path and does not release the SoC reset.
 | `error_r` | 1 | Sticky boolean flag | Loader error flag |
 | `UART_PRESCALE_W` | 16 | Unsigned UART prescale | Derived baud-rate divider used by `uart_rx` / `uart_tx` |
 
-## 6. Contract ACK / lỗi
+## 6. Contract ACK/error
 
 The loader returns one UART byte to the host:
 
-| Byte | Định dạng dữ liệu | Ý nghĩa |
+| Byte | Data format | Meaning |
 |---:|---|---|
 | `0x79` | UART ACK byte | Load success |
 | `0x1F` | UART NAK byte | Load error |
@@ -266,7 +266,7 @@ Error means:
 
 Current `rv32_soc_fpga_demo_top` LEDs:
 
-| LED | Ý nghĩa |
+| LED | Meaning |
 |---|---|
 | `led_o[0]` | heartbeat |
 | `led_o[1]` | loader busy |
@@ -285,7 +285,7 @@ The loader only prepares `DMEM`.
 What happens next depends on the `instruction.mem` that was built into the
 bitstream.
 
-### 8.1 Luồng đang dùng được khuyến nghị
+### 8.1 Recommended current flow
 
 Current practical FPGA demo flow:
 
@@ -297,7 +297,7 @@ Current practical FPGA demo flow:
 6. CPU configures DMA TX mode `0x5`
 7. TX produces compressed output in the TX destination buffer
 
-This is the cleanest current board demo because:
+This is the cleanest current demo board because:
 
 - the loader provides plaintext input directly
 - TX-only does not require ciphertext pre-generation
@@ -330,7 +330,7 @@ It is a host-side command for the FPGA demo flow:
 - send that file over UART
 - let `uart_dmem_loader` write it into `DMEM`
 
-## 10. Giới hạn hiện tại
+## 10. Current limit
 
 The current loader does not yet provide:
 

@@ -1,31 +1,31 @@
 # Coverage Test Plan Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-Tài liệu này dinh nghia regression coverage cho SoC RV32I + Huffman + AES-128.
-Flow được làm theo cung ý tưởng với `timer_standard_hv`:
+This document defines regression coverage for SoC RV32I + Huffman + AES-128.
+Flow is made according to the concept with `timer_standard_hv`:
 
-1. chạy từng testcase riêng
-2. mới testcase sinh một file `.ucdb`
-3. merge tat ca `.ucdb` thanh `IP.ucdb`
-4. đọc text/HTML report
-5. lặp thêm testcase hoặc exclusion hợp lệ cho đến khi coverage closure dat mục tiêu
+1. Run each test case separately
+2. The new testcase generates a file `.ucdb`
+3. merge all `.ucdb` into `IP.ucdb`
+4. read text/HTML report
+5. Iterate more valid testcases or exclusions until coverage closure reaches the target
 
-SoC coverage flow đã được canh lại theo form `timer_standard_hv`, nhưng chỉ
-dung **một testbench chính**:
+SoC coverage flow has been re-aligned to the form `timer_standard_hv`, but only
+content **a main testbench**:
 
-- `tb/tb_rv32_soc_mmio_dma.v` là testbench chính duy nhất, top module `test_bench`
-- testbench chính setup DUT, clock/reset, loader, checker, task dùng chung
+- `tb/tb_rv32_soc_mmio_dma.v` is the only main testbench, top module `test_bench`
+- Main testbench setup DUT, clock/reset, loader, checker, shared tasks
 - testbench include `` `include "run_test.v" ``
-- testcase nằm trong `testcase/<TESTNAME>.v`
-- `make build`/`make build_cov` copy testcase thanh `sim/run_test.v`
-- `run_test.v` goi task chung `run_selected_test()`
-- các testbench cũ đã được chuyen vao `tb/archive/deprecated_20260429/`
+- testcase is in `testcase/<TESTNAME>.v`
+- `make build`/`make build_cov` copy the testcase into `sim/run_test.v`
+- `run_test.v` calls general task `run_selected_test()`
+- The old testbench has been moved to `tb/archive/deprecated_20260429/`
 
-Mới testcase của SoC vẫn can thêm mapping trong `run.csh` để chọn:
+The new SoC testcase still requires additional mapping in `run.csh` to select:
 
-- `TB_NAME`: luon là `test_bench` trong clean regression hiện tại
-- `C_SRC`: chương trình RV32I nạp vao `instruction.mem`
+- `TB_NAME`: is always `test_bench` in the current clean regression
+- `C_SRC`: RV32I program loaded into `instruction.mem`
 - `RUN_ARGS`: `+CASE_NAME=... +INPUT_FILE=...`
 
 ## 2. Commands
@@ -36,28 +36,28 @@ Prerequisite:
 sudo apt-get install -y csh
 ```
 
-Chạy coverage regression:
+Run coverage regression:
 
 ```sh
 cd sim
 ./run.csh cov
 ```
 
-Chạy regression không coverage:
+Run regression without coverage:
 
 ```sh
 cd sim
 ./run.csh
 ```
 
-Tong hop pass/fail sau khi chạy:
+Pass/fail summary after running:
 
 ```sh
 cd sim
 ./report.csh
 ```
 
-Sinh thêm HTML coverage sau khi `./run.csh cov`:
+Generate additional HTML coverage after `./run.csh cov`:
 
 ```sh
 cd sim
@@ -71,46 +71,46 @@ cd sim
 make view_cov
 ```
 
-Output chính:
+Main output:
 
-| Path | Ý nghĩa |
+| Path | Meaning |
 |---|---|
-| `sim/ucdb/*.ucdb` | Coverage database của từng testcase |
+| `sim/ucdb/*.ucdb` | Coverage database of each test case |
 | `sim/IP.ucdb` | Coverage database da merge |
-| `sim/coverage/summary_report.txt` | Bao cao tong hop |
-| `sim/coverage/detail_report.txt` | Bao cao chỉ tiet bins/line/branch/toggle |
-| `sim/covhtmlreport/` | HTML coverage report nếu chạy `gen_html` |
+| `sim/coverage/summary_report.txt` | Bao tong hop |
+| `sim/coverage/detail_report.txt` | How to set bins/line/branch/toggle only |
+| `sim/covhtmlreport/` | HTML coverage report if running `gen_html` |
 
 ## 3. Active Coverage Regression List
 
-Danh sach testcase nằm trong:
+The list of test cases is in:
 
 ```text
 sim/pat.list
 ```
 
-Mới dong là một tên testcase:
+New dong is a testcase name:
 
 ```text
 dma_compress_aes_input1
 ```
 
-`run.csh` map tên testcase sang:
+`run.csh` maps testcase name to:
 
-| Trường | Ý nghĩa |
+| Field | Meaning |
 |---|---|
-| `TB_NAME` | top module testbench; clean regression hiện tại luon dung `test_bench` |
-| `C_SRC` | C program để compile thanh `instruction.mem` |
-| `RUN_ARGS` | plusargs cho simulation, vi đủ `+CASE_NAME=... +INPUT_FILE=input1.txt` |
+| `TB_NAME` | top module testbench; clean regression currently always uses `test_bench` |
+| `C_SRC` | C program to compile into `instruction.mem` |
+| `RUN_ARGS` | plusargs for simulation, complete with `+CASE_NAME=... +INPUT_FILE=input1.txt` |
 
-Với mới testcase, `run.csh` sẽ chạy:
+With the new testcase, `run.csh` will run:
 
 ```sh
 make compile C_SRC=<file.c>
 make all_cov TESTNAME=<pat> TB_NAME=<top> RUN_ARGS="+CASE_NAME=<pat> +INPUT_FILE=<input>"
 ```
 
-sau đó merge:
+then merge:
 
 ```sh
 vcover merge IP.ucdb ucdb/*.ucdb
@@ -118,72 +118,72 @@ vcover merge IP.ucdb ucdb/*.ucdb
 
 ## 4. Testcase Table
 
-Bằng testcase được chia theo module/chức năng để biet ro mới testcase dang phuc
-vu cover phan nào của DUT.
+Test cases are divided by module/function to identify new risks and test cases are being tested
+What part of DUT does it cover?
 
 ### 4.1 CPU / SoC Control
 
-| ID | Chức năng | Testname | Description | Expectation | Testcase | Trạng thái | Comment |
+| ID | Function | Testname | Description | Expectation | Testcase | Status | Comment |
 |---|---|---|---|---|---|---|---|
-| CPU-01 | CPU MMIO load/store | `mmio_regfile_basic` | CPU chạy `test_mmio_regfile_basic.c`, ghi `DMA_SRC`, `DMA_DST`, `DMA_LEN`, `DMA_MODE`, `DMA_BLOCK`, ghi/đọc 4 thanh ghi IV, đọc lại status/mode/block, sau đó ghi clear done/error và soft reset. Test không start DMA, mục tiêu là ep CPU -> memory stage -> MMIO bridge -> APB regfile -> CPU readback path. | CPU publish signature `REG1`, error mask bằng 0, no DMA start, soft reset pulse xuất hien | `test_mmio_regfile_basic.c` + `mmio_regfile_basic.v` | PASS | Cover CPU memory-return path, APB bridge read/write có ban |
-| CPU-02 | CPU MMIO illegal access | `mmio_regfile_negative` | CPU có tính ghi sai thứ tự và sai địa chỉ: start khi chưa config hợp lệ, ghi vao thanh ghi readonly/status, access địa chỉ APB không ton tai, ghi mode reserved, ghi block size không hợp lệ, và dung byte/half store vao MMIO. Checker đếm bridge/APB error và đảm bảo lỗi được trả ve CPU mà không làm DMA start that. | Sticky error được set, bridge/APB error được đếm, không có DMA start sai | `test_mmio_regfile_negative.c` + `mmio_regfile_negative.v` | PASS | Cover error propagation tu APB ve CPU |
-| CPU-03 | CPU sideband/top hold | `soc_sideband_cov` | Test trước het chạy base MMIO program `mmio_regfile_basic`, sau khi CPU publish signature thì TB bat plusarg `+SIDEBAND_COV` và pulse trực tiếp các tín hiệu top-level `cpu_stall_i`, `cpu_if_flush_i`, aux loader/address/data high-bit để hit hold/flush/toggle bins mà software bình thường không dùng. | Signature `REG1` vẫn pass, top-level hold/flush/aux toggle bins được hit | `test_mmio_regfile_basic.c` + `soc_sideband_cov.v` | PASS | Testbench-only coverage hook, không thay đổi software contract |
-| CPU-04 | RV32I instruction coverage | `cpu_instruction_cov` | CPU chạy chương trình stress RV32I, dung C/inline asm để tạo chuoi phụ thuộc dữ liệu và hazard: R-type ALU, I-type ALU, load/store byte/half/word, signed/unsigned load, branch taken/not-taken, `lui`, `jalr`. Kết quả từng nhom instruction được gom thanh signature trong DMEM để TB đọc và so sánh. | Signature `CPUC`, error mask 0, R-type/I-type/memory/branch signatures dung | `test_cpu_instruction_cov.c` + `cpu_instruction_cov.v` | PASS | Tăng coverage `id_stage`, `ex_stage`, forwarding và memory path |
-| CPU-05 | CPU memory stage corner coverage | `cpu_mem_forward_cov` | CPU chạy chương trình riêng để ep `mem_stage`: store/load byte tai offset 0/1/2/3, store/load halfword tai offset 0/2, signed/unsigned load, word load/store, và các misaligned access có chu dich để hit error branches. Sau đó ghi signature `CPUH` và checksum vao DMEM. | Signature `CPUH`, error mask 0, mem error output ve 0 sau test, checksum non-zero | `test_cpu_mem_forward_cov.c` + `cpu_mem_forward_cov.v` | PASS | Tăng branch/condition/statement coverage của `u_cpu/u_mem_stage` |
-| CPU-06 | CPU forwarding direct mux coverage | `cpu_forward_direct_cov` | Sau base MMIO pass, TB bat `+CPU_FORWARD_DIRECT_COV` và force trực tiếp các tín hiệu input của `u_cpu/u_forwarding`: EX/MEM match rs1/rs2, MEM/WB match rs1/rs2, byte/half/word select, x0 no-match, và priority EX/MEM over MEM/WB. | Base MMIO pass, forwarding mux mix non-zero | `test_mmio_regfile_basic.c` + `cpu_forward_direct_cov.v` | PASS | Dua `u_cpu/u_forwarding` len gan/full code coverage |
+| CPU-01 | CPU MMIO load/store | `mmio_regfile_basic` | CPU runs `test_mmio_regfile_basic.c`, writes `DMA_SRC`, `DMA_DST`, `DMA_LEN`, `DMA_MODE`, `DMA_BLOCK`, writes/reads 4 IV registers, reads back status/mode/block, then writes clear done/error and soft reset. Test does not start DMA, target is ep CPU -> memory stage -> MMIO bridge -> APB regfile -> CPU readback path. | CPU publish signature `REG1`, error mask is 0, no DMA start, soft reset pulse appears | `test_mmio_regfile_basic.c` + `mmio_regfile_basic.v` | PASS | Cover CPU memory-return path, APB bridge read/write is available |
+| CPU-02 | CPU MMIO illegal access | `mmio_regfile_negative` | The CPU has the ability to write in the wrong order and to the wrong address: start without valid configuration, write to readonly/status register, access APB address incorrectly, write reserved mode, write invalid block size, and use byte/half store into MMIO. Checker counts bridge/APB errors and ensures errors are returned to the CPU without causing DMA to start that. | Sticky errors are set, bridge/APB errors are counted, no DMA false starts | `test_mmio_regfile_negative.c` + `mmio_regfile_negative.v` | PASS | Cover error propagation from APB to CPU |
+| CPU-03 | CPU sideband/top hold | `soc_sideband_cov` | Before testing, run the base MMIO program `mmio_regfile_basic`. After the CPU publishes the signature, the TB starts plusarg `+SIDEBAND_COV` and directly pulses the top-level signals `cpu_stall_i`, `cpu_if_flush_i`, aux loader/address/data high-bit to hit hold/flush/toggle bins that normal software does not use. | Signature `REG1` still passes, top-level hold/flush/aux toggle bins are hit | `test_mmio_regfile_basic.c` + `soc_sideband_cov.v` | PASS | Testbench-only coverage hook, does not change the software contract |
+| CPU-04 | RV32I instruction coverage | `cpu_instruction_cov` | The CPU runs the RV32I stress program, using C/inline asm to create data dependency chains and hazards: R-type ALU, I-type ALU, load/store byte/half/word, signed/unsigned load, branch taken/not-taken, `lui`, `jalr`. The results of each group of instructions are collected in a signature word in DMEM for the TB to read and compare. | Signature `CPUC`, error mask 0, R-type/I-type/memory/branch signatures used | `test_cpu_instruction_cov.c` + `cpu_instruction_cov.v` | PASS | Increased coverage of `id_stage`, `ex_stage`, forwarding and memory path |
+| CPU-05 | CPU memory stage corner coverage | `cpu_mem_forward_cov` | The CPU runs its own program to execute `mem_stage`: store/load bytes at offset 0/1/2/3, store/load halfwords at offset 0/2, signed/unsigned load, word load/store, and misaligned accesses that are scheduled to hit error branches. Then write signature `CPUH` and checksum into DMEM. | Signature `CPUH`, error mask 0, mem error output to 0 after test, checksum non-zero | `test_cpu_mem_forward_cov.c` + `cpu_mem_forward_cov.v` | PASS | Increased branch/condition/statement coverage of `u_cpu/u_mem_stage` |
+| CPU-06 | CPU forwarding direct mux coverage | `cpu_forward_direct_cov` | After the base MMIO pass, TB plays `+CPU_FORWARD_DIRECT_COV` and directly forces the input signals of `u_cpu/u_forwarding`: EX/MEM match rs1/rs2, MEM/WB match rs1/rs2, byte/half/word select, x0 no-match, and priority EX/MEM over MEM/WB. | Base MMIO pass, forwarding mux mix non-zero | `test_mmio_regfile_basic.c` + `cpu_forward_direct_cov.v` | PASS | Dua `u_cpu/u_forwarding` len gan/full code coverage |
 
 ### 4.2 DMA Regfile / MMIO Contract
 
-| ID | Chức năng | Testname | Description | Expectation | Testcase | Trạng thái | Comment |
+| ID | Function | Testname | Description | Expectation | Testcase | Status | Comment |
 |---|---|---|---|---|---|---|---|
-| DMA-01 | Mode decode matrix | `mmio_mode_matrix` | CPU lần luot ghi `DMA_MODE` với `0x1`, `0x5`, `0x9`, `0xd`, `0x2`, `0x0`, `0x3` và giá trị có reserved bits; mới lần đọc lại `DMA_STATUS`/mode field để xác nhận decode direction, AES enable, compress-only, whole-file/per-block. Test chỉ kiểm trả contract thanh ghi, không cho DMA chạy data path. | Trạng thái bits dung với từng mode, invalid/reserved path set error, không start DMA | `test_mmio_mode_matrix.c` + `mmio_mode_matrix.v` | PASS | Là testcase chính cho software contract của `DMA_MODE` |
-| DMA-02 | RX bad length config | `mmio_rx_bad_length` | CPU cấu hình direction RX (`DMA_MODE=0x2`), `SRC=TX_REGION`, `DST=RX_REGION`, nhưng `DMA_LEN=4` không align 16 byte. Sau khi ghi `DMA_CTRL.start`, RX DMA phải di vao expected-error path trước khi feed AES/RX transport. | RX engine báo error, bytes_done bằng 0, `DMA_DEBUG` last error = `0x02` | `test_mmio_rx_bad_length.c` + `mmio_rx_bad_length.v` | PASS | Cover RX DMA expected-error path và `dma_engine_error_w` |
-| DMA-03 | TX APB wait-state | `tx_apb_wait_cov` | Chạy TX-only software bình thường với `input1.txt`, đồng thời TB bat `+TX_APB_WAIT_COV` để force `tx_pready_w=0` một so chu kỳ trong pha APB ACCESS của DMA TX engine. Mục tiêu là xem DMA giữ address/data/control on dinh và chỉ tiếp tục khi `PREADY` len lại. | TX-only flow vẫn pass, DMA TX giữ state ACCESS đến khi `PREADY=1` | `test_mmio_tx_only.c` + `tx_apb_wait_cov.v` | PASS | Coverage hook cho APB wait-state nội bộ TX engine |
-| DMA-04 | TX APB slave error | `tx_apb_error_cov` | CPU start TX với config hợp lệ, TB bat `+TX_APB_ERROR_COV` để force `tx_pslverr_w=1` trong một APB ACCESS đến TX IP. DMA TX phải dung clean, ghi error sticky/last-error, không xem output là valid compressed result. | TX engine báo error, sticky error set, `DMA_DEBUG` last error = `0x03` | `test_mmio_tx_apb_error.c` + `tx_apb_error_cov.v` | PASS | Cover `tx_dma_error_w` và TX APB error branch |
-| DMA-05 | RX APB wait/backpressure | `rx_backpressure_cov` | Chạy full TX->RX loopback `input1.txt`; trong RX phase, TB bat `+RX_APB_WAIT_COV` để chen `PREADY=0` trên RX APB read và bat `+RX_STREAM_BACKPRESSURE_COV` để tạo thời điểm ciphertext valid nhưng RX ready low. Checker so sánh plaintext cuối cùng với source để bao dam không mất word. | Loopback vẫn pass, RX engine không mất ciphertext word | `test_mmio_dma.c` + `rx_backpressure_cov.v` | PASS | Cover RX APB wait-state và stream backpressure có ban |
-| DMA-06 | DMA bridge/regfile direct defensive coverage | `dma_bridge_direct_cov` | Sau base MMIO pass, TB bat `+DMA_BRIDGE_DIRECT_COV` và force trực tiếp bridge, `dma_regfile`, DMA TX/RX vao các pha wait/error/invalid hiem: APB wait, PSLVERR, busy-write, invalid state, bad block size, misaligned config. | Base MMIO pass, branch/statement của bridge/regfile/DMA engine tăng, không đổi software contract | `test_mmio_regfile_basic.c` + `dma_bridge_direct_cov.v` | PASS | White-box coverage hook cho defensive branches kho tạo bằng CPU program |
+| DMA-01 | Mode decode matrix | `mmio_mode_matrix` | The CPU repeatedly writes `DMA_MODE` with `0x1`, `0x5`, `0x9`, `0xd`, `0x2`, `0x0`, `0x3` and the value has reserved bits; Read the `DMA_STATUS`/mode field again to confirm decode direction, AES enabled, compress-only, whole-file/per-block. The test only checks the register contract, does not allow DMA to run the data path. | State bits used for each mode, invalid/reserved path set error, do not start DMA | `test_mmio_mode_matrix.c` + `mmio_mode_matrix.v` | PASS | Is the main test case for the software contract of `DMA_MODE` |
+| DMA-02 | RX bad length config | `mmio_rx_bad_length` | CPU configures direction RX (`DMA_MODE=0x2`), `SRC=TX_REGION`, `DST=RX_REGION`, but `DMA_LEN=4` does not align 16 bytes. After writing `DMA_CTRL.start`, the RX DMA must enter the expected-error path before feeding the AES/RX transport. | RX engine reports error, bytes_done is 0, `DMA_DEBUG` last error = `0x02` | `test_mmio_rx_bad_length.c` + `mmio_rx_bad_length.v` | PASS | Cover RX DMA expected-error path and `dma_engine_error_w` |
+| DMA-03 | TX APB wait-state | `tx_apb_wait_cov` | Run TX-only software normally with `input1.txt`, and at the same time start `+TX_APB_WAIT_COV` to force `tx_pready_w=0` a few cycles in the APB ACCESS phase of the DMA TX engine. The goal is to see that DMA keeps address/data/control on and only resumes when `PREADY` comes back. | TX-only flow still passes, DMA TX keeps ACCESS state until `PREADY=1` | `test_mmio_tx_only.c` + `tx_apb_wait_cov.v` | PASS | Coverage hook for APB wait-state internal TX engine |
+| DMA-04 | TX APB slave error | `tx_apb_error_cov` | CPU start TX with valid configuration, TB bat `+TX_APB_ERROR_COV` to force `tx_pslverr_w=1` in an APB ACCESS to TX IP. DMA TX must use clean, register error sticky/last-error, do not consider output as valid compressed result. | TX engine reports error, sticky error set, `DMA_DEBUG` last error = `0x03` | `test_mmio_tx_apb_error.c` + `tx_apb_error_cov.v` | PASS | Cover `tx_dma_error_w` and TX APB error branch |
+| DMA-05 | RX APB wait/backpressure | `rx_backpressure_cov` | Run full TX->RX loopback `input1.txt`; In the RX phase, the TB turns on `+RX_APB_WAIT_COV` to insert `PREADY=0` on the RX APB read and turns on `+RX_STREAM_BACKPRESSURE_COV` to make the ciphertext valid but RX ready low. Checker compares the final plaintext with the source to ensure no words are lost. | Loopback still passes, RX engine does not lose ciphertext word | `test_mmio_dma.c` + `rx_backpressure_cov.v` | PASS | Cover RX APB wait-state and stream backpressure are available |
+| DMA-06 | DMA bridge/regfile direct defensive coverage | `dma_bridge_direct_cov` | After base MMIO pass, TB starts `+DMA_BRIDGE_DIRECT_COV` and directly forces bridge, `dma_regfile`, DMA TX/RX into wait/error/invalid rare phases: APB wait, PSLVERR, busy-write, invalid state, bad block size, misaligned config. | Base MMIO pass, branch/statement of bridge/regfile/DMA engine increased, software contract unchanged | `test_mmio_regfile_basic.c` + `dma_bridge_direct_cov.v` | PASS | White-box coverage hook for defensive branches of the repository created by CPU program |
 
 ### 4.3 TX Encode / Compress / AES
 
-| ID | Chức năng | Testname | Description | Expectation | Testcase | Trạng thái | Comment |
+| ID | Function | Testname | Description | Expectation | Testcase | Status | Comment |
 |---|---|---|---|---|---|---|---|
-| TX-01 | TX whole-file `COMPRESS_ONLY` | `tx_compress_only_input1` | TB load `input1.txt` vao DMEM source, CPU cấu hình TX-only `DMA_MODE=0xd` whole-file Huffman bypass AES, `SRC=0x2000`, `DST=TX_REGION`, `LEN=input_len`, `BLOCK=32`, rồi polling `DMA_STATUS.done`. Sau khi done, TB dump source/TX region, tính payload ratio/storage ratio và check TX region không all-zero. | TX done, bytes_done align 16 byte, TX output không all-zero, saving đường | `test_mmio_tx_only.c` + `tx_compress_only_input1.v` | PASS | Do saving trực tiếp không qua RX |
-| TX-02 | TX whole-file `COMPRESS_ONLY` log-like | `tx_compress_only_input4_cov` | Giong TX-01 nhưng input là `input4_cov.txt` log-like dài hơn. Mục tiêu là ep dynamic Huffman đọc tần suất toàn file, tạo codebook toàn file, dump output transport và ghi lại saving để so với các input text khác. | TX done, output hợp lệ, storage saving đường với input log da cat nhỏ | `test_mmio_tx_only.c` + `tx_compress_only_input4_cov.v` | PASS | Dung để theo dõi khả năng nen log-like input |
-| TX-03 | TX block `COMPRESS_AES` | `tx_compress_aes_block_input3` | CPU cấu hình TX-only mode `0x1`, nghĩa là Huffman theo block 32 byte và AES-CBC enable. CPU ghi IV vao `DMA_IV0..3`, start DMA, TX đọc DMEM source, nen từng block, pack transport, AES mã hóa, ghi ciphertext vao TX region; TB chỉ check TX side, không chạy RX. | Trạng thái trước/sau dung `0x18/0x1a`, ciphertext bytes align 16 byte | `test_mmio_tx_only_aes_block.c` + `tx_compress_aes_block_input3.v` | PASS | Cover compatibility mode block-32B có AES |
-| TX-04 | TX block `COMPRESS_ONLY` | `tx_compress_only_block_input3` | CPU cấu hình TX-only mode `0x5`, cung dữ liệu `input3.txt`, Huffman theo block 32 byte nhưng AES bypass. TB check output transport raw/compressed của block mode, status bits compress-only, và counter `ciphertext_bytes_produced` align theo storage interface. | Trạng thái trước/sau dung `0x58/0x5a`, transport output hợp lệ | `test_mmio_tx_only_compress_block.c` + `tx_compress_only_block_input3.v` | PASS | Cover compatibility mode block-32B bypass AES |
-| TX-05 | TX one-symbol whole-file | `tx_compress_only_one_symbol_cov` | TB load file lặp lại gan như một symbol (`input_cov_one_symbol.txt`), CPU chạy TX-only whole-file bypass AES. Case này ep frequency counter, symbol list, code-length builder, header formatter và decoder-compatible transport xu ly phân bố ký tự cực đoan/one-symbol. | TX done, output align 16 byte, saving đường | `test_mmio_tx_only.c` + `tx_compress_only_one_symbol_cov.v` | PASS | Cover symbol distribution cực đoan |
-| TX-06 | TX 256-symbol sweep stress | `tx_compress_only_ascii_sweep_cov` | TB load `input_cov_ascii_sweep.txt` có nhieu byte-symbol khác nhau, CPU chạy TX-only whole-file bypass AES với alphabet 256 symbol. Case này stress frequency table, code-length table, canonical generator, header formatter và payload path với input gần uniform. | TX done, output align 16 byte, source match; storage expansion là expected với input gần uniform | `test_mmio_tx_only.c` + `tx_compress_only_ascii_sweep_cov.v` | PASS | Sau nang codebook len 256, case này không còn là expected overflow error |
-| TX-07 | TX alnum63 stress | `tx_compress_only_alnum63_cov` | TB load `input_cov_alnum63.txt` gom 62 ký tự alphanumeric cổng newline = 63 symbol hợp lệ. CPU chạy TX-only whole-file bypass AES để ep frequency counter, symbol list, code-length builder và canonical generator di qua đường nhieu symbol trong alphabet 256. | TX done, output align 16 byte, debug 0, source match | `test_mmio_tx_only.c` + `tx_compress_only_alnum63_cov.v` | PASS | Stress Huffman builder hợp lệ; saving có thể am vi header/codebook lớn |
-| TX-08 | TX short input | `tx_compress_only_short_raw_cov` | TB load input rất ngắn (`input_cov_short_raw.txt`, 7 byte), CPU chạy TX-only whole-file bypass AES. Case này ep final partial word, padding/alignment, header overhead lớn hơn payload, và các nhanh raw/compressed decision khi input nhỏ hơn block danh nghia. | TX done, output hợp lệ | `test_mmio_tx_only.c` + `tx_compress_only_short_raw_cov.v` | PASS | Cover short-input path |
-| TX-09 | TX APB IF direct coverage | `tx_if_direct_cov` | Sau khi base MMIO test pass, TB bat `+TX_IF_DIRECT_COV` và force trực tiếp APB vao `apb_huffman_tx_if`: đọc status/debug khi FIFO empty, ghi invalid block/policy/control, start khi config thiếu, soft reset, load 8 word input FIFO, force core not-ready, fill output FIFO bằng forced AES words, đọc meta/data, và tạo simultaneous push/pop/full/error. | Base MMIO test pass, `apb_huffman_tx_if` hit thêm branch/expression/status/error bins | `test_mmio_regfile_basic.c` + `tx_if_direct_cov.v` | PASS | Coverage hook tập trung vao TX APB wrapper, không phải software contract mới |
-| TX-10 | TX encoder direct coverage | `tx_encoder_direct_cov` | Sau base MMIO pass, TB bat `+TX_ENCODER_DIRECT_COV` và force các stage encoder/mode-decision/header/payload để cover raw/compressed decision, one-symbol, table entry, start/done/error và defensive branch hiem. | Base MMIO pass, TX encoder branch/statement/toggle bins tăng | `test_mmio_regfile_basic.c` + `tx_encoder_direct_cov.v` | PASS | White-box coverage hook cho `dynamic_huffman_encoder` và các module còn |
-| TX-11 | TX builder/packer direct coverage | `tx_builder_packer_direct_cov` | Sau base MMIO pass, TB bat `+TX_BUILDER_PACKER_DIRECT_COV` và force Huffman builder, code-length/canonical generator, bit-packer qua one-symbol, multi-symbol, overflow, final partial word và flush paths. | Base MMIO pass, Huffman builder/packer bins tăng | `test_mmio_regfile_basic.c` + `tx_builder_packer_direct_cov.v` | PASS | White-box coverage hook cho codebook builder và transport packer |
+| TX-01 | TX whole-file `COMPRESS_ONLY` | `tx_compress_only_input1` | TB loads `input1.txt` into DMEM source, CPU configures TX-only `DMA_MODE=0xd` whole-file Huffman bypass AES, `SRC=0x2000`, `DST=TX_REGION`, `LEN=input_len`, `BLOCK=32`, then polling `DMA_STATUS.done`. After done, TB dump source/TX region, calculate payload ratio/storage ratio and check TX region is not all-zero. | TX done, bytes_done align 16 bytes, TX output not all-zero, saving paths | `test_mmio_tx_only.c` + `tx_compress_only_input1.v` | PASS | Because saving directly does not go through RX |
+| TX-02 | TX whole-file `COMPRESS_ONLY` log-like | `tx_compress_only_input4_cov` | Same as TX-01 but input is `input4_cov.txt` longer log-like. The goal is ep dynamic Huffman reads the entire file frequency, creates the entire file codebook, dumps output transport and registers savings to compare with other input text. | TX done, output valid, storage saving line with small data log input | `test_mmio_tx_only.c` + `tx_compress_only_input4_cov.v` | PASS | Used to monitor the ability to log-like input |
+| TX-03 | TX block `COMPRESS_AES` | `tx_compress_aes_block_input3` | CPU configured TX-only mode `0x1`, meaning Huffman in 32-byte blocks and AES-CBC enabled. CPU writes IV to `DMA_IV0..3`, starts DMA, TX reads DMEM source, adds each block, pack transport, AES encryption, writes ciphertext to the TX region; TB only checks TX side, not RX. | Before/after status uses `0x18/0x1a`, ciphertext bytes align 16 bytes | `test_mmio_tx_only_aes_block.c` + `tx_compress_aes_block_input3.v` | PASS | Cover compatibility mode block-32B has AES |
+| TX-04 | TX block `COMPRESS_ONLY` | `tx_compress_only_block_input3` | CPU configured TX-only mode `0x5`, data supply `input3.txt`, Huffman in 32 byte blocks but AES bypass. TB checks output transport raw/compressed of block mode, status bits compress-only, and counter `ciphertext_bytes_produced` align according to storage interface. | Status before/after using `0x58/0x5a`, transport output is valid | `test_mmio_tx_only_compress_block.c` + `tx_compress_only_block_input3.v` | PASS | Cover compatibility mode block-32B bypass AES |
+| TX-05 | TX one-symbol whole-file | `tx_compress_only_one_symbol_cov` | TB loads file repeatedly as a symbol (`input_cov_one_symbol.txt`), CPU runs TX-only whole-file bypass AES. In this case the global frequency counter, symbol list, code-length builder, header formatter and decoder-compatible transport handle extreme/one-symbol character distribution. | TX done, output align 16 bytes, saving lines | `test_mmio_tx_only.c` + `tx_compress_only_one_symbol_cov.v` | PASS | Cover symbol distribution extreme |
+| TX-06 | TX 256-symbol sweep stress | `tx_compress_only_ascii_sweep_cov` | TB load `input_cov_ascii_sweep.txt` has many different byte-symbols, CPU runs TX-only whole-file bypass AES with alphabet 256 symbols. This case stresses frequency table, code-length table, canonical generator, header formatter and payload path with nearly uniform input. | TX done, output align 16 bytes, source match; storage expansion is expected with input near uniform | `test_mmio_tx_only.c` + `tx_compress_only_ascii_sweep_cov.v` | PASS | After codebook len 256, this case is no longer expected overflow error |
+| TX-07 | TX alnum63 stress | `tx_compress_only_alnum63_cov` | TB loads `input_cov_alnum63.txt`, which contains 62 alphanumeric characters plus newline, for 63 valid symbols. The CPU runs TX-only whole-file bypass AES so the global frequency counter, symbol list, code-length builder, and canonical generator traverse multiple symbols in the 256-entry alphabet. | TX done, output align 16 byte, debug 0, source match | `test_mmio_tx_only.c` + `tx_compress_only_alnum63_cov.v` | PASS | Stress Huffman valid builder; saving is possible due to large header/codebook |
+| TX-08 | TX short input | `tx_compress_only_short_raw_cov` | TB load input is very short (`input_cov_short_raw.txt`, 7 bytes), CPU runs TX-only whole-file bypass AES. This case involves ep final partial word, padding/alignment, header overhead larger than payload, and fast raw/compressed decisions when input is smaller than nominal block. | TX done, output is valid | `test_mmio_tx_only.c` + `tx_compress_only_short_raw_cov.v` | PASS | Cover short-input path |
+| TX-09 | TX APB IF direct coverage | `tx_if_direct_cov` | After base MMIO test pass, TB starts `+TX_IF_DIRECT_COV` and forces APB directly into `apb_huffman_tx_if`: read status/debug when FIFO is empty, write invalid block/policy/control, start when config is missing, soft reset, load 8 word input FIFO, force core not-ready, fill FIFO output with forced AES words, read meta/data, and create simultaneous push/pop/full/error. | Base MMIO test pass, `apb_huffman_tx_if` hits additional branch/expression/status/error bins | `test_mmio_regfile_basic.c` + `tx_if_direct_cov.v` | PASS | Coverage hooks focus on the TX APB wrapper, not the new software contract |
+| TX-10 | TX encoder direct coverage | `tx_encoder_direct_cov` | After the base MMIO pass, TB enters `+TX_ENCODER_DIRECT_COV` and forces the stage encoder/mode-decision/header/payload to cover raw/compressed decision, one-symbol, table entry, start/done/error and defensive branch rare. | Base MMIO pass, TX encoder branch/statement/toggle bins increased | `test_mmio_regfile_basic.c` + `tx_encoder_direct_cov.v` | PASS | White-box coverage hook for `dynamic_huffman_encoder` and remaining modules |
+| TX-11 | TX builder/packer direct coverage | `tx_builder_packer_direct_cov` | After base MMIO pass, TB bat `+TX_BUILDER_PACKER_DIRECT_COV` and force Huffman builder, code-length/canonical generator, bit-packer via one-symbol, multi-symbol, overflow, final partial word and flush paths. | Base MMIO pass, Huffman builder/packer bins increased | `test_mmio_regfile_basic.c` + `tx_builder_packer_direct_cov.v` | PASS | White-box coverage hook for codebook builder and transport packer |
 
 ### 4.4 RX Decode / Decrypt
 
-| ID | Chức năng | Testname | Description | Expectation | Testcase | Trạng thái | Comment |
+| ID | Function | Testname | Description | Expectation | Testcase | Status | Comment |
 |---|---|---|---|---|---|---|---|
-| RX-01 | RX decrypt + Huffman decode normal | `dma_compress_aes_input1` | Full loopback hai pha: CPU start TX `COMPRESS_AES` whole-file để ghi ciphertext vao TX region, sau đó CPU cấu hình RX `DMA_MODE=0x2`, `SRC=TX_REGION`, `DST=RX_REGION`, `LEN=tx_bytes_done`. RX DMA đọc 128-bit ciphertext, feed AES inverse CBC, depack transport, parse Huffman header/codebook, decode plaintext và ghi DMEM RX region. | RX done, `rx_bytes_done == input_len`, RX output match source | `test_mmio_dma.c` + `dma_compress_aes_input1.v` | PASS | Cover RX normal path với input dài |
-| RX-02 | RX decrypt + Huffman decode small/repeated | `dma_compress_aes_input3` | Giong RX-01 nhưng với `input3.txt` ngắn và lặp lại cao. Case này làm RX parser/decoder gặp frame nhỏ, symbol count it, payload ngắn, final-frame nhanh hơn, nhưng vẫn di qua AES-CBC decrypt và DMEM writeback như path chính. | RX done, output match source, parser/decoder xu ly frame nhỏ | `test_mmio_dma.c` + `dma_compress_aes_input3.v` | PASS | Cover small-frame behavior |
-| RX-06 | RX one-symbol loopback | `dma_compress_aes_one_symbol_cov` | TX tạo ciphertext tu input one-symbol, sau đó RX decrypt/decode lại. RX phải đọc header/codebook dac biet của phân bố một symbol, generate plaintext lặp lại, và bytes_done phải bằng input length sau khi ghi DMEM. | RX output match source | `test_mmio_dma.c` + `dma_compress_aes_one_symbol_cov.v` | PASS | Cover one-symbol/short-frame behavior |
-| RX-09 | RX alnum63 loopback | `dma_compress_aes_alnum63_cov` | TX tạo ciphertext tu `input_cov_alnum63.txt` gom 63 symbol hợp lệ, sau đó RX decrypt/decode lại. Case này ep RX parser/decoder xu ly codebook lớn hơn các input bình thường và xác nhận path AES-CBC + Huffman vẫn loopback dung. | RX done, `rx_bytes_done == 504`, RX output match source, parser/decoder report `symbol_count=63` | `test_mmio_dma.c` + `dma_compress_aes_alnum63_cov.v` | PASS | Functional coverage case cho alnum63 E2E; saving có thể am do header/codebook overhead |
-| RX-03 | RX malformed length | `mmio_rx_bad_length` | CPU start RX với `DMA_LEN` không chia het cho 16 byte, trong khi RX AES input yeu cau ciphertext block 128-bit. Test xác nhận lỗi bị chan o RX DMA/config layer, không feed dữ liệu sai vao AES inverse/parser. | RX expected error, không ghi plaintext | `test_mmio_rx_bad_length.c` + `mmio_rx_bad_length.v` | PASS | Error path hiện tại của RX DMA |
-| RX-04 | RX stream backpressure | `rx_backpressure_cov` | Chạy loopback `input1.txt`; trong RX phase TB tạo backpressure trên RX ciphertext/transport path bằng cách giữ ready low khi valid high và chen APB read wait-state. Sau đó checker vẫn compare RX DMEM với source để chứng minh handshake không drop/duplicate word. | RX không mất data, loopback vẫn match input | `test_mmio_dma.c` + `rx_backpressure_cov.v` | PASS | Backpressure có ban, chưa cover FIFO full sau |
-| RX-05 | RX APB IF direct coverage | `rx_if_direct_cov` | Sau base MMIO pass, TB bat direct hook vao `apb_huffman_rx_if`: đọc data khi FIFO empty, ghi invalid address/control, force ciphertext pending, force FIFO full, tạo simultaneous push/pop, invalid `valid_bytes`, invalid metadata và parser error. Mục tiêu là hit defensive branches mà software normal không tạo được. | Base MMIO test pass, `apb_huffman_rx_if` hit empty/full/error/wait branches | `test_mmio_regfile_basic.c` + `rx_if_direct_cov.v` | PASS | Coverage hook tập trung vao `apb_huffman_rx_if`, không phải software contract mới |
-| RX-07 | RX parser/decoder direct coverage | `rx_parser_decoder_cov` | Sau base MMIO pass, TB bat `+RX_PARSE_DECODE_COV` để drive trực tiếp transport stream vao RX parser/decoder: raw-full 32-byte multi-chunk frame, raw partial frame, one-symbol frame, compressed 1-symbol frame, compressed 2-symbol multi-entry frame, malformed header/payload/code và zero-length chunk. Test không phụ thuộc CPU software; mục tiêu là cover state/error bins của parser và decoder. | Base MMIO test pass, parser/decoder state/error bins tăng | `test_mmio_regfile_basic.c` + `rx_parser_decoder_cov.v` | PASS | Coverage hook, không thay đổi software contract |
-| RX-08 | RX decoder fallback/error direct coverage | `rx_decoder_direct_cov` | Sau base MMIO pass, TB bat `+RX_DECODER_DIRECT_COV` và force trực tiếp các wire parser->decoder. Test tạo long-code len=12 để ep main-table long entry và fallback decode, reuse table với `symbol_count=0`, sau đó ep duplicate entry, missing/early `entry_last`, raw/one-symbol/compressed metadata lỗi. | Base MMIO test pass, decoder fallback/error bins tăng | `test_mmio_regfile_basic.c` + `rx_decoder_direct_cov.v` | PASS | Coverage hook riêng cho `huffman_block_decoder` |
-| RX-10 | RX depacker/packer direct coverage | `rx_depacker_packer_direct_cov` | Sau base MMIO pass, TB bat `+RX_DEPACKER_PACKER_DIRECT_COV` để drive malformed transport, invalid valid-bytes, final partial word, FIFO full/empty, byte-packer backpressure và error branches. | Base MMIO pass, depacker/packer bins tăng | `test_mmio_regfile_basic.c` + `rx_depacker_packer_direct_cov.v` | PASS | White-box coverage hook cho RX data formatting |
-| RX-11 | RX parser/decoder error direct coverage | `rx_parser_decoder_error_direct_cov` | Sau base MMIO pass, TB bat `+RX_PARSE_DECODE_ERROR_DIRECT_COV` để tạo invalid header, invalid code length, missing/early entry_last, zero-length và append-dummy paths. | Base MMIO pass, parser/decoder defensive error bins tăng | `test_mmio_regfile_basic.c` + `rx_parser_decoder_error_direct_cov.v` | PASS | Bo sung malformed paths không nên tạo bằng normal DMA |
+| RX-01 | RX decrypt + Huffman decode normal | `dma_compress_aes_input1` | Full two-phase loopback: CPU starts TX `COMPRESS_AES` whole-file to write ciphertext into the TX region, then CPU configures RX `DMA_MODE=0x2`, `SRC=TX_REGION`, `DST=RX_REGION`, `LEN=tx_bytes_done`. RX DMA reads 128-bit ciphertext, feeds AES inverse CBC, depacks transport, parses Huffman header/codebook, decodes plaintext and writes DMEM RX region. | RX done, `rx_bytes_done == input_len`, RX output match source | `test_mmio_dma.c` + `dma_compress_aes_input1.v` | PASS | Cover RX normal path with long input |
+| RX-02 | RX decrypt + Huffman decode small/repeated | `dma_compress_aes_input3` | Same as RX-01 but with short and highly repetitive `input3.txt`. This case causes the RX parser/decoder to encounter small frames, low symbol count, short payload, faster final-frame, but still go through AES-CBC decrypt and DMEM writeback as the main path. | RX done, output matches source, parser/decoder produces small frame | `test_mmio_dma.c` + `dma_compress_aes_input3.v` | PASS | Cover small-frame behavior |
+| RX-06 | RX one-symbol loopback | `dma_compress_aes_one_symbol_cov` | TX creates ciphertext from input one-symbol, then RX decrypt/decode again. The RX must read the unique header/codebook of a symbol distribution, generate repeated plaintext, and bytes_done must be equal to the input length after writing to DMEM. | RX output match source | `test_mmio_dma.c` + `dma_compress_aes_one_symbol_cov.v` | PASS | Cover one-symbol/short-frame behavior |
+| RX-09 | RX alnum63 loopback | `dma_compress_aes_alnum63_cov` | TX creates ciphertext from `input_cov_alnum63.txt` gathering 63 valid symbols, then RX decrypts/decodes again. In this case, the RX parser/decoder detects a larger codebook than normal inputs and confirms that the AES-CBC + Huffman loopback path is still used. | RX done, `rx_bytes_done == 504`, RX output match source, parser/decoder report `symbol_count=63` | `test_mmio_dma.c` + `dma_compress_aes_alnum63_cov.v` | PASS | Functional coverage case for alnum63 E2E; saving can be due to header/codebook overhead |
+| RX-03 | RX malformed length | `mmio_rx_bad_length` | CPU start RX with `DMA_LEN` does not divide all by 16 bytes, while RX AES input requires 128-bit ciphertext block. Test to confirm that the error is in the RX DMA/config layer, not feeding incorrect data into AES inverse/parser. | RX expected error, plaintext not registered | `test_mmio_rx_bad_length.c` + `mmio_rx_bad_length.v` | PASS | Current error path of RX DMA |
+| RX-04 | RX stream backpressure | `rx_backpressure_cov` | Run loopback `input1.txt`; In RX phase TB creates backpressure on the RX ciphertext/transport path by keeping ready low when valid is high and inserting APB read wait-state. Then the checker still compares the RX DMEM with the source to prove that the handshake does not drop/duplicate words. | RX does not lose data, loopback still matches input | `test_mmio_dma.c` + `rx_backpressure_cov.v` | PASS | Backpressure has a ban, but hasn't covered full FIFO yet |
+| RX-05 | RX APB IF direct coverage | `rx_if_direct_cov` | After base MMIO pass, TB launches direct hook into `apb_huffman_rx_if`: reads data when FIFO is empty, writes invalid address/control, force ciphertext pending, force FIFO full, creates simultaneous push/pop, invalid `valid_bytes`, invalid metadata and parser error. Goal is a defensive hit branch that normal software cannot create. | Base MMIO test pass, `apb_huffman_rx_if` hit empty/full/error/wait branches | `test_mmio_regfile_basic.c` + `rx_if_direct_cov.v` | PASS | Coverage hook focuses on `apb_huffman_rx_if`, not the new software contract |
+| RX-07 | RX parser/decoder direct coverage | `rx_parser_decoder_cov` | After the base MMIO pass, TB enters `+RX_PARSE_DECODE_COV` to drive the transport stream directly into the RX parser/decoder: raw-full 32-byte multi-chunk frame, raw partial frame, one-symbol frame, compressed 1-symbol frame, compressed 2-symbol multi-entry frame, malformed header/payload/code and zero-length chunk. Test does not depend on CPU software; The goal is to cover the state/error bins of the parser and decoder. | Base MMIO test pass, parser/decoder state/error bins increased | `test_mmio_regfile_basic.c` + `rx_parser_decoder_cov.v` | PASS | Coverage hook, does not change the software contract |
+| RX-08 | RX decoder fallback/error direct coverage | `rx_decoder_direct_cov` | After the base MMIO pass, TB enters `+RX_DECODER_DIRECT_COV` and forces the wire parser->decoder directly. Test creates long-code len=12 to ep main-table long entry and fallback decode, reuse table with `symbol_count=0`, then ep duplicate entry, missing/early `entry_last`, raw/one-symbol/compressed metadata error. | Base MMIO test pass, decoder fallback/error bins increased | `test_mmio_regfile_basic.c` + `rx_decoder_direct_cov.v` | PASS | Coverage hook specifically for `huffman_block_decoder` |
+| RX-10 | RX depacker/packer direct coverage | `rx_depacker_packer_direct_cov` | After base MMIO pass, TB enters `+RX_DEPACKER_PACKER_DIRECT_COV` to drive malformed transport, invalid valid-bytes, final partial word, FIFO full/empty, byte-packer backpressure and error branches. | Base MMIO pass, depacker/packer bins increased | `test_mmio_regfile_basic.c` + `rx_depacker_packer_direct_cov.v` | PASS | White-box coverage hook for RX data formatting |
+| RX-11 | RX parser/decoder error direct coverage | `rx_parser_decoder_error_direct_cov` | After base MMIO pass, TB enters `+RX_PARSE_DECODE_ERROR_DIRECT_COV` to create invalid header, invalid code length, missing/early entry_last, zero-length and append-dummy paths. | Base MMIO pass, parser/decoder defensive error bins increased | `test_mmio_regfile_basic.c` + `rx_parser_decoder_error_direct_cov.v` | PASS | Additional malformed paths should not be created using normal DMA |
 
 ### 4.5 SoC End-To-End
 
-| ID | Chức năng | Testname | Description | Expectation | Testcase | Trạng thái | Comment |
+| ID | Function | Testname | Description | Expectation | Testcase | Status | Comment |
 |---|---|---|---|---|---|---|---|
-| SOC-01 | Full TX->RX secure storage | `dma_compress_aes_input1` | TB load `input1.txt` vao DMEM source, CPU tạo IV, cấu hình TX whole-file `COMPRESS_AES`, polling done, lưu `tx_bytes_done`, sau đó cấu hình RX đọc ciphertext vừa ghi và decode ve RX region. TB dump 3 vung DMEM source/TX/RX, tính throughput/saving, compare source với RX output từng byte. | Source DMEM match input file, RX DMEM match source, TX region không all-zero, 2 DMA starts | `test_mmio_dma.c` + `dma_compress_aes_input1.v` | PASS | Main system regression |
-| SOC-02 | Full TX->RX small input | `dma_compress_aes_input3` | Giong SOC-01 nhưng input ngắn và có nhieu ký tự lặp lại. Case này dung để kiểm trả end-to-end khi Huffman whole-file tạo codebook nhỏ, ciphertext it block hơn, RX parser kết thúc frame som hơn, và benchmark vẫn tính dung saving/throughput. | Loopback pass, saving đường, small-frame path pass | `test_mmio_dma.c` + `dma_compress_aes_input3.v` | PASS | Bo sung variation cho Huffman dynamic whole-file |
-| SOC-03 | Full TX->RX alnum63 stress | `dma_compress_aes_alnum63_cov` | Giong SOC-01 nhưng input là `input_cov_alnum63.txt`, gom 63 symbol hợp lệ trong alphabet 256. Mục tiêu là stress path full TX/RX với codebook lớn hơn và data entropy cao hơn, không phải để toi uu saving. | Loopback pass, RX output match source, TX ciphertext non-zero, 2 DMA starts | `test_mmio_dma.c` + `dma_compress_aes_alnum63_cov.v` | PASS | Functional stress case; payload/storage saving am là expected với input gần uniform |
-| SOC-04 | Software-managed storage table | `dma_storage_table_input1_then_input3` | TB load `input1.txt` vao source1 và `input3.txt` vao source2. CPU TX input1, ghi metadata record 0, TX input3, ghi metadata record 1, sau đó select `file_id=1` và RX lại input1 tu metadata. | `storage_selected_file_id=1`, `storage_total_records=2`, `storage_dma_start_pulse_count=3`, RX output match input1 | `test_mmio_dma_storage_table.c` + `dma_storage_table_input1_then_input3.v` | PASS | Demo storage-management software; da nằm trong clean baseline 34/34 |
-| SOC-05 | Raw DUT stress closure | `raw_dut_stress_cov` | Sau base MMIO pass, TB bat nhieu coverage hook cung lúc: sideband, TX/RX direct hooks, CPU forwarding, DMA bridge và raw DUT stress sweep. Hook này ep các FSM reset transition, debug reduction OR terms, memory-array toggle và defensive state/toggle bins kho tạo bằng software thuong. | Base MMIO pass, raw DUT `bcesft` tăng len trên 90%, không thay đổi functional contract | `test_mmio_regfile_basic.c` + `raw_dut_stress_cov.v` | PASS | Testbench-only coverage closure hook; không dùng làm demo chức năng |
+| SOC-01 | Full TX->RX secure storage | `dma_compress_aes_input1` | TB loads `input1.txt` into DMEM source, CPU creates IV, configures TX whole-file `COMPRESS_AES`, polling done, saves `tx_bytes_done`, then configures RX to read ciphertext just written and decode to the RX region. TB dump 3 areas of DMEM source/TX/RX, calculate throughput/saving, compare source with RX output byte by byte. | Source DMEM match input file, RX DMEM match source, TX region not all-zero, 2 DMA starts | `test_mmio_dma.c` + `dma_compress_aes_input1.v` | PASS | Main system regression |
+| SOC-02 | Full TX->RX small input | `dma_compress_aes_input3` | Similar to SOC-01 but the input is short and has many repeated characters. This case is used to test end-to-end when Huffman whole-file creates a small codebook, the ciphertext is less blocky, the RX parser finishes the frame more quickly, and the benchmark still calculates saving/throughput. | Loopback pass, saving path, small-frame path pass | `test_mmio_dma.c` + `dma_compress_aes_input3.v` | PASS | Added variation for Huffman dynamic whole-file |
+| SOC-03 | Full TX->RX alnum63 stress | `dma_compress_aes_alnum63_cov` | Similar to SOC-01 but the input is `input_cov_alnum63.txt`, collecting 63 valid symbols in alphabet 256. The goal is a full TX/RX stress path with a larger codebook and higher data entropy, not for me to save. | Loopback pass, RX output match source, TX ciphertext non-zero, 2 DMA starts | `test_mmio_dma.c` + `dma_compress_aes_alnum63_cov.v` | PASS | Functional stress case; payload/storage saving am is expected with input near uniform |
+| SOC-04 | Software-managed storage table | `dma_storage_table_input1_then_input3` | TB loads `input1.txt` into source1 and `input3.txt` into source2. CPU TX input1, write metadata register 0, TX input3, write metadata register 1, then select `file_id=1` and RX input1 again from metadata. | `storage_selected_file_id=1`, `storage_total_registers=2`, `storage_dma_start_pulse_count=3`, RX output match input1 | `test_mmio_dma_storage_table.c` + `dma_storage_table_input1_then_input3.v` | PASS | Demo storage-management software; case is in clean baseline 34/34 |
+| SOC-05 | Raw DUT stress closure | `raw_dut_stress_cov` | After the base MMIO pass, the TB starts many coverage hooks including: sideband, TX/RX direct hooks, CPU forwarding, DMA bridge and raw DUT stress sweep. This hook uses FSM reset transition, debug reduction OR terms, memory-array toggle and defensive state/toggle bins created with regular software. | Base MMIO pass, raw DUT `bcesft` increased length over 90%, no change in functional contract | `test_mmio_regfile_basic.c` + `raw_dut_stress_cov.v` | PASS | Testbench-only coverage closure hook; Do not use as a functional demo |
 
 Disabled candidates in `pat.list`:
 
@@ -192,9 +192,9 @@ Disabled candidates in `pat.list`:
 | `dma_compress_aes_input2_debug` | Current TX reports error on `input2.txt`; keep as debug target before adding back to clean regression |
 | `dma_compress_aes_input4_cov_debug` | Current TX reports error `0x05` on log-like `input4_cov.txt`; TX-only still passes |
 
-## 5. Baseline hiện tại Result
+## 5. Current Baseline Result
 
-Baseline mới nhất da chạy ngay 2026-05-10 bằng:
+Latest Baseline will run immediately 2026-05-10 with:
 
 ```sh
 cd sim
@@ -203,7 +203,7 @@ cd sim
 make drc
 ```
 
-Kết quả pass/fail và coverage mới nhất:
+Latest pass/fail and coverage results:
 
 | Metric | Value |
 |---|---:|
@@ -275,7 +275,7 @@ Compression result captured from logs:
 
 Mode coverage status:
 
-| Mode | Ý nghĩa | Covered by |
+| Mode | Meaning | Covered by |
 |---|---|---|
 | `0x1` | TX `COMPRESS_AES`, per-block Huffman | `tx_compress_aes_block_input3`, `mmio_mode_matrix` |
 | `0x5` | TX `COMPRESS_ONLY`, per-block Huffman | `tx_compress_only_block_input3`, `mmio_mode_matrix` |
@@ -286,32 +286,32 @@ Mode coverage status:
 | `0x3` | Invalid combined TX/RX direction | `mmio_mode_matrix` |
 | reserved bits | Illegal mode write path | `mmio_mode_matrix`, `mmio_regfile_negative` |
 
-Module target sau baseline này:
+Module target after this baseline:
 
 | Module / Instance | Branch | Condition | Expression | Statement | Comment |
 |---|---:|---:|---:|---:|---|
-| `u_cpu/u_mem_stage` | 91.22% | 92.85% | 100.00% | 96.40% | Da thêm `cpu_mem_forward_cov` |
-| `u_cpu/u_forwarding` | 100.00% | 100.00% | 100.00% | 100.00% | Da thêm `cpu_forward_direct_cov` |
-| `u_rx_top/u_huffman_block_parser` | 94.11% | 76.59% | 88.88% | 98.54% | Da thêm raw-full/multi-entry/malformed direct frame; bottleneck còn lại là condition/toggle |
-| `u_rx_top/u_huffman_block_decoder` | 97.64% | 85.41% | 78.94% | 99.44% | Da tăng bằng decoder fallback/error direct coverage; bottleneck còn lại là expression/toggle |
+| `u_cpu/u_mem_stage` | 91.22% | 92.85% | 100.00% | 96.40% | Skin added `cpu_mem_forward_cov` |
+| `u_cpu/u_forwarding` | 100.00% | 100.00% | 100.00% | 100.00% | Skin added `cpu_forward_direct_cov` |
+| `u_rx_top/u_huffman_block_parser` | 94.11% | 76.59% | 88.88% | 98.54% | Skin adds raw-full/multi-entry/malformed direct frame; The remaining bottleneck is condition/toggle |
+| `u_rx_top/u_huffman_block_decoder` | 97.64% | 85.41% | 78.94% | 99.44% | Skin increased by decoder fallback/error direct coverage; The remaining bottleneck is expression/toggle |
 
-Baseline này là regression sach để tiếp tục coverage closure. Nếu chạy report
-trực tiếp trên `/test_bench/dut -recursive`, raw total DUT coverage hiện tại
-là 93.52% khi tính ca toggle và 94.44% khi bo toggle. Statement riêng là
-96.33%, branch riêng là 94.22%, branch+statement là 95.27%, nhưng các so này
-không phải raw full DUT coverage. Closed coverage là 95.90% trong
-`sim/coverage/dut_closed_report.txt`, được tạo tu `sim/IP_closed.ucdb` sau khi
-ap dung `sim/coverage_close.do`.
+This baseline is a regression book to continue coverage closure. If you run report
+live on `/test_bench/dut -recursive`, current raw total DUT coverage
+is 93.52% when calculating toggle and 94.44% when excluding toggle. Private statement is
+96.33%, separate branch is 94.22%, branch+statement is 95.27%, but these comparisons
+Not raw full DUT coverage. Closed coverage is 95.90% in
+`sim/coverage/dut_closed_report.txt`, created from `sim/IP_closed.ucdb` after
+Apply `sim/coverage_close.do`.
 
 Closed report exclude toggle coverage, condition/expression/FSM-transition bins
-và một so defensive/rare branch/statement scope của Huffman/RX parser/decoder.
-Đây là coverage-closure report, không phải raw DUT total coverage 93.52%.
+and a number defensive/rare branch/statement scope of Huffman/RX parser/decoder.
+This is coverage-closure report, not raw DUT total coverage 93.52%.
 
-Phan còn thiếu trong raw report hien tập trung vao toggle và một so
-condition/expression của Huffman parser/decoder, AES wrapper và bus rộng của
-TX/RX. FSM state/transition trên raw DUT da dat 100% sau `raw_dut_stress_cov`.
-CPU `mem_stage`, `forwarding`, MMIO bridge, DMA regfile và phan lớn
-branch/statement của TX/RX da dat muc closure tot.
+The missing part in the raw report now focuses on toggle and number
+condition/expression of Huffman parser/decoder, AES wrapper and wide bus of
+TX/RX. FSM state/transition on raw DUT is 100% after `raw_dut_stress_cov`.
+CPU `mem_stage`, `forwarding`, MMIO bridge, DMA regfile and large partition
+branch/statement of TX/RX provides good closure.
 
 ## 6. Coverage Closure Targets
 
@@ -334,44 +334,44 @@ branch/statement của TX/RX da dat muc closure tot.
 
 | Missing test class | Why needed |
 |---|---|
-| Extra DMA invalid config edges | `mmio_regfile_negative`, `mmio_rx_bad_length`, `dma_bridge_direct_cov` da cover phan lớn; chỉ còn zero-length/start edge dac biet nếu muon raw closure sau hơn |
-| CPU bridge-level APB wait-state | TX/RX private APB wait-state da cover; nếu thêm APB slave mới thì cần test wait-state trực tiếp trên `cpu_mmio_to_apb_bridge` |
-| RX malformed transport/extreme parser cases | Parser/depacker/decoder error da cover nhieu bằng direct hooks; còn lại chủ yếu là condition/expression cực đoan |
-| TX/RX wide-bus toggle | Raw bcesft còn bị keo xuong bởi các bus AES/Huffman/DMA rộng và memory-array toggle |
-| UART loader FPGA wrapper simulation | Chưa phải main SoC coverage denominator; cần test riêng nếu dua UART wrapper vao coverage target FPGA |
+| Extra DMA invalid config edges | `mmio_regfile_negative`, `mmio_rx_bad_length`, `dma_bridge_direct_cov` large size cover; Only zero-length/start edge is required if raw closure is desired later |
+| CPU bridge-level APB wait-state | TX/RX private APB wait-state coverage; If you add a new APB slave, you need to test the wait-state directly on `cpu_mmio_to_apb_bridge` |
+| RX malformed transport/extreme parser cases | Parser/depacker/decoder errors are covered a lot with direct hooks; The rest are mainly extreme conditions/expressions |
+| TX/RX wide-bus toggle | Raw bcesft is also hampered by wide AES/Huffman/DMA buses and memory-array toggle |
+| UART loader FPGA wrapper simulation | Not yet main SoC coverage denominator; Need to test separately if using UART wrapper to target FPGA coverage |
 
 ## 7. Definition Of 100% Coverage
 
-`100% coverage` phải được hieu là **coverage closure có ky luat**, không phải
-ep raw RTL report dat 100% bằng cách bo qua lỗi.
+`100% coverage` should be understood as **legal coverage closure**, it is not
+ep raw RTL report data 100% by ignoring errors.
 
-Điều kiện chấp nhận:
+Conditions of acceptance:
 
-1. tat ca testcase trong `sim/pat.list` pass
-2. `vcover merge` sinh được `IP.ucdb`
-3. `coverage/summary_report.txt` và `coverage/detail_report.txt` được review
-4. mới uncovered bin phải có một trong hai kết quả:
-   - thêm testcase để cover
-   - ghi ro là unreachable/deprecated/FPGA-only/debug-only và exclude có lý do
+1. All test cases in `sim/pat.list` pass
+2. `vcover merge` generates `IP.ucdb`
+3. `coverage/summary_report.txt` and `coverage/detail_report.txt` are reviewed
+4. New uncovered bin must have one of two results:
+   - add testcases to cover
+   - Mark as unreachable/deprecated/FPGA-only/debug-only and exclude for a reason
 
-Nếu `rtl.f` vẫn include module debug/deprecated/unused, raw coverage rất kho dat
-100%. Khi closure thật sự, cần tách coverage target thanh:
+If `rtl.f` still includes the debug/deprecated/unused module, raw coverage is very poor.
+100%. When actually closing, it is necessary to separate the target coverage into:
 
-- `coverage_soc_main`: chỉ include active SoC RTL
-- `coverage_tx_unit`: chỉ include active TX module tree
-- `coverage_rx_unit`: chỉ include active RX module tree
-- `coverage_fpga_wrapper`: UART/FPGA wrapper riêng
+- `coverage_soc_main`: only includes active SoC RTL
+- `coverage_tx_unit`: only includes active TX module tree
+- `coverage_rx_unit`: only includes active RX module tree
+- `coverage_fpga_wrapper`: separate UART/FPGA wrapper
 
 ## 8. Current Makefile Flow
 
 Current coverage targets:
 
-| Target | Chức năng |
+| Target | Function |
 |---|---|
-| `make build_cov` | Compile RTL/TB với `+cover=bcesft` |
-| `make run_cov` | Run one testcase với `-coverage`, save `<TESTNAME>.ucdb` |
-| `make gen_cov` | Merge `ucdb/*.ucdb` và tạo text reports |
-| `make gen_html` | Tạo HTML report tu merged `IP.ucdb` |
+| `make build_cov` | Compile RTL/TB with `+cover=bcesft` |
+| `make run_cov` | Run one testcase with `-coverage`, save `<TESTNAME>.ucdb` |
+| `make gen_cov` | Merge `ucdb/*.ucdb` and create text reports |
+| `make gen_html` | Create HTML report from merged `IP.ucdb` |
 | `./run.csh` | Run all patterns in `pat.list` without coverage |
 | `./run.csh cov` | Run all patterns in `pat.list` with coverage, then `gen_cov` |
 | `./report.csh` | Summarize pass/fail from `log/<pat>.log` |
@@ -392,9 +392,9 @@ flowchart TD
 
 ## 10. Important Notes
 
-- `sim/pat.list` là source of truth cho regression coverage hiện tại.
-- Mới testcase phải có `TESTNAME` riêng để không ghi để `.ucdb`.
-- Khi đổi input text hoặc C program cho một testcase, sua mapping trong
+- `sim/pat.list` is the source of truth for current regression coverage.
+- New testcases must have a separate `TESTNAME` number they cannot be written to `.ucdb`.
+- When changing input text or C program for a test case, edit the internal mapping
   `sim/run.csh`.
-- Testbench phải in `[PASS]`/`[FAIL]` rõ ràng; coverage cao nhưng testcase fail
-  không được tính là closure.
+- Testbench should print `[PASS]`/`[FAIL]` clearly; High coverage but test case fails
+does not count as closure.

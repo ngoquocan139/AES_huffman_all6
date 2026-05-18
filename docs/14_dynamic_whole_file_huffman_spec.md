@@ -1,20 +1,19 @@
 # 14. Dynamic Whole-File Huffman Spec
 
-## 1. Mục tiêu
+## 1. Goal
 
-Mục tiêu của hướng này là giữ input file gốc trong DMEM, không preprocess bằng
-host/Python, nhưng vẫn tránh overhead lớn của dynamic Huffman theo từng block
-32 byte.
+The goal of this approach is to keep the original input file in DMEM, without host/Python preprocessing, while avoiding the huge overhead of block-by-block dynamic Huffman
+for every 32-byte block.
 
-Ý tưởng chính:
+Main idea:
 
-1. TX quét toàn bộ file để đếm frequency.
-2. TX build một Huffman table cho toàn file.
-3. TX encode payload theo từng block 32 byte để giữ pipeline/AES/RX hiện tại.
-4. Huffman table chỉ được gửi một lần trong block compressed đầu tiên.
-5. Các compressed block sau dùng lại table do.
+1. TX scans the entire file to count frequencies.
+2. TX builds a Huffman table for the entire file.
+3. TX encodes the payload in 32-byte blocks to keep the current pipeline/AES/RX.
+4. The Huffman table is sent only once in the first compressed block.
+5. Subsequent compressed blocks reuse that table.
 
-Đây là dynamic Huffman theo toàn file, không phải static codebook.
+This is dynamic Huffman across the entire file, not static codebook.
 
 ## 1.1 Whole-File Flow Chart
 
@@ -37,9 +36,9 @@ flowchart TD
   M -->|"no"| N["Flush frame"]
 ```
 
-## 2. Lý do cần đổi format
+## 2. Reasons to change format
 
-Format cũ:
+Old format:
 
 ```text
 MODE_COMPRESSED:
@@ -50,11 +49,10 @@ MODE_COMPRESSED:
   payload bits
 ```
 
-Với block 32 byte, mỗi block đều trả `14 + 13*K` bit header/table. Nếu file có
-nhieu block, overhead table bị lặp lại qua nhieu lần và làm storage saving giảm.
+With 32-byte blocks, each block pays the `14 + 13*K` header/table bits. For multi-block files, repeated table overhead reduces storage savings.
 
-Format mới giữ nguyên 2-bit mode cũ để RX không phải có một frame parser hoàn
-toàn mới.
+The new format keeps the old 2-bit mode so RX does not need a completely new frame parser.
+
 
 ## 3. Table-Reuse Extension
 
@@ -68,13 +66,12 @@ entries      = symbol_count * {symbol[7:0], code_len[4:0]}
 payload      = Huffman coded bytes
 ```
 
-Ý nghĩa:
+Meaning:
 
-- Block này cập nhật Huffman table.
-- RX parse entries, build canonical decode table, rồi decode payload.
-- Đây là hành vi cũ và vẫn được hỗ trợ.
-- `symbol_count` là trường 9-bit trong transport hiện tại; giá trị `256`
-  được dùng khi file có đủ 256 byte-symbol khác nhau.
+- This block updates the Huffman table.
+- RX parses entries, builds the canonical decode table, then decodes the payload.
+- This is the old behavior and remains supported.
+- `symbol_count` is a 9-bit field in the current transport; value `256` is used when the file has 256 different byte-symbols.
 
 ### 3.2 Table-reuse compressed block
 
@@ -86,22 +83,22 @@ entries      = none
 payload      = Huffman coded bytes using previous compressed table
 ```
 
-Ý nghĩa:
+Meaning:
 
-- `symbol_count=0` không còn là lỗi format.
-- RX không đọc entry nào.
-- RX dùng lại canonical decode table gần nhất trong cùng stream/frame.
-- Nếu chưa có table hợp lệ ma gặp `symbol_count=0`, RX phải báo error.
+- `symbol_count=0` is no longer a format error.
+- RX does not read any entries.
+- RX reuses the most recent canonical decode table in the same stream/frame.
+- If RX has no valid table and encounters `symbol_count=0`, RX must report an error.
 
-Đây là primitive cần có để TX có thể gửi table một lần cho toàn file.
+This is the primitive needed so TX can send the table once for the entire file.
 
 ## 4. TX Whole-File Flow Implemented
 
-### 4.1 Pass 1: count frequency
+### 4.1 Pass 1: count frequencies
 
-DMA TX đọc source DMEM tu `SRC_ADDR` đến `SRC_ADDR + LEN_BYTES - 1`.
+DMA TX reads source DMEM from `SRC_ADDR` to `SRC_ADDR + LEN_BYTES - 1`.
 
-TX chỉ đếm frequency, không emit output:
+TX only counts frequency, does not emit output:
 
 ```text
 for i in 0..LEN_BYTES-1:
@@ -112,7 +109,7 @@ for i in 0..LEN_BYTES-1:
 
 ### 4.2 Build global table
 
-Sau pass 1:
+After pass 1:
 
 ```text
 symbol_list = all symbols with freq > 0
@@ -122,9 +119,9 @@ code_table  = canonical Huffman code table
 
 ### 4.3 Pass 2: emit encoded blocks
 
-DMA TX đọc source DMEM lần thu hai.
+DMA TX reads the DMEM source for the second time.
 
-Block đầu tiên:
+First block:
 
 ```text
 mode         = COMPRESSED
@@ -134,7 +131,7 @@ entries      = global table entries
 payload      = encoded first block
 ```
 
-Các block tiếp theo:
+Next blocks:
 
 ```text
 mode         = COMPRESSED
@@ -144,69 +141,69 @@ entries      = none
 payload      = encoded block using global table
 ```
 
-Trong implementation hiện tại, khi software bat `MODE[3]=whole_file`, TX chạy
-COMPRESSED cho ca frame:
+In the current implementation, when the software starts `MODE[3]=whole_file`, TX runs
+COMPRESSED for frame:
 
-- pass 1 chỉ count, không emit output
-- global table được build một lần
-- pass 2 emit block đầu có full table
-- các block sau emit `symbol_count=0` để reuse table
+- pass 1 only counts, does not emit output
+- The global table is built once
+- Pass 2 emit the first block with a full table
+- The following blocks emit `symbol_count=0` to reuse the table
 
-Fallback raw theo từng block không được dùng trong mode whole-file, để RX
-contract don gian và để benchmark compression ratio rõ ràng.
+Fallback raw block by block is not used in whole-file mode, for RX
+contract time and to benchmark compression ratio clearly.
 
 ## 5. RX Behavior
 
-RX parser/decoder cần hỗ trợ 2 trường hop:
+RX parser/decoder needs to support 2 cases:
 
 1. `symbol_count > 0`: load/rebuild table.
-2. `symbol_count == 0`: reuse table cũ.
+2. `symbol_count == 0`: reuse old table.
 
-Quy tac error:
+Error rules:
 
 - `block_size == 0`: error.
 - `block_size > 32`: error.
-- `symbol_count > 256`: error theo cấu hình hiện tại.
-- `symbol_count == 0` nhưng chưa có table hợp lệ: error.
+- `symbol_count > 256`: error according to current configuration.
+- `symbol_count == 0` but there is no valid table: error.
 
-Table hợp lệ bị clear khi frame kết thúc hoặc khi reset/error.
+The valid table is cleared when the frame ends or on reset/error.
 
-## 6. RTL Trạng thái
+## 6. RTL Status
 
-Đã làm:
+Did:
 
-- `huffman_block_parser` chấp nhận `MODE_COMPRESSED` với `symbol_count=0`.
-- Parser chuyển thẳng sang payload nếu compressed block không có entries.
-- `huffman_block_decoder` thêm `table_valid_r`.
-- Decoder giữ lại main table/fallback table khi gặp reuse block.
-- Decoder báo error nếu reuse block xuất hien trước khi có table hợp lệ.
-- `huffman_aes_tx_top` thêm global frequency counter và global Huffman builder.
-- `dynamic_huffman_encoder` có external codebook interface cho whole-file.
-- `apb_huffman_tx_if` có policy/control/status cho count/build/emit.
-- `dma_tx_engine` có two-pass flow: count pass, build table, emit pass.
-- `dma_regfile.MODE[3]` chọn whole-file dynamic.
-- `huffman_block_decoder` thêm `ST_COMP_LOOKUP_WAIT` để đảm bảo BRAM lookup
-  dung latency sau khi parser consume bit window.
-- `huffman_symbol_map.vh` expose full byte alphabet `0x00..0xFF`, index bằng
+- `huffman_block_parser` accepts `MODE_COMPRESSED` with `symbol_count=0`.
+- Parser goes straight to payload if compressed block has no entries.
+- `huffman_block_decoder` adds `table_valid_r`.
+- Decoder retains main table/fallback table when encountering reuse block.
+- The decoder reports an error if the reuse block appears before there is a valid table.
+- `huffman_aes_tx_top` adds global frequency counter and global Huffman builder.
+- `dynamic_huffman_encoder` has an external codebook interface for whole-file.
+- `apb_huffman_tx_if` has policy/control/status for count/build/emit.
+- `dma_tx_engine` has two-pass flow: count pass, build table, emit pass.
+- `dma_regfile.MODE[3]` select whole-file dynamic.
+- `huffman_block_decoder` adds `ST_COMP_LOOKUP_WAIT` to ensure BRAM lookup
+consume latency after parser consume bit window.
+- `huffman_symbol_map.vh` exposes full byte alphabet `0x00..0xFF`, indexed with
   byte value.
 - `code_length_builder` clear/build code-length table 256 entry.
-- `canonical_code_generator` quét code-length table theo len/symbol để tạo
-  canonical code cho alphabet 256 mà không cần sort array lớn.
+- `canonical_code_generator` scans code-length table according to len/symbol to create
+canonical code for alphabet 256 without needing a large sort array.
 
-Giới hạn còn lại:
+Remaining limits:
 
-- Global table hỗ trợ tối đa `256` byte-symbol.
-- TX RTL hiện đặt `CODE_WIDTH=13` để giảm LUT/timing cho FPGA demo; các dataset
-  regression hiện tại có max code length nằm trong giới hạn này. Nếu cần chạy
-  phân bố tần suất pathological có code length dài hơn, cần tăng lại
-  `CODE_WIDTH` hoặc thêm fallback long-code.
-- TX whole-file hiện chọn COMPRESSED cho ca frame, chưa có raw fallback theo
-  file nếu kết quả nen xấu.
-- RX bypass AES cho `COMPRESS_ONLY` loopback chưa được dùng trong test chính.
+- Global table supports maximum `256` byte-symbol.
+- TX RTL now sets `CODE_WIDTH=13` to reduce LUT/timing for demo FPGA; datasets
+The current regression has a max code length within this limit. If you need to run
+The pathological frequency distribution has a longer code length, which needs to be increased again
+`CODE_WIDTH` or add fallback long-code.
+- TX whole-file currently selects COMPRESSED for each frame, no raw fallback yet
+file if the result is bad.
+- The AES bypass RX for `COMPRESS_ONLY` loopback has not been used in the main test.
 
-## 7. RISC-V Software Contract
+## 7. RV32I Software Contract
 
-Phần mềm vẫn cấu hình qua DMA regfile:
+The software still configures via DMA regfile:
 
 ```text
 SRC_ADDR    = plaintext source
@@ -217,10 +214,10 @@ BLOCK_CFG   = 32 for payload chunk size
 CONTROL     = START
 ```
 
-Khác biet nằm o implementation của TX: khi policy whole-file dynamic được bat,
-DMA/TX sẽ tự đọc source 2 lần. CPU không cần preprocess và không cần tạo table.
+The difference lies in the implementation of TX: when the whole-file dynamic policy is activated,
+DMA/TX will automatically read the source twice. The CPU does not need to preprocess and does not need to create a table.
 
-Trạng thái expected trong test MMIO whole-file:
+Expected state in MMIO whole-file test:
 
 - `TX STATUS idle = 0x98`
 - `TX STATUS done = 0x9a`
@@ -228,7 +225,7 @@ Trạng thái expected trong test MMIO whole-file:
 
 ## 8. Simulation Result
 
-Regression hiện tại:
+Current regression:
 
 ```text
 make compile C_SRC=test_mmio_dma.c
@@ -236,7 +233,7 @@ make drc
 make all
 ```
 
-Kết quả loopback whole-file AES với `sim/input1.txt`:
+Whole-file AES loopback results with `sim/input1.txt`:
 
 - input length: `2551` byte
 - payload ratio: `37.50%`
@@ -245,7 +242,7 @@ Kết quả loopback whole-file AES với `sim/input1.txt`:
 - final storage saving: `59.86%`
 - RX mismatch: `0`
 
-Kết quả TX-only whole-file `COMPRESS_ONLY` với `sim/input4_cov.txt`:
+TX-only whole-file results `COMPRESS_ONLY` with `sim/input4_cov.txt`:
 
 - input length: `6000` byte
 - payload ratio: `63.40%`
@@ -253,14 +250,14 @@ Kết quả TX-only whole-file `COMPRESS_ONLY` với `sim/input4_cov.txt`:
 - final storage ratio: `67.73%`
 - final storage saving: `32.27%`
 
-Kết quả alnum63 stress với `input_cov_alnum63.txt`:
+Results of alnum63 stress with `input_cov_alnum63.txt`:
 
 - input length: `504` byte
 - payload saving: `-1.86%`
 - final storage saving: `-11.11%`
-- đây là expected với input gần uniform và codebook/header overhead lớn
+- This is expected with near uniform input and large codebook/header overhead
 
-Regression coverage hiện tại:
+Current regression coverage:
 
 - active testcase: `34`
 - pass: `34`
@@ -271,13 +268,13 @@ Regression coverage hiện tại:
 ## 9. Tradeoff
 
 Uu diem:
-- Giảm lặp table overhead.
-- Phụ hop file dài như log/text.
-- Vẫn giữ input gốc trong DMEM.
+- Reduce duplicate table overhead.
+- Additional files are as long as log/text.
+- Still keeps the original input in DMEM.
 
 Nhuoc diem:
-- TX latency tăng vi cần pass 1 trước khi emit.
-- DMEM read bandwidth tăng gần 2 lần.
-- RTL TX phuc tap hơn.
-- RX decode thêm 1 cycle/byte do BRAM lookup wait state.
-- Huffman builder với global frequency tăng LUT/timing so với per-block.
+- TX latency increased because pass 1 is needed before emitting.
+- DMEM read bandwidth increased nearly 2 times.
+- RTL TX is more convenient.
+- RX decodes an additional 1 cycle/byte due to BRAM lookup wait state.
+- Huffman builder with global frequency increases LUT/timing compared to per-block.

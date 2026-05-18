@@ -1,13 +1,13 @@
 # RX Byte Packer 32 Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-`rx_byte_packer_32` gộp byte plaintext tu `huffman_block_decoder` thanh word
-32-bit cho APB output FIFO và `dma_rx_engine`.
+`rx_byte_packer_32` merges plaintext bytes from `huffman_block_decoder` into word
+32-bit for APB output FIFO and `dma_rx_engine`.
 
-Module này bao toàn thứ tự little-endian của `DMEM`.
+This module covers the little-endian ordering of `DMEM`.
 
-Trạng thái kiểm chứng hiện tại:
+Current verification status:
 
 | Case | Coverage/use |
 |---|---|
@@ -47,7 +47,7 @@ huffman_block_decoder
 
 ## 3. Packing Order
 
-Byte đầu tiên vao word o bits thấp:
+First byte into word in the low bits:
 
 ```text
 byte0 -> word[7:0]
@@ -56,12 +56,12 @@ byte2 -> word[23:16]
 byte3 -> word[31:24]
 ```
 
-Word cuối block/frame có thể có it hơn 4 byte hợp lệ. Số byte hợp lệ nằm trong
+The last word of the block/frame can have less than 4 valid bytes. The number of valid bytes contained within
 `word_valid_bytes`.
 
 ## 4. Contract input
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `clk` | in | 1 | `clk` | System clock |
 | `rst_n` | in | 1 | `rst_n` | Active-low reset |
@@ -71,11 +71,11 @@ Word cuối block/frame có thể có it hơn 4 byte hợp lệ. Số byte hợp
 | `in_last_in_frame` | in | 1 | bool | Last byte in current frame |
 | `in_ready` | out | 1 | ready flag | Packer can accept next byte |
 
-`in_last_in_frame` phải di cung `in_last_in_block`.
+`in_last_in_frame` must move to `in_last_in_block`.
 
 ## 5. Contract output
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `word_data` | out | 32 | little-endian word | Packed output word |
 | `word_valid_bytes` | out | 3 | unsigned byte count | Number of valid bytes in `word_data` |
@@ -88,20 +88,20 @@ Word cuối block/frame có thể có it hơn 4 byte hợp lệ. Số byte hợp
 | `frame_done` | out | 1 | pulse | Frame completion pulse |
 | `error_flag` | out | 1 | error flag | Packing error |
 
-`word_valid_bytes` hợp lệ trong range `1..4`.
+`word_valid_bytes` is valid in the range `1..4`.
 
 ## 6. Completion
 
 Module assert:
 
-- `block_done` khi output word last-in-block được downstream accept
-- `frame_done` khi output word last-in-frame được downstream accept
+- `block_done` when output word last-in-block is accepted downstream
+- `frame_done` when output word last-in-frame is accepted downstream
 
 `apb_huffman_aes_rx_top.rx_done` currently follows `word_packer_frame_done`.
 
-## 7. Thanh ghi nội bộ
+## 7. Internal registers
 
-| Reg | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Reg | Width | Data format | Meaning |
 |---|---:|---|---|
 | `accum_data_r` | 32 | little-endian word | Accumulator for incoming bytes |
 | `accum_count_r` | 3 | unsigned byte count | Number of bytes buffered |
@@ -120,15 +120,15 @@ Module assert:
 | `sanitized_last_frame_w` | 1 | bool | Sanitized frame-last flag |
 | `illegal_frame_flag_w` | 1 | error flag | Illegal frame flag |
 
-## 8. Điều kiện lỗi
+## 8. Error conditions
 
-`error_flag` được set khi:
+`error_flag` is set when:
 
 - internal accumulated byte count vuot 3
-- frame-last không đồng thời block-last
-- generated valid byte count bằng zero
+- frame-last does not concurrently block-last
+- generated valid byte count equals zero
 
-## 9. Spec liên quan
+## 9. Related specs
 
 - [RX path end-to-end](./rx_path_end_to_end_spec.md)
 - [APB Huffman RX interface](./apb_huffman_rx_if_spec.md)

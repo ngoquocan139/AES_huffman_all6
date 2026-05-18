@@ -1,16 +1,16 @@
 # GitHub Sync And Self-Hosted Runner Usage Spec
 
-## 1. Mục đích
+## 1. Purpose
 
-Tài liệu này hướng dan cach đồng bộ repo local với GitHub và cach dung GitHub
-Actions để chạy `make` trên 2 mới trường:
+This document explains how to synchronize your local repo with GitHub and how to use GitHub
+Actions to run `make` on 2 new fields:
 
-| Environment | Runs where | Mục đích |
+| Environment | Runs where | Purpose |
 |---|---|---|
-| GitHub-hosted runner | GitHub cloud Ubuntu runner | Check nhe: `make drc` bằng Verilator |
-| Self-hosted runner | May WSL local của user | Full local flow: Questa simulation và Vivado Windows |
+| GitHub-hosted runner | GitHub cloud Ubuntu runner | Check: `make drc` with Verilator |
+| Self-hosted runner | May the user's local WSL | Full local flow: Questa simulation and Vivado Windows |
 
-Repo GitHub hiện tại:
+Current GitHub repo:
 
 ```text
 git@github.com:ngoquocan139/AES_huffman_all6.git
@@ -71,7 +71,7 @@ git pull origin main
 
 ## 3. What Should Be Versioned
 
-Nen push len GitHub:
+Need to push len GitHub:
 
 | Path | Reason |
 |---|---|
@@ -85,7 +85,7 @@ Nen push len GitHub:
 | `vivado/*.tcl`, `vivado/constraints/*.xdc` | FPGA build scripts and constraints |
 | `.github/workflows/*.yml` | GitHub Actions workflows |
 
-Không nên push:
+Should not push:
 
 | Path / file type | Reason |
 |---|---|
@@ -105,7 +105,7 @@ Workflow:
 .github/workflows/ci.yml
 ```
 
-Mục đích:
+Purpose:
 
 - runs on GitHub cloud Ubuntu runner;
 - installs Verilator and Make;
@@ -136,7 +136,7 @@ Workflow:
 .github/workflows/self-hosted-local.yml
 ```
 
-Mục đích:
+Purpose:
 
 - runs on the local WSL machine;
 - can see local Questa installation and license;
@@ -200,7 +200,7 @@ Steps:
 
 Default inputs:
 
-| Input | Default | Ý nghĩa |
+| Input | Default | Meaning |
 |---|---|---|
 | `run_sim` | `true` | Run Questa simulation flow |
 | `run_vivado` | `false` | Skip Vivado unless explicitly requested |
@@ -231,7 +231,7 @@ make drc
 make all
 ```
 
-### 8.2 Multi-record storage testcase
+### 8.2 Multi-register storage testcase
 
 GitHub Actions inputs:
 
@@ -287,7 +287,7 @@ local-sim-<testname>
 
 Contains:
 
-| Path | Ý nghĩa |
+| Path | Meaning |
 |---|---|
 | `sim/sim.log` | Latest simulation log |
 | `sim/log/` | Per-test logs |
@@ -302,7 +302,7 @@ local-vivado-split
 
 Contains:
 
-| Path | Ý nghĩa |
+| Path | Meaning |
 |---|---|
 | `sim/vivado_reports/` | Collected Vivado reports |
 | `sim/vivado_bitstreams/` | Generated `.bit` files |
@@ -317,10 +317,10 @@ Important rules:
 - Do not commit runner credentials files such as `.runner`, `.credentials`,
   `.credentials_rsaparams`.
 - Do not enable this self-hosted workflow on arbitrary pull requests.
-- Treat `workflow_dispatch` as the safe default because the user chooses when
+- Treat `workflow_dispatch` as the safe although because the user chooses when
   local machine resources are used.
 - Registration tokens from GitHub are short-lived; after a runner is configured,
-  do not store or commit the token.
+do not store or commit the token.
 
 ## 11. Troubleshooting
 

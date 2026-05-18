@@ -1,31 +1,30 @@
 # Dynamic Huffman Encoder Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-`dynamic_huffman_encoder` là khoi trung tam của nhanh TX. No nhận byte stream
-đã được chuan hoa tu `huffman_aes_tx_top`, tu minh di qua các pha:
+`dynamic_huffman_encoder` is the central block in the TX path. It receives the normalized byte stream from `huffman_aes_tx_top` and processes it through these phases:
 
 - collect
 - build
 - mode decision
 - emit
 
-Module này không quan tam đến MMIO, DMA hay AES. No chỉ làm việc với block
-byte input, frequency table, codebook và bitstream output.
+This module does not care about MMIO, DMA or AES. It only works with blocks
+byte input, frequency table, codebook and bitstream output.
 
-Trạng thái kiểm chứng hiện tại:
+Current verification status:
 
 | Case | Coverage/use |
 |---|---|
-| `tx_compress_only_input1/input4_cov` | Whole-file dynamic Huffman behavior qua SoC TX-only |
+| `tx_compress_only_input1/input4_cov` | Whole-file dynamic Huffman behavior via SoC TX-only |
 | `tx_compress_only_alnum63_cov` | Alnum63 stress within 256-symbol byte alphabet |
 | `tx_compress_only_ascii_sweep_cov` | Byte-symbol sweep and mode-decision coverage |
 | `tx_encoder_direct_cov` | Direct encoder mode/error/FSM branches |
 | `tx_builder_packer_direct_cov` | Huffman builder and packer interaction branches |
 
-## 2. Vai trò In TX Stack
+## 2. In TX Stack Role
 
-`dynamic_huffman_encoder` nằm giua:
+`dynamic_huffman_encoder` is located between:
 
 ```text
 input adapter
@@ -33,20 +32,20 @@ input adapter
 -> bit_packer_128
 ```
 
-No dung các helper module:
+It uses these helper modules:
 
-| Module | Vai trò |
+| Module | Role |
 |---|---|
-| `control_fsm` | Điều khiển phase và sticky state |
-| `input_collect_unit` | Thu thấp byte và đếm tần suất |
-| `block_buffer` | Lưu block byte hiện tại |
-| `frequency_counter` | Đếm tần suất symbol |
-| `huffman_builder` | Xay symbol list, code length và canonical code |
-| `mode_decision_logic` | Chọn `RAW_FULL`, `RAW_PARTIAL`, `COMPRESSED`, `ONE_SYMBOL` |
-| `emit_backend` | Emit header và payload bitstream |
-| `header_formatter` | Dinh dang header block |
-| `payload_emitter` | Emit raw bytes hoặc Huffman bits |
-| `stream_output_interface` | Xuất bitstream thanh chunk 32-bit |
+| `control_fsm` | Control phase and sticky state |
+| `input_collect_unit` | Low byte capture and frequency counting |
+| `block_buffer` | Saves the current block of bytes |
+| `frequency_counter` | Count symbol frequency |
+| `huffman_builder` | Builds the symbol list, code lengths, and canonical codes |
+| `mode_decision_logic` | Select `RAW_FULL`, `RAW_PARTIAL`, `COMPRESSED`, `ONE_SYMBOL` |
+| `emit_backend` | Emit header and payload bitstream |
+| `header_formatter` | Formats the block header |
+| `payload_emitter` | Emit raw bytes or Huffman bits |
+| `stream_output_interface` | Output bitstream as 32-bit chunks |
 
 ## 3. High-Level Flow
 
@@ -61,26 +60,26 @@ flowchart LR
 
 ## 4. Contract input
 
-Module nhận control và byte stream tu adapter:
+Module receives control and byte stream from adapter:
 
-- `start_block` bắt đầu một block encoder
-- `whole_file_enable`, `whole_file_emit_table`, `whole_file_table_valid` điều khiển whole-file flow
-- `byte_in[7:0]` và `byte_valid` mảng dữ liệu byte
-- `block_start` và `block_end` danh đầu đầu/cuối block
-- `stream_ready` là handshake tu packer/consumer phia sau
+- `start_block` starts an encoder block
+- `whole_file_enable`, `whole_file_emit_table`, `whole_file_table_valid` control whole-file flow
+- `byte_in[7:0]` and `byte_valid` carry input byte data
+- `block_start` and `block_end` mark the beginning/end of the block
+- `stream_ready` is the handshake from the packer/consumer later
 
-Quy uoc:
+Conventions:
 
-- một block là một tap byte lien tiep
-- block size hợp lệ trong flow TX hiện tại là `1..32`
-- `block_start` phải noi với byte đầu tiên
-- `block_end` phải noi với byte cuối cùng
+- A block is a consecutive stream of bytes
+- The valid block size in the current TX flow is `1..32`
+- `block_start` must match the first byte
+- `block_end` must match the last byte
 
-Nếu input không hợp lệ, encoder sẽ phat error sticky và dung transfer.
+If the input protocol is invalid, the encoder raises the sticky error flag and stops the transfer.
 
 ### 4.1 Interface summary
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `clk` | in | 1 | `clk` | System clock |
 | `rst_n` | in | 1 | `rst_n` | Active-low reset |
@@ -117,48 +116,48 @@ Nếu input không hợp lệ, encoder sẽ phat error sticky và dung transfer.
 
 `input_collect_unit`:
 
-- chuan hoa byte
-- dua byte vao `block_buffer`
-- tăng đếm frequency
-- cập nhật `symbol_count`
+- prepare bytes
+- Put bytes into `block_buffer`
+- increase count frequencies
+- update `symbol_count`
 
 ### 5.2 Build
 
 `huffman_builder`:
 
-- lay symbol active tu frequency table
-- tính do dài code
-- tạo canonical code
-- lưu code length table cho emit và cho RX rebuild sau này
+- take symbol active from frequency table
+- calculated due to long code
+- create canonical code
+- Save code length table for emit and for RX rebuild later
 
 ### 5.3 Mode Decision
 
-`mode_decision_logic` chọn một trong 4 mode:
+`mode_decision_logic` select one of 4 modes:
 
-| Mode | Ý nghĩa |
+| Mode | Meaning |
 |---|---|
-| `RAW_FULL` | Emit raw 32 byte đây đủ |
+| `RAW_FULL` | Emit raw 32 bytes is enough |
 | `RAW_PARTIAL` | Emit raw block size that |
 | `COMPRESSED` | Emit Huffman header + payload |
 | `ONE_SYMBOL` | Emit 1 symbol repeated block size |
 
-Lua chọn không chỉ dựa trên bit count ma còn dựa trên storage size sau khi
-dua vao `bit_packer_128`.
+Selects not only based on bit count but also based on storage size after
+Enter `bit_packer_128`.
 
 ### 5.4 Emit
 
-`emit_backend` phat ra:
+`emit_backend` outputs:
 
 - header bits
 - payload bits
 - valid bits count
 - done pulse
 
-`stream_output_interface` chuyen stream bit thanh chunk 32-bit cho `bit_packer_128`.
+`stream_output_interface` converts the 32-bit chunk bitstream to `bit_packer_128`.
 
 ## 6. Contract output
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `stream_data` | out | 32 | little-endian chunk | Output bit chunk |
 | `stream_len` | out | 6 | unsigned bit count | Number of valid bits in `stream_data` |
@@ -171,7 +170,7 @@ dua vao `bit_packer_128`.
 | `selected_mode_out` | out | 2 | mode code | Selected mode for this block |
 | `fsm_state` | out | 4 | state code | Control FSM state debug |
 
-`stream_len` là số bit hợp lệ trong `stream_data`.
+`stream_len` is the number of valid bits in `stream_data`.
 
 ## 7. Mode Encoding
 
@@ -225,25 +224,25 @@ one_symbol_value[7:0]
 
 ## 9. Current Limits
 
-- block size tối đa: `32 byte`
-- so symbol tối đa trong 1 block: phụ thuộc block và normalize rule
-- alphabet active hiện tại: full byte alphabet `0x00..0xFF`
-- `huffman_symbol_map.vh` dang map identity, nen input byte nào cung là symbol hợp lệ
-- whole-file mode có thể emit codebook tối đa 256 symbol; `symbol_count=0` nghĩa là reuse table
-- TX FPGA demo hien dung `CODE_WIDTH=13`; nếu input pathological can code dài hơn thì cần tăng `CODE_WIDTH` hoặc thêm long-code fallback
+- Maximum block size: `32 byte`
+- maximum symbols in a block: depends on block content and normalization rules
+- Current active alphabet: full byte alphabet `0x00..0xFF`
+- `huffman_symbol_map.vh` is an identity mapping, so every input byte can be a valid symbol
+- whole-file mode can emit codebook up to 256 symbols; `symbol_count=0` means reuse table
+- TX FPGA demo uses `CODE_WIDTH=13`; if a pathological input needs longer codes, you need to increase `CODE_WIDTH` or add a long-code fallback
 
 ## 10. Current Design Notes
 
-`dynamic_huffman_encoder` đã được dùng trong:
+`dynamic_huffman_encoder` has been used in:
 
 - `huffman_aes_tx_top`
 - whole-file dynamic Huffman flow
 
-No không tu làm AES. AES nằm o wrapper ben trên.
+It does not perform AES. AES is located on the wrapper above.
 
-## 11. Trạng thái / output phụ trợ nội bộ
+## 11. Internal backend status/output
 
-| Tín hiệu | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Signal | Width | Data format | Meaning |
 |---|---:|---|---|
 | `ctrl_state_w` | 4 | state code | Control FSM state |
 | `ctrl_mode_selected_latched_w` | 2 | mode code | Latched mode from control FSM |
@@ -273,7 +272,7 @@ No không tu làm AES. AES nằm o wrapper ben trên.
 | `compressed_total_bits_w` | 16 | unsigned bit count | Compressed total bits estimate |
 | `one_symbol_total_bits_w` | 16 | unsigned bit count | One-symbol mode total bits estimate |
 
-## 12. Spec liên quan
+## 12. Related specs
 
 - [TX path end-to-end](./tx_path_end_to_end_spec.md)
 - [Whole-file Huffman](./14_dynamic_whole_file_huffman_spec.md)

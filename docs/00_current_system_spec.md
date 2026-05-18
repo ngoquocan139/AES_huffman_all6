@@ -1,6 +1,6 @@
 # 00. Current SoC Complete Specification
 
-## 1. Phạm vi
+## 1. Scope
 
 This document is the source of truth for the current project state.
 
@@ -11,7 +11,7 @@ Design of a RISC-V RV32I System Integrating Huffman Compression and AES-128
 for Secure Data Storage
 ```
 
-Kiến trúc hiện tại:
+Current architecture:
 
 ```text
 RV32I CPU control plane
@@ -29,9 +29,9 @@ Important policy:
 - The SoC does not implement ECG preprocessing in RTL.
 - The SoC stores and restores the already-processed byte stream.
 
-## 2. Baseline hiện tại
+## 2. Current baseline
 
-| Item | Giá trị hiện tại |
+| Item | Current value |
 |---|---|
 | Simulation top | `test_bench` in `tb/tb_rv32_soc_mmio_dma.v` |
 | Main SoC top | `rv32_soc_top` |
@@ -51,7 +51,7 @@ Important policy:
 | RX-only timing | WNS `+0.341 ns`, power `0.193 W` |
 | Paper comparison result | MIT-BIH preprocessed input: `32.76%` final storage ratio |
 
-## 3. Kiến trúc top-level
+## 3. Architecture top-level
 
 ```mermaid
 flowchart LR
@@ -77,16 +77,16 @@ flowchart LR
 
 Design split:
 
-| Plane | Chủ sở hữu | Chức năng |
+| Plane | Owner | Function |
 |---|---|---|
 | Control plane | RV32I CPU | Configure DMA registers, write IV, start TX/RX, poll status |
 | Data plane | DMA + accelerators | Move data between DMEM and Huffman/AES engines |
 | Storage plane | DMEM | Hold source input, TX output, RX restored output, software metadata |
 | FPGA input plane | UART loader | Load runtime input into DMEM before releasing SoC reset |
 
-## 4. Bản đồ module đang dùng
+## 4. Map of the module in use
 
-| Module | Trách nhiệm | Spec chính |
+| Module | Responsibility | Main spec |
 |---|---|---|
 | `rv32_soc_top` | Simulation/integration SoC top | this file |
 | `rv32_soc_fpga_demo_top` | FPGA wrapper with UART loader and LEDs | `fpga_uart_dmem_loader_spec.md` |
@@ -108,11 +108,11 @@ Design split:
 | `rx_byte_packer_32` | Pack decoded bytes into 32-bit DMEM words | `rx_byte_packer_32_spec.md` |
 | `apb_huffman_rx_if` | RX APB status/output readback | `apb_huffman_rx_if_spec.md` |
 
-## 5. Bản đồ bộ nhớ
+## 5. Memory map
 
 Global map:
 
-| Region | Address range | Chủ sở hữu / cách dùng |
+| Region | Address range | Owner / usage |
 |---|---:|---|
 | IMEM | implementation-specific | RV32I instruction fetch |
 | DMEM | `0x0000_0000..0x0000_7FFF` | CPU data, DMA source/destination, testbench/UART preload |
@@ -120,7 +120,7 @@ Global map:
 
 DMEM software layout:
 
-| Address | Name | Ý nghĩa |
+| Address | Name | Meaning |
 |---:|---|---|
 | `0x0000_0040` | `INPUT_LEN_ADDR` | Input length written by testbench/UART loader |
 | `0x0000_0044` | `INPUT2_LEN_ADDR` | Secondary input length for storage-table testcase |
@@ -131,7 +131,7 @@ DMEM software layout:
 | `0x0000_5000` | `TX2_DST_BASE_ADDR` | Secondary TX output |
 | `0x0000_6000` | `RX_DST_BASE_ADDR` | RX restored plaintext/output |
 
-## 6. Bản đồ thanh ghi DMA
+## 6. Register map DMA
 
 Base:
 
@@ -139,7 +139,7 @@ Base:
 DMA_BASE = 0x4000_0000
 ```
 
-| Offset | Thanh ghi | Truy cập | Chức năng |
+| Offset | Register | Access | Function |
 |---:|---|---|---|
 | `0x00` | `CONTROL` | W | start, soft reset, clear sticky flags |
 | `0x04` | `STATUS` | R | busy/done/error/config/mode status |
@@ -158,7 +158,7 @@ DMA_BASE = 0x4000_0000
 
 Contract mode:
 
-| Mode | Ý nghĩa | Cách dùng hiện tại |
+| Mode | Meaning | Current usage |
 |---:|---|---|
 | `0x1` | TX `COMPRESS_AES`, legacy per-block Huffman | coverage/compatibility |
 | `0x5` | TX `COMPRESS_ONLY`, legacy per-block Huffman | coverage/compatibility |
@@ -166,14 +166,14 @@ Contract mode:
 | `0xD` | TX `COMPRESS_ONLY`, whole-file Huffman | TX-only compression benchmark |
 | `0x2` | RX AES-CBC decrypt + Huffman decode | main RX |
 
-Chính sách AES:
+AES Policy:
 
 - `COMPRESS_AES` means Huffman transport is encrypted by AES-128-CBC.
 - `COMPRESS_ONLY` means AES is bypassed and output is compressed transport.
 - RX main flow is for `COMPRESS_AES` ciphertext.
 - CBC mode is fixed in RTL; `MODE` does not select ECB/CBC.
 
-## 7. Luồng TX
+## 7. TX stream
 
 ```mermaid
 flowchart LR
@@ -214,7 +214,7 @@ TX output:
 | `0x9` | AES-CBC ciphertext over Huffman transport |
 | `0xD` | Plain compressed Huffman transport, no AES |
 
-## 8. Luồng RX
+## 8. RX stream
 
 ```mermaid
 flowchart LR
@@ -249,12 +249,12 @@ DMEM[RX_DST_BASE_ADDR .. RX_DST_BASE_ADDR + input_len - 1]
 DMEM[SRC_BASE_ADDR .. SRC_BASE_ADDR + input_len - 1]
 ```
 
-For MIT-BIH preprocessed tests, this means RX restores the processed byte
+For MIT-BIH preprocessed tests, this means RX restores the processed bytes
 stream exactly. It does not reconstruct raw ECG samples inside the SoC.
 
 ## 9. IV And AES-CBC Contract
 
-Current IV source:
+Current IV bridge:
 
 - RV32I software computes demo IV words.
 - CPU writes `IV0..IV3` into `dma_regfile`.
@@ -293,7 +293,7 @@ Bridge behavior:
 - It holds CPU memory-return path until APB read/write completes.
 - It returns APB error status to the CPU-side memory path.
 
-## 11. BRAM And Cổng Ownership
+## 11. BRAM And Port Ownership
 
 | Memory | Main role | Active access |
 |---|---|---|
@@ -305,18 +305,18 @@ DMEM ownership rules:
 - CPU uses DMEM for normal loads/stores.
 - DMA engines use DMEM for TX/RX data movement.
 - Testbench or UART loader preloads input before CPU starts.
-- Do not allow UART loader and DMA to own the same aux port at the same time.
+- Do not allow the UART loader and DMA to own the same aux port at the same time.
 
 ## 12. Software Contract
 
 Main C files:
 
-| C file | Mục đích |
+| C file | Purpose |
 |---|---|
 | `test_mmio_dma.c` | Main TX->RX secure-storage loopback |
 | `test_mmio_tx_only.c` | TX-only compression benchmark |
 | `test_mmio_dma_storage_table.c` | RV32I software metadata table demo |
-| `test_mmio_regfile_basic.c` | Thanh ghi/MMIO sanity |
+| `test_mmio_regfile_basic.c` | Register/MMIO sanity |
 | `test_mmio_regfile_negative.c` | Illegal MMIO and error paths |
 | `test_cpu_instruction_cov.c` | RV32I instruction coverage |
 
@@ -365,7 +365,7 @@ Main 4.5 SoC end-to-end tests:
 | `dma_compress_aes_input1` | `input1.txt` | PASS, RX output matches input |
 | `dma_compress_aes_input3` | `input3.txt` | PASS, RX output matches input |
 | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | PASS functional stress, saving can be negative |
-| `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | PASS, RV32I selects old record and decodes it |
+| `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | PASS, RV32I selects old register and decodes it |
 
 MIT-BIH preprocessed comparison tests:
 
@@ -414,7 +414,7 @@ MIT-BIH record
 
 Current results:
 
-| Record | Raw bytes reference | SoC input bytes | TX bytes | Final ratio vs raw | Saving |
+| Register | Raw bytes reference | SoC input bytes | TX bytes | Final ratio vs raw | Saving |
 |---:|---:|---:|---:|---:|---:|
 | 100 | 7200 | 3601 | 2304 | 32.00% | 68.00% |
 | 106 | 7200 | 3614 | 2608 | 36.22% | 63.78% |
@@ -521,7 +521,7 @@ preprocessing is external to the current RTL; the RTL contribution is the
 verified RV32I + DMA + Huffman + AES-CBC secure-storage architecture.
 ```
 
-## 18. What Is Not In Phạm vi
+## 18. What Is Not In Scope
 
 The current report flow does not claim:
 

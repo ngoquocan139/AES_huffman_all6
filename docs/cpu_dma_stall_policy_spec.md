@@ -1,24 +1,24 @@
 # 04. CPU / DMA Stall Policy Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-Tài liệu này chot ro chính sách stall giua:
+This document outlines the stalling policy:
 
 - `RV32I CPU`
 - `DMA`
 - `cpu_mmio_to_apb_bridge`
 - `DMEM`
-- các accelerator `TX` / `RX`
+- accelerators `TX` / `RX`
 
-Mục tiêu chính:
+Main goals:
 
-- xác định khi nào CPU phải stall;
-- xác định khi nào CPU **không** được stall;
-- tách biet ro `DMA busy` và `MMIO wait`;
-- chot cach xu ly `load-use hazard` khác với `APB wait state`;
-- làm có so cho việc refactor pipeline và code `cpu_mmio_to_apb_bridge`.
+- Determine when the CPU must stall;
+- determines when the CPU **must** not stall;
+- separate risks `DMA busy` and `MMIO wait`;
+- How to separate `load-use hazard` from `APB wait state`;
+- There is a need to refactor the pipeline and code `cpu_mmio_to_apb_bridge`.
 
-Verification status hiện tại:
+Current verification status:
 
 | Case | Coverage/use |
 |---|---|
@@ -28,20 +28,20 @@ Verification status hiện tại:
 | `cpu_instruction_cov` | branch/load/store instruction behavior while SoC is integrated |
 | Full regression | included in `34/34` PASS coverage baseline |
 
-## 2. Nguyên tac tong quat
+## 2. General principles
 
-Hệ thống này sử dụng:
+This system uses:
 
-- `CPU` làm control plane
-- `DMA` làm data mover
-- `TX/RX` làm accelerator
-- `DMEM` làm buffer trung gian
+- `CPU` as the control plane
+- `DMA` as data mover
+- `TX/RX` as accelerator
+- `DMEM` as an intermediate buffer
 
-Từ đó suy ra nguyên tac quan trong nhất:
+From there, deduce the most important principle:
 
-> `DMA busy` **không dong nghia** với `CPU stall`.
+> `DMA busy` **not synonymous** with `CPU stall`.
 
-CPU chỉ nen stall khi chính no dang bị rang buoc bởi một giao dịch mà không the hoàn tất ngay, chu không phải chỉ vi DMA dang chạy.
+The CPU only stalls when it itself is overwhelmed by a transaction that cannot be completed immediately, not just because DMA is running.
 
 ## 2.1 Stall Decision Flow Chart
 
@@ -58,120 +58,120 @@ flowchart TD
   H -->|"no"| J["Normal pipeline advance"]
 ```
 
-## 3. Quy tac stall cap hệ thống
+## 3. System Stall Rules
 
-### 3.1 CPU không stall chỉ vi DMA dang chạy
+### 3.1 The CPU does not stall only because DMA is running
 
-Trong che do bình thường:
+In normal operation:
 
-- DMA đọc/ghi `DMEM` qua port B
-- CPU đọc/ghi `DMEM` qua port A
-- DMA điều khiển `TX/RX`
-- CPU có thể tiếp tục chạy phần mềm, polling hoặc làm việc khác
+- DMA read/write `DMEM` via port B
+- CPU reads/writes `DMEM` via port A
+- DMA controls `TX/RX`
+- The CPU can continue running software, polling or doing other things
 
-Do đó:
+Therefore:
 
-- `dma_busy = 1` **không** tự động keo theo `cpu_stall = 1`
+- `dma_busy = 1` **does not** automatically imply `cpu_stall = 1`
 
-## 3.2 CPU stall khi MMIO transaction của chính CPU chưa xong
+## 3.2 CPU stall when the CPU's own MMIO transaction has not completed
 
-Nếu CPU dang thuc thì một lenh MMIO toi `cpu_mmio_to_apb_bridge`, và bridge chưa nhận được kết quả APB hợp lệ, CPU phải stall cho toi khi transaction kết thúc.
+If the CPU is executing an MMIO command to `cpu_mmio_to_apb_bridge`, and the bridge has not received a valid APB result, the CPU must stall until the transaction ends.
 
-Các trường hop:
+Relevant conditions:
 
-- APB dang o `ACCESS`
+- APB is located at `ACCESS`
 - `PREADY = 0`
 
-Lúc đó:
+At that time:
 
-- bridge phải assert `cpu_stall_req_o = 1` trong `ACCESS`
-- SoC phải dừng pipeline theo cơ chế `global hold`
-- cycle `SETUP` không cần stall nếu bridge da latch request on dinh
+- The bridge must assert `cpu_stall_req_o = 1` in `ACCESS`
+- The SoC must stop the pipeline according to mechanism `global hold`
+- cycle `SETUP` does not require stall if the bridge has a latch request on the bridge
 
-## 3.3 Load-use hazard không được xu ly bằng global stall
+## 3.3 Load-use hazard cannot be eliminated by global stall
 
-`load-use hazard` là một trường hop riêng của pipeline data hazard.
+`load-use hazard` is a special case of pipeline data hazard.
 
-Chính sách dung:
+Content policy:
 
-- IF và ID dùng lại
-- ID/EX được chen `bubble`
-- pipeline **không** bị hold toàn cục
+- IF and ID are reused
+- ID/EX is inserted `bubble`
+- The pipeline is **not** globally held
 
-Nghĩa là:
+This means:
 
-- `load-use hazard` phải là `bubble policy`
-- `MMIO/APB wait` phải là `hold policy`
+- `load-use hazard` should be `bubble policy`
+- `MMIO/APB wait` should be `hold policy`
 
-Hai cơ chế này không được tron vao cung một tín hiệu điều khiển.
+These two mechanisms cannot be included in a control signal.
 
-## 4. Các loại stall / hold trong hệ thống
+## 4. Types of stall / hold in the system
 
-Hệ thống nen tách ro 4 nhom điều khiển:
+The system separates 4 control groups:
 
 ### 4.1 `load_use_bubble_req`
 
-Dùng cho:
+Used for:
 
-- `lw` / `lh` / `lb` và instruction ke tiep dung ngay kết quả load
+- `lw` / `lh` / `lb` and instructions to continue using the loading results immediately
 
-Hành vi:
+Behavior:
 
-- giữ IF/ID
-- chen bubble vao ID/EX
-- EX/MEM/MEM/WB vẫn tiếp tục dich chuyen bình thường
+- keep IF/ID
+- insert bubble into ID/EX
+- EX/MEM/MEM/WB continues to translate normally
 
 ### 4.2 `global_hold_req`
 
-Dùng cho:
+Used for:
 
-- MMIO read/write qua APB của CPU dang in-flight
+- MMIO read/write via in-flight CPU APB
 - APB wait state (`PREADY = 0`)
-- các tính hướng can dung toàn bộ pipeline một cach an toàn
+- Features that securely cover the entire pipeline
 
-Hành vi:
+Behavior:
 
-- giữ PC
-- giữ IF/ID
-- giữ ID/EX
-- giữ EX/MEM nếu cần
-- không chen bubble gia
+- keep PC
+- keep IF/ID
+- keep ID/EX
+- hold EX/MEM if needed
+- Do not insert bubble price
 
-Nói cách khác:
+In other words:
 
-- state của instruction dang cho kết quả phải được giữ nguyên
-- không được để instruction do chạy tiep khi MMIO transaction chưa xong
+- The state of the instruction that is producing the result must be preserved
+- Do not let the instruction run until the MMIO transaction is completed
 
 ### 4.3 `load_response_hold_req`
 
-Dùng cho:
+Used for:
 
-- cycle response của synchronous load (`load_pending`)
+- cycle response of synchronous load (`load_pending`)
 
-Hành vi:
+Behavior:
 
-- giữ IF/ID/EX
-- không issue memory/MMIO request mới trong cycle này
-- MEM stage vẫn retire pending load
+- keep IF/ID/EX
+- No new memory issue/MMIO request in this cycle
+- MEM stage is still retired pending load
 
-Cơ chế này khác `global_hold_req` vi no không dong bằng chính MEM stage.
+This mechanism is different from `global_hold_req` because it is not equal to the MEM stage itself.
 
 ### 4.4 `flush_req`
 
-Dùng cho:
+Used for:
 
 - branch taken
 - jump
-- reset / trap / redirect nếu sau này bo sung
+- reset / trap / redirect if added later
 
-Hành vi:
+Behavior:
 
-- xoa instruction sai hướng
-- có ưu tiên cao hơn stall thông thường
+- delete instructions in the wrong direction
+- has higher priority than regular stalls
 
-## 5. Thứ tự ưu tiên đề xuất
+## 5. Suggested order of priority
 
-Trong cùng một cycle, ưu tiên điều khiển nen là:
+In the same cycle, the control priority is:
 
 1. `reset`
 2. `flush_req`
@@ -180,170 +180,170 @@ Trong cùng một cycle, ưu tiên điều khiển nen là:
 5. `load_use_bubble_req`
 6. normal advance
 
-Lý do:
+Reason:
 
-- redirect sai lượng lenh phải được xử lý trước
-- MMIO wait cần giữ nguyên instruction hiện tại, không được chen bubble thay the
-- load response cycle can chan instruction dung sau load di qua MEM qua som
-- `load-use bubble` chỉ là latency hiding của pipeline bình thường
+- Incorrect redirect amount of commands must be processed first
+- MMIO wait needs to keep the current instruction intact, not replace the bubble
+- The load response cycle can change the instructions used after the load to go through the MEM via the forwarding path
+- `load-use bubble` is just latency hiding of the normal pipeline
 
-## 6. Chính sách với DMEM
+## 6. Policy with DMEM
 
-### 6.1 Tách port ownership
+### 6.1 Separating port ownership
 
-| Cổng | Chủ sở hữu |
+| Port | Owner |
 |---|---|
-| Cổng A | CPU |
-| Cổng B | DMA |
+| Port A | CPU |
+| Port B | DMA |
 
-### 6.2 DMA busy không khoa DMEM của CPU ở mức phần cứng
+### 6.2 DMA busy does not lock the CPU's DMEM at the hardware level
 
-Với true dual-port BRAM:
+With true dual-port BRAM:
 
-- CPU vẫn có thể tiếp tục truy cap DMEM qua port A
-- DMA vẫn truy cap port B
+- The CPU can still continue to access DMEM via port A
+- DMA still accesses port B
 
-Do đó:
+Therefore:
 
-- không có lý do phải stall CPU chỉ vi DMA dang đọc/ghi bộ nhớ
+- There is no reason to stall the CPU just because DMA is reading/writing memory
 
-### 6.3 Rang buoc ở mức ung dung / phần mềm
+### 6.3 Ranging at app/software level
 
-Mac đủ phần cứng cho phep truy cap song song, phần mềm phải tránh race condition:
+Mac has enough hardware to allow parallel access, software must avoid race conditions:
 
-- CPU không nên đọc/ghi vao source buffer khi DMA dang đọc no
-- CPU không nên đọc/ghi vao destination buffer khi DMA dang ghi no
+- The CPU should not read/write to the source buffer while DMA is reading it
+- The CPU should not read/write to the destination buffer while DMA is writing to it
 
-Cơ chế đồng bộ v1:
+Synchronization mechanism v1:
 
 - CPU poll `dma_busy` / `done_sticky`
-- CPU chỉ dung buffer sau khi DMA hoàn tất
+- The CPU only buffers after DMA is complete
 
 ## 7. MMIO/APB stall semantics
 
 ## 7.1 CPU-side MMIO request
 
-Khi CPU truy cap một địa chỉ MMIO:
+When the CPU accesses an MMIO address:
 
-- nếu bridge chấp nhận request ngay, no phat APB transaction
-- trong lúc transaction chưa xong, `cpu_stall_req_o = 1`
+- If the bridge accepts the request immediately, no APB transaction is initiated
+- While the transaction is not completed, `cpu_stall_req_o = 1`
 
-CPU chỉ được tiếp tục khi:
+The CPU is only resumed when:
 
-- APB write thanh cổng
-- hoặc APB read da có `PRDATA`
-- hoặc APB trả `PSLVERR`
+- APB write port into
+- or APB read da has `PRDATA`
+- or APB pay `PSLVERR`
 
-## 7.2 Giao dịch write
+## 7.2 Write transaction
 
-Với MMIO write:
+With MMIO write:
 
-- CPU không cần stall ngay lúc `SETUP` nếu request đã được bridge latch
-- CPU được nhận là xong khi `ACCESS` complete và `PREADY = 1`
+- The CPU does not need to stall at `SETUP` if the request has been bridge latched
+- The CPU is considered complete when `ACCESS` is complete and `PREADY = 1` is complete
 
-## 7.3 Giao dịch read
+## 7.3 Transaction read
 
-Với MMIO read:
+With MMIO read:
 
-- CPU bị stall trong `ACCESS`, và có thể lau hơn write nếu có wait state
-- chỉ được giai phong khi `PRDATA` da hợp lệ và transaction da complete
+- The CPU is stalled in `ACCESS`, and can wait instead of writing while there is a wait state
+- Awarded only when `PRDATA` is valid and the transaction is complete
 
-## 7.4 DMA busy và CPU polling
+## 7.4 DMA busy and CPU polling
 
-CPU có thể polling:
+CPUs can poll:
 
 - `dma_regfile.STATUS`
 
-Mới lần polling là một MMIO access riêng:
+The new polling time is a separate MMIO access:
 
-- trong lúc polling read dang in-flight, CPU stall
-- sau khi read xong, CPU tiếp tục chạy
+- While polling read is in-flight, CPU stall
+- After reading is completed, the CPU continues to run
 
-Dieu này vẫn khác hoàn toàn với việc stall ca qua trinh DMA.
+This rule is completely different from stalling through the DMA process.
 
-## 8. Chính sách cho TX / RX
+## 8. Policy for TX/RX
 
-### 8.1 DMA là ben cho APB wait của TX/RX, không phải CPU
+### 8.1 DMA is the signal for APB wait of TX/RX, not CPU
 
-Trong v1:
+In v1:
 
-- `dma_tx_engine` là APB master của `TX`
-- `dma_rx_engine` là APB master của `RX`
+- `dma_tx_engine` is the APB master of `TX`
+- `dma_rx_engine` is the APB master of `RX`
 
-Nếu `TX` / `RX` có wait state:
+If `TX` / `RX` has wait state:
 
-- ben bị stall là state machine của DMA engine
-- CPU không lien quan trực tiếp
+- The stalled ben is the state machine of the DMA engine
+- CPU is not directly involved
 
-### 8.2 Hau qua kiến trúc
+### 8.2 Architecture review
 
-Dieu này giup:
+This guide helps:
 
-- CPU không bị dung khi `TX/RX` cham
-- latency accelerator được “hap thu” bởi DMA
-- control plane và data plane tách ro
+- CPU is not used when `TX/RX` is disabled
+- latency accelerator is "captured" by DMA
+- Control plane and data plane separate clear
 
-## 9. Các signal đề xuất
+## 9. Recommended signals
 
-SoC nen có các signal logic tách biet:
+SoC should have separate logic signals:
 
-| Tên signal | Nguồn | Ý nghĩa |
+| Signal name | Source | Meaning |
 |---|---|---|
-| `load_use_bubble_req` | hazard detect | Chen bubble do load-use |
-| `cpu_mmio_stall_req` | MMIO/APB bridge | CPU dang cho MMIO complete |
-| `load_response_hold_req` | MEM stage | Hold front pipeline trong cycle trả synchronous load |
-| `global_hold_req` | SoC control | Hold pipeline an toàn |
+| `load_use_bubble_req` | hazard detect | Chen bubble due to load-use |
+| `cpu_mmio_stall_req` | MMIO/APB bridge | CPU is completing MMIO |
+| `load_response_hold_req` | MEM stage | Hold the front pipeline during the synchronous load cycle |
+| `global_hold_req` | SoC control | Hold pipeline securely |
 | `flush_req` | branch/jump control | Redirect pipeline |
 
-Ket noi đề xuất:
+Suggested connection:
 
 - `global_hold_req = cpu_mmio_stall_req | external_debug_hold | ...`
-- `load_use_bubble_req` giữ riêng, không OR trực tiếp vao `global_hold_req`
-- `load_response_hold_req` giữ riêng, chỉ OR vao hold của IF/ID/EX
+- Keep `load_use_bubble_req` separate, do not OR directly into `global_hold_req`
+- `load_response_hold_req` is kept separate, just OR into the hold of IF/ID/EX
 
-## 10. Tieu chỉ implementation
+## 10. Implementation specification
 
-Implementation được coi là dung khi:
+Implementation is considered valid when:
 
-1. `dma_busy = 1` nhưng CPU vẫn có thể tiếp tục chạy instruction bình thường nếu không dùng MMIO lien quan
-2. MMIO read/write APB của CPU stall dung instruction hiện tại trong `ACCESS` cho toi khi `PREADY = 1`
-3. `load-use hazard` vẫn chen bubble, không bị bien thanh global hold
-4. `load_response_hold_req` không làm dong bằng MEM stage
-5. Pipeline không bị lặp instruction hoặc mất instruction khi xuất hien MMIO wait state hoặc cycle response của synchronous load
-6. CPU và DMA truy cap DMEM qua 2 port tách biet
+1. `dma_busy = 1` but the CPU can still continue to run instructions normally if the related MMIO is not used.
+2. MMIO read/write APB of CPU stall uses current instruction in `ACCESS` until `PREADY = 1`
+3. `load-use hazard` still entered the bubble, but did not change the global hold
+4. `load_response_hold_req` does not work with MEM stage
+5. Pipeline does not repeat instructions or lose instructions when displaying MMIO wait state or cycle response of synchronous load
+6. CPU and DMA access DMEM via two separate ports
 
-## 11. Tính hướng mau
+## 11. Quick direction
 
 ### 11.1 CPU start DMA
 
-1. CPU ghi `dma_regfile.CONTROL.start`
+1. CPU writes `dma_regfile.CONTROL.start`
 2. Bridge phat APB write
-3. Trong lúc APB write in-flight, CPU stall
-4. Giao dịch xong, CPU tiếp tục
-5. DMA bắt đầu chạy
-6. CPU không bị stall chỉ vi `dma_busy=1`
+3. While APB writes in-flight, CPU stalls
+4. Transaction completed, CPU continues
+5. DMA starts running
+6. The CPU is not stalled only because of `dma_busy=1`
 
 ### 11.2 CPU polling DMA status
 
-1. CPU đọc `dma_regfile.STATUS`
+1. CPU reads `dma_regfile.STATUS`
 2. Bridge phat APB read
-3. CPU stall trong lúc cho `PREADY`
-4. Kết quả ve, CPU tiếp tục
-5. Nếu `done=0`, CPU có thể lặp tiep vong polling
+3. CPU stall while giving `PREADY`
+4. As a result, the CPU continues
+5. If `done=0`, the CPU can continue polling
 
-### 11.3 DMA dang cho TX
+### 11.3 DMA is available for TX
 
-1. DMA da gửi block vao `TX`
-2. `TX` chưa xuất đủ ciphertext nen APB read của DMA bị wait
-3. DMA engine tu dung state machine của no
-4. CPU vẫn tiếp tục chạy
+1. The DMA sends the block to `TX`
+2. `TX` has not output enough ciphertext number the DMA APB read is waiting
+3. DMA engine uses its state machine
+4. The CPU continues to run
 
-## 12. Ket luan
+## 12. Conclusion
 
-Chot chính sách:
+Policy Chot:
 
-- `DMA busy` **không** stall CPU
-- `CPU MMIO/APB wait` **có** stall CPU
-- `load-use hazard` được xử lý bằng bubble
-- `MMIO wait` được xử lý bằng global hold
-- `TX/RX` wait state do DMA engine hap thu, không đây nguoc stall ve CPU
+- `DMA busy` **does not** stall CPU
+- `CPU MMIO/APB wait` **has** CPU stall
+- `load-use hazard` is bubble processed
+- `MMIO wait` is handled by global hold
+- `TX/RX` wait state is received by the DMA engine, this source is not stalled to the CPU

@@ -1,33 +1,33 @@
 # 06. Module Specification: `dma_regfile`
 
-## 1. Mục đích
+## 1. Purpose
 
-`dma_regfile` là APB slave register block dung để CPU cấu hình, khoi dong và theo dõi trạng thái của DMA.
+`dma_regfile` is the APB slave register block used for the CPU to configure, initialize and monitor the status of DMA.
 
-Module này **không** chuyen dữ liệu trực tiếp. No chỉ:
+This module **does not** transfer data directly. It only:
 
-- lưu thanh ghi cấu hình DMA;
-- phat các pulse điều khiển (`start`, `soft_reset`, `clear_done`, `clear_error`);
-- gom các trạng thái tu DMA engine thanh các thanh ghi để CPU đọc;
-- giữ sticky flags cho `done` và `error`.
+- stores DMA configuration registers;
+- generates control pulses (`start`, `soft_reset`, `clear_done`, `clear_error`);
+- Collects status from the DMA engine into registers for the CPU to read;
+- keeps sticky flags for `done` and `error`.
 
-Trong kiến trúc hiện tại:
+In the current architecture:
 
-- CPU ghi/đọc `dma_regfile` thong qua APB;
-- `dma_regfile` noi sang `dma_tx_engine` hoặc `dma_rx_engine`;
-- DMA engine mới là khoi thực hiện đọc/ghi `DMEM` và điều khiển TX/RX.
+- CPU writes/reads `dma_regfile` via APB;
+- `dma_regfile` exports configuration to `dma_tx_engine` or `dma_rx_engine`;
+- The DMA engine performs `DMEM` read/write and TX/RX control.
 
-## 2. Pham vi hiện tại
+## 2. Current scope
 
-Phien ban hiện tại hỗ trợ ca 2 flow:
+The current version supports two flows:
 
-1. `TX`: DMA đọc input tu `DMEM`, đây qua `apb_huffman_aes_tx_top`, ghi output ve `DMEM`.
-2. `RX`: DMA đọc ciphertext/transport stream tu `DMEM`, đây vao `apb_huffman_aes_rx_top`, ghi plaintext decoded ve `DMEM`.
+1. `TX`: DMA reads input from `DMEM`, through `apb_huffman_aes_tx_top`, writes output to `DMEM`.
+2. `RX`: DMA reads ciphertext/transport stream from `DMEM`, to `apb_huffman_aes_rx_top`, writes decoded plaintext to `DMEM`.
 
-`dma_regfile` không sinh key và không chọn AES CBC/ECB runtime. Module này expose
-`IV0..IV3` để CPU ghi initialization vector cho AES-CBC trong TX/RX path.
+`dma_regfile` does not generate keys and does not select AES CBC/ECB runtime. This module exposes
+`IV0..IV3` let the CPU write the initialization vector for AES-CBC in the TX/RX path.
 
-Verification status hiện tại:
+Current verification status:
 
 | Case | Coverage/use |
 |---|---|
@@ -37,7 +37,7 @@ Verification status hiện tại:
 | `dma_bridge_direct_cov` | APB wait/error/defensive regfile branches |
 | Full regression | included in `34/34` PASS coverage baseline |
 
-## 3. Sơ đồ khoi
+## 3. Block diagram
 
 ```mermaid
 flowchart LR
@@ -48,200 +48,200 @@ flowchart LR
     ENG --> ACC["TX / RX accelerator"]
 ```
 
-## 4. Cổng module
+## 4. Module ports
 
-### 4.1 Clock và reset
+### 4.1 Clock and reset
 
-| Cổng | Hướng | Rộng | Định dạng dữ liệu | Mô tả |
+| Port | Direction | Width | Data format | Description |
 |---|---|---:|---|---|
-| `PCLK` | in | 1 | Clock level | Clock APB và register block |
+| `PCLK` | in | 1 | Clock level | Clock APB and register block |
 | `rst_i` | in | 1 | Reset level active-high | Reset active-high |
 
 ### 4.2 APB slave interface
 
-| Cổng | Hướng | Rộng | Định dạng dữ liệu | Mô tả |
+| Port | Direction | Width | Data format | Description |
 |---|---|---:|---|---|
-| `PSEL` | in | 1 | APB select flag (`0/1`) | Chọn slave |
+| `PSEL` | in | 1 | APB select flag (`0/1`) | Select slave |
 | `PENABLE` | in | 1 | APB access phase flag | APB access phase |
 | `PWRITE` | in | 1 | APB direction flag (`1=write`, `0=read`) | `1`: write, `0`: read |
-| `PADDR` | in | 32 | Local byte address | Địa chỉ thanh ghi |
-| `PWDATA` | in | 32 | Raw write data word | Dữ liệu ghi |
-| `PRDATA` | out | 32 | Raw read data word | Dữ liệu đọc |
-| `PREADY` | out | 1 | Ready flag (`0/1`) | Mặc định luon `1` trong implementation hiện tại |
-| `PSLVERR` | out | 1 | Error flag (`0/1`) | Báo lỗi truy cap / config không hợp lệ |
+| `PADDR` | in | 32 | Local byte address | Register address |
+| `PWDATA` | in | 32 | Raw write data word | Write data |
+| `PRDATA` | out | 32 | Raw read data word | Data read |
+| `PREADY` | out | 1 | Ready flag (`0/1`) | By default, it is always `1` in the current implementation |
+| `PSLVERR` | out | 1 | Error flag (`0/1`) | Error on invalid access/configuration |
 
-### 4.3 Đầu ra cấu hình sang DMA engine
+### 4.3 Configuration output to DMA engine
 
-| Cổng | Hướng | Rộng | Định dạng dữ liệu | Mô tả |
+| Port | Direction | Width | Data format | Description |
 |---|---|---:|---|---|
-| `src_addr_o` | out | 32 | Byte address, word-aligned | Địa chỉ nguồn trong `DMEM` |
-| `dst_addr_o` | out | 32 | Byte address, word-aligned | Địa chỉ đích trong `DMEM` |
-| `len_bytes_o` | out | 32 | Transfer length in bytes | Tong số byte cần xử lý |
+| `src_addr_o` | out | 32 | Byte address, word-aligned | Source address in `DMEM` |
+| `dst_addr_o` | out | 32 | Byte address, word-aligned | Destination address in `DMEM` |
+| `len_bytes_o` | out | 32 | Transfer length in bytes | Total number of bytes to process |
 | `direction_o` | out | 2 | Mode code (`01=TX`, `10=RX`) | `01`: TX, `10`: RX |
-| `compress_only_o` | out | 1 | Policy flag (`0/1`) | TX only: `1` để bypass AES |
-| `whole_file_o` | out | 1 | Policy flag (`0/1`) | TX only: `1` để dung whole-file dynamic Huffman |
-| `block_size_o` | out | 6 | Block size in bytes (`1..32`) | Kích thước block 1..32 byte |
-| `iv_o` | out | 128 | CBC IV word `{IV3,IV2,IV1,IV0}` | CBC IV xuất sang TX/RX |
-| `start_pulse_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse 1 cycle để khoi dong DMA |
-| `soft_reset_pulse_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse reset DMA engine |
-| `clear_done_pulse_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse xoa sticky done |
-| `clear_error_pulse_o` | out | 1 | Pulse flag (`1` trong 1 cycle) | Pulse xoa sticky error |
+| `compress_only_o` | out | 1 | Policy flag (`0/1`) | TX only: `1` to bypass AES |
+| `whole_file_o` | out | 1 | Policy flag (`0/1`) | TX only: `1` to use whole-file dynamic Huffman |
+| `block_size_o` | out | 6 | Block size in bytes (`1..32`) | Block size 1..32 bytes |
+| `iv_o` | out | 128 | CBC IV word `{IV3,IV2,IV1,IV0}` | CBC IV output to TX/RX |
+| `start_pulse_o` | out | 1 | Pulse flag (`1` in 1 cycle) | Pulse 1 cycle to initialize DMA |
+| `soft_reset_pulse_o` | out | 1 | Pulse flag (`1` in 1 cycle) | Pulse reset DMA engine |
+| `clear_done_pulse_o` | out | 1 | Pulse flag (`1` in 1 cycle) | Pulse clears sticky done |
+| `clear_error_pulse_o` | out | 1 | Pulse flag (`1` in 1 cycle) | Pulse clears sticky error |
 
-### 4.4 Đầu vao trạng thái tu DMA engine
+### 4.4 Status input from DMA engine
 
-| Cổng | Hướng | Rộng | Định dạng dữ liệu | Mô tả |
+| Port | Direction | Width | Data format | Description |
 |---|---|---:|---|---|
-| `dma_busy_i` | in | 1 | Busy flag (`0/1`) | Engine dang xu ly |
-| `dma_done_i` | in | 1 | Pulse flag (`1` trong 1 cycle) | Pulse kết thúc |
-| `dma_error_i` | in | 1 | Pulse flag (`1` trong 1 cycle) | Pulse lỗi |
-| `bytes_done_i` | in | 32 | Byte counter | Tong số byte da xu ly |
-| `ciphertext_bytes_produced_i` | in | 32 | Byte counter | TX output byte count, expose tai `0x24` |
-| `last_error_code_i` | in | 8 | Error code | Ma lỗi cuối cùng |
-| `engine_state_i` | in | 4 | Low nibble of FSM state | State debug của DMA engine |
+| `dma_busy_i` | in | 1 | Busy flag (`0/1`) | Engine is busy |
+| `dma_done_i` | in | 1 | Pulse flag (`1` in 1 cycle) | Completion pulse |
+| `dma_error_i` | in | 1 | Pulse flag (`1` in 1 cycle) | Pulse error |
+| `bytes_done_i` | in | 32 | Byte counter | Number of bytes completed |
+| `ciphertext_bytes_produced_i` | in | 32 | Byte counter | TX output byte count, exposed at `0x24` |
+| `last_error_code_i` | in | 8 | Error code | Last error code |
+| `engine_state_i` | in | 4 | Low nibble of FSM state | State debug of DMA engine |
 
 ## 5. Memory map APB
 
-Module này dung **offset local**. Base address trong hệ thống SoC được chot ben ngoài module, vi đủ `DMA_APB_BASE = 32'h4000_0000`.
+This module uses **local offset**. The base address in the SoC system is given outside the module, with `DMA_APB_BASE = 32'h4000_0000`.
 
-| Offset | Tên | Loại | Mô tả |
+| Offset | Name | Type | Description |
 |---|---|---|---|
-| `0x00` | `CONTROL` | W | Phat các pulse điều khiển |
-| `0x04` | `STATUS` | R | Trạng thái tong hop và sticky flags |
-| `0x08` | `SRC_ADDR` | R/W | Địa chỉ nguồn |
-| `0x0C` | `DST_ADDR` | R/W | Địa chỉ đích |
-| `0x10` | `LEN_BYTES` | R/W | Tong số byte cần xử lý |
-| `0x14` | `MODE` | R/W | Chọn TX/RX và TX policy |
-| `0x18` | `BLOCK_CFG` | R/W | Cấu hình chia block |
-| `0x1C` | `BYTES_DONE` | R | Số byte da xu ly |
-| `0x20` | `DEBUG` | R | State và ma lỗi debug |
-| `0x24` | `CIPHERTEXT_BYTES_PRODUCED` | R | So ciphertext byte của TX gần nhất |
+| `0x00` | `CONTROL` | W | Generates control pulses |
+| `0x04` | `STATUS` | R | Combined status and sticky flags |
+| `0x08` | `SRC_ADDR` | R/W | Source address |
+| `0x0C` | `DST_ADDR` | R/W | Destination address |
+| `0x10` | `LEN_BYTES` | R/W | Total number of bytes to process |
+| `0x14` | `MODE` | R/W | Select TX/RX and TX policy |
+| `0x18` | `BLOCK_CFG` | R/W | Block division configuration |
+| `0x1C` | `BYTES_DONE` | R | Number of bytes |
+| `0x20` | `DEBUG` | R | State and debug error code |
+| `0x24` | `CIPHERTEXT_BYTES_PRODUCED` | R | Most recent TX ciphertext byte count |
 | `0x28` | `IV0` | R/W | CBC IV bits `[31:0]` |
 | `0x2C` | `IV1` | R/W | CBC IV bits `[63:32]` |
 | `0x30` | `IV2` | R/W | CBC IV bits `[95:64]` |
 | `0x34` | `IV3` | R/W | CBC IV bits `[127:96]` |
 
-### 5.1 Tóm tắt chức năng thanh ghi
+### 5.1 Register function summary
 
-| Thanh ghi | Độ rộng | Định dạng dữ liệu | Chức năng | Used by | Side effect / ghi chú |
+| Register | Width | Data format | Function | Used by | Side effect / note |
 |---|---:|---|---|---|---|
-| `CONTROL` | 32 | W1P control bits | Tạo pulse start/reset/clear cho DMA | CPU writes, regfile decodes | W1P; reserved bits set `PSLVERR`; `start` chỉ hợp lệ khi config valid và not busy |
-| `STATUS` | 32 | Live status bitmap | Tong hop busy/done/error/cfg/mode | CPU polling | Read-only; dung để quyet dinh khi nào được cấu hình tiep |
-| `SRC_ADDR` | 32 | Byte address, word-aligned | DMEM source byte address | TX/RX DMA | Can căn 4-byte; TX đọc plaintext, RX đọc ciphertext |
-| `DST_ADDR` | 32 | Byte address, word-aligned | DMEM destination byte address | TX/RX DMA | Can căn 4-byte; TX ghi transport/ciphertext, RX ghi plaintext |
-| `LEN_BYTES` | 32 | Transfer length in bytes | Số byte transfer đầu vao | TX/RX DMA | TX = plaintext input bytes; RX = ciphertext/transport input bytes |
-| `MODE` | 32 | Mode encoding in low bits | Hướng và TX policy | Regfile và DMA engines | `0x1` TX AES, `0x5` TX compress-only legacy, `0x9` TX whole-file AES, `0xD` TX whole-file compress-only, `0x2` RX |
-| `BLOCK_CFG` | 6 | Block size in bytes | TX block size | `dma_tx_engine` | Hợp lệ `1..32`; RX không dùng |
-| `BYTES_DONE` | 32 | Byte counter | Số byte engine da hoàn tất | CPU/testbench | Read-only, cập nhật tu engine dang active |
-| `DEBUG` | 32 | Packed debug fields | Engine state và last error code | CPU/testbench | Debug only, không nên dung làm contract chính |
-| `CIPHERTEXT_BYTES_PRODUCED` | 32 | Byte counter | Số byte TX output gần nhất | CPU/RX software flow | Dung làm `LEN_BYTES` cho RX sau khi TX xong |
-| `IV0..IV3` | 32 each | CBC IV words | AES-CBC IV 128-bit | CPU writes, TX/RX consumes | Không ghi khi busy; `soft_reset` xoa ve `0` |
+| `CONTROL` | 32 | W1P control bits | Create pulse start/reset/clear for DMA | CPU writes, regfile decodes | W1P; reserved bits set `PSLVERR`; `start` is only valid when the config is valid and not busy |
+| `STATUS` | 32 | Live status bitmap | Combined busy/done/error/cfg/mode | CPU polling | Read-only; used to decide when to configure next |
+| `SRC_ADDR` | 32 | Byte address, word-aligned | DMEM source byte address | TX/RX DMA | 4-byte aligned; TX reads plaintext, RX reads ciphertext |
+| `DST_ADDR` | 32 | Byte address, word-aligned | DMEM destination byte address | TX/RX DMA | 4-byte aligned; TX writes transport/ciphertext, RX writes plaintext |
+| `LEN_BYTES` | 32 | Transfer length in bytes | Number of input transfer bytes | TX/RX DMA | TX = plaintext input bytes; RX = ciphertext/transport input bytes |
+| `MODE` | 32 | Mode encoding in low bits | Direction and TX policy | Regfile and DMA engines | `0x1` TX AES, `0x5` TX compress-only legacy, `0x9` TX whole-file AES, `0xD` TX whole-file compress-only, `0x2` RX |
+| `BLOCK_CFG` | 6 | Block size in bytes | TX block size | `dma_tx_engine` | Valid `1..32`; RX is not used |
+| `BYTES_DONE` | 32 | Byte counter | Number of bytes completed by the engine | CPU/testbench | Read-only, updated from active engine |
+| `DEBUG` | 32 | Packed debug fields | Engine state and last error code | CPU/testbench | Debug only, should not be used as the main contract |
+| `CIPHERTEXT_BYTES_PRODUCED` | 32 | Byte counter | Number of most recent TX output bytes | CPU/RX software flow | Used as `LEN_BYTES` for RX after TX is completed |
+| `IV0..IV3` | 32 each | CBC IV words | AES-CBC IV 128-bit | CPU writes, TX/RX consumes | Do not write while busy; `soft_reset` clears to `0` |
 
 ### 5.2 `CONTROL`
 
-| Bit | Tên | Loại | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Name | Type | Data format | Meaning |
 |---:|---|---|---|---|
-| 0 | `start` | W1P | Pulse request bit | Khoi dong DMA nếu config hợp lệ và DMA không busy |
-| 1 | `soft_reset` | W1P | Pulse reset bit | Reset register state lien quan đến transfer dang cho / dang chạy |
-| 2 | `clear_done` | W1P | Pulse clear bit | Xoa `done_sticky` |
-| 3 | `clear_error` | W1P | Pulse clear bit | Xoa `error_sticky` |
-| 31:4 | reserved | W | Reserved bits | Ghi 1 vao bất kỳ bit nào sẽ tạo `PSLVERR` |
+| 0 | `start` | W1P | Pulse request bit | Restart DMA if the configuration is valid and DMA is not busy |
+| 1 | `soft_reset` | W1P | Pulse reset bit | Reset register state related to transfer in progress/running |
+| 2 | `clear_done` | W1P | Pulse clear bit | Delete `done_sticky` |
+| 3 | `clear_error` | W1P | Pulse clear bit | Delete `error_sticky` |
+| 31:4 | reserved | W | Reserved bits | Writing a 1 to any bit will create `PSLVERR` |
 
-Ghi `start=1` chỉ hợp lệ khi:
+Register `start=1` is only valid when:
 
 - `len_bytes_o != 0`
-- `block_size_o` trong khoang `1..32`
-- `direction_o` là `01` hoặc `10`
+- `block_size_o` in compartment `1..32`
+- `direction_o` is `01` or `10`
 - `dma_busy_i = 0`
 
-Nếu vi pham các điều kiện trên, giao dịch write vẫn complete với `PREADY=1` nhưng `PSLVERR=1`.
+If the above conditions are violated, the write transaction will still complete with `PREADY=1` but `PSLVERR=1`.
 
 ### 5.3 `STATUS`
 
-| Bit | Tên | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Name | Data format | Meaning |
 |---:|---|---|---|
-| 0 | `busy` | Busy flag | DMA dang chạy |
-| 1 | `done_sticky` | Sticky flag | Transfer gần nhất da kết thúc |
-| 2 | `error_sticky` | Sticky flag | Transfer gần nhất có lỗi |
-| 3 | `cfg_valid` | Boolean config valid | Cấu hình toi thiếu hợp lệ |
-| 5:4 | `direction` | 2-bit mode mirror | Mirror của `MODE.direction` |
-| 6 | `compress_only` | Boolean policy mirror | Mirror của `MODE.compress_only` |
-| 7 | `whole_file` | Boolean policy mirror | Mirror của `MODE.whole_file` |
-| 31:8 | reserved | Reserved read-as-zero | Đọc `0` |
+| 0 | `busy` | Busy flag | DMA is running |
+| 1 | `done_sticky` | Sticky flag | Most recent transfer has completed |
+| 2 | `error_sticky` | Sticky flag | The most recent transfer had an error |
+| 3 | `cfg_valid` | Boolean config valid | My configuration is not valid |
+| 5:4 | `direction` | 2-bit mode mirror | Mirror of `MODE.direction` |
+| 6 | `compress_only` | Boolean policy mirror | Mirror of `MODE.compress_only` |
+| 7 | `whole_file` | Boolean policy mirror | Mirror of `MODE.whole_file` |
+| 31:8 | reserved | Reserved read-as-zero | Read `0` |
 
 ### 5.4 `SRC_ADDR`
 
-- Địa chỉ byte address trong `DMEM`
-- Yeu cau căn 4-byte (`[1:0] = 2'b00`)
-- Nếu CPU ghi địa chỉ không căn 4-byte, module có thể:
-  - vẫn lưu giá trị raw;
+- Address byte address in `DMEM`
+- Ask for a 4-byte base (`[1:0] = 2'b00`)
+- If the CPU writes a 4-byte unaligned address, the module may:
+  - still saves raw value;
   - `cfg_valid = 0`;
-  - `start` sau đó bị tu choi với `PSLVERR=1`
+  - `start` was then merged with `PSLVERR=1`
 
 ### 5.5 `DST_ADDR`
 
-- Địa chỉ byte address dich trong `DMEM`
-- Yeu cau căn 4-byte
-- Xu ly tuong tu `SRC_ADDR`
+- Address byte address translation in `DMEM`
+- Love the 4-byte base
+- Change from `SRC_ADDR`
 
 ### 5.6 `LEN_BYTES`
 
-- Tong số byte cần xử lý
-- Yeu cau `LEN_BYTES >= 1`
-- Không bat buoc là bởi so của 4
-- DMA engine phải tu chia block và xu ly word cuối có số byte hợp lệ phụ hop
+- Total number of bytes to process
+- Love the question `LEN_BYTES >= 1`
+- The value does not have to be a multiple of 4
+- The DMA engine must divide the block and extract the last word with a valid number of bytes per hop
 
 ### 5.7 `MODE`
 
-| Bit | Tên | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Name | Data format | Meaning |
 |---:|---|---|---|
-| 1:0 | `direction` | 2-bit mode code | `01`: TX, `10`: RX, giá trị khác là invalid |
-| 2 | `compress_only` | Boolean policy bit | `1`: TX bypass AES, `0`: TX di qua AES |
-| 3 | `whole_file` | Boolean policy bit | `1`: TX dung dynamic Huffman toàn file |
-| 31:4 | reserved | Reserved read-as-zero | Đọc `0`, ghi 1 sẽ bao `PSLVERR` |
+| 1:0 | `direction` | 2-bit mode code | `01`: TX, `10`: RX, other values are invalid |
+| 2 | `compress_only` | Boolean policy bit | `1`: TX bypass AES, `0`: TX bypass AES |
+| 3 | `whole_file` | Boolean policy bit | `1`: TX uses dynamic Huffman for the entire file |
+| 31:4 | reserved | Reserved read-as-zero | Read `0`, write 1 to include `PSLVERR` |
 
-Quy uoc dung:
+Rules of use:
 
-- `0x0000_0001`: `COMPRESS_AES` cho TX
-- `0x0000_0005`: legacy per-block `COMPRESS_ONLY` cho TX
-- `0x0000_000D`: default whole-file `COMPRESS_ONLY` cho TX-only benchmark
-- `0x0000_0009`: `COMPRESS_AES` + whole-file dynamic Huffman cho TX
+- `0x0000_0001`: `COMPRESS_AES` for TX
+- `0x0000_0005`: legacy per-block `COMPRESS_ONLY` for TX
+- `0x0000_000D`: default whole-file `COMPRESS_ONLY` for TX-only benchmark
+- `0x0000_0009`: `COMPRESS_AES` + whole-file dynamic Huffman for TX
 - `0x0000_0002`: RX
 
-Không có mode bit để chọn ECB/CBC. Trong SoC hiện tại, `COMPRESS_AES` dung
-AES-CBC cố định với key hard-wire trong TX/RX path. `COMPRESS_ONLY` bypass AES.
+There is no mode bit to select ECB/CBC. In the current SoC, `COMPRESS_AES` is used
+Fixed AES-CBC with hard-wire key in TX/RX path. `COMPRESS_ONLY` bypass AES.
 
 ### 5.8 `BLOCK_CFG`
 
-| Bit | Tên | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Name | Data format | Meaning |
 |---:|---|---|---|
-| 5:0 | `block_size_bytes` | Unsigned byte count | Kích thước block 1..32 byte |
-| 31:6 | reserved | Reserved read-as-zero | Đọc `0` |
+| 5:0 | `block_size_bytes` | Unsigned byte count | Block size 1..32 bytes |
+| 31:6 | reserved | Reserved read-as-zero | Read `0` |
 
-Khuyến nghị mặc định `block_size_bytes = 32`.
+Recommended default `block_size_bytes = 32`.
 
 ### 5.9 `BYTES_DONE`
 
-- Mirror trực tiếp của `bytes_done_i`
-- CPU có thể đọc để poll tiên do
+- Live mirror of `bytes_done_i`
+- The CPU can read it to poll the priority
 
 ### 5.10 `DEBUG`
 
-| Bit | Tên | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Name | Data format | Meaning |
 |---:|---|---|---|
-| 3:0 | `engine_state` | 4-bit low nibble of FSM state | State debug tu DMA engine |
-| 11:4 | `last_error_code` | 8-bit error code | Ma lỗi debug |
-| 31:12 | reserved | Reserved read-as-zero | Đọc `0` |
+| 3:0 | `engine_state` | 4-bit low nibble of FSM state | State debug from DMA engine |
+| 11:4 | `last_error_code` | 8-bit error code | Ghost debug error |
+| 31:12 | reserved | Reserved read-as-zero | Read `0` |
 
 ### 5.11 `CIPHERTEXT_BYTES_PRODUCED`
 
-- Mirror trực tiếp của `ciphertext_bytes_produced_i`
-- Dung để tách riêng output length của TX khoi `BYTES_DONE`
-- Trong `COMPRESS_ONLY`, đây là số byte compressed transport stream
-- Trong `COMPRESS_AES`, đây là số byte sau AES ghi ve `DMEM`
+- Live mirror of `ciphertext_bytes_produced_i`
+- Use to separate output length of TX from `BYTES_DONE`
+- In `COMPRESS_ONLY`, this is the number of bytes compressed transport stream
+- In `COMPRESS_AES`, this is the number of bytes after AES registers `DMEM`
 
 ### 5.12 `IV0..IV3`
 
-Bon thanh ghi này tạo thanh 128-bit CBC IV:
+These four registers create the 128-bit CBC IV:
 
 ```text
 iv_o = {IV3, IV2, IV1, IV0}
@@ -249,65 +249,65 @@ iv_o = {IV3, IV2, IV1, IV0}
 
 Semantics:
 
-- CPU ghi IV trước `CONTROL.start`
-- read trả ve giá trị IV hiện tại
-- write khi `dma_busy_i = 1` bị tu choi với `PSLVERR = 1`
-- reset và `CONTROL.soft_reset` xoa IV ve `0`
-- trong loopback AES, RX phải dung cung IV da dùng cho TX
+- CPU registers IV before `CONTROL.start`
+- read returns the current IV value
+- write when `dma_busy_i = 1` is mixed with `PSLVERR = 1`
+- reset and `CONTROL.soft_reset` remove IV to `0`
+- In AES loopback, RX must use arc IV which is used for TX
 
-`dma_regfile` không sinh IV ngau nhien. Việc tạo IV thuoc ve software/host.
-Test hiện tại dung IV deterministic do `testcase/test_mmio_dma.c` tạo để
-simulation có kết quả lặp lại.
+`dma_regfile` does not generate IVs immediately. Creating IV depends on software/host.
+The current test uses the deterministic IV created by `testcase/test_mmio_dma.c`
+simulation has repeatable results.
 
-### 5.13 Thanh ghi nội bộ
+### 5.13 Internal registers
 
-| Thanh ghi | Bit width | Định dạng dữ liệu | Chức năng |
+| Register | Bit width | Data format | Function |
 |---|---:|---|---|
-| `done_sticky_r` | 1 | Sticky flag (`0/1`) | Lưu trạng thái done giua các lần poll |
-| `error_sticky_r` | 1 | Sticky flag (`0/1`) | Lưu trạng thái error giua các lần poll |
-| `iv0_r` | 32 | CBC IV word low | Word `[31:0]` của IV |
-| `iv1_r` | 32 | CBC IV word | Word `[63:32]` của IV |
-| `iv2_r` | 32 | CBC IV word | Word `[95:64]` của IV |
-| `iv3_r` | 32 | CBC IV word high | Word `[127:96]` của IV |
+| `done_sticky_r` | 1 | Sticky flag (`0/1`) | Save done status between polls |
+| `error_sticky_r` | 1 | Sticky flag (`0/1`) | Save error status between polls |
+| `iv0_r` | 32 | CBC IV word low | Word `[31:0]` of IV |
+| `iv1_r` | 32 | CBC IV word | Word `[63:32]` of IV |
+| `iv2_r` | 32 | CBC IV word | Word `[95:64]` of IV |
+| `iv3_r` | 32 | CBC IV word high | Word `[127:96]` of IV |
 
-## 6. Hành vi APB
+## 6. APB behavior
 
 ### 6.1 Read
 
-- `PREADY = 1` với mới read hợp lệ
-- `PRDATA` trả ve giá trị thanh ghi ung với `PADDR`
-- Truy cap offset không hợp lệ: `PSLVERR = 1`, `PRDATA = 0`
+- `PREADY = 1` with new valid read
+- `PRDATA` returns the same register value as `PADDR`
+- Invalid access offset: `PSLVERR = 1`, `PRDATA = 0`
 
 ### 6.2 Write
 
-- `PREADY = 1` với mới write hợp lệ
-- Ghi vao offset read-only: `PSLVERR = 1`
-- Ghi reserved bits = 1: `PSLVERR = 1`
-- Ghi thanh ghi cấu hình khi `dma_busy_i = 1`:
-  - implementation hiện tại trả `PSLVERR = 1`
-  - ngoài le: `CONTROL.soft_reset`, `CONTROL.clear_done`, `CONTROL.clear_error` vẫn hợp lệ
+- `PREADY = 1` with new valid write
+- Write to read-only offset: `PSLVERR = 1`
+- Write reserved bits = 1: `PSLVERR = 1`
+- Write configuration register when `dma_busy_i = 1`:
+  - Current implementation returns `PSLVERR = 1`
+  - Except: `CONTROL.soft_reset`, `CONTROL.clear_done`, `CONTROL.clear_error` are still valid
 
 ## 7. Sticky flags
 
-- `done_sticky` set khi `dma_done_i = 1`
-- `error_sticky` set khi `dma_error_i = 1`
-- `soft_reset` xoa ca `done_sticky`, `error_sticky`, `bytes_done` shadow nếu có
-- `clear_done` chỉ xoa `done_sticky`
-- `clear_error` chỉ xoa `error_sticky`
+- `done_sticky` set when `dma_done_i = 1`
+- `error_sticky` set when `dma_error_i = 1`
+- `soft_reset` removes `done_sticky`, `error_sticky`, `bytes_done` shadow if any
+- `clear_done` only deletes `done_sticky`
+- `clear_error` only deletes `error_sticky`
 
-## 8. Tieu chỉ `cfg_valid`
+## 8. Title `cfg_valid`
 
-`cfg_valid = 1` khi:
+`cfg_valid = 1` when:
 
 - `src_addr_o[1:0] == 2'b00`
 - `dst_addr_o[1:0] == 2'b00`
 - `len_bytes_o != 0`
-- `block_size_o` nằm trong `1..32`
-- `direction_o` là `01` hoặc `10`
+- `block_size_o` is in `1..32`
+- `direction_o` is `01` or `10`
 
-## 9. Mặc định reset
+## 9. Default reset
 
-| Thanh ghi | Giá trị reset |
+| Register | Value reset |
 |---|---|
 | `SRC_ADDR` | `0x0000_0000` |
 | `DST_ADDR` | `0x0000_0000` |
@@ -318,9 +318,9 @@ simulation có kết quả lặp lại.
 | `done_sticky` | `0` |
 | `error_sticky` | `0` |
 
-## 10. Ghi chú tích hợp
+## 10. Integrated notes
 
-- `dma_regfile` chỉ là APB slave control plane
-- DMA engine phải là khoi tách riêng
-- hien dang ket noi toi ca `dma_tx_engine` và `dma_rx_engine`
-- status engine được mux theo direction transfer dang active trong `rv32_soc_top`
+- `dma_regfile` is just the APB slave control plane
+- The DMA engine must be separate
+- Displays the connection status of `dma_tx_engine` and `dma_rx_engine`
+- status engine muxed according to direction transfer is active in `rv32_soc_top`

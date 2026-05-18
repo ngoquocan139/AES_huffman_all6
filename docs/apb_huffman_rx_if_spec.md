@@ -1,18 +1,18 @@
 # APB Huffman RX Interface Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-`apb_huffman_rx_if` là APB slave nằm trong RX top. No cung cấp:
+`apb_huffman_rx_if` is the APB slave located in RX top. It provides:
 
-- output FIFO để `dma_rx_engine` đọc plaintext 32-bit
+- output FIFO to `dma_rx_engine` to read 32-bit plaintext
 - status/meta registers
 - soft reset control
 - legacy ciphertext staging APB registers
 
-Main SoC flow hiện tại feed ciphertext bằng stream 128-bit trực tiếp, nen legacy
-ciphertext staging APB không phải đường chính.
+The current main SoC flow feeds ciphertext using a direct, legacy 128-bit stream
+ciphertext staging APB is not the main route.
 
-Trạng thái kiểm chứng hiện tại:
+Current verification status:
 
 | Case | Coverage/use |
 |---|---|
@@ -35,9 +35,9 @@ flowchart LR
   STICKY --> STATUS
 ```
 
-## 2. RX APB Bản đồ thanh ghi
+## 2. RX APB Register map
 
-| Offset | Name | Truy cập | Định dạng dữ liệu | Ý nghĩa |
+| Offset | Name | Access | Data format | Meaning |
 |---:|---|---|---|---|
 | `0x00` | `RX_DATA` | R | little-endian 32-bit word | 32-bit plaintext output word |
 | `0x04` | `RX_META` | R | bitfield | valid bytes and last flags for output head |
@@ -48,11 +48,11 @@ flowchart LR
 | `0x30` | `CTXT_START` | W | control pulse | legacy staging start |
 | `0x34` | `CTXT_STATUS` | R | bitfield | legacy staging status |
 
-### 2.1 RX APB Tóm tắt chức năng thanh ghi
+### 2.1 RX APB Register function summary
 
-| Thanh ghi | Chức năng | Người dùng chính | Định dạng dữ liệu / ghi chú |
+| Register | Function | Primary user | Data format / note |
 |---|---|---|---|
-| `RX_DATA` | Read 32-bit plaintext output word | `dma_rx_engine` | Little-endian 32-bit word; reading pops the output FIFO head |
+| `RX_DATA` | Read 32-bit plaintext output word | `dma_rx_engine` | Little-endian 32-bit word; reading pops output FIFO head |
 | `RX_META` | Read valid-byte count and last flags for FIFO head | `dma_rx_engine` | Bitfield sampled before `RX_DATA` for the same head word |
 | `RX_STATUS` | Poll output FIFO and sticky state | `dma_rx_engine`/debug software | Bitfield with nonempty/full/error and duplicated head metadata |
 | `RX_CONTROL` | Soft reset / clear sticky RX APB state | Debug software or reset flow | Bit0 clears local FIFO/sticky state; bit1 clears done, bit2 clears error |
@@ -65,7 +65,7 @@ flowchart LR
 
 `rx_byte_packer_32` pushes the following fields into the FIFO:
 
-| Trường | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Field | Width | Data format | Meaning |
 |---|---:|---|---|
 | `rx_word_data_i` | 32 | little-endian 32-bit word | Plaintext output word |
 | `rx_word_valid_bytes_i` | 3 | unsigned byte count | Number of valid bytes in the word, `1..4` |
@@ -76,11 +76,11 @@ flowchart LR
 `apb_huffman_rx_if` stores these fields in FIFO until `dma_rx_engine` reads
 `RX_DATA`.
 
-## 4. Thanh ghi Semantics
+## 4. Register Semantics
 
 `RX_STATUS` exposes:
 
-| Bit | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Data format | Meaning |
 |---:|---|---|
 | `0` | 1-bit live flag | output FIFO nonempty |
 | `1` | 1-bit live flag | output FIFO full |
@@ -99,7 +99,7 @@ flowchart LR
 
 `RX_META` exposes:
 
-| Bit | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Data format | Meaning |
 |---:|---|---|
 | `2:0` | unsigned byte count | valid byte count |
 | `3` | 1-bit meta flag | last-in-block |
@@ -107,7 +107,7 @@ flowchart LR
 
 `RX_DEBUG` exposes:
 
-| Bit | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Data format | Meaning |
 |---:|---|---|
 | `4:0` | unsigned count | FIFO count |
 | `8:5` | FIFO pointer | Write pointer |
@@ -121,7 +121,7 @@ flowchart LR
 
 `CTXT_STATUS` exposes:
 
-| Bit | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Data format | Meaning |
 |---:|---|---|
 | `3:0` | 4-bit stage flags | Cipher stage valid bits |
 | `4` | 1-bit stage flag | Cipher stage complete |
@@ -131,7 +131,7 @@ flowchart LR
 
 `RX_CONTROL` exposes:
 
-| Bit | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Data format | Meaning |
 |---:|---|---|
 | `0` | pulse | Soft reset local FIFO/sticky state |
 | `1` | pulse | Clear done sticky |
@@ -140,14 +140,14 @@ flowchart LR
 
 `CTXT_START` exposes:
 
-| Bit | Định dạng dữ liệu | Ý nghĩa |
+| Bit | Data format | Meaning |
 |---:|---|---|
 | `0` | pulse | Legacy ciphertext staging start |
 | `31:1` | reserved | Reserved; writing 1 is invalid |
 
 ## 5. Internal State / FIFO
 
-| Thanh ghi / FIFO | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Register / FIFO | Width | Data format | Meaning |
 |---|---:|---|---|
 | `fifo_data_mem` | 16 x 32 | little-endian words | FIFO storage for output data |
 | `fifo_valid_bytes_mem` | 16 x 3 | unsigned byte count | Valid-byte metadata per FIFO entry |
@@ -178,7 +178,7 @@ flowchart LR
 
 `RX_DATA` read pops the FIFO head.
 
-## 7. Điều kiện lỗi
+## 7. Error conditions
 
 The interface raises sticky error on:
 
@@ -187,7 +187,7 @@ The interface raises sticky error on:
 - invalid APB writes
 - upstream RX error
 
-## 8. Spec liên quan
+## 8. Related specs
 
 - [RX path end-to-end](./rx_path_end_to_end_spec.md)
 - [APB Huffman AES RX top](./apb_huffman_aes_rx_top_spec.md)

@@ -1,13 +1,12 @@
 # Huffman Block Parser Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-`huffman_block_parser` nhận bit chunks tu `bit_depacker_128`, tách thanh metadata
-block, table entry và payload window cho `huffman_block_decoder`.
+`huffman_block_parser` receives bit chunks from `bit_depacker_128` and separates block metadata, table entries, and payload windows for `huffman_block_decoder`.
 
-Parser không tu decode Huffman symbol. No chỉ parse format transport của TX.
+Parser does not decode Huffman symbols. It only parses the TX transport format.
 
-Trạng thái kiểm chứng hiện tại:
+Current verification status:
 
 | Case | Coverage/use |
 |---|---|
@@ -26,7 +25,7 @@ bit_depacker_128
 
 ## 3. Supported Block Modes
 
-| Bits | Mode | Định dạng dữ liệu | Parser action |
+| Bits | Mode | Data format | Parser action |
 |---:|---|---|---|
 | `00` | `RAW_FULL` | 2-bit mode code | Set block size 32, expose raw payload |
 | `01` | `RAW_PARTIAL` | 2-bit mode code | Parse 6-bit block size, expose raw payload |
@@ -51,7 +50,7 @@ flowchart LR
 
 ### 4.1 Input From Depacker
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `stream_data` | in | 32 | little-endian chunk | Input bit chunk from depacker |
 | `stream_len` | in | 6 | unsigned bit count | Number of valid bits in `stream_data` |
@@ -61,7 +60,7 @@ flowchart LR
 
 ## 5. Outputs To Decoder
 
-| Output | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Output | Width | Data format | Meaning |
 |---|---:|---|---|
 | `block_meta_valid` | 1 | valid flag | Metadata ready for decoder |
 | `block_mode` | 2 | mode code | One of 4 block modes |
@@ -77,7 +76,7 @@ flowchart LR
 
 Decoder consumes payload by asserting:
 
-| Tín hiệu | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Signal | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `payload_consume_valid` | out | 1 | valid flag | Consume payload bits |
 | `payload_consume_len` | out | 6 | unsigned bit count | Number of payload bits to consume |
@@ -103,9 +102,9 @@ Parser validates:
 - legal compressed code length
 - table entry format
 
-## 9. Thanh ghi nội bộ
+## 9. Internal registers
 
-| Reg | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Reg | Width | Data format | Meaning |
 |---|---:|---|---|
 | `state_r` | 3 | state code | Parser state machine |
 | `frame_active_r` | 1 | bool | Frame currently active |
@@ -125,7 +124,7 @@ Parser validates:
 | `frame_done_r` | 1 | pulse | Frame done pulse |
 | `error_r` | 1 | error flag | Parser error sticky |
 
-## 10. Spec liên quan
+## 10. Related specs
 
 - [RX path end-to-end](./rx_path_end_to_end_spec.md)
 - [Huffman block decoder](./huffman_block_decoder_spec.md)

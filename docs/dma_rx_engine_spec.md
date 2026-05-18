@@ -1,32 +1,32 @@
 # 13. DMA RX Engine Specification
 
-## 1. Mục đích
+## 1. Purpose
 
-`dma_rx_engine` là data-plane engine cho hướng:
+`dma_rx_engine` is the data-plane engine for direction:
 
 ```text
 DMEM ciphertext -> RX accelerator -> DMEM plaintext
 ```
 
-Trong SoC hiện tại, engine này:
+In the current SoC, this engine:
 
-1. nhận config tu `dma_regfile`
-2. chiem `DMEM` Cổng B khi dang chạy
-3. đọc ciphertext tu `DMEM` theo từng transport word 128-bit
-4. feed ciphertext vao `apb_huffman_aes_rx_top` bằng stream 128-bit
+1. Get config from `dma_regfile`
+2. check `DMEM` Port B while running
+3. Read ciphertext from `DMEM` according to each 128-bit transport word
+4. Feed ciphertext into `apb_huffman_aes_rx_top` using a 128-bit stream
 5. poll RX APB status/output FIFO
-6. đọc plaintext word 32-bit tu RX
-7. ghi plaintext ve `DMEM`
+6. Read plaintext word 32-bit from RX
+7. write plaintext to `DMEM`
 
-Trạng thái kiểm chứng hiện tại:
+Current verification status:
 
 | Case | Coverage/use |
 |---|---|
-| `dma_compress_aes_input1/input3/alnum63` | Normal whole-file RX phase trong TX->RX loopback |
-| `mmio_rx_bad_length` | RX rejects ciphertext length không align 16 byte |
-| `rx_backpressure_cov` | Stream/FIFO backpressure giua RX top và DMA RX |
+| `dma_compress_aes_input1/input3/alnum63` | Normal whole-file RX phase in TX->RX loopback |
+| `mmio_rx_bad_length` | RX rejects ciphertext length not aligned to 16 bytes |
+| `rx_backpressure_cov` | Stream/FIFO backpressure between RX top and DMA RX |
 | `rx_depacker_packer_direct_cov` | Malformed transport frame propagates RX error |
-| `dma_bridge_direct_cov` | Defensive config/error branches của DMA/APB path |
+| `dma_bridge_direct_cov` | Defensive config/error branches of DMA/APB path |
 | Full coverage regression | Included in `34/34` PASS baseline |
 
 ## 1.1 Flow Chart
@@ -59,30 +59,30 @@ flowchart TD
 
 ## 2. Current RX Input Path
 
-Code hiện tại dung stream input 128-bit, không dùng APB staging ciphertext cũ.
+The current code uses 128-bit input stream, does not use the old APB staging ciphertext.
 
 Stream signals:
 
-| Tín hiệu | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Signal | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
-| `rx_ciphertext_word_o` | RX engine -> RX top | 128 | 128-bit transport word `{w3,w2,w1,w0}` | Ciphertext block feed into RX top |
-| `rx_ciphertext_word_valid_o` | RX engine -> RX top | 1 | valid flag | valid khi engine dang feed word |
+| `rx_ciphertext_word_o` | RX engine -> RX top | 128 | 128-bit transport word `{w3,w2,w1,w0}` | Ciphertext block fed into RX top |
+| `rx_ciphertext_word_valid_o` | RX engine -> RX top | 1 | valid flag | valid when the engine is feeding words |
 | `rx_ciphertext_word_ready_i` | RX top -> RX engine | 1 | ready flag | RX accept ready |
 
 Legacy APB staging registers `CTXT_W0..W3`, `CTXT_START`, `CTXT_STATUS` are not used by the SoC main flow.
 
 ## 3. Accepted Config
 
-`dma_rx_engine` chỉ nhận `start_i` khi:
+`dma_rx_engine` only receives `start_i` when:
 
-| Trường | Rule |
+| Field | Rule |
 |---|---|
 | `direction_i` | must be `2'b10` |
 | `len_bytes_i` | nonzero and multiple of 16 bytes |
 | `src_addr_i` | 4-byte aligned |
 | `dst_addr_i` | 4-byte aligned |
 
-`block_size_i` is not used by RX datapath. It is only XORed into an unused-control reduction so lint does not treat the input as floating.
+`block_size_i` is not used by RX datapath. It is only XORed into an unused-control reduction number lint does not treat the input as floating.
 
 If config is invalid, engine raises `dma_error_o` and sets `last_error_code_o = 8'h02`.
 
@@ -90,7 +90,7 @@ If config is invalid, engine raises `dma_error_o` and sets `last_error_code_o = 
 
 ### 4.1 Control And Config
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `clk_i` | in | 1 | `clk` | System clock |
 | `rst_i` | in | 1 | `rst` | Active-high reset |
@@ -104,19 +104,19 @@ If config is invalid, engine raises `dma_error_o` and sets `last_error_code_o = 
 | `direction_i` | in | 2 | direction code | Must be RX direction `2'b10` |
 | `block_size_i` | in | 6 | unsigned byte count | Not functionally used by RX |
 
-### 4.2 DMEM Cổng B Master
+### 4.2 DMEM Port B Master
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
-| `dmem_en_o` | out | 1 | enable flag | Enable DMEM Cổng B |
+| `dmem_en_o` | out | 1 | enable flag | Enable DMEM Port B |
 | `dmem_we_o` | out | 4 | byte write mask | `4'b1111` when writing output word |
 | `dmem_addr_o` | out | 32 | byte address | Byte address |
 | `dmem_wdata_o` | out | 32 | little-endian word | Plaintext word written to DMEM |
 | `dmem_rdata_i` | in | 32 | little-endian word | Ciphertext word read from DMEM |
 
-### 4.3 Private APB Master To RX
+### 4.3 Private APB Master Tin RX
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `rx_psel_o` | out | 1 | APB select | APB `PSEL` |
 | `rx_penable_o` | out | 1 | APB enable | APB `PENABLE` |
@@ -127,9 +127,9 @@ If config is invalid, engine raises `dma_error_o` and sets `last_error_code_o = 
 | `rx_pready_i` | in | 1 | handshake | APB ready |
 | `rx_pslverr_i` | in | 1 | error flag | APB error |
 
-### 4.4 Trạng thái Outputs
+### 4.4 Outputs Status
 
-| Cổng | Hướng | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Port | Direction | Width | Data format | Meaning |
 |---|---|---:|---|---|
 | `dma_busy_o` | out | 1 | busy flag | Engine active |
 | `dma_done_o` | out | 1 | pulse | One-cycle done pulse |
@@ -138,11 +138,11 @@ If config is invalid, engine raises `dma_error_o` and sets `last_error_code_o = 
 | `last_error_code_o` | out | 8 | error code | Last error code |
 | `engine_state_o` | out | 4 | state nibble | Low nibble of FSM state |
 
-## 5. RX APB Thanh ghi Usage
+## 5. RX APB Register Usage
 
 `dma_rx_engine` uses only these RX APB offsets:
 
-| Offset | Thanh ghi | Truy cập | Định dạng dữ liệu | Engine usage |
+| Offset | Register | Access | Data format | Engine usage |
 |---:|---|---|---|---|
 | `0x00` | `RX_DATA` | read | little-endian 32-bit word | Read one plaintext output word |
 | `0x04` | `RX_META` | read | bitfield | Read valid byte count for output word |
@@ -183,7 +183,7 @@ Then:
 
 ## 8. Error Handling
 
-| Code | Ý nghĩa |
+| Code | Meaning |
 |---:|---|
 | `0x00` | No error |
 | `0x02` | Bad direction, zero length, unaligned length, or unaligned address |
@@ -192,22 +192,22 @@ Then:
 | `0x05` | RX meta valid byte count invalid |
 | `0x06` | RX frame done did not match ciphertext length contract |
 
-## 9. AES CBC Ghi chú
+## 9. AES CBC Notes
 
-`dma_rx_engine` không tu quan ly IV và không tu thực hiện CBC. Engine chỉ feed
-ciphertext 128-bit vao `apb_huffman_aes_rx_top`.
+`dma_rx_engine` does not practice IV management and does not practice CBC. Engine only feeds
+128-bit ciphertext into `apb_huffman_aes_rx_top`.
 
-CBC được thực hiện trong RX top:
+CBC is performed in RX top:
 
-1. capture ciphertext block hiện tại khi accept vao AES decrypt core;
-2. decrypt bằng `aes128_cipher_inv_top`;
-3. XOR decrypted output với previous ciphertext, hoặc `cbc_iv_i` cho block 0;
-4. feed plaintext transport word sau XOR vao `bit_depacker_128`;
-5. update previous ciphertext bằng block ciphertext vừa decrypt xong.
+1. capture current ciphertext block when accepted into AES decrypt core;
+2. decrypt with `aes128_cipher_inv_top`;
+3. XOR decrypted output with previous ciphertext, or `cbc_iv_i` for block 0;
+4. feed plaintext transport word then XOR into `bit_depacker_128`;
+5. update previous ciphertext with the ciphertext block that has just been decrypted.
 
-Software phải đảm bảo `IV0..IV3` trong `dma_regfile` bằng dung IV da dung khi
-TX encrypt. Trong loopback hiện tại, software ghi IV trước TX và giữ nguyên IV
-do cho RX.
+Software must ensure `IV0..IV3` in `dma_regfile` by using IV when used.
+TX encrypt. In the current loopback, the software registers the IV before the TX and keeps the IV unchanged
+sent to RX.
 
 ## 10. Software Implication
 
@@ -224,9 +224,9 @@ CONTROL    = start
 For the main loopback, software should use `CIPHERTEXT_BYTES_PRODUCED` from TX as RX `LEN_BYTES`.
 For AES-CBC loopback, software must also keep the same `IV0..IV3` value for RX.
 
-## 11. Trạng thái / thanh ghi nội bộ
+## 11. Internal status/registers
 
-| Reg / buffer | Độ rộng | Định dạng dữ liệu | Ý nghĩa |
+| Reg / buffer | Width | Data format | Meaning |
 |---|---:|---|---|
 | `state_r` | 5 | FSM state code | Main RX DMA state machine |
 | `apb_resume_state_r` | 5 | FSM state code | Resume state after APB wait |
