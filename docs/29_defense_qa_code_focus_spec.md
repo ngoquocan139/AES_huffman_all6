@@ -33,7 +33,7 @@ Neu bi hoi sau nua, tiep tuc xuong:
 |---|---|
 | TX core | `dynamic_huffman_encoder.v`, `bit_packer_128.v`, `wrapper.v` |
 | RX core | `huffman_block_parser.v`, `huffman_block_decoder.v`, `bit_depacker_128.v`, `wrapper_rx.v`, `rx_byte_packer_32.v` |
-| Software | `test_mmio_dma.c` va `c_files_explained.md` |
+| Software | `secure_storage_fw.h`, `test_mmio_dma_storage_table.c`, legacy `test_mmio_dma.c`, va `c_files_explained.md` |
 
 ---
 
@@ -349,13 +349,20 @@ Ban hien tai uu tien don gian va ro luong control. Polling de debug de hon trong
 
 **Tra loi ngan:**
 
-IV duoc CPU RV32I ghi vao cac thanh ghi `IV0..IV3` trong `dma_regfile`, sau do TX va RX cung doc lai tu regfile de dung chung cho CBC.
+IV do firmware RV32I cap. Trong flow secure-storage hien tai,
+`secure_storage_fw.h` tao IV, ghi vao `IV0..IV3` cua `dma_regfile`, va luu lai
+chinh 4 word IV do trong metadata record. Khi doc lai, firmware restore
+`IV0..IV3` tu metadata truoc khi start RX.
 
 ### Q12. IV duoc tao nhu the nao?
 
 **Tra loi ngan:**
 
-Trong flow hien tai, CPU tinh IV bang phan mem RV32I roi ghi vao MMIO. Nghia la IV hien tai la software-provided IV, khong phai TRNG phan cung.
+Trong flow hien tai, CPU tinh IV bang phan mem RV32I trong
+`secure_prepare_record()`. Counter dat tai `DMEM[0x000001F0]`, seed
+`0x31415926`, moi lan `secure_write` counter tang len va duoc tron voi
+`plain_len`, `plain_addr`, `cipher_addr`, `file_id`, va constant `0x43424331`.
+Day la deterministic demo IV, khong phai TRNG phan cung.
 
 ### Q13. Tai sao raw DUT coverage chua 100%?
 
@@ -384,13 +391,16 @@ Vi day la bang chung cuoi cung rang toan bo chuoi TX->luu tru->RX hoat dong dung
 
 Duoc, neu phan mem RV32I giu metadata cho tung ban ghi. Metadata can co
 `file_id`, dia chi ciphertext trong DMEM, ciphertext length, plaintext length,
-mode va IV. Khi muon lay lai input1, CPU tim record `file_id=1`, ghi lai
-`SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE=0x2`, `IV0..IV3`, roi start RX.
+mode va IV. Hien tai viec nay da duoc dong goi thanh `secure_write()` va
+`secure_read()`: khi muon lay lai input1, firmware tim record `file_id=1`,
+restore `IV0..IV3`, lay `cipher_addr/cipher_len/plain_len`, cau hinh RX
+`MODE=0x2`, roi start DMA.
 
 **Bang chung hien co:**
 
-`dma_storage_table_input1_then_input3` da pass: TX input1, TX input3, sau do
-chon lai record input1 va RX ra plaintext khop `input1.txt`.
+`dma_storage_table_input1_then_input3` da pass `PASS=22`, `FAIL=0`: TX input1,
+TX input3, sau do chon lai record input1 bang `secure_read(file_id=1)` va RX ra
+plaintext khop `input1.txt`.
 
 ---
 

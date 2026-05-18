@@ -19,7 +19,7 @@ Current verification status:
 | TX-only saving mode | `MODE=0xD`, whole-file Huffman + AES bypass |
 | Active TX testcase examples | `dma_compress_aes_input1`, `tx_compress_only_input4_cov`, `tx_apb_error_cov` |
 | Coverage hooks | `tx_if_direct_cov`, `tx_encoder_direct_cov`, `tx_builder_packer_direct_cov` |
-| Latest regression | included in `34/34` PASS coverage baseline |
+| Historical full regression | included in `34/34` PASS coverage baseline before secure-storage API refactor |
 
 ## 2. TX Goal
 
@@ -355,7 +355,7 @@ CPU writes MODE=0x9, BLOCK_CFG=32, IV0..IV3
 
 - `COMPRESS_ONLY` TX da chay duoc, nhung RX symmetric bypass path chua la flow chinh
 - key AES hien tai la fixed key trong RTL
-- IV hien tai do software RV32I tao, chua phai entropy manh
+- IV hien tai do firmware RV32I tao va luu trong metadata, chua phai entropy manh
 - TX top khong dung `AES_top.v` da-mode; chi dung `aes128_cipher_top` + CBC wrapper nho
 - raw full coverage cua TX-related logic van bi keo boi toggle va mot so condition/expression hiem; functional branch/statement closure da dat trong regression chung
 

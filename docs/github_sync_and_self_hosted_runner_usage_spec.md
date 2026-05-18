@@ -374,7 +374,7 @@ Run locally:
 
 ```bash
 cd /mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim
-make license SUDO_PASS=1412
+make license
 ```
 
 Then rerun the GitHub workflow.

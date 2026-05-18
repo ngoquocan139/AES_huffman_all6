@@ -61,7 +61,7 @@ Verification status hien tai:
 | `mmio_regfile_basic` | legal CPU MMIO load/store path |
 | `mmio_regfile_negative` | invalid size/address and APB error propagation |
 | `dma_bridge_direct_cov` | APB wait-state, PSLVERR, invalid local request branches |
-| Full regression | included in `34/34` PASS coverage baseline |
+| Historical full regression | included in `34/34` PASS coverage baseline before secure-storage API refactor |
 
 ## 5. Cong module de xuat
 

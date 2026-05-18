@@ -35,7 +35,7 @@ Verification status hien tai:
 | `mmio_regfile_negative` | invalid start, readonly write, bad address, reserved bits |
 | `mmio_mode_matrix` | all supported mode encodings and invalid mode cases |
 | `dma_bridge_direct_cov` | APB wait/error/defensive regfile branches |
-| Full regression | included in `34/34` PASS coverage baseline |
+| Historical full regression | included in `34/34` PASS coverage baseline before secure-storage API refactor |
 
 ## 3. So do khoi
 
@@ -255,8 +255,9 @@ Semantics:
 - reset va `CONTROL.soft_reset` xoa IV ve `0`
 - trong loopback AES, RX phai dung cung IV da dung cho TX
 
-`dma_regfile` khong sinh IV ngau nhien. Viec tao IV thuoc ve software/host.
-Test hien tai dung IV deterministic do `testcase/test_mmio_dma.c` tao de
+`dma_regfile` khong sinh IV ngau nhien. Viec tao IV thuoc ve software/firmware.
+Flow secure-storage hien tai dung IV deterministic do
+`testcase/secure_storage_fw.h` tao, luu vao metadata, va restore truoc RX de
 simulation co ket qua lap lai.
 
 ## 6. Hanh vi APB

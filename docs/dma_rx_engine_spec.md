@@ -27,7 +27,7 @@ Current verification status:
 | `rx_backpressure_cov` | Stream/FIFO backpressure giua RX top va DMA RX |
 | `rx_depacker_packer_direct_cov` | Malformed transport frame propagates RX error |
 | `dma_bridge_direct_cov` | Defensive config/error branches cua DMA/APB path |
-| Full coverage regression | Included in `34/34` PASS baseline |
+| Historical full coverage regression | Included in `34/34` PASS baseline before secure-storage API refactor |
 
 ## 1.1 Flow Chart
 

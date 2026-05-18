@@ -437,7 +437,8 @@ Trong testcase hien tai:
 - mask bit status
 - shift/pack gia tri
 
-Day la nhom lenh RV32I dung nhieu de tao IV demo trong `test_mmio_dma.c`.
+Day la nhom lenh RV32I dung nhieu de tao IV demo trong firmware hien tai
+`secure_storage_fw.h` va trong legacy direct-loopback `test_mmio_dma.c`.
 Vi du:
 
 - `lui` tao gia tri base 20-bit tren

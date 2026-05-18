@@ -2,315 +2,306 @@
 
 ## 1. Purpose
 
-Tai lieu nay chot 3 diem cho he thong hien tai:
+This document fixes the current contract for:
 
-1. IV duoc tao o dau
-2. CPU RV32I ghi IV xuong phan cung theo contract nao
-3. TX/RX dung IV do trong AES-CBC theo cach nao
+1. where the IV is generated,
+2. how RV32I firmware stores and restores it,
+3. how TX/RX consume it in AES-128-CBC.
 
-Spec nay mo ta **flow active hien tai trong repo**, khong mo ta cac huong cu
-nhu ECB hay host-preprocess.
+This spec describes the active repo state. It does not describe older flows
+where IV was generated only inside `test_mmio_dma.c`.
 
-Current verification status:
+Current implementation:
 
-| Case | Coverage/use |
+| Item | Current value |
 |---|---|
-| `dma_compress_aes_input1/input3/alnum63` | RV32I writes IV, TX encrypts with CBC, RX decrypts with the same IV |
-| `tx_compress_aes_block_input3` | TX-only AES-CBC path with software-provided IV |
-| `mmio_regfile_basic` | CPU read/write coverage for `IV0..IV3` registers |
-| `mmio_regfile_negative` | Invalid MMIO/error behavior around DMA config path |
-| Full coverage regression | Included in `34/34` PASS baseline |
+| IV owner | RV32I firmware |
+| Active source file | `testcase/secure_storage_fw.h` |
+| Active testcase | `testcase/test_mmio_dma_storage_table.c` |
+| IV counter address | `0x0000_01F0` in DMEM |
+| IV seed | `0x31415926` |
+| IV storage | DMA IV registers plus metadata words `iv0..iv3` |
+| TX mode using IV | `MODE=0x9`, whole-file Huffman + AES-128-CBC |
+| RX mode using IV | `MODE=0x2`, AES-CBC decrypt + Huffman decode |
 
-## 1.1 IV And CBC Flow Chart
+## 2. Ownership
 
-```mermaid
-flowchart TD
-  A["RV32I reads input_len/context"] --> B["Compute demo IV words"]
-  B --> C["MMIO write IV0"]
-  C --> D["MMIO write IV1"]
-  D --> E["MMIO write IV2"]
-  E --> F["MMIO write IV3"]
-  F --> G["Start TX COMPRESS_AES"]
-  G --> H["TX uses IV for first CBC block"]
-  H --> I["TX writes ciphertext to DMEM"]
-  I --> J["Start RX with same IV registers"]
-  J --> K["RX uses IV for first CBC decrypt block"]
-  K --> L["RX restores Huffman transport plaintext"]
-```
+The current RTL does not generate IV by itself.
 
-## 2. Current Ownership
+Hardware provides:
 
-IV hien tai do **software RV32I** tao.
+- DMA IV register words `IV0..IV3`.
+- CBC datapath in TX and RX.
+- Fixed AES-128 key material in RTL.
 
-Phan cung hien tai:
+Firmware provides:
 
-- khong co TRNG
-- khong tu sinh IV
-- khong co key register runtime
-- khong co mode register de chon ECB/CBC
+- IV counter in DMEM.
+- IV generation formula.
+- IV metadata storage.
+- IV restore before read/decrypt.
 
-Phan cung chi cung cap:
-
-- `IV0` tai `0x4000_0028`
-- `IV1` tai `0x4000_002C`
-- `IV2` tai `0x4000_0030`
-- `IV3` tai `0x4000_0034`
-
-trong `dma_regfile`.
+There is no TRNG, no hardware entropy source, and no runtime key register in
+the current implementation.
 
 ## 3. Register Contract
 
-Bon thanh ghi 32-bit tao thanh IV 128-bit:
+DMA register base:
+
+```text
+DMA_BASE = 0x4000_0000
+```
+
+| Offset | Register | Meaning |
+|---:|---|---|
+| `0x28` | `IV0` | CBC IV bits `[31:0]` |
+| `0x2C` | `IV1` | CBC IV bits `[63:32]` |
+| `0x30` | `IV2` | CBC IV bits `[95:64]` |
+| `0x34` | `IV3` | CBC IV bits `[127:96]` |
+
+The 128-bit IV passed to RTL is:
 
 ```text
 cbc_iv = {IV3, IV2, IV1, IV0}
 ```
 
-Rule:
+Rules:
 
-- CPU phai ghi `IV0..IV3` truoc `CONTROL.start` khi dung `COMPRESS_AES`
-- khong duoc ghi IV khi `STATUS.busy = 1`
-- `CONTROL.soft_reset` xoa IV ve `0`
-- RX phai dung lai dung cung IV da dung luc TX encrypt
+- Firmware must write `IV0..IV3` before `CONTROL.start` for AES TX/RX.
+- Firmware must not rewrite IV while `STATUS.busy = 1`.
+- `CONTROL.soft_reset` clears IV registers to zero.
+- RX must restore the same IV words used by the corresponding TX write.
+- `COMPRESS_ONLY` bypasses AES and therefore does not consume IV.
 
-`COMPRESS_ONLY` bypass AES, vi vay khong dung IV.
+## 4. Current IV Generation
 
-### 3.1 IV Register Function Table
+The active code is:
 
-| Register | Bits in `cbc_iv` | Writer | Consumer | Note |
-|---|---:|---|---|---|
-| `IV0` | `[31:0]` | RV32I software | TX/RX CBC logic | Least significant IV word; write before AES transfer start |
-| `IV1` | `[63:32]` | RV32I software | TX/RX CBC logic | Part of same 128-bit IV snapshot |
-| `IV2` | `[95:64]` | RV32I software | TX/RX CBC logic | Must match between TX encrypt and RX decrypt |
-| `IV3` | `[127:96]` | RV32I software | TX/RX CBC logic | Most significant IV word |
-| `STATUS.busy` | N/A | DMA regfile/engine | RV32I software | If `1`, software must not rewrite IV |
-| `CONTROL.soft_reset` | N/A | RV32I software | DMA regfile | Clears IV registers to zero |
-
-## 4. Current Software IV Generation
-
-Implementation hien tai nam trong:
-
-- [test_mmio_dma.c](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/testcase/test_mmio_dma.c)
-
-Ham dang duoc dung:
-
-```c
-static void write_demo_iv(uint32_t input_len);
+```text
+testcase/secure_storage_fw.h
 ```
 
-IV hien tai la **demo deterministic IV**, duoc tao tu:
-
-- `sw_iv_counter`
-- `input_len`
-- `SRC_BASE_ADDR`
-- `TX_DST_BASE_ADDR`
-- `RX_DST_BASE_ADDR`
-- cac constant co dinh
-
-No khong doc:
-
-- timer MMIO
-- cycle counter hardware
-- host nonce
-- TRNG
-
-## 5. Detailed IV Generation Flow
-
-### 5.1 Inputs
-
-Software su dung:
-
-- `sw_iv_counter` khoi tao `0x10203040`
-- `input_len`
-- `SRC_BASE_ADDR`
-- `TX_DST_BASE_ADDR`
-- `RX_DST_BASE_ADDR`
-
-### 5.2 Step 1: increment software counter
+Generation happens in:
 
 ```c
-sw_iv_counter = sw_iv_counter + 1u;
+secure_prepare_record(slot, file_id, plain_addr, cipher_addr, plain_len)
 ```
 
-Y nghia:
+Input fields:
 
-- moi lan goi ham, counter tang len
-- tranh viec IV giong het nhau neu lap lai cung input trong cung mot session
+| Field | Source |
+|---|---|
+| `plain_len` | Caller-provided plaintext length |
+| `plain_addr` | Caller-provided plaintext source address |
+| `cipher_addr` | Firmware-selected ciphertext slot address |
+| `file_id` | Caller-provided storage object ID |
+| `counter` | DMEM word at `SECURE_IV_COUNTER_ADDR` after increment |
+| `0x43424331` | Fixed debug constant, ASCII-like `CBC1` |
 
-### 5.3 Step 2: create initial mix
+Counter state:
 
-```c
-mix = input_len ^ SRC_BASE_ADDR ^ TX_DST_BASE_ADDR ^ RX_DST_BASE_ADDR;
-mix = mix ^ sw_iv_counter ^ 0x43424331u;
+```text
+SECURE_IV_COUNTER_ADDR = 0x0000_01F0
+SECURE_IV_SEED         = 0x31415926
 ```
 
-`0x43424331` la constant debug theo y nghia `"CBC1"`.
-
-### 5.4 Step 3: whitening by shift-xor
+At initialization:
 
 ```c
+SECURE_IV_COUNTER_WORD = SECURE_IV_SEED;
+```
+
+Before every secure write:
+
+```c
+counter = SECURE_IV_COUNTER_WORD + 1u;
+if (counter == 0u)
+    counter = SECURE_IV_SEED + 1u;
+SECURE_IV_COUNTER_WORD = counter;
+```
+
+## 5. Exact Formula
+
+Current formula:
+
+```c
+mix = plain_len ^ plain_addr ^ cipher_addr ^ file_id ^ counter ^ 0x43424331u;
 mix = mix ^ (mix << 13);
 mix = mix ^ (mix >> 17);
 mix = mix ^ (mix << 5);
+
+iv0 = 0x43424331u ^ file_id;
+iv1 = mix ^ 0x3a5c742eu;
+iv2 = rotl32(iv1 ^ 0x9e3779b9u, 7u);
+iv3 = rotl32(iv2 + 0x3c6ef372u, 17u);
 ```
 
-Muc dich:
-
-- phan tan bit
-- tranh output chi la XOR tho giua vai field input
-
-### 5.5 Step 4: derive IV words
+where:
 
 ```c
-DMA_IV0 = 0x43424331u;
-DMA_IV1 = mix ^ 0x3a5c742eu;
-DMA_IV2 = rotl32(DMA_IV1 ^ 0x9e3779b9u, 7u);
-DMA_IV3 = rotl32(DMA_IV2 + 0x3c6ef372u, 17u);
+rotl32(x, sh) = (x << sh) | (x >> (32u - sh))
 ```
 
-Trong do:
-
-```c
-rotl32(x, sh) = (x << sh) | (x >> (32 - sh))
-```
-
-### 5.6 Step 5: MMIO writes
-
-CPU ghi xuong:
+Firmware then writes:
 
 ```text
-0x40000028 <- IV0
-0x4000002C <- IV1
-0x40000030 <- IV2
-0x40000034 <- IV3
+DMA_IV0 <- iv0
+DMA_IV1 <- iv1
+DMA_IV2 <- iv2
+DMA_IV3 <- iv3
 ```
 
-## 6. RV32I Instruction-Level View
+and stores the same words into the selected metadata record.
 
-IV hien tai duoc CPU tinh bang instruction RV32I thuong:
+## 6. Metadata IV Storage
 
-- `lw`
-- `sw`
-- `add` / `addi`
-- `xor`
-- `slli`
-- `srli`
-- `or`
-
-Khong can:
-
-- `mul`
-- CSR counter
-- timer instruction dac biet
-
-Pseudo-assembly muc cao:
+Metadata table base:
 
 ```text
-lw    t0, sw_iv_counter
-addi  t0, t0, 1
-sw    t0, sw_iv_counter
-
-li    t1, input_len
-li    t2, SRC_BASE_ADDR
-xor   t1, t1, t2
-li    t2, TX_DST_BASE_ADDR
-xor   t1, t1, t2
-li    t2, RX_DST_BASE_ADDR
-xor   t1, t1, t2
-xor   t1, t1, t0
-li    t2, 0x43424331
-xor   t1, t1, t2
-
-slli  t2, t1, 13
-xor   t1, t1, t2
-srli  t2, t1, 17
-xor   t1, t1, t2
-slli  t2, t1, 5
-xor   t1, t1, t2
-
-sw    iv0, DMA_IV0
-sw    iv1, DMA_IV1
-sw    iv2, DMA_IV2
-sw    iv3, DMA_IV3
+SECURE_META_BASE_ADDR    = 0x0000_0100
+SECURE_META_RECORD_COUNT = 2
+SECURE_META_RECORD_SHIFT = 6
 ```
 
-## 7. CBC Use In TX
+Record `slot` starts at:
 
-TX top nhan:
+```text
+0x0000_0100 + slot * 0x40
+```
 
-- `cbc_iv_i = {IV3, IV2, IV1, IV0}`
+IV-related fields:
 
-Contract hien tai:
+| Word index | Field | Meaning |
+|---:|---|---|
+| `7` | `iv0` | Stored IV word 0 |
+| `8` | `iv1` | Stored IV word 1 |
+| `9` | `iv2` | Stored IV word 2 |
+| `10` | `iv3` | Stored IV word 3 |
+| `11` | `version` | Current counter value used by this record |
+
+`secure_prepare_record()` writes IV and provisional metadata with
+`valid = 0`. `secure_commit_record()` sets `cipher_len`, clears flags, and then
+sets `valid = 1` only after TX succeeds.
+
+This prevents a failed TX attempt from being treated as a readable secure
+storage record.
+
+## 7. TX CBC Use
+
+TX secure write path:
+
+```text
+secure_write()
+  -> secure_prepare_record()
+  -> write DMA_IV0..DMA_IV3
+  -> secure_run_dma(..., MODE=0x9)
+```
+
+CBC contract:
 
 ```text
 C0 = AES_encrypt(P0 XOR IV)
 Cn = AES_encrypt(Pn XOR Cn-1)
 ```
 
-Trong implementation:
+The TX path encrypts the packed Huffman transport stream. It does not encrypt
+the original plaintext bytes directly; plaintext first becomes Huffman
+transport, then AES-CBC encrypts that transport.
 
-- word plaintext transport dau tien XOR voi `cbc_iv_i`
-- cac word sau XOR voi ciphertext word truoc
-- chain reset khi reset, soft reset, hoac clear pipeline
+Relevant RTL:
 
-File RTL lien quan:
+```text
+rtl/apb_huffman_aes_tx_top.v
+rtl/dma_tx_engine.v
+rtl/dma_regfile.v
+```
 
-- [apb_huffman_aes_tx_top.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_tx_top.v)
+## 8. RX CBC Use
 
-## 8. CBC Use In RX
+RX secure read path:
 
-RX top nhan cung `cbc_iv_i`.
+```text
+secure_read(file_id, dst_addr)
+  -> find metadata record
+  -> secure_restore_iv_from_record(slot)
+  -> write DMA_IV0..DMA_IV3
+  -> secure_run_dma(cipher_addr, dst_addr, cipher_len, MODE=0x2)
+```
 
-Contract hien tai:
+CBC decrypt contract:
 
 ```text
 P0 = AES_decrypt(C0) XOR IV
 Pn = AES_decrypt(Cn) XOR Cn-1
 ```
 
-Trong implementation:
+After AES-CBC decrypt, RX depacks and decodes the Huffman transport. Firmware
+checks:
 
-- RX giu lai ciphertext block truoc
-- output cua `aes128_cipher_inv_top` duoc XOR voi previous ciphertext
-- block dau tien XOR voi `cbc_iv_i`
+```text
+result.bytes_done == metadata.plain_len
+```
 
-File RTL lien quan:
+Relevant RTL:
 
-- [apb_huffman_aes_rx_top.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_rx_top.v)
+```text
+rtl/apb_huffman_aes_rx_top.v
+rtl/dma_rx_engine.v
+rtl/dma_regfile.v
+```
 
-## 9. Current Security Status
+## 9. RV32I Instruction-Level View
 
-IV hien tai:
+The IV and metadata flow is implemented using normal RV32I instructions:
 
-- do RV32I tao
-- co thay doi theo software counter va input context
-- phu hop de simulation lap lai va debug
-- **khong** duoc xem la IV entropy manh cho san pham that
+- `lw` / `sw` for DMEM and MMIO access,
+- `addi` for counter increment,
+- `xor`, `slli`, `srli`, `or` for mixing and rotate,
+- branches for record lookup and polling.
 
-Ly do:
+No custom instruction is required.
 
-- khong co nguon random that
-- khong co timer/cycle counter hardware trong cong thuc hien tai
-- input/context co the doan duoc
+The current firmware also inserts two `nop` instructions after volatile reads
+through `secure_load_delay()`. This is part of the active software contract for
+the current CPU/MMIO path because immediate use of a freshly loaded value can
+expose a load-use hazard.
 
-## 10. Current Source Of Truth
+## 10. Security Meaning
 
-Neu can biet thiet ke hien tai dang lam gi, uu tien cac file sau:
+For the current academic prototype:
 
-1. [00_current_system_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/00_current_system_spec.md)
-2. [memory_map_dma_software_contract.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/memory_map_dma_software_contract.md)
-3. [dma_riscv_instruction_programming_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/dma_riscv_instruction_programming_spec.md)
-4. [test_mmio_dma.c](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/testcase/test_mmio_dma.c)
+- IV is generated by the RV32I firmware.
+- Different records get different IVs because `file_id`, `cipher_addr`, and
+  the counter participate in the formula.
+- Metadata preserves the exact IV needed for later read/decrypt.
 
-## 11. Recommended Next Revision
+For a production secure-storage design, this IV generator should be replaced or
+strengthened with a real nonce/entropy policy, such as:
 
-Neu can nang cap IV sau nay, thu tu hop ly la:
+- TRNG or hardware unique key derived nonce,
+- host-provided nonce with replay protection,
+- persistent monotonic counter in non-volatile storage,
+- authenticated encryption or a MAC over metadata and ciphertext.
 
-1. demo FPGA:
-   - RV32I doc them timer/counter MMIO roi tron vao IV
-2. board demo co host:
-   - host gui nonce moi cho moi message
-3. secure mode:
-   - bo sung TRNG hoac PRNG co seed/entropy phu hop
+The current RTL/firmware does not implement those production features.
 
-Nhung cac huong tren hien **chua** nam trong implementation active.
+## 11. Verification
+
+Latest focused testcase:
+
+```bash
+cd sim
+make compile C_SRC=test_mmio_dma_storage_table.c
+make all TESTNAME=dma_storage_table_input1_then_input3 \
+  TB_NAME=test_bench \
+  RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+```
+
+Observed behavior:
+
+- Two secure records are written with different file IDs.
+- Slot 0 uses ciphertext address `0x0000_4000`.
+- Slot 1 uses ciphertext address `0x0000_5000`.
+- IV words for the two slots are checked to be different.
+- `secure_read(1, 0x0000_6000, ...)` restores the selected record.
+- Simulation reports `PASS=22`, `FAIL=0`.

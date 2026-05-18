@@ -192,9 +192,9 @@ Disabled candidates in `pat.list`:
 | `dma_compress_aes_input2_debug` | Current TX reports error on `input2.txt`; keep as debug target before adding back to clean regression |
 | `dma_compress_aes_input4_cov_debug` | Current TX reports error `0x05` on log-like `input4_cov.txt`; TX-only still passes |
 
-## 5. Current Baseline Result
+## 5. Historical Coverage Baseline Result
 
-Baseline moi nhat da chay ngay 2026-05-10 bang:
+Coverage baseline da chay ngay 2026-05-10 bang:
 
 ```sh
 cd sim
@@ -203,7 +203,7 @@ cd sim
 make drc
 ```
 
-Ket qua pass/fail va coverage moi nhat:
+Ket qua pass/fail va coverage cua baseline nay:
 
 | Metric | Value |
 |---|---:|

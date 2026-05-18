@@ -15,8 +15,9 @@ Spec nay dua tren:
 
 - implementation hien tai cua `dma_regfile`
 - memory map hien tai cua SoC
-- chuong trinh `testcase/test_mmio_dma.c`
-- disassembly cua `testcase/test_mmio_dma.elf`
+- firmware `testcase/secure_storage_fw.h`
+- testcase `testcase/test_mmio_dma_storage_table.c`
+- legacy direct-loopback program `testcase/test_mmio_dma.c`
 
 Regression baseline hien tai dung mot testbench chinh `test_bench`; testcase
 wrapper duoc chon bang `TESTNAME` va plusargs duoc chon bang `RUN_ARGS`.
@@ -45,7 +46,7 @@ Tuc la tu goc nhin cua CPU:
 ```mermaid
 flowchart TD
   A["RV32I code"] --> B["lw input_len from DMEM"]
-  B --> C["addi/xor/slli/srli/or\ncompute demo IV"]
+  B --> C["secure_storage_fw\ncompute/store IV and metadata"]
   C --> D["sw config registers\nSRC/DST/LEN/MODE/BLOCK/IV"]
   D --> E["lw STATUS"]
   E --> F{"cfg_valid and idle?"}
@@ -117,8 +118,10 @@ CPU muon chay TX:
 - `IV0..IV3` neu dung `COMPRESS_AES`
 
 Trong RTL hien tai, `COMPRESS_AES` la AES-CBC. CPU phai tao/ghi IV truoc
-`CONTROL.start`. `testcase/test_mmio_dma.c` dang tao IV demo deterministic bang
-cac instruction RV32I co ban, khong dung `mul`.
+`CONTROL.start`. Flow secure-storage hien tai tao IV trong
+`testcase/secure_storage_fw.h`, luu IV vao metadata, va restore IV truoc RX.
+Day van la cac instruction RV32I co ban, khong dung `mul` hay custom
+instruction.
 
 Sau khi TX xong:
 
@@ -336,13 +339,13 @@ sw value2, 48(base)   # IV2, offset 0x30
 sw value3, 52(base)   # IV3, offset 0x34
 ```
 
-IV demo trong `test_mmio_dma.c` duoc tao bang cac instruction RV32I nhu:
+IV demo trong `secure_storage_fw.h` duoc tao bang cac instruction RV32I nhu:
 
-- `xor` de tron counter/input length
+- `xor` de tron counter, `file_id`, dia chi source/destination va input length
 - `slli` va `srli` de tao rotate
 - `or` de ghep ket qua rotate
 - `addi`/`add` de cong constant
-- `sw` de ghi IV vao MMIO
+- `sw` de ghi IV vao MMIO va metadata
 
 ## 5.5 Doc `STATUS` truoc khi start
 

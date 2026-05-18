@@ -26,7 +26,7 @@ Verification status hien tai:
 | `mmio_regfile_negative` | MMIO error propagation without false DMA start |
 | `soc_sideband_cov` | top-level `cpu_stall_i`, `cpu_if_flush_i`, aux/toggle coverage |
 | `cpu_instruction_cov` | branch/load/store instruction behavior while SoC is integrated |
-| Full regression | included in `34/34` PASS coverage baseline |
+| Historical full regression | included in `34/34` PASS coverage baseline before secure-storage API refactor |
 
 ## 2. Nguyen tac tong quat
 

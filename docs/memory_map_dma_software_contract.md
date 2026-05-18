@@ -2,494 +2,444 @@
 
 ## 1. Purpose
 
-Tai lieu nay chot 2 thu:
+This document defines the current CPU-visible memory map and the software
+contract used by RV32I firmware to control DMA, Huffman, AES-CBC, metadata, and
+IV state.
 
-1. memory map toi thieu cua SoC hien tai
-2. contract phan mem khi CPU cau hinh va poll DMA
+Current active firmware:
 
-Spec nay dua tren code hien tai trong repo, sau khi loopback:
-
-- `DMEM -> DMA TX -> TX -> DMEM`
-- `DMEM -> DMA RX -> RX -> DMEM`
-
-da pass simulation.
-
-Regression baseline hien tai:
-
-| Metric | Value |
-|---|---:|
-| Active testcase count | 34 |
-| Passed testcase count | 34 |
-| Raw DUT full `bcesft` | 93.52% |
-| Raw DUT branch+statement | 95.27% |
-| Closed DUT coverage | 95.90% |
-
-## 1.1 Software Contract Flow Chart
-
-```mermaid
-flowchart TD
-  A["CPU chooses TX or RX"] --> B["Write SRC_ADDR"]
-  B --> C["Write DST_ADDR"]
-  C --> D["Write LEN_BYTES"]
-  D --> E["Write MODE"]
-  E --> F["Write BLOCK_CFG if TX"]
-  F --> G["Write IV0..IV3 if COMPRESS_AES"]
-  G --> H{"STATUS cfg_valid and not busy?"}
-  H -->|"no"| H
-  H -->|"yes"| I["Write CONTROL.start"]
-  I --> J{"Poll STATUS"}
-  J -->|"busy"| J
-  J -->|"error"| K["Handle error"]
-  J -->|"done"| L["Read BYTES_DONE"]
-  L --> M{"TX?"}
-  M -->|"yes"| N["Read CIPHERTEXT_BYTES_PRODUCED"]
-  M -->|"no"| O["RX plaintext ready in DMEM"]
+```text
+testcase/secure_storage_fw.h
+testcase/test_mmio_dma_storage_table.c
 ```
 
-## 2. System memory map
+Latest focused verification:
 
-### 2.1 Global map
+| Item | Value |
+|---|---|
+| Testcase | `dma_storage_table_input1_then_input3` |
+| Result | `PASS=22`, `FAIL=0` |
+| Stored records | 2 |
+| Selected readback | `file_id=1` |
+| RX restored length | 2551 bytes |
+
+## 2. Global Address Map
 
 | Region | Base | End | Owner / meaning |
-|---|---|---|---|
-| `DMEM` | `0x0000_0000` | `0x0000_7FFF` | Data memory, CPU Port A, DMA Port B |
-| `DMA MMIO` | `0x4000_0000` | `0x4000_00FF` | `dma_regfile` qua `cpu_mmio_to_apb_bridge` |
+|---|---:|---:|---|
+| `DMEM` | `0x0000_0000` | `0x0000_7FFF` | CPU data, DMA source/destination, metadata, testbench/UART preload |
+| `DMA MMIO` | `0x4000_0000` | `0x4000_00FF` | `dma_regfile` through `cpu_mmio_to_apb_bridge` |
 
-### 2.2 Current policy
+Rules:
 
-- CPU hien chi duoc MMIO truc tiep vao `DMA MMIO`
-- CPU khong truy cap truc tiep `TX` hay `RX` qua APB trong flow chinh
-- `TX` va `RX` duoc dieu khien boi `dma_tx_engine` va `dma_rx_engine`
+- All system addresses used by firmware and DMA are byte addresses.
+- Current DMA engines require `SRC_ADDR` and `DST_ADDR` to be 4-byte aligned.
+- CPU controls DMA through MMIO only.
+- CPU does not directly program TX/RX accelerator APB wrappers in the main
+  secure-storage flow; DMA engines own the private accelerator transactions.
 
-## 3. DMEM address usage
+## 3. DMEM Layout
 
-### 3.1 Address format
-
-- Tieng dia chi cua he thong la **byte address**
-- DMA va CPU deu ghi/dung byte address
-- Current DMA engines require `SRC_ADDR` va `DST_ADDR` canh `4-byte`
-
-### 3.2 Ownership
-
-| Port | Owner |
-|---|---|
-| Port A | CPU |
-| Port B | DMA engine dang active |
-
-### 3.3 Software rule
-
-Khi `DMA busy = 1`, software khong duoc:
-
-- ghi de vao source buffer dang duoc DMA doc
-- doc/ghi destination buffer dang duoc DMA ghi
-
-Neu vi pham, phan cung van co the hoat dong, nhung semantics o muc he thong khong duoc dam bao.
-
-### 3.4 Software storage table convention
-
-Multi-record storage is managed by RV32I software in DMEM, not by a separate
-RTL file system. Current testcase convention:
+Current secure-storage testcase layout:
 
 | Address | Name | Meaning |
 |---:|---|---|
-| `0x0000_0040` | `INPUT_LEN_ADDR` | Length of primary input loaded by TB/UART |
-| `0x0000_0044` | `INPUT2_LEN_ADDR` | Length of secondary input for storage-table testcase |
-| `0x0000_0100` | `STORAGE_TABLE_BASE` | Software metadata table |
-| `0x0000_2000` | `SRC_BASE_ADDR` | Primary plaintext source |
-| `0x0000_3000` | `SRC2_BASE_ADDR` | Secondary plaintext source |
-| `0x0000_4000` | `TX_DST_BASE_ADDR` | Primary ciphertext/transport output |
-| `0x0000_5000` | `TX2_DST_BASE_ADDR` | Secondary ciphertext/transport output |
-| `0x0000_6000` | `RX_DST_BASE_ADDR` | Plaintext restore output |
+| `0x0000_0000` | `RESULT_BASE_ADDR` | Firmware result/debug words for the testbench |
+| `0x0000_0040` | `INPUT1_LEN_ADDR` | Primary input length written by TB/UART |
+| `0x0000_0044` | `INPUT2_LEN_ADDR` | Secondary input length written by TB/UART |
+| `0x0000_0100` | `SECURE_META_BASE_ADDR` | Metadata table slot 0 |
+| `0x0000_0140` | metadata slot 1 | Slot 1, because record stride is `0x40` bytes |
+| `0x0000_01F0` | `SECURE_IV_COUNTER_ADDR` | Firmware IV/version counter |
+| `0x0000_2000` | `INPUT1_SRC_ADDR` | Primary plaintext source |
+| `0x0000_3000` | `INPUT2_SRC_ADDR` | Secondary plaintext source |
+| `0x0000_4000` | ciphertext slot 0 | Secure write destination for metadata slot 0 |
+| `0x0000_5000` | ciphertext slot 1 | Secure write destination for metadata slot 1 |
+| `0x0000_6000` | `INPUT1_RX_ADDR` | Restored plaintext destination |
 
-Record fields are software-defined:
+Firmware chooses ciphertext slots using:
 
-| Field | Required use |
+```text
+cipher_addr = 0x0000_4000 + slot * 0x1000
+```
+
+The current slot size is therefore:
+
+```text
+SECURE_CIPHER_SLOT_BYTES = 0x1000
+```
+
+## 4. Secure Metadata Contract
+
+Metadata is a firmware-owned DMEM structure. It is not a hardware filesystem.
+
+Constants:
+
+```text
+SECURE_META_BASE_ADDR        = 0x0000_0100
+SECURE_META_RECORD_SHIFT     = 6
+SECURE_META_RECORD_COUNT     = 2
+SECURE_META_RECORD_WORDS     = 16
+```
+
+Record address:
+
+```text
+record_addr(slot) = 0x0000_0100 + slot * 0x40
+```
+
+Record layout:
+
+| Word index | Field | Required use |
+|---:|---|---|
+| `0` | `valid` | `1` means committed readable record |
+| `1` | `file_id` | Application storage key |
+| `2` | `plain_addr` | Plaintext source address used by `secure_write` |
+| `3` | `cipher_addr` | Ciphertext address to feed RX `SRC_ADDR` |
+| `4` | `plain_len` | Expected restored plaintext length |
+| `5` | `cipher_len` | Value to feed RX `LEN_BYTES` |
+| `6` | `mode` | Original TX mode, normally `0x9` |
+| `7` | `iv0` | Stored CBC IV word 0 |
+| `8` | `iv1` | Stored CBC IV word 1 |
+| `9` | `iv2` | Stored CBC IV word 2 |
+| `10` | `iv3` | Stored CBC IV word 3 |
+| `11` | `version` | Current implementation stores the IV counter value |
+| `12` | `flags` | Reserved, currently `0` |
+| `13..15` | reserved | Cleared by init/delete |
+
+Commit rule:
+
+1. `secure_prepare_record()` writes `valid = 0`.
+2. Firmware generates IV and writes provisional metadata.
+3. Firmware runs DMA TX.
+4. If TX succeeds and ciphertext length is valid, firmware writes `cipher_len`.
+5. Firmware writes `valid = 1` last.
+
+This makes `valid=1` the commit point.
+
+## 5. Secure Storage API Contract
+
+Active API:
+
+| Function | Contract |
 |---|---|
-| `valid` | record exists |
-| `file_id` | key selected by user/software |
-| `plain_len` | restored plaintext length expectation |
-| `cipher_addr` | DMEM address to feed RX `SRC_ADDR` |
-| `cipher_len` | value to feed RX `LEN_BYTES` |
-| `mode` | original TX policy |
-| `iv0..iv3` | IV words to rewrite before RX |
+| `secure_storage_init()` | Clear all metadata records and seed the IV counter |
+| `secure_write(file_id, plain_addr, plain_len, result)` | Allocate/find a slot, choose ciphertext address, generate IV, run TX, commit metadata |
+| `secure_read(file_id, dst_addr, result)` | Find valid record, restore IV, run RX, require `bytes_done == plain_len` |
+| `secure_delete(file_id)` | Clear the selected metadata slot |
+| `secure_find_record(file_id)` | Return slot index or `0xffffffff` |
+| `secure_record_count()` | Count committed records |
 
-Hardware contract stays simple: CPU reads metadata from DMEM and writes
-selected values into `dma_regfile`.
+Error codes:
 
-## 4. DMA MMIO register map
+| Code | Name | Meaning |
+|---:|---|---|
+| `0` | `SECURE_OK` | Operation succeeded |
+| `1` | `SECURE_ERR_BAD_ARG` | Bad file ID or zero length |
+| `2` | `SECURE_ERR_NO_SLOT` | No free metadata slot |
+| `3` | `SECURE_ERR_DMA_TIMEOUT` | DMA polling exceeded `SECURE_MAX_POLLS` |
+| `4` | `SECURE_ERR_DMA_ERROR` | DMA reported error |
+| `5` | `SECURE_ERR_CIPHER_LEN` | TX output length was zero or not 16-byte aligned |
+| `6` | `SECURE_ERR_NOT_FOUND` | No valid metadata record for the file ID |
+| `7` | `SECURE_ERR_READ_LEN` | RX output length did not match metadata `plain_len` |
+
+## 6. DMA MMIO Register Map
 
 Base address:
 
-- `DMA_BASE = 0x4000_0000`
+```text
+DMA_BASE = 0x4000_0000
+```
 
 | Offset | Name | Access | Meaning |
-|---|---|---|---|
+|---:|---|---|---|
 | `0x00` | `CONTROL` | W | `start`, `soft_reset`, `clear_done`, `clear_error` |
-| `0x04` | `STATUS` | R | `busy`, `done_sticky`, `error_sticky`, `cfg_valid`, `direction` |
-| `0x08` | `SRC_ADDR` | R/W | Byte address source trong `DMEM` |
-| `0x0C` | `DST_ADDR` | R/W | Byte address destination trong `DMEM` |
-| `0x10` | `LEN_BYTES` | R/W | So byte engine se xu ly |
+| `0x04` | `STATUS` | R | `busy`, `done_sticky`, `error_sticky`, `cfg_valid`, mode mirror |
+| `0x08` | `SRC_ADDR` | R/W | DMEM source byte address |
+| `0x0C` | `DST_ADDR` | R/W | DMEM destination byte address |
+| `0x10` | `LEN_BYTES` | R/W | TX plaintext length or RX ciphertext length |
 | `0x14` | `MODE` | R/W | `direction[1:0]`, `compress_only[2]`, `whole_file[3]` |
-| `0x18` | `BLOCK_CFG` | R/W | Kich thuoc block, don vi byte |
-| `0x1C` | `BYTES_DONE` | R | So byte da xu ly theo mode hien tai |
+| `0x18` | `BLOCK_CFG` | R/W | Block size, valid `1..32`, recommended `32` |
+| `0x1C` | `BYTES_DONE` | R | Produced byte count for active engine |
 | `0x20` | `DEBUG` | R | `engine_state`, `last_error_code` |
-| `0x24` | `CIPHERTEXT_BYTES_PRODUCED` | R | So ciphertext byte cua lan TX gan nhat |
+| `0x24` | `CIPHERTEXT_BYTES_PRODUCED` | R | TX output byte count |
 | `0x28` | `IV0` | R/W | CBC IV bits `[31:0]` |
 | `0x2C` | `IV1` | R/W | CBC IV bits `[63:32]` |
 | `0x30` | `IV2` | R/W | CBC IV bits `[95:64]` |
 | `0x34` | `IV3` | R/W | CBC IV bits `[127:96]` |
 
-## 4.1 DMA Register Function Summary
+## 7. Register Semantics
 
-| Register | Software purpose | Required timing | Result / side effect |
-|---|---|---|---|
-| `CONTROL` | Launch transfer or clear sticky state | Write after all config registers are valid | `start` creates a pulse; invalid start returns APB error and does not launch DMA |
-| `STATUS` | Poll transfer state | Read before/after `CONTROL.start` | `busy` gates reconfiguration; `done_sticky/error_sticky` terminate polling loop |
-| `SRC_ADDR` | Select input buffer in DMEM | Write before `CONTROL.start` | DMA reads from this address |
-| `DST_ADDR` | Select output buffer in DMEM | Write before `CONTROL.start` | DMA writes to this address |
-| `LEN_BYTES` | Declare input length for selected mode | Write before `CONTROL.start` | TX consumes plaintext length; RX consumes ciphertext/transport length |
-| `MODE` | Select `TX`, `RX`, `COMPRESS_ONLY`, `whole_file` | Write before `CONTROL.start` | Controls which DMA engine is started and how TX formats output |
-| `BLOCK_CFG` | Set TX block size | Write before TX start | Current recommended value is `32`; ignored by RX |
-| `BYTES_DONE` | Read produced byte count | Read after `done_sticky=1` | TX = transport bytes written; RX = plaintext bytes written |
-| `DEBUG` | Inspect state/error during debug | Read any time | Not part of normal pass/fail software contract |
-| `CIPHERTEXT_BYTES_PRODUCED` | Get TX output length for RX | Read after TX done | Software writes this value to RX `LEN_BYTES` |
-| `IV0..IV3` | Supply AES-CBC IV | Write before AES TX/RX start | RX must use same IV as corresponding TX |
-
-Current absence:
-
-- no AES mode register
-- no key register
-
-`COMPRESS_AES` currently uses AES-128 CBC with fixed key material in RTL and
-the CPU-written IV registers. `COMPRESS_ONLY` bypasses AES/CBC.
-
-## 5. Register semantics
-
-### 5.1 `CONTROL` at `0x00`
+### 7.1 CONTROL
 
 | Bit | Name | Type | Meaning |
 |---:|---|---|---|
-| 0 | `start` | W1P | Bat dau 1 transfer moi |
-| 1 | `soft_reset` | W1P | Reset DMA state machine va sticky state |
-| 2 | `clear_done` | W1P | Xoa `done_sticky` |
-| 3 | `clear_error` | W1P | Xoa `error_sticky` |
+| `0` | `start` | W1P | Start one DMA transfer |
+| `1` | `soft_reset` | W1P | Reset DMA state and sticky state |
+| `2` | `clear_done` | W1P | Clear `done_sticky` |
+| `3` | `clear_error` | W1P | Clear `error_sticky` |
 
-Rule:
+Rules:
 
-- `start` chi hop le khi `cfg_valid = 1` va `busy = 0`
-- ghi reserved bit khac `0` phai coi la invalid
+- `start` is valid only when `cfg_valid = 1` and `busy = 0`.
+- Writes with reserved bits set are invalid.
+- Current firmware clears sticky flags using `CONTROL = 0x0000000C`.
 
-### 5.2 `STATUS` at `0x04`
+### 7.2 STATUS
 
 | Bit | Name | Meaning |
 |---:|---|---|
-| 0 | `busy` | DMA engine dang chay |
-| 1 | `done_sticky` | Transfer gan nhat da ket thuc |
-| 2 | `error_sticky` | Transfer gan nhat bi loi |
-| 3 | `cfg_valid` | Cau hinh hien tai hop le |
-| 5:4 | `direction` | Mirror cua `MODE.direction` |
-| 6 | `compress_only` | Mirror cua `MODE.compress_only` |
-| 7 | `whole_file` | Mirror cua `MODE.whole_file` |
-| 31:8 | reserved | Doc `0` |
+| `0` | `busy` | DMA engine is active |
+| `1` | `done_sticky` | Last transfer completed |
+| `2` | `error_sticky` | Last transfer failed |
+| `3` | `cfg_valid` | Current config is valid |
+| `5:4` | `direction` | Mirror of `MODE.direction` |
+| `6` | `compress_only` | Mirror of `MODE.compress_only` |
+| `7` | `whole_file` | Mirror of `MODE.whole_file` |
+| `31:8` | reserved | Reads as zero |
 
-### 5.3 `SRC_ADDR` / `DST_ADDR`
+Expected status values used by the storage-table testcase:
 
-- La byte address
-- Phai canh `4-byte`
-- software phai tu dam bao vung nho hop le trong `DMEM`
+| State | Value |
+|---|---:|
+| TX idle configured | `0x00000098` |
+| TX done | `0x0000009A` |
+| RX idle configured | `0x00000028` |
+| RX done | `0x0000002A` |
 
-### 5.4 `LEN_BYTES`
+### 7.3 SRC_ADDR and DST_ADDR
 
-Semantics cua `LEN_BYTES` phu thuoc vao `MODE`:
+Rules:
 
-- `MODE = 0x1`, `0x5`, `0x9`, hoac `0xD`: `LEN_BYTES` = plaintext bytes can doc tu `SRC_ADDR`
-- `MODE = 0x2`: `LEN_BYTES` = ciphertext bytes can doc tu `SRC_ADDR`
+- Values are byte addresses in DMEM.
+- Values must be 4-byte aligned.
+- Software must ensure the region is inside DMEM.
+- Software must not modify an active DMA source/destination while `busy=1`.
 
-Day la contract quan trong nhat cua he thong hien tai.
+### 7.4 LEN_BYTES
 
-### 5.5 `MODE`
+Meaning depends on mode:
+
+| Mode family | `LEN_BYTES` means |
+|---|---|
+| TX modes `0x1`, `0x5`, `0x9`, `0xD` | plaintext bytes read from `SRC_ADDR` |
+| RX mode `0x2` | ciphertext bytes read from `SRC_ADDR` |
+
+This is one of the most important software contract points. RX does not use the
+original plaintext length as `LEN_BYTES`; RX uses `metadata.cipher_len`.
+
+### 7.5 MODE
 
 | Value | Meaning |
 |---:|---|
-| `0x1` | TX mode, `COMPRESS_AES` |
-| `0x5` | TX mode, `COMPRESS_ONLY` per-block legacy |
-| `0xD` | TX mode, `COMPRESS_ONLY + whole_file` default TX-only benchmark |
-| `0x9` | TX mode, `COMPRESS_AES` + whole-file dynamic Huffman |
-| `0x2` | RX mode |
+| `0x1` | TX `COMPRESS_AES`, legacy per-block |
+| `0x5` | TX `COMPRESS_ONLY`, legacy per-block |
+| `0x9` | TX `COMPRESS_AES`, whole-file dynamic Huffman |
+| `0xD` | TX `COMPRESS_ONLY`, whole-file dynamic Huffman |
+| `0x2` | RX AES-CBC decrypt + Huffman decode |
 
-Gia tri khac coi la invalid config.
+Other values are invalid for the current DMA contract.
 
-`MODE` does not select ECB/CBC. AES mode is fixed to CBC for `COMPRESS_AES`.
-`COMPRESS_ONLY` bypasses AES and therefore does not consume `IV0..IV3`.
+`MODE` does not select ECB/CBC. AES mode is fixed to CBC for
+`COMPRESS_AES`. `COMPRESS_ONLY` bypasses AES and does not consume IV.
 
-### 5.6 `BLOCK_CFG`
+### 7.6 BLOCK_CFG
 
-- Gia tri hop le hien tai: `1..32`
-- Khuyen nghi dung `16` hoac `32`
-- Trong mode `whole_file`, software van ghi mot gia tri hop le, nhung TX khong cat file theo `BLOCK_CFG`
-- Trong bai test loopback legacy/per-block hien tai dang dung `32`
+- Valid range is `1..32`.
+- Current firmware writes `32`.
+- Whole-file TX still requires a valid value for config validity, even though
+  the file is not cut into legacy blocks by this field.
 
-### 5.7 `BYTES_DONE`
+### 7.7 BYTES_DONE
 
-`BYTES_DONE` khong co cung y nghia cho moi mode:
+| Active mode | Meaning |
+|---|---|
+| TX | Output bytes written by TX DMA |
+| RX | Plaintext bytes restored by RX DMA |
 
-- `TX mode`: so **ciphertext bytes** da duoc DMA drain tu `TX` va ghi ve `DMEM`
-- `RX mode`: so **plaintext bytes** da duoc DMA lay tu `RX` va ghi ve `DMEM`
-
-Day la semantics dung theo implementation hien tai.
-
-Voi TX:
-
-- `COMPRESS_AES`: output la stream da qua AES
-- `COMPRESS_ONLY`: output la compressed transport stream, bypass AES
-
-### 5.8 `CIPHERTEXT_BYTES_PRODUCED`
-
-- Register nay mirror `tx_dma_bytes_done_w`
-- No duoc cap nhat boi `dma_tx_engine`
-- Muc dich cua no la tach rieng ket qua length cua TX khoi `BYTES_DONE`
-
-Software phai dung register nay khi muon lay do dai ciphertext de chay RX.
-
-Luu y:
-
-- o `COMPRESS_ONLY`, register nay van hop le nhung no la do dai compressed transport stream
-- RX path hien tai chua support loopback doi xung cho frame `COMPRESS_ONLY`
-
-### 5.9 `IV0..IV3`
-
-`IV0..IV3` la 128-bit AES CBC initialization vector do CPU ghi qua MMIO:
+For secure read, firmware checks:
 
 ```text
-iv_o = {IV3, IV2, IV1, IV0}
+BYTES_DONE == metadata.plain_len
 ```
 
-Rule:
+### 7.8 CIPHERTEXT_BYTES_PRODUCED
 
-- ghi IV truoc khi ghi `CONTROL.start`
-- khong ghi IV khi `STATUS.busy = 1`; RTL tra `PSLVERR`
-- `CONTROL.soft_reset` xoa IV ve `0`
-- trong loopback TX->RX, RX phai dung lai cung IV voi TX
+This register mirrors the TX DMA output length and is the value firmware stores
+as `metadata.cipher_len`.
 
-Trong test hien tai, `testcase/test_mmio_dma.c` sinh IV demo bang RV32I
-software. Day la IV deterministic de simulation de lap lai, khong phai nguon
-IV an toan cho san pham that.
+For secure read:
 
-### 5.10 `DEBUG`
+```text
+LEN_BYTES = metadata.cipher_len
+```
 
-| Bits | Meaning |
-|---|---|
-| `[3:0]` | `engine_state` |
-| `[11:4]` | `last_error_code` |
+### 7.9 IV0..IV3
 
-`DEBUG` la register debug, khong nen dung lam dieu kien giao tiep chinh cua phan mem runtime.
+Current IV contract:
 
-## 6. DMA software contract
+```text
+cbc_iv = {IV3, IV2, IV1, IV0}
+```
 
-## 6.1 General sequence
+Rules:
 
-Moi transfer DMA phai tuan thu thu tu:
+- Write IV before AES TX/RX start.
+- Do not write IV while DMA is busy.
+- `CONTROL.soft_reset` clears IV registers.
+- Store the IV in metadata after generation.
+- Restore the same IV before RX.
 
-1. ghi `SRC_ADDR`
-2. ghi `DST_ADDR`
-3. ghi `LEN_BYTES`
-4. ghi `MODE`
-5. ghi `BLOCK_CFG`
-6. neu dung `COMPRESS_AES`, ghi `IV0..IV3`
-7. doc `STATUS`, dam bao `cfg_valid = 1`
-8. ghi `CONTROL.start = 1`
-9. poll `STATUS`
+## 8. Current IV Counter and Formula
 
-## 6.2 Polling rule
+Counter:
 
-Software khong nen chi doi `done_sticky = 1`, vi `done_sticky` la sticky bit.
+```text
+SECURE_IV_COUNTER_ADDR = 0x0000_01F0
+SECURE_IV_SEED         = 0x31415926
+```
 
-Rule dung:
-
-1. sau `start`, doi cho `busy = 1`
-2. sau do doi:
-   - `error_sticky = 1`, hoac
-   - `busy = 0` va `done_sticky = 1`
-
-Noi ngan gon:
-
-- phai thay DMA da **that su vao busy**
-- roi moi chap nhan `done`
-
-## 6.3 TX contract
-
-### Input
-
-- `SRC_ADDR`: plaintext base
-- `DST_ADDR`: ciphertext base
-- `LEN_BYTES`: plaintext bytes
-- `MODE = 0x9` cho whole-file `COMPRESS_AES`
-- `MODE = 0x1` cho per-block `COMPRESS_AES`
-- `MODE = 0xD` cho default `COMPRESS_ONLY + whole_file`
-- `MODE = 0x5` chi dung khi can legacy per-block `COMPRESS_ONLY`
-
-### Output
-
-Sau khi TX xong:
-
-- `BYTES_DONE` = ciphertext bytes produced
-- `CIPHERTEXT_BYTES_PRODUCED` = ciphertext bytes produced
-- software phai dung `CIPHERTEXT_BYTES_PRODUCED` neu muon chay RX tiep theo
-
-### Example
-
-- CPU muon ma hoa 16 byte plaintext
-- CPU set `LEN_BYTES = 16`
-- TX chay xong
-- `CIPHERTEXT_BYTES_PRODUCED` co the la `32`
-- RX phai dung `LEN_BYTES = 32`, khong phai `16`
-
-## 6.4 RX contract
-
-### Input
-
-- `SRC_ADDR`: ciphertext base
-- `DST_ADDR`: plaintext output base
-- `LEN_BYTES`: ciphertext bytes, hien tai phai la boi so cua `16`
-- `MODE = 0x2`
-
-### Output
-
-Sau khi RX xong:
-
-- `BYTES_DONE` = plaintext bytes produced
-
-Trong bai loopback hien tai:
-
-- `TX BYTES_DONE = CIPHERTEXT_BYTES_PRODUCED`
-- `RX LEN_BYTES phai = CIPHERTEXT_BYTES_PRODUCED`
-- `RX BYTES_DONE = plaintext input length`
-
-## 6.5 Loopback contract
-
-Neu muon chay loopback `TX -> RX`, software phai lam dung thu tu:
-
-1. chay TX voi:
-   - `SRC_ADDR = plaintext`
-   - `DST_ADDR = ciphertext_buf`
-   - `LEN_BYTES = plaintext_len`
-   - `MODE = 0x9` trong regression whole-file hien tai
-   - `IV0..IV3 = IV dung cho CBC`
-2. doi TX xong
-3. doc `tx_cipher_len = CIPHERTEXT_BYTES_PRODUCED`
-4. chay RX voi:
-   - `SRC_ADDR = ciphertext_buf`
-   - `DST_ADDR = plaintext_out`
-   - `LEN_BYTES = tx_cipher_len`
-   - `MODE = 0x2`
-   - giu nguyen `IV0..IV3` hoac ghi lai dung cung IV
-5. doi RX xong
-
-## 7. Error handling contract
-
-Software phai uu tien check:
-
-1. `STATUS.error_sticky`
-2. `DEBUG.last_error_code`
-
-Khong nen doan loi dua tren `BYTES_DONE` mot minh.
-
-Khuyen nghi:
-
-- truoc transfer moi, neu can, ghi `CONTROL.clear_done | CONTROL.clear_error`
-- neu DMA dang o trang thai khong sach, dung `CONTROL.soft_reset`
-
-## 8. Recommended C macros
+Generation:
 
 ```c
-#define DMA_BASE_ADDR   0x40000000u
-#define DMA_CONTROL     (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x00u))
-#define DMA_STATUS      (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x04u))
-#define DMA_SRC_ADDR    (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x08u))
-#define DMA_DST_ADDR    (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x0Cu))
-#define DMA_LEN_BYTES   (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x10u))
-#define DMA_MODE        (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x14u))
-#define DMA_BLOCK_CFG   (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x18u))
-#define DMA_BYTES_DONE  (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x1Cu))
-#define DMA_DEBUG       (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x20u))
-#define DMA_CIPHERTEXT_BYTES_PRODUCED (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x24u))
-#define DMA_IV0         (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x28u))
-#define DMA_IV1         (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x2Cu))
-#define DMA_IV2         (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x30u))
-#define DMA_IV3         (*(volatile uint32_t *)(DMA_BASE_ADDR + 0x34u))
+counter = SECURE_IV_COUNTER_WORD + 1u;
+if (counter == 0u)
+    counter = SECURE_IV_SEED + 1u;
+SECURE_IV_COUNTER_WORD = counter;
 
-#define DMA_MODE_TX_COMPRESS_AES_WHOLE_FILE 0x00000009u
-#define DMA_MODE_TX_COMPRESS_AES            0x00000001u
-#define DMA_MODE_TX_COMPRESS_ONLY           0x0000000du
-#define DMA_MODE_RX                         0x00000002u
+mix = plain_len ^ plain_addr ^ cipher_addr ^ file_id ^ counter ^ 0x43424331u;
+mix = mix ^ (mix << 13);
+mix = mix ^ (mix >> 17);
+mix = mix ^ (mix << 5);
+
+iv0 = 0x43424331u ^ file_id;
+iv1 = mix ^ 0x3a5c742eu;
+iv2 = rotl32(iv1 ^ 0x9e3779b9u, 7u);
+iv3 = rotl32(iv2 + 0x3c6ef372u, 17u);
 ```
 
-## 9. Reference software skeleton
+This is a deterministic demo IV generator. It is useful for repeatable
+simulation but is not a production entropy source.
+
+## 9. Current DMA Run Sequence
+
+The active helper is:
 
 ```c
-static uint32_t rotl32(uint32_t x, uint32_t sh) {
-    return (x << sh) | (x >> (32u - sh));
-}
-
-static void write_demo_iv(uint32_t input_len) {
-    static uint32_t sw_iv_counter = 0x10203040u;
-    uint32_t mix;
-
-    sw_iv_counter = sw_iv_counter + 1u;
-    mix = input_len ^ SRC_BASE_ADDR ^ TX_DST_BASE_ADDR ^ RX_DST_BASE_ADDR;
-    mix = mix ^ sw_iv_counter ^ 0x43424331u;
-    mix = mix ^ (mix << 13);
-    mix = mix ^ (mix >> 17);
-    mix = mix ^ (mix << 5);
-
-    DMA_IV0 = 0x43424331u;
-    DMA_IV1 = mix ^ 0x3a5c742eu;
-    DMA_IV2 = rotl32(DMA_IV1 ^ 0x9e3779b9u, 7u);
-    DMA_IV3 = rotl32(DMA_IV2 + 0x3c6ef372u, 17u);
-}
-
-static uint32_t dma_run(uint32_t src, uint32_t dst, uint32_t len, uint32_t mode) {
-    uint32_t saw_busy = 0;
-
-    DMA_SRC_ADDR  = src;
-    DMA_DST_ADDR  = dst;
-    DMA_LEN_BYTES = len;
-    DMA_MODE      = mode;
-    DMA_BLOCK_CFG = 32;
-    if ((mode & 0x5u) == 0x1u)
-        write_demo_iv(len);
-    DMA_CONTROL   = 0x1;
-
-    while (1) {
-        uint32_t st = DMA_STATUS;
-        if (st & 0x1) saw_busy = 1;
-        if (st & 0x4) return 0xffffffffu;
-        if (saw_busy && ((st & 0x1) == 0) && (st & 0x2))
-            return (((mode & 0x3u) == 0x1u)) ? DMA_CIPHERTEXT_BYTES_PRODUCED
-                                             : DMA_BYTES_DONE;
-    }
-}
+secure_run_dma(src, dst, len, mode, result)
 ```
 
-## 10. Current limitation
+It performs:
 
-Contract hien tai da du de chay simulation, nhung van con 2 gioi han kien truc:
+1. Clear sticky state with `DMA_CONTROL = 0x0000000C`.
+2. Write `DMA_SRC_ADDR`.
+3. Write `DMA_DST_ADDR`.
+4. Write `DMA_LEN_BYTES`.
+5. Write `DMA_MODE`.
+6. Write `DMA_BLOCK_CFG = 32`.
+7. Read `DMA_STATUS` into `result->status_before`.
+8. Write `DMA_CONTROL = 0x00000001`.
+9. Poll `DMA_STATUS` until done or error.
+10. Read `DMA_BYTES_DONE`.
+11. Read `DMA_CIPHERTEXT_BYTES_PRODUCED`.
+12. Read `DMA_DEBUG`.
 
-- `CIPHERTEXT_BYTES_PRODUCED` hien la mirror cua `tx_dma_bytes_done_w`
-- `BYTES_DONE` van phu thuoc mode:
-  - TX: ciphertext bytes
-  - RX: plaintext bytes
+The helper calls `secure_load_delay()` after volatile reads. The current
+implementation is:
 
-Spec nay da tach duoc register rieng cho software, nhung de lam sach hon nua ve sau co the:
+```c
+__asm__ volatile("nop\nnop\n" ::: "memory");
+```
 
-- doi `BYTES_DONE` thanh result-length thuần theo engine active
-- hoac tach them cac perf/result counter ro rang hon
+This delay is part of the current firmware contract because the current
+RV32I/MMIO path can expose a load-use hazard if loaded values are consumed
+immediately.
 
-## 11. Recommended next revision
+## 10. Secure Write Sequence
 
-Ban v2 nen bo sung:
+`secure_write(file_id, plain_addr, plain_len, result)`:
 
-1. interrupt status/enable
-2. timeout/error taxonomy ro hon
-3. perf counters rieng cho TX/RX
-4. memory map mo rong cho debug/perf counters neu can
+```text
+1. Reject file_id=0 or plain_len=0.
+2. Find an existing record for file_id, or allocate an empty slot.
+3. Select cipher_addr = 0x4000 + slot * 0x1000.
+4. Generate IV from file_id, addresses, length, and counter.
+5. Write IV to DMA IV registers and provisional metadata.
+6. Run DMA:
+   SRC_ADDR  = plain_addr
+   DST_ADDR  = cipher_addr
+   LEN_BYTES = plain_len
+   MODE      = 0x9
+7. Require ciphertext_bytes != 0.
+8. Require ciphertext_bytes is 16-byte aligned.
+9. Commit cipher_len and set metadata valid=1.
+```
+
+## 11. Secure Read Sequence
+
+`secure_read(file_id, dst_addr, result)`:
+
+```text
+1. Find a valid metadata record by file_id.
+2. Restore IV0..IV3 from metadata to DMA registers.
+3. Read cipher_addr, cipher_len, and plain_len from metadata.
+4. Run DMA:
+   SRC_ADDR  = cipher_addr
+   DST_ADDR  = dst_addr
+   LEN_BYTES = cipher_len
+   MODE      = 0x2
+5. Require BYTES_DONE == plain_len.
+```
+
+## 12. Result Words in Current Testcase
+
+`testcase/test_mmio_dma_storage_table.c` writes these result words at
+`RESULT_BASE_ADDR = 0x0000_0000`:
+
+| Word | Meaning |
+|---:|---|
+| `0` | Signature `0x53544f52` |
+| `1` | Error mask |
+| `2` | TX1 status before |
+| `3` | TX1 status after |
+| `4` | TX1 bytes done |
+| `5` | TX1 ciphertext bytes |
+| `6` | TX1 poll count |
+| `7` | RX1 status before |
+| `8` | RX1 status after |
+| `9` | RX1 bytes done |
+| `10` | RX1 debug after |
+| `11` | RX1 poll count |
+| `12` | TX2 ciphertext bytes |
+| `13` | input2 length |
+| `14` | selected file ID |
+| `15` | total committed records |
+
+The testbench interprets these result words and checks the restored bytes in
+DMEM.
+
+## 13. Software Rules While DMA Is Busy
+
+When `STATUS.busy = 1`, software must not:
+
+- overwrite the source buffer being read by DMA,
+- read or overwrite the destination buffer being written by DMA,
+- modify `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`, or `IV0..IV3`,
+- start a second transfer.
+
+The RTL reports MMIO write errors for many invalid busy-time register writes,
+but the system-level memory semantics are still a software responsibility.
+
+## 14. Production Gaps
+
+The current contract is sufficient for the academic secure-storage prototype,
+but it is not a production storage stack yet.
+
+Missing production features:
+
+- persistent metadata outside volatile DMEM,
+- authenticated metadata and ciphertext,
+- rollback protection,
+- production IV/nonce source,
+- runtime key management,
+- interrupt-based completion,
+- more than two metadata records in the current testcase.

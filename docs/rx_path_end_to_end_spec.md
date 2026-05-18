@@ -19,7 +19,7 @@ Current verification status:
 | Active RX testcase examples | `dma_compress_aes_input1`, `dma_compress_aes_input3`, `dma_compress_aes_alnum63_cov` |
 | Error/backpressure cases | `mmio_rx_bad_length`, `rx_backpressure_cov` |
 | Coverage hooks | `rx_if_direct_cov`, `rx_parser_decoder_cov`, `rx_decoder_direct_cov`, `rx_depacker_packer_direct_cov`, `rx_parser_decoder_error_direct_cov` |
-| Latest regression | included in `34/34` PASS coverage baseline |
+| Historical full regression | included in `34/34` PASS coverage baseline before secure-storage API refactor |
 
 ## 2. RX Goal
 

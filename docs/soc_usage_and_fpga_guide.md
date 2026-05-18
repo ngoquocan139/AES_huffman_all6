@@ -14,7 +14,8 @@ Trang thai hien tai:
 | Testcase wrapper | `testcase/<TESTNAME>.v`, duoc Makefile copy thanh `sim/run_test.v` |
 | Bare `make all` default | `dma_compress_aes_input1` / `input1.txt` |
 | Coverage regression | `cd sim && ./run.csh cov` |
-| Latest pass/fail | `34/34` PASS |
+| Latest focused secure-storage API result | `dma_storage_table_input1_then_input3`: `PASS=22`, `FAIL=0` |
+| Historical full-regression pass/fail | `34/34` PASS before secure-storage API refactor |
 | Raw DUT full coverage | `93.52%` |
 | Raw DUT branch+statement | `95.27%` |
 | Closed DUT coverage | `95.90%` |
@@ -64,7 +65,8 @@ make license
 
 | Goal | C file | TESTNAME | INPUT_FILE | Mode |
 |---|---|---|---|---|
-| Main TX->RX loopback | `test_mmio_dma.c` | `dma_compress_aes_input1` | `input1.txt` | TX `0x9`, RX `0x2` |
+| Current secure-storage API demo | `test_mmio_dma_storage_table.c` + `secure_storage_fw.h` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | `secure_write`, `secure_write`, `secure_read` |
+| Legacy direct TX->RX loopback | `test_mmio_dma.c` | `dma_compress_aes_input1` | `input1.txt` | TX `0x9`, RX `0x2` |
 | Small TX->RX loopback | `test_mmio_dma.c` | `dma_compress_aes_input3` | `input3.txt` | TX `0x9`, RX `0x2` |
 | Alnum63 stress loopback | `test_mmio_dma.c` | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | TX `0x9`, RX `0x2` |
 | TX-only saving benchmark | `test_mmio_tx_only.c` | `tx_compress_only_input1` | `input1.txt` | TX `0xD` |
@@ -72,7 +74,7 @@ make license
 | TX 256-symbol stress | `test_mmio_tx_only.c` | `tx_compress_only_ascii_sweep_cov` | `input_cov_ascii_sweep.txt` | TX `0xD`, expected expansion |
 | MIT-BIH paper comparison | `test_mmio_dma.c` | `dma_mitdb_100_delta2_var_e2e` | `mitdb_100_mlii_10s_delta2_var.bin` | TX `0x9`, RX `0x2`, `+INPUT_BINARY` |
 | MMIO regfile basic | `test_mmio_regfile_basic.c` | `mmio_regfile_basic` | optional | no DMA start |
-| Multi-record storage demo | `test_mmio_dma_storage_table.c` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | TX input1, TX input3, RX selected input1 |
+| Multi-record storage demo | `test_mmio_dma_storage_table.c` + `secure_storage_fw.h` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | `secure_write` input1, `secure_write` input3, `secure_read` input1 |
 | Full coverage regression | selected by `run.csh` | from `pat.list` | from `run.csh` | all active cases |
 
 Known debug-only entries are commented in `sim/pat.list`; do not use them as
@@ -128,13 +130,27 @@ so the testbench preserves all byte values exactly.
 
 Recommended use:
 
-- dung `test_mmio_dma.c` neu muon secure-storage loopback `TX -> RX`;
+- dung `test_mmio_dma_storage_table.c` neu muon chay secure-storage firmware
+  API voi metadata/IV va readback theo `file_id`;
+- dung `test_mmio_dma.c` neu muon direct TX -> RX loopback;
 - dung `test_mmio_tx_only.c` neu chi muon do compression saving truc tiep;
 - dung `test_mmio_mode_matrix.c` neu chi muon verify mode/register contract.
 
 ## 7. Common Simulation Commands
 
-Main loopback voi `input1.txt`:
+Current secure-storage API demo:
+
+```bash
+cd sim
+make compile C_SRC=test_mmio_dma_storage_table.c
+make drc
+make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+```
+
+This case proves that RV32I firmware can store metadata for two encrypted
+objects and later select the first record for RX restore using only `file_id`.
+
+Direct loopback voi `input1.txt`:
 
 ```bash
 cd sim
@@ -172,7 +188,7 @@ make drc
 make all TESTNAME=mmio_regfile_basic RUN_ARGS="+CASE_NAME=mmio_regfile_basic"
 ```
 
-Multi-record storage demo:
+Multi-record storage demo command is the same current secure-storage API demo:
 
 ```bash
 cd sim
@@ -181,8 +197,7 @@ make drc
 make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
 ```
 
-This case proves that RV32I software can store metadata for two encrypted
-objects and later select the first record for RX restore.
+The storage metadata and IV policy are implemented in `secure_storage_fw.h`.
 
 MIT-BIH preprocessed paper comparison:
 
@@ -221,7 +236,7 @@ cd sim
 5. chay `make all_cov`;
 6. merge UCDB bang `make gen_cov`.
 
-Ket qua moi nhat:
+Historical full-regression result:
 
 | Metric | Value |
 |---|---:|
@@ -396,11 +411,13 @@ Da co loader input, nhung demo board thuc dung van can:
 
 Thu tu hop ly:
 
-1. giu simulation regression `34/34` PASS lam baseline;
-2. neu can bao cao coverage, dung `coverage_regression_report.md`;
-3. chot demo FPGA la TX-only hay RX-only;
-4. build lai `instruction.mem` tu dung file C;
-5. build bitstream split o 50 MHz;
-6. nap bitstream len board;
-7. load input qua UART;
-8. bo sung UART/JTAG output dump de doc ket qua runtime.
+1. dung focused secure-storage API testcase `PASS=22`, `FAIL=0` lam bang chung
+   moi nhat cho metadata/IV/readback;
+2. giu simulation regression lich su `34/34` PASS lam coverage baseline;
+3. neu can bao cao coverage cuoi cung, chay lai `./run.csh cov`;
+4. chot demo FPGA la TX-only hay RX-only;
+5. build lai `instruction.mem` tu dung file C;
+6. build bitstream split o 50 MHz;
+7. nap bitstream len board;
+8. load input qua UART;
+9. bo sung UART/JTAG output dump de doc ket qua runtime.
