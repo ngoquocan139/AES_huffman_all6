@@ -323,7 +323,36 @@ nam giu tam thoi. Khi DMA duoc tich hop that, owner mac dinh cua `aux_*` phai la
 4. Khong doi DMEM sang word-addressed interface o tang tren.
 5. Khong noi ca DMA va loader vao cung `aux_*` neu chua co arbiter.
 
-## 9. Chot huong dung cho cac file
+## 9. Internal Huffman RAM Inference
+
+Ngoai IMEM/DMEM, RTL hien tai co cac table Huffman/FIFO noi bo duoc map sang
+BRAM hoac distributed RAM trong Vivado area-optimized run.
+
+Full TX+RX `rv32_soc_synth_full_opt4` post-synthesis mapping:
+
+| Storage | Vivado mapping | Purpose |
+|---|---|---|
+| `u_dmem/u_dmem_ip/mem_reg` | BRAM, `8K x 32`, true dual port | Main DMEM |
+| `u_rx_top/u_huffman_block_decoder/u_main_decode_table` | BRAM, `2K x 15` | RX short-code decode lookup |
+| TX global `freq_table` | distributed RAM, `256 x 16` | Whole-file frequency count |
+| TX `node_parent/node_weight/node_order` | distributed RAM, `512 x 9/16/9` | Huffman tree build working table |
+| TX `code_len_mem`, canonical `code_mem` | distributed RAM | Canonical code generation |
+| TX/RX APB FIFOs | distributed RAM | DMA/APB buffering |
+| RX fallback tables | distributed RAM, `256 x symbol/len/code` | Long-code decode fallback |
+
+Implementation rules that made this infer correctly:
+
+- do not reset large RAM arrays in synthesis
+- use one write port per inferred RAM process
+- split multi-entry updates into separate FSM states when needed
+- clear logical validity with valid bits or explicit table clear states
+
+`huffman_block_decoder` still keeps `symbol_local`, `len_local`, and
+`code_local` in register/mux logic because the current canonical sort swaps
+adjacent entries. This does not block 50 MHz full TX+RX closure, but it is the
+next obvious RX area target.
+
+## 10. Chot huong dung cho cac file
 
 | File | Vai tro | Nen dung hay khong |
 |---|---|---|
@@ -333,7 +362,7 @@ nam giu tam thoi. Khi DMA duoc tich hop that, owner mac dinh cua `aux_*` phai la
 | `rtl/DMEM_ip.v` | Model hanh vi DMEM IP | Co trong sim SoC |
 | `rtl/rv32_soc_top.v` | Top noi CPU vao IMEM/DMEM | Co |
 
-## 10. Ket luan
+## 11. Ket luan
 
 He thong can chot theo huong sau:
 

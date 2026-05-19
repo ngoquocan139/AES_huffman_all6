@@ -205,6 +205,19 @@ one_symbol_value[7:0]
 
 No khong tu lam AES. AES nam o wrapper ben tren.
 
+Area-optimized synthesis notes:
+
+- `frequency_counter.freq_table`, `block_buffer.block_mem`, symbol list,
+  code-length memory, canonical code memory, and TX APB FIFOs infer distributed
+  RAM in the latest Vivado run.
+- `code_length_builder` writes `node_weight`, `node_parent`, and `node_order`
+  through one explicit write port per table, so Vivado no longer dissolves the
+  Huffman tree into thousands of FF/LUT registers.
+- Large data memories are not reset entry-by-entry in synthesis; logical clear
+  is done with valid bits or FSM clear states.
+- TX-only post-implementation at 50 MHz is `11933` LUTs, `5469` FFs, `3979`
+  slices, `208` control sets, WNS `+1.277 ns`.
+
 ## 11. Related Specs
 
 - [TX path end-to-end](./tx_path_end_to_end_spec.md)

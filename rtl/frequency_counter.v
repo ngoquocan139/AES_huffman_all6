@@ -22,12 +22,11 @@ module frequency_counter #(
     output reg                           count_overflow
 );
 
-    reg [COUNT_WIDTH-1:0] freq_table [0:ALPHABET_SIZE-1];
+    (* ram_style = "distributed" *) reg [COUNT_WIDTH-1:0] freq_table [0:ALPHABET_SIZE-1];
+    reg [ALPHABET_SIZE-1:0] freq_valid;
 
     reg [SYMBOL_WIDTH-1:0]       norm_byte_w;
     reg [SYMBOL_INDEX_WIDTH-1:0] symbol_index_w;
-
-    integer i;
 
 `include "huffman_symbol_map.vh"
 
@@ -40,27 +39,39 @@ module frequency_counter #(
     end
 
     always @(*) begin
-        read_count = freq_table[read_index];
+        if (freq_valid[read_index])
+            read_count = freq_table[read_index];
+        else
+            read_count = {COUNT_WIDTH{1'b0}};
+    end
+
+    always @(posedge clk) begin
+        if (!clear && count_en) begin
+            if (!freq_valid[symbol_index_w])
+                freq_table[symbol_index_w] <=
+                    {{(COUNT_WIDTH-1){1'b0}}, 1'b1};
+            else if (freq_table[symbol_index_w] != {COUNT_WIDTH{1'b1}})
+                freq_table[symbol_index_w] <=
+                    freq_table[symbol_index_w] +
+                    {{(COUNT_WIDTH-1){1'b0}}, 1'b1};
+        end
     end
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             count_overflow <= 1'b0;
-            for (i = 0; i < ALPHABET_SIZE; i = i + 1)
-                freq_table[i] <= {COUNT_WIDTH{1'b0}};
+            freq_valid     <= {ALPHABET_SIZE{1'b0}};
         end
         else begin
             if (clear) begin
                 count_overflow <= 1'b0;
-                for (i = 0; i < ALPHABET_SIZE; i = i + 1)
-                    freq_table[i] <= {COUNT_WIDTH{1'b0}};
+                freq_valid     <= {ALPHABET_SIZE{1'b0}};
             end
             else if (count_en) begin
-                if (freq_table[symbol_index_w] != {COUNT_WIDTH{1'b1}})
-                    freq_table[symbol_index_w] <=
-                        freq_table[symbol_index_w] +
-                        {{(COUNT_WIDTH-1){1'b0}}, 1'b1};
-                else
+                if (!freq_valid[symbol_index_w]) begin
+                    freq_valid[symbol_index_w] <= 1'b1;
+                end
+                else if (freq_table[symbol_index_w] == {COUNT_WIDTH{1'b1}})
                     count_overflow <= 1'b1;
             end
         end

@@ -60,6 +60,8 @@ module huffman_block_decoder #(
     localparam [4:0] ST_COMP_FALLBACK   = 5'd15;
     localparam [4:0] ST_COMP_LOOKUP     = 5'd16;
     localparam [4:0] ST_COMP_LOOKUP_WAIT = 5'd17;
+    localparam [4:0] ST_COMP_ENTRY_CHECK  = 5'd18;
+    localparam [4:0] ST_COMP_ENTRY_COMMIT = 5'd19;
 
     localparam [1:0] MODE_RAW_FULL      = 2'b00;
     localparam [1:0] MODE_RAW_PARTIAL   = 2'b01;
@@ -104,6 +106,10 @@ module huffman_block_decoder #(
     reg [BLOCK_SIZE_WIDTH-1:0]           bytes_remaining_r;
     reg                                  current_block_is_frame_last_r;
     reg [SYMBOL_COUNT_WIDTH-1:0]         entry_load_count_r;
+    reg [SYMBOL_COUNT_WIDTH-1:0]         entry_check_idx_r;
+    reg [SYMBOL_WIDTH-1:0]               pending_entry_symbol_r;
+    reg [CODE_LEN_WIDTH-1:0]             pending_entry_code_len_r;
+    reg                                  pending_entry_last_r;
     reg [SYMBOL_COUNT_WIDTH-1:0]         sort_pass_r;
     reg [SYMBOL_COUNT_WIDTH-1:0]         sort_idx_r;
     reg [SYMBOL_COUNT_WIDTH-1:0]         assign_idx_r;
@@ -137,14 +143,13 @@ module huffman_block_decoder #(
     reg [BLOCK_SIZE_WIDTH-1:0]           debug_error_bytes_remaining_r;
     reg [STREAM_LEN_WIDTH-1:0]           debug_error_payload_len_r;
 
-    reg [SYMBOL_WIDTH-1:0]               symbol_local [0:MAX_SYMBOLS-1];
-    reg [CODE_LEN_WIDTH-1:0]             len_local    [0:MAX_SYMBOLS-1];
-    reg [CODE_WIDTH-1:0]                 code_local   [0:MAX_SYMBOLS-1];
-    reg [SYMBOL_WIDTH-1:0]               fallback_symbol [0:MAX_SYMBOLS-1];
-    reg [CODE_LEN_WIDTH-1:0]             fallback_len    [0:MAX_SYMBOLS-1];
-    reg [CODE_WIDTH-1:0]                 fallback_code   [0:MAX_SYMBOLS-1];
+    (* ram_style = "distributed" *) reg [SYMBOL_WIDTH-1:0]   symbol_local [0:MAX_SYMBOLS-1];
+    (* ram_style = "distributed" *) reg [CODE_LEN_WIDTH-1:0] len_local    [0:MAX_SYMBOLS-1];
+    (* ram_style = "distributed" *) reg [CODE_WIDTH-1:0]     code_local   [0:MAX_SYMBOLS-1];
+    (* ram_style = "distributed" *) reg [SYMBOL_WIDTH-1:0]   fallback_symbol [0:MAX_SYMBOLS-1];
+    (* ram_style = "distributed" *) reg [CODE_LEN_WIDTH-1:0] fallback_len    [0:MAX_SYMBOLS-1];
+    (* ram_style = "distributed" *) reg [CODE_WIDTH-1:0]     fallback_code   [0:MAX_SYMBOLS-1];
 
-    reg                                  entry_duplicate_w;
     reg                                  decode_main_valid_w;
     reg                                  decode_main_long_w;
     reg [SYMBOL_WIDTH-1:0]               decode_main_symbol_w;
@@ -153,6 +158,7 @@ module huffman_block_decoder #(
     reg                                  fallback_prefix_w;
 
     wire [LIST_INDEX_WIDTH-1:0]          entry_load_idx5_w;
+    wire [LIST_INDEX_WIDTH-1:0]          entry_check_idx5_w;
     wire [LIST_INDEX_WIDTH-1:0]          sort_idx5_w;
     wire [LIST_INDEX_WIDTH-1:0]          sort_idx_p1_5_w;
     wire [LIST_INDEX_WIDTH-1:0]          assign_idx5_w;
@@ -171,7 +177,6 @@ module huffman_block_decoder #(
     wire                                 unused_debug_error_w;
 
     integer                              i;
-    integer                              entry_load_count_int;
 
     function decoder_symbol_valid;
         input [SYMBOL_WIDTH-1:0] symbol_in;
@@ -184,6 +189,7 @@ module huffman_block_decoder #(
     endfunction
 
     assign entry_load_idx5_w = entry_load_count_r[LIST_INDEX_WIDTH-1:0];
+    assign entry_check_idx5_w = entry_check_idx_r[LIST_INDEX_WIDTH-1:0];
     assign sort_idx5_w       = sort_idx_r[LIST_INDEX_WIDTH-1:0];
     assign sort_idx_p1_5_w   = sort_idx_r[LIST_INDEX_WIDTH-1:0] +
                                {{(LIST_INDEX_WIDTH-1){1'b0}}, 1'b1};
@@ -356,19 +362,6 @@ module huffman_block_decoder #(
     );
 
     always @(*) begin
-        entry_duplicate_w = 1'b0;
-        entry_load_count_int = {{(32-SYMBOL_COUNT_WIDTH){1'b0}}, entry_load_count_r};
-
-        if ((state_r == ST_COMP_ENTRY) && entry_valid) begin
-            for (i = 0; i < MAX_SYMBOLS; i = i + 1) begin
-                if ((i < entry_load_count_int) &&
-                    (symbol_local[i] == entry_symbol))
-                    entry_duplicate_w = 1'b1;
-            end
-        end
-    end
-
-    always @(*) begin
         decode_main_valid_w  = main_rd_entry_w[MAIN_ENTRY_WIDTH-1];
         decode_main_long_w   = main_rd_entry_w[MAIN_ENTRY_WIDTH-2];
         decode_main_symbol_w =
@@ -402,6 +395,10 @@ module huffman_block_decoder #(
             bytes_remaining_r             <= {BLOCK_SIZE_WIDTH{1'b0}};
             current_block_is_frame_last_r <= 1'b0;
             entry_load_count_r            <= {SYMBOL_COUNT_WIDTH{1'b0}};
+            entry_check_idx_r             <= {SYMBOL_COUNT_WIDTH{1'b0}};
+            pending_entry_symbol_r        <= {SYMBOL_WIDTH{1'b0}};
+            pending_entry_code_len_r      <= {CODE_LEN_WIDTH{1'b0}};
+            pending_entry_last_r          <= 1'b0;
             sort_pass_r                   <= {SYMBOL_COUNT_WIDTH{1'b0}};
             sort_idx_r                    <= {SYMBOL_COUNT_WIDTH{1'b0}};
             assign_idx_r                  <= {SYMBOL_COUNT_WIDTH{1'b0}};
@@ -435,6 +432,7 @@ module huffman_block_decoder #(
             debug_error_bytes_remaining_r <= {BLOCK_SIZE_WIDTH{1'b0}};
             debug_error_payload_len_r     <= {STREAM_LEN_WIDTH{1'b0}};
 
+`ifndef SYNTHESIS
             for (i = 0; i < MAX_SYMBOLS; i = i + 1) begin
                 symbol_local[i] <= {SYMBOL_WIDTH{1'b0}};
                 len_local[i]    <= {CODE_LEN_WIDTH{1'b0}};
@@ -443,6 +441,7 @@ module huffman_block_decoder #(
                 fallback_len[i]    <= {CODE_LEN_WIDTH{1'b0}};
                 fallback_code[i]   <= {CODE_WIDTH{1'b0}};
             end
+`endif
         end
         else begin
             block_done_r            <= 1'b0;
@@ -469,6 +468,10 @@ module huffman_block_decoder #(
                             one_symbol_value_r <= one_symbol_value;
                             bytes_remaining_r  <= block_size;
                             entry_load_count_r <= {SYMBOL_COUNT_WIDTH{1'b0}};
+                            entry_check_idx_r  <= {SYMBOL_COUNT_WIDTH{1'b0}};
+                            pending_entry_symbol_r   <= {SYMBOL_WIDTH{1'b0}};
+                            pending_entry_code_len_r <= {CODE_LEN_WIDTH{1'b0}};
+                            pending_entry_last_r     <= 1'b0;
                             sort_pass_r        <= {SYMBOL_COUNT_WIDTH{1'b0}};
                             sort_idx_r         <= {SYMBOL_COUNT_WIDTH{1'b0}};
                             assign_idx_r       <= {SYMBOL_COUNT_WIDTH{1'b0}};
@@ -642,47 +645,80 @@ module huffman_block_decoder #(
                     ST_COMP_ENTRY: begin
                         if (entry_valid) begin
                             if ((!decoder_symbol_valid(entry_symbol)) ||
-                                (entry_code_len == {CODE_LEN_WIDTH{1'b0}}) ||
-                                entry_duplicate_w) begin
-	                                error_r <= 1'b1;
-	                                debug_error_code_r            <= DBG_ERR_ENTRY_INVALID;
-	                                debug_error_state_r           <= state_r;
-	                                debug_error_bytes_remaining_r <= bytes_remaining_r;
-	                                debug_error_payload_len_r     <= payload_window_len;
-	                            end
+                                (entry_code_len == {CODE_LEN_WIDTH{1'b0}})) begin
+		                                error_r <= 1'b1;
+		                                debug_error_code_r            <= DBG_ERR_ENTRY_INVALID;
+		                                debug_error_state_r           <= state_r;
+		                                debug_error_bytes_remaining_r <= bytes_remaining_r;
+		                                debug_error_payload_len_r     <= payload_window_len;
+		                            end
                             else begin
-                                symbol_local[entry_load_idx5_w] <= entry_symbol;
-                                len_local[entry_load_idx5_w]    <= entry_code_len;
-                                code_local[entry_load_idx5_w]   <= {CODE_WIDTH{1'b0}};
+                                pending_entry_symbol_r   <= entry_symbol;
+                                pending_entry_code_len_r <= entry_code_len;
+                                pending_entry_last_r     <= entry_last;
+                                entry_check_idx_r        <= {SYMBOL_COUNT_WIDTH{1'b0}};
 
-                                if (entry_load_count_r ==
-                                    (symbol_count_r -
-                                     {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1})) begin
-	                                    if (!entry_last) begin
-	                                        error_r <= 1'b1;
-	                                        debug_error_code_r            <= DBG_ERR_ENTRY_LAST_MISS;
-	                                        debug_error_state_r           <= state_r;
-	                                        debug_error_bytes_remaining_r <= bytes_remaining_r;
-	                                        debug_error_payload_len_r     <= payload_window_len;
-	                                    end
-	                                    else begin
-                                        sort_pass_r <= {SYMBOL_COUNT_WIDTH{1'b0}};
-                                        sort_idx_r  <= {SYMBOL_COUNT_WIDTH{1'b0}};
-                                        state_r     <= ST_COMP_SORT;
-                                    end
-                                end
-                                else begin
-	                                    if (entry_last) begin
-	                                        error_r <= 1'b1;
-	                                        debug_error_code_r            <= DBG_ERR_ENTRY_LAST_EARLY;
-	                                        debug_error_state_r           <= state_r;
-	                                        debug_error_bytes_remaining_r <= bytes_remaining_r;
-	                                        debug_error_payload_len_r     <= payload_window_len;
-	                                    end
-	                                    else
-                                        entry_load_count_r <= entry_load_count_r +
-                                                              {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1};
-                                end
+                                if (entry_load_count_r == {SYMBOL_COUNT_WIDTH{1'b0}})
+                                    state_r <= ST_COMP_ENTRY_COMMIT;
+                                else
+                                    state_r <= ST_COMP_ENTRY_CHECK;
+                            end
+                        end
+                    end
+
+                    ST_COMP_ENTRY_CHECK: begin
+                        if (symbol_local[entry_check_idx5_w] ==
+                            pending_entry_symbol_r) begin
+                            error_r <= 1'b1;
+                            debug_error_code_r            <= DBG_ERR_ENTRY_INVALID;
+                            debug_error_state_r           <= state_r;
+                            debug_error_bytes_remaining_r <= bytes_remaining_r;
+                            debug_error_payload_len_r     <= payload_window_len;
+                        end
+                        else if (entry_check_idx_r ==
+                                 (entry_load_count_r -
+                                  {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1})) begin
+                            state_r <= ST_COMP_ENTRY_COMMIT;
+                        end
+                        else begin
+                            entry_check_idx_r <= entry_check_idx_r +
+                                                 {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1};
+                        end
+                    end
+
+                    ST_COMP_ENTRY_COMMIT: begin
+                        symbol_local[entry_load_idx5_w] <= pending_entry_symbol_r;
+                        len_local[entry_load_idx5_w]    <= pending_entry_code_len_r;
+                        code_local[entry_load_idx5_w]   <= {CODE_WIDTH{1'b0}};
+
+                        if (entry_load_count_r ==
+                            (symbol_count_r -
+                             {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1})) begin
+                            if (!pending_entry_last_r) begin
+                                error_r <= 1'b1;
+                                debug_error_code_r            <= DBG_ERR_ENTRY_LAST_MISS;
+                                debug_error_state_r           <= state_r;
+                                debug_error_bytes_remaining_r <= bytes_remaining_r;
+                                debug_error_payload_len_r     <= payload_window_len;
+                            end
+                            else begin
+                                sort_pass_r <= {SYMBOL_COUNT_WIDTH{1'b0}};
+                                sort_idx_r  <= {SYMBOL_COUNT_WIDTH{1'b0}};
+                                state_r     <= ST_COMP_SORT;
+                            end
+                        end
+                        else begin
+                            if (pending_entry_last_r) begin
+                                error_r <= 1'b1;
+                                debug_error_code_r            <= DBG_ERR_ENTRY_LAST_EARLY;
+                                debug_error_state_r           <= state_r;
+                                debug_error_bytes_remaining_r <= bytes_remaining_r;
+                                debug_error_payload_len_r     <= payload_window_len;
+                            end
+                            else begin
+                                entry_load_count_r <= entry_load_count_r +
+                                                      {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1};
+                                state_r <= ST_COMP_ENTRY;
                             end
                         end
                     end

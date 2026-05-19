@@ -177,6 +177,8 @@ if {$can_reuse_impl} {
 
   synth_design -top $top_name -part $part_name -flatten_hierarchy rebuilt -directive $synth_directive
   report_utilization -file [file join $report_dir "post_synth_utilization.rpt"]
+  report_utilization -hierarchical -file [file join $report_dir "post_synth_utilization_hier.rpt"]
+  report_control_sets -verbose -file [file join $report_dir "post_synth_control_sets.rpt"]
   report_timing_summary -file [file join $report_dir "post_synth_timing_summary.rpt"]
   report_drc -file [file join $report_dir "post_synth_drc.rpt"]
   write_checkpoint -force $post_synth_dcp
@@ -221,6 +223,8 @@ if {$flow eq "synth"} {
 
   report_route_status -file [file join $report_dir "post_impl_route_status.rpt"]
   report_utilization -file [file join $report_dir "post_impl_utilization.rpt"]
+  report_utilization -hierarchical -file [file join $report_dir "post_impl_utilization_hier.rpt"]
+  report_control_sets -verbose -file [file join $report_dir "post_impl_control_sets.rpt"]
   report_timing_summary -file [file join $report_dir "post_impl_timing_summary.rpt"]
   report_drc -file [file join $report_dir "post_impl_drc.rpt"]
   report_power -file [file join $report_dir "post_impl_power.rpt"]

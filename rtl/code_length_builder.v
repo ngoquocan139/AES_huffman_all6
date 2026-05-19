@@ -41,6 +41,8 @@ module code_length_builder #(
     localparam [3:0] ST_MAP_TABLE   = 4'd10;
     localparam [3:0] ST_DONE        = 4'd11;
     localparam [3:0] ST_CLEAR_LEN   = 4'd12;
+    localparam [3:0] ST_BUILD_LINK2 = 4'd13;
+    localparam [3:0] ST_BUILD_CREATE= 4'd14;
 
     localparam LIST_INDEX_WIDTH =
         (MAX_SYMBOLS_PER_BLOCK <= 2)   ? 1 :
@@ -68,20 +70,22 @@ module code_length_builder #(
 
     assign start_pulse = start & ~start_d;
 
-    reg [SYMBOL_WIDTH-1:0]         leaf_symbol     [0:MAX_SYMBOLS_PER_BLOCK-1];
-    reg [NODE_INDEX_WIDTH-1:0]     leaf_node_index [0:MAX_SYMBOLS_PER_BLOCK-1];
 `ifndef SYNTHESIS
     // Simulation-only compatibility signals for targeted coverage tasks.
+/* verilator lint_off UNUSEDSIGNAL */
+    reg [SYMBOL_WIDTH-1:0]         leaf_symbol     [0:MAX_SYMBOLS_PER_BLOCK-1];
+    reg [NODE_INDEX_WIDTH-1:0]     leaf_node_index [0:MAX_SYMBOLS_PER_BLOCK-1];
     reg [CODE_LEN_WIDTH-1:0]       leaf_code_len   [0:MAX_SYMBOLS_PER_BLOCK-1];
     reg [MAX_SYMBOLS_PER_BLOCK-1:0] node_mask      [0:MAX_TREE_NODES-1];
-`endif
-
-    reg [COUNT_WIDTH-1:0]          node_weight  [0:MAX_TREE_NODES-1];
-    reg                            node_active  [0:MAX_TREE_NODES-1];
     reg                            node_is_leaf [0:MAX_TREE_NODES-1];
     reg [SYMBOL_WIDTH-1:0]         node_symbol  [0:MAX_TREE_NODES-1];
-    reg [NODE_INDEX_WIDTH-1:0]     node_order   [0:MAX_TREE_NODES-1];
-    reg [NODE_INDEX_WIDTH-1:0]     node_parent  [0:MAX_TREE_NODES-1];
+/* verilator lint_on UNUSEDSIGNAL */
+`endif
+
+    (* ram_style = "distributed" *) reg [COUNT_WIDTH-1:0]      node_weight [0:MAX_TREE_NODES-1];
+    reg [MAX_TREE_NODES-1:0]       node_active;
+    (* ram_style = "distributed" *) reg [NODE_INDEX_WIDTH-1:0] node_order  [0:MAX_TREE_NODES-1];
+    (* ram_style = "distributed" *) reg [NODE_INDEX_WIDTH-1:0] node_parent [0:MAX_TREE_NODES-1];
 
     (* ram_style = "distributed" *) reg [CODE_LEN_WIDTH-1:0] code_len_mem [0:ALPHABET_SIZE-1];
 
@@ -120,6 +124,15 @@ module code_length_builder #(
     reg                            code_len_we;
     reg [SYMBOL_INDEX_WIDTH-1:0]   code_len_wr_addr;
     reg [CODE_LEN_WIDTH-1:0]       code_len_wr_data;
+    reg                            node_weight_we;
+    reg [NODE_INDEX_WIDTH-1:0]     node_weight_wr_addr;
+    reg [COUNT_WIDTH-1:0]          node_weight_wr_data;
+    reg                            node_parent_we;
+    reg [NODE_INDEX_WIDTH-1:0]     node_parent_wr_addr;
+    reg [NODE_INDEX_WIDTH-1:0]     node_parent_wr_data;
+    reg                            node_order_we;
+    reg [NODE_INDEX_WIDTH-1:0]     node_order_wr_addr;
+    reg [NODE_INDEX_WIDTH-1:0]     node_order_wr_data;
 
     integer i;
     localparam [7:0] ASCII_MAX = 8'h7E;
@@ -138,13 +151,21 @@ module code_length_builder #(
     end
     endfunction
 
+    function [SYMBOL_COUNT_WIDTH-1:0] widen_node_index;
+        input [NODE_INDEX_WIDTH-1:0] idx;
+    begin
+        widen_node_index = {SYMBOL_COUNT_WIDTH{1'b0}};
+        widen_node_index[NODE_INDEX_WIDTH-1:0] = idx;
+    end
+    endfunction
+
     assign load_node_idx_w = widen_symbol_index(load_index);
 
     assign scan_active_w  = node_active[scan_node_idx];
     assign scan_weight_w  = node_weight[scan_node_idx];
-    assign scan_is_leaf_w = node_is_leaf[scan_node_idx];
-    assign scan_symbol_w  = node_symbol[scan_node_idx];
-    assign scan_order_w   = node_order[scan_node_idx];
+    assign scan_is_leaf_w = (scan_node_idx < widen_symbol_index(symbol_count));
+    assign scan_symbol_w  = scan_is_leaf_w ? symbol_read_data : {SYMBOL_WIDTH{1'b0}};
+    assign scan_order_w   = scan_is_leaf_w ? scan_node_idx : node_order[scan_node_idx];
     assign depth_parent_w = node_parent[depth_node_idx_r];
 
     function better_node;
@@ -175,6 +196,10 @@ module code_length_builder #(
     always @(*) begin
         if (state == ST_LOAD_SYMBOL)
             symbol_read_addr = load_index;
+        else if (state == ST_FIND_SCAN)
+            symbol_read_addr = widen_node_index(scan_node_idx);
+        else if (state == ST_MAP_TABLE)
+            symbol_read_addr = map_index;
         else
             symbol_read_addr = {SYMBOL_COUNT_WIDTH{1'b0}};
     end
@@ -197,6 +222,8 @@ module code_length_builder #(
                   (state == ST_FIND_INIT) ||
                   (state == ST_FIND_SCAN) ||
                   (state == ST_BUILD_MERGE) ||
+                  (state == ST_BUILD_LINK2) ||
+                  (state == ST_BUILD_CREATE) ||
                   (state == ST_DEPTH_INIT) ||
                   (state == ST_DEPTH_WALK) ||
                   (state == ST_MAP_TABLE) ||
@@ -216,9 +243,7 @@ module code_length_builder #(
         end
         else if ((state == ST_MAP_TABLE) && (map_index < symbol_count)) begin
             code_len_we      = 1'b1;
-            code_len_wr_addr = huffman_symbol_to_index(
-                                   leaf_symbol[map_index[LIST_INDEX_WIDTH-1:0]]
-                               );
+            code_len_wr_addr = huffman_symbol_to_index(symbol_read_data);
             code_len_wr_data = depth_code_len_r;
         end
     end
@@ -226,6 +251,84 @@ module code_length_builder #(
     always @(posedge clk) begin
         if (code_len_we)
             code_len_mem[code_len_wr_addr] <= code_len_wr_data;
+    end
+
+    always @(*) begin
+        node_weight_we      = 1'b0;
+        node_weight_wr_addr = {NODE_INDEX_WIDTH{1'b0}};
+        node_weight_wr_data = {COUNT_WIDTH{1'b0}};
+
+        if ((state == ST_LOAD_NODE) &&
+            (load_index < symbol_count) &&
+            (load_freq_count_r != {COUNT_WIDTH{1'b0}})) begin
+            node_weight_we      = 1'b1;
+            node_weight_wr_addr = load_node_idx_w;
+            node_weight_wr_data = load_freq_count_r;
+        end
+        else if (state == ST_BUILD_CREATE) begin
+            node_weight_we      = 1'b1;
+            node_weight_wr_addr = next_free_index;
+            node_weight_wr_data = min1_weight_r + min2_weight_r;
+        end
+    end
+
+    always @(*) begin
+        node_parent_we      = 1'b0;
+        node_parent_wr_addr = {NODE_INDEX_WIDTH{1'b0}};
+        node_parent_wr_data = {NODE_INDEX_WIDTH{1'b0}};
+
+        if ((state == ST_LOAD_NODE) &&
+            (load_index < symbol_count) &&
+            (load_freq_count_r != {COUNT_WIDTH{1'b0}})) begin
+            node_parent_we      = 1'b1;
+            node_parent_wr_addr = load_node_idx_w;
+            node_parent_wr_data = load_node_idx_w;
+        end
+        else if ((state == ST_BUILD_MERGE) &&
+                 (active_nodes > {{(SYMBOL_COUNT_WIDTH-1){1'b0}},1'b1}) &&
+                 found1_r &&
+                 found2_r) begin
+            node_parent_we      = 1'b1;
+            node_parent_wr_addr = min1_idx_r;
+            node_parent_wr_data = next_free_index;
+        end
+        else if (state == ST_BUILD_LINK2) begin
+            node_parent_we      = 1'b1;
+            node_parent_wr_addr = min2_idx_r;
+            node_parent_wr_data = next_free_index;
+        end
+        else if (state == ST_BUILD_CREATE) begin
+            node_parent_we      = 1'b1;
+            node_parent_wr_addr = next_free_index;
+            node_parent_wr_data = next_free_index;
+        end
+    end
+
+    always @(*) begin
+        node_order_we      = 1'b0;
+        node_order_wr_addr = {NODE_INDEX_WIDTH{1'b0}};
+        node_order_wr_data = {NODE_INDEX_WIDTH{1'b0}};
+
+        if (state == ST_BUILD_CREATE) begin
+            node_order_we      = 1'b1;
+            node_order_wr_addr = next_free_index;
+            node_order_wr_data = order_counter;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (node_weight_we)
+            node_weight[node_weight_wr_addr] <= node_weight_wr_data;
+    end
+
+    always @(posedge clk) begin
+        if (node_parent_we)
+            node_parent[node_parent_wr_addr] <= node_parent_wr_data;
+    end
+
+    always @(posedge clk) begin
+        if (node_order_we)
+            node_order[node_order_wr_addr] <= node_order_wr_data;
     end
 
     always @(*) begin
@@ -283,7 +386,16 @@ module code_length_builder #(
             ST_BUILD_MERGE: begin
                 if (!found1_r || !found2_r)
                     next_state = ST_DONE;
-                else if (active_nodes <= {{(SYMBOL_COUNT_WIDTH-2){1'b0}},2'd2})
+                else
+                    next_state = ST_BUILD_LINK2;
+            end
+
+            ST_BUILD_LINK2: begin
+                next_state = ST_BUILD_CREATE;
+            end
+
+            ST_BUILD_CREATE: begin
+                if (active_nodes <= {{(SYMBOL_COUNT_WIDTH-2){1'b0}},2'd2})
                     next_state = ST_DEPTH_INIT;
                 else
                     next_state = ST_FIND_INIT;
@@ -347,28 +459,21 @@ module code_length_builder #(
             depth_node_idx_r  <= {NODE_INDEX_WIDTH{1'b0}};
             depth_len_r       <= {CODE_LEN_WIDTH{1'b0}};
             depth_code_len_r  <= {CODE_LEN_WIDTH{1'b0}};
+            node_active       <= {MAX_TREE_NODES{1'b0}};
 
-            for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1) begin
 `ifndef SYNTHESIS
+            for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1) begin
                 leaf_symbol[i]     <= {SYMBOL_WIDTH{1'b0}};
                 leaf_node_index[i] <= {NODE_INDEX_WIDTH{1'b0}};
                 leaf_code_len[i]   <= {CODE_LEN_WIDTH{1'b0}};
-`endif
             end
 
             for (i = 0; i < MAX_TREE_NODES; i = i + 1) begin
-`ifndef SYNTHESIS
-                node_weight[i]  <= {COUNT_WIDTH{1'b0}};
-`endif
-                node_active[i]  <= 1'b0;
-`ifndef SYNTHESIS
                 node_is_leaf[i] <= 1'b0;
                 node_symbol[i]  <= {SYMBOL_WIDTH{1'b0}};
-                node_order[i]   <= {NODE_INDEX_WIDTH{1'b0}};
-                node_parent[i]  <= {NODE_INDEX_WIDTH{1'b0}};
                 node_mask[i]    <= {MAX_SYMBOLS_PER_BLOCK{1'b0}};
-`endif
             end
+`endif
 
         end
         else begin
@@ -405,28 +510,21 @@ module code_length_builder #(
                     depth_node_idx_r  <= {NODE_INDEX_WIDTH{1'b0}};
                     depth_len_r       <= {CODE_LEN_WIDTH{1'b0}};
                     depth_code_len_r  <= {CODE_LEN_WIDTH{1'b0}};
+                    node_active       <= {MAX_TREE_NODES{1'b0}};
 
-                    for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1) begin
 `ifndef SYNTHESIS
+                    for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1) begin
                         leaf_symbol[i]     <= {SYMBOL_WIDTH{1'b0}};
                         leaf_node_index[i] <= {NODE_INDEX_WIDTH{1'b0}};
                         leaf_code_len[i]   <= {CODE_LEN_WIDTH{1'b0}};
-`endif
                     end
 
                     for (i = 0; i < MAX_TREE_NODES; i = i + 1) begin
-`ifndef SYNTHESIS
-                        node_weight[i]  <= {COUNT_WIDTH{1'b0}};
-`endif
-                        node_active[i]  <= 1'b0;
-`ifndef SYNTHESIS
                         node_is_leaf[i] <= 1'b0;
                         node_symbol[i]  <= {SYMBOL_WIDTH{1'b0}};
-                        node_order[i]   <= {NODE_INDEX_WIDTH{1'b0}};
-                        node_parent[i]  <= {NODE_INDEX_WIDTH{1'b0}};
                         node_mask[i]    <= {MAX_SYMBOLS_PER_BLOCK{1'b0}};
-`endif
                     end
+`endif
 
                 end
 
@@ -447,9 +545,9 @@ module code_length_builder #(
 
                 ST_LOAD_NODE: begin
                     if (load_index < symbol_count) begin
+`ifndef SYNTHESIS
                         leaf_symbol[load_index[LIST_INDEX_WIDTH-1:0]]     <= load_symbol_r;
                         leaf_node_index[load_index[LIST_INDEX_WIDTH-1:0]] <= load_node_idx_w;
-`ifndef SYNTHESIS
                         if (symbol_count == {{(SYMBOL_COUNT_WIDTH-1){1'b0}},1'b1})
                             leaf_code_len[load_index[LIST_INDEX_WIDTH-1:0]] <=
                                 {{(CODE_LEN_WIDTH-1){1'b0}},1'b1};
@@ -462,13 +560,10 @@ module code_length_builder #(
                             error_flag <= 1'b1;
                         end
                         else begin
-                            node_weight[load_node_idx_w]  <= load_freq_count_r;
                             node_active[load_node_idx_w]  <= 1'b1;
+`ifndef SYNTHESIS
                             node_is_leaf[load_node_idx_w] <= 1'b1;
                             node_symbol[load_node_idx_w]  <= load_symbol_r;
-                            node_order[load_node_idx_w]   <= load_node_idx_w;
-                            node_parent[load_node_idx_w]  <= load_node_idx_w;
-`ifndef SYNTHESIS
                             node_mask[load_node_idx_w]    <=
                                 ({MAX_SYMBOLS_PER_BLOCK{1'b0}} |
                                  ({{(MAX_SYMBOLS_PER_BLOCK-1){1'b0}},1'b1} << load_index));
@@ -569,9 +664,6 @@ module code_length_builder #(
                         end
                         else begin
                             node_active[min1_idx_r] <= 1'b0;
-                            node_active[min2_idx_r] <= 1'b0;
-                            node_parent[min1_idx_r] <= next_free_index;
-                            node_parent[min2_idx_r] <= next_free_index;
 `ifndef SYNTHESIS
                             for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1) begin
                                 if (node_mask[min1_idx_r][i] || node_mask[min2_idx_r][i])
@@ -580,31 +672,37 @@ module code_length_builder #(
                             end
 `endif
 
-                            node_weight[next_free_index]  <= min1_weight_r + min2_weight_r;
-                            node_active[next_free_index]  <= 1'b1;
-                            node_is_leaf[next_free_index] <= 1'b0;
-                            node_symbol[next_free_index]  <= {SYMBOL_WIDTH{1'b0}};
-                            node_order[next_free_index]   <= order_counter;
-                            node_parent[next_free_index]  <= next_free_index;
 `ifndef SYNTHESIS
                             node_mask[next_free_index]    <=
                                 node_mask[min1_idx_r] | node_mask[min2_idx_r];
 `endif
-
-                            next_free_index <= next_free_index +
-                                               {{(NODE_INDEX_WIDTH-1){1'b0}},1'b1};
-                            order_counter   <= order_counter +
-                                               {{(NODE_INDEX_WIDTH-1){1'b0}},1'b1};
-
-                            active_nodes <= active_nodes -
-                                            {{(SYMBOL_COUNT_WIDTH-1){1'b0}},1'b1};
                         end
                     end
                 end
 
+                ST_BUILD_LINK2: begin
+                    node_active[min2_idx_r] <= 1'b0;
+                end
+
+                ST_BUILD_CREATE: begin
+                    node_active[next_free_index] <= 1'b1;
+`ifndef SYNTHESIS
+                    node_is_leaf[next_free_index] <= 1'b0;
+                    node_symbol[next_free_index]  <= {SYMBOL_WIDTH{1'b0}};
+`endif
+
+                    next_free_index <= next_free_index +
+                                       {{(NODE_INDEX_WIDTH-1){1'b0}},1'b1};
+                    order_counter   <= order_counter +
+                                       {{(NODE_INDEX_WIDTH-1){1'b0}},1'b1};
+
+                    active_nodes <= active_nodes -
+                                    {{(SYMBOL_COUNT_WIDTH-1){1'b0}},1'b1};
+                end
+
                 ST_DEPTH_INIT: begin
                     if (map_index < symbol_count) begin
-                        depth_node_idx_r <= leaf_node_index[map_index[LIST_INDEX_WIDTH-1:0]];
+                        depth_node_idx_r <= widen_symbol_index(map_index);
                         depth_len_r      <= {CODE_LEN_WIDTH{1'b0}};
                         if (symbol_count == {{(SYMBOL_COUNT_WIDTH-1){1'b0}},1'b1})
                             depth_code_len_r <= {{(CODE_LEN_WIDTH-1){1'b0}},1'b1};

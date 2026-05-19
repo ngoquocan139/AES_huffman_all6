@@ -192,6 +192,12 @@ Da lam:
 - `code_length_builder` clear/build code-length table 256 entry.
 - `canonical_code_generator` quet code-length table theo len/symbol de tao
   canonical code cho alphabet 256 ma khong can sort array lon.
+- Area-optimized RTL maps TX Huffman working tables to distributed RAM:
+  frequency table, symbol list, code-length table, tree parent/weight/order,
+  canonical code table, block buffer, and APB FIFOs.
+- Large memory reset loops are removed from synthesis. Valid bits and FSM clear
+  phases replace resetting every table entry, reducing control sets and slice
+  packing pressure.
 
 Gioi han con lai:
 
@@ -203,6 +209,9 @@ Gioi han con lai:
 - TX whole-file hien chon COMPRESSED cho ca frame, chua co raw fallback theo
   file neu ket qua nen xau.
 - RX bypass AES cho `COMPRESS_ONLY` loopback chua duoc dung trong test chinh.
+- RX local canonical sort tables are still register/mux based; full TX+RX
+  implementation passes, but a future one-write-port sort or length-bucket
+  builder would reduce RX area further.
 
 ## 7. RISC-V Software Contract
 
@@ -268,6 +277,17 @@ Regression coverage hien tai:
 - raw DUT branch+statement: `95.27%`
 - closed DUT coverage: `95.90%`
 
+Vivado area-optimized result at 50 MHz:
+
+| Build | LUT | FF | Slices | Control sets | BRAM | WNS |
+|---|---:|---:|---:|---:|---:|---:|
+| TX-only `rv32_soc_synth_tx_opt4` | 11933 | 5469 | 3979 | 208 | 10 | +1.277 ns |
+| Full TX+RX `rv32_soc_synth_full_opt4` | 28067 | 18501 | 9955 | 757 | 11 | +0.334 ns |
+
+The previous full-build place packing issue is resolved in this run. Sharing or
+time-multiplexing AES cores is therefore not required for the current 50 MHz
+full SoC closure.
+
 ## 9. Tradeoff
 
 Uu diem:
@@ -281,3 +301,5 @@ Nhuoc diem:
 - RTL TX phuc tap hon.
 - RX decode them 1 cycle/byte do BRAM lookup wait state.
 - Huffman builder voi global frequency tang LUT/timing so voi per-block.
+- Area toi uu bang distributed RAM lam synthesis lau hon voi
+  `AreaOptimized_high`, nhung giam LUT/FF/control-set du de full SoC route.

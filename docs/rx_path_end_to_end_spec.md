@@ -198,6 +198,15 @@ Doc:
 
 Dung canonical Huffman decode de phuc hoi byte stream.
 
+Implementation/resource notes from the latest area run:
+
+- `HUFFMAN_DECODE_TABLE_IP` is the main short-code BRAM lookup
+  (`2048 x 15`).
+- Long Huffman codes use distributed-RAM fallback tables.
+- RX APB output FIFO memories use distributed RAM.
+- The local canonical sort/build arrays remain register/mux based in the
+  current RTL, but full TX+RX still routes at 50 MHz with WNS `+0.334 ns`.
+
 ### 7.6 `rx_byte_packer_32`
 
 Gop byte da decode thanh word 32-bit va meta so byte hop le de DMA doc qua APB.

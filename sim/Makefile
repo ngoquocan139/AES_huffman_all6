@@ -253,6 +253,9 @@ vivado_impl_tx:
 vivado_impl_rx:
 	$(MAKE) vivado_impl VIVADO_PROJECT=rv32_soc_synth_rx VIVADO_BUILD=rx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
 
+vivado_impl_full:
+	$(MAKE) vivado_impl VIVADO_PROJECT=rv32_soc_synth_ip VIVADO_BUILD=full VIVADO_TOP=$(VIVADO_RAW_TOP) VIVADO_XDC= VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
+
 vivado_bit:
 	@test -f ../vivado/synth_soc.tcl || (echo "[FAIL] missing ../vivado/synth_soc.tcl"; exit 1)
 	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=bit&& set VIVADO_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)&& set VIVADO_REUSE_IMPL=$(VIVADO_REUSE_IMPL)&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_OPT_DIRECTIVE=$(VIVADO_OPT_DIRECTIVE)&& set VIVADO_PLACE_DIRECTIVE=$(VIVADO_PLACE_DIRECTIVE)&& set VIVADO_PHYS_OPT_DIRECTIVE=$(VIVADO_PHYS_OPT_DIRECTIVE)&& set VIVADO_ROUTE_DIRECTIVE=$(VIVADO_ROUTE_DIRECTIVE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
@@ -272,6 +275,10 @@ vivado_flow_rx:
 	$(MAKE) vivado_synth_rx VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
 	$(MAKE) vivado_impl_rx VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_REUSE_SYNTH=1
 	$(MAKE) vivado_bit_rx VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_BIT_REUSE_SYNTH=1 VIVADO_REUSE_IMPL=1
+
+vivado_flow_full:
+	$(MAKE) vivado_synth_full VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
+	$(MAKE) vivado_impl_full VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_REUSE_SYNTH=1
 
 vivado_flow_split:
 	$(MAKE) vivado_flow_tx VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
@@ -364,10 +371,12 @@ help:
 	@echo "** make vivado_impl : implement current FPGA demo target through route_design"
 	@echo "** make vivado_impl_tx : synthesize and implement TX-only FPGA build"
 	@echo "** make vivado_impl_rx : synthesize and implement RX-only FPGA build"
+	@echo "** make vivado_impl_full : implement raw full SoC top for area analysis"
 	@echo "** make vivado_bit_tx  : generate TX-only FPGA demo bitstream"
 	@echo "** make vivado_bit_rx  : generate RX-only FPGA demo bitstream"
 	@echo "** make vivado_flow_tx : run TX-only synth -> impl -> bitstream"
 	@echo "** make vivado_flow_rx : run RX-only synth -> impl -> bitstream"
+	@echo "** make vivado_flow_full : run raw full SoC synth -> implementation"
 	@echo "** make vivado_flow_split : run TX-only flow first, then RX-only flow"
 	@echo "** make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt"
 	@echo "**    host-side command: send a text/binary file over UART into DMEM on FPGA"

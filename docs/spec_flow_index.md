@@ -37,9 +37,10 @@ Policy for the current report:
 | Metadata table | DMEM records at `0x0000_0100`, 2 slots, `0x40` bytes per slot |
 | IV counter | DMEM word at `0x0000_01F0`, seed `0x31415926` |
 | MIT-BIH comparison | External preprocessed input, `32.76%` average final storage ratio |
-| FPGA strategy | Project-mode split TX-only and RX-only bitstreams at 50 MHz |
-| TX-only FPGA status | Routed, WNS `+0.217 ns`, LUTs `45501`, regs `40428`, control sets `1765` |
-| RX-only FPGA status | Routed, WNS `+0.341 ns`, LUTs `22730`, regs `27658`, control sets `917` |
+| FPGA strategy | Area-optimized project-mode implementation at 50 MHz |
+| TX-only FPGA status | Routed, WNS `+1.277 ns`, LUTs `11933`, regs `5469`, slices `3979`, control sets `208` |
+| Full TX+RX FPGA status | Routed, WNS `+0.334 ns`, LUTs `28067`, regs `18501`, slices `9955`, control sets `757` |
+| Legacy RX-only FPGA status | Routed, WNS `+0.341 ns`, LUTs `22730`, regs `27658`, control sets `917` |
 | Historical full regression | `34/34` PASS before secure-storage API refactor |
 | Historical coverage | Raw DUT `93.52%`, closed DUT `95.90%` |
 
@@ -165,7 +166,7 @@ FPGA implementation:
 ```bash
 cd sim
 make vivado_impl_tx
-make vivado_impl_rx
+make vivado_impl_full
 ```
 
 ## 10. Archived Or Non-Report Branches
@@ -174,7 +175,7 @@ Do not use these as the main report story:
 
 | Branch/topic | Current status |
 |---|---|
-| Full TX+RX monolithic bitstream | Analysis only; split TX/RX bitstreams are the current practical FPGA flow |
+| Full TX+RX monolithic build | Now routes in `rv32_soc_synth_full_opt4`; board bitstream wrapper still uses the FPGA demo top |
 | Interrupt/trap DMA completion | Not implemented; polling is active |
 | Production entropy/secret IV generation | Not implemented; current IV is deterministic firmware demo IV |
 | Custom RISC-V instruction | Not implemented; current integration uses MMIO and firmware API |

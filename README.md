@@ -51,7 +51,12 @@ flowchart LR
 - Historical full-regression baseline: `34/34` testcase PASS
 - Raw DUT coverage: `93.52%`
 - Closed DUT coverage: `95.90%`
-- FPGA strategy: split TX-only and RX-only bitstreams at 50 MHz
+- FPGA closure: TX-only and full TX+RX implementation pass at 50 MHz after
+  Huffman table/control-set area optimization
+- Full TX+RX post-impl: `28067` LUTs, `18501` registers, `9955` slices,
+  `757` control sets, WNS `+0.334 ns`
+- TX-only post-impl: `11933` LUTs, `5469` registers, `3979` slices,
+  `208` control sets, WNS `+1.277 ns`
 - MIT-BIH preprocessed comparison: `32.76%` average final storage ratio
 
 ## Core Docs

@@ -228,6 +228,17 @@ Luu output 32-bit word de `dma_tx_engine` drain qua APB:
 - `AES_OUT_META`
 - `AES_OUT_DATA`
 
+Area-optimized implementation notes:
+
+- Global frequency, Huffman tree, code-length, canonical-code, block-buffer,
+  and APB FIFO tables infer distributed RAM in `rv32_soc_synth_tx_opt4`.
+- Large table contents are not reset entry-by-entry in synthesis; reset clears
+  control state and validity only.
+- `code_length_builder` separates parent/weight/order table writes into
+  one-write-port memory processes, which removes the previous LUT/FF explosion.
+- Latest TX-only implementation at 50 MHz: `11933` LUTs, `5469` FFs,
+  `3979` slices, `208` control sets, WNS `+1.277 ns`.
+
 ## 8. TX Software Flow
 
 ### 8.1 CPU steps

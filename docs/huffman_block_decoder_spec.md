@@ -57,6 +57,22 @@ Current split:
 
 This keeps decode architecture general while moving the common lookup into BRAM.
 
+Current implementation mapping after area optimization:
+
+| Storage | Mapping | Purpose |
+|---|---|---|
+| `u_main_decode_table` | BRAM, `2048 x 15` | Short-code lookup table |
+| `fallback_symbol/fallback_len/fallback_code` | distributed RAM | Long-code fallback list |
+| RX output FIFO in `apb_huffman_rx_if` | distributed RAM | Plaintext readback buffering |
+| `symbol_local/len_local/code_local` | registers/mux logic | Canonical sort/build working table |
+
+The duplicate-symbol check is sequential (`ST_COMP_ENTRY_CHECK`) instead of a
+256-way combinational compare. This reduces LUT pressure. The remaining
+register-heavy RX working table comes from the adjacent-entry bubble sort,
+which swaps two entries. Full TX+RX still routes at 50 MHz; a later area
+optimization can replace this with one-write-port sort states or a length-bucket
+canonical builder.
+
 ## 5. Parser Handshake
 
 Inputs from parser:

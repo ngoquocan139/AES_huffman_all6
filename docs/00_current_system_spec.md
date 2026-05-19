@@ -48,17 +48,20 @@ Important data policy:
 | Historical full regression baseline | `34/34` PASS before the secure-storage API refactor; rerun required for updated full-regression number |
 | Historical raw DUT coverage | `93.52%` full `bcesft` |
 | Historical closed DUT coverage | `95.90%` |
-| FPGA implementation strategy | TX-only and RX-only project-mode bitstreams at 50 MHz |
-| TX-only implementation | routed, WNS `+0.217 ns`, power `0.239 W` |
-| TX-only utilization | `45501` LUTs, `40428` registers, `1765` unique control sets |
-| RX-only implementation | routed, WNS `+0.341 ns`, power `0.193 W` |
-| RX-only utilization | `22730` LUTs, `27658` registers, `917` unique control sets |
+| FPGA implementation strategy | Area-optimized project-mode runs at 50 MHz; TX-only and full TX+RX route successfully |
+| TX-only implementation | `rv32_soc_synth_tx_opt4`, routed, WNS `+1.277 ns` |
+| TX-only utilization | `11933` LUTs, `5469` registers, `3979` slices, `208` unique control sets, `10` BRAM tiles |
+| Full TX+RX implementation | `rv32_soc_synth_full_opt4`, routed, WNS `+0.334 ns` |
+| Full TX+RX utilization | `28067` LUTs, `18501` registers, `9955` slices, `757` unique control sets, `11` BRAM tiles |
+| Legacy RX-only implementation | routed, WNS `+0.341 ns`, power `0.193 W` |
+| Legacy RX-only utilization | `22730` LUTs, `27658` registers, `917` unique control sets |
 | Paper comparison result | MIT-BIH preprocessed input: `32.76%` average final storage ratio |
 
 The latest implementation reports are under:
 
 ```text
-vivado/build/rv32_soc_synth_tx/reports/
+vivado/build/rv32_soc_synth_tx_opt4/reports/
+vivado/build/rv32_soc_synth_full_opt4/reports/
 vivado/build/rv32_soc_synth_rx/reports/
 ```
 
@@ -427,21 +430,47 @@ update if a fresh final number is required.
 
 ## 13. FPGA Status
 
-The current practical FPGA flow is project-mode split implementation:
+The latest area-optimized Vivado flow uses:
 
-| Build | Status | WNS | LUTs | Registers | Control sets | Power |
-|---|---|---:|---:|---:|---:|---:|
-| `rv32_soc_synth_tx` | routed | `+0.217 ns` | `45501` | `40428` | `1765` | `0.239 W` |
-| `rv32_soc_synth_rx` | routed | `+0.341 ns` | `22730` | `27658` | `917` | `0.193 W` |
+```text
+VIVADO_SYNTH_DIRECTIVE=AreaOptimized_high
+VIVADO_OPT_DIRECTIVE=Explore
+VIVADO_PLACE_DIRECTIVE=Explore
+VIVADO_PHYS_OPT_DIRECTIVE=AggressiveExplore
+VIVADO_ROUTE_DIRECTIVE=Explore
+VIVADO_CLOCK_MHZ=50
+```
 
-Route status:
+Implementation result:
 
-- TX: `65596` routable nets, `65596` fully routed, `0` routing errors.
-- RX: `42369` routable nets, `42369` fully routed, `0` routing errors.
+| Build | Status | WNS | LUTs | Registers | Slices | Control sets | BRAM |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `rv32_soc_synth_tx_opt4` | routed | `+1.277 ns` | `11933` | `5469` | `3979` | `208` | `10` |
+| `rv32_soc_synth_full_opt4` | routed | `+0.334 ns` | `28067` | `18501` | `9955` | `757` | `11` |
+| legacy `rv32_soc_synth_rx` | routed | `+0.341 ns` | `22730` | `27658` | not rechecked | `917` | `11` |
 
-The previously observed monolithic full TX+RX placement pressure is not the
-current claimed FPGA implementation flow. The current claim is split TX-only
-and RX-only bitstreams at 50 MHz.
+Route/timing status:
+
+- TX-only: route completed, `0` failed nets, timing met.
+- Full TX+RX: route completed, `0` failed nets, timing met.
+
+The previous `[Place 30-487]` packing failure was caused by LUT/FF/control-set
+pressure from large Huffman tables and reset-heavy arrays. The current RTL
+reduces this by:
+
+- inferring LUTRAM/distributed RAM for TX frequency, symbol, code-length,
+  canonical-code, block-buffer, and FIFO tables
+- removing reset/clear loops from large data memories in synthesis
+- using valid bits or state sequencing instead of resetting every memory entry
+- splitting Huffman tree writes in `code_length_builder` into one write-port
+  per table
+- moving RX fallback and output FIFO storage into distributed RAM while keeping
+  the main decode table in BRAM
+
+RX `symbol_local`, `len_local`, and `code_local` still use register/mux logic
+because the current canonical sort swaps adjacent entries. This is acceptable
+for the routed full build, but the next area step would be a one-write-port
+sort/table-builder or a length-bucket canonical generator.
 
 ## 14. What RISC-V Contributes
 
@@ -471,7 +500,8 @@ and object-management layer.
 - The current firmware API is polling-based; no interrupt/trap completion path
   is implemented.
 - Custom RISC-V instructions are not implemented.
-- Full monolithic TX+RX FPGA closure is not the current implementation claim.
+- RX local canonical sort tables are not fully memory-inferred yet; full TX+RX
+  still routes successfully at 50 MHz after the current area optimization.
 
 ## 16. Report Wording
 
