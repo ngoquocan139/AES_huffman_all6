@@ -78,13 +78,13 @@ module apb_huffman_tx_if #(
     localparam OUT_FIFO_COUNT_WIDTH = 5;
     localparam [OUT_FIFO_COUNT_WIDTH-1:0] OUT_FIFO_DEPTH_VAL = 5'd16;
 
-    reg [31:0] fifo_mem [0:FIFO_DEPTH-1];
+    (* ram_style = "distributed" *) reg [31:0] fifo_mem [0:FIFO_DEPTH-1];
     reg [FIFO_PTR_WIDTH-1:0] wr_ptr_r;
     reg [FIFO_PTR_WIDTH-1:0] rd_ptr_r;
     reg [FIFO_COUNT_WIDTH-1:0] fifo_count_r;
 
-    reg [31:0] out_fifo_mem [0:OUT_FIFO_DEPTH-1];
-    reg        out_fifo_last_mem [0:OUT_FIFO_DEPTH-1];
+    (* ram_style = "distributed" *) reg [31:0] out_fifo_mem [0:OUT_FIFO_DEPTH-1];
+    (* ram_style = "distributed" *) reg        out_fifo_last_mem [0:OUT_FIFO_DEPTH-1];
     reg [OUT_FIFO_PTR_WIDTH-1:0] out_wr_ptr_r;
     reg [OUT_FIFO_PTR_WIDTH-1:0] out_rd_ptr_r;
     reg [OUT_FIFO_COUNT_WIDTH-1:0] out_fifo_count_r;
@@ -99,8 +99,6 @@ module apb_huffman_tx_if #(
     reg                        done_sticky_r;
     reg                        error_sticky_r;
     reg                        aes_out_error_sticky_r;
-
-    integer                    i;
 
     // --------------------------------------------------------------------
     // APB phase detect
@@ -175,6 +173,16 @@ module apb_huffman_tx_if #(
                                     ((|size_bytes[1:0]) ? 4'd1 : 4'd0);
         end
     endfunction
+
+    always @(posedge PCLK) begin
+        if (aes_out_push_w) begin
+            out_fifo_mem[out_wr_ptr_r]      <= aes_out_word_i;
+            out_fifo_last_mem[out_wr_ptr_r] <= aes_out_word_last_i;
+        end
+
+        if (write_commit_w && (PADDR == ADDR_WORD_IN) && !PSLVERR)
+            fifo_mem[wr_ptr_r] <= PWDATA;
+    end
 
     // --------------------------------------------------------------------
     // Combinational APB response logic
@@ -422,13 +430,6 @@ module apb_huffman_tx_if #(
             start_block_o    <= 1'b0;
             continue_frame_o <= 1'b0;
 
-            for (i = 0; i < FIFO_DEPTH; i = i + 1)
-                fifo_mem[i] <= 32'b0;
-
-            for (i = 0; i < OUT_FIFO_DEPTH; i = i + 1) begin
-                out_fifo_mem[i]      <= 32'b0;
-                out_fifo_last_mem[i] <= 1'b0;
-            end
         end
         else begin
             // pulse default
@@ -467,11 +468,6 @@ module apb_huffman_tx_if #(
 
                 block_inflight_r <= 1'b0;
                 stream_active_r  <= 1'b0;
-            end
-
-            if (aes_out_push_w) begin
-                out_fifo_mem[out_wr_ptr_r]      <= aes_out_word_i;
-                out_fifo_last_mem[out_wr_ptr_r] <= aes_out_word_last_i;
             end
 
             case ({aes_out_push_w, read_aes_out_data_commit_w})
@@ -549,7 +545,6 @@ module apb_huffman_tx_if #(
 
                     ADDR_WORD_IN: begin
                         if (!PSLVERR) begin
-                            fifo_mem[wr_ptr_r] <= PWDATA;
                             wr_ptr_r           <= wr_ptr_r + 1'b1;
                             fifo_count_r       <= fifo_count_r + 1'b1;
                             words_loaded_r     <= words_loaded_r + 1'b1;

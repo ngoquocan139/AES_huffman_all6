@@ -2,7 +2,7 @@
 
 ## 1. Scope
 
-This document is the source of truth for the current project state.
+This document is the source of truth for the current RTL and firmware state.
 
 Project title:
 
@@ -11,54 +11,68 @@ Design of a RISC-V RV32I System Integrating Huffman Compression and AES-128
 for Secure Data Storage
 ```
 
-Current architecture:
+Current interpretation:
 
-```text
-RV32I CPU control plane
--> CPU MMIO to APB bridge
--> DMA register file
--> TX/RX DMA engines
--> dynamic whole-file Huffman compressor/decompressor
--> AES-128-CBC encrypt/decrypt
--> DMEM secure-storage regions
-```
+- The design is a secure-storage SoC prototype, not only a standalone
+  Huffman/AES accelerator.
+- RV32I is the control and storage-management processor.
+- Huffman compression and AES-128-CBC are implemented in RTL accelerators.
+- Secure-storage policy is implemented in RV32I firmware through MMIO and DMEM
+  metadata.
+- The current design does not implement a custom RISC-V instruction. CPU
+  participation is via normal RV32I load/store/control instructions.
 
-Important policy:
+Important data policy:
 
-- The active MIT-BIH comparison uses already-preprocessed `.bin` input files.
-- The SoC does not implement ECG preprocessing in RTL.
-- The SoC stores and restores the already-processed byte stream.
+- MIT-BIH comparison inputs are already-preprocessed `.bin` byte streams.
+- ECG preprocessing is external to this RTL.
+- The SoC stores and restores the processed byte stream exactly.
 
-## 2. Current baseline
+## 2. Current Baseline
 
 | Item | Current value |
 |---|---|
 | Simulation top | `test_bench` in `tb/tb_rv32_soc_mmio_dma.v` |
 | Main SoC top | `rv32_soc_top` |
 | FPGA demo top | `rv32_soc_fpga_demo_top` |
-| Main C program | `testcase/test_mmio_dma.c` |
-| Main secure-storage mode | `MODE=0x9`, TX whole-file Huffman + AES-128-CBC, then RX decrypt/decode |
-| TX-only benchmark mode | `MODE=0xD`, TX whole-file Huffman with AES bypass |
-| RX mode | `MODE=0x2`, AES-128-CBC decrypt + Huffman decode |
+| RV32I core | `top_rv32_sync` |
+| Secure-storage firmware API | `testcase/secure_storage_fw.h` |
+| Active secure-storage testcase | `testcase/test_mmio_dma_storage_table.c` |
+| Secure TX mode | `MODE=0x9`, whole-file Huffman + AES-128-CBC |
+| Secure RX mode | `MODE=0x2`, AES-128-CBC decrypt + Huffman decode |
+| TX-only benchmark mode | `MODE=0xD`, whole-file Huffman with AES bypass |
 | Huffman alphabet | 256 byte symbols, `0x00..0xFF` |
-| Main regression | `34/34` testcase PASS |
-| Raw DUT coverage | `93.52%` full `bcesft` |
-| Closed DUT coverage | `95.90%` |
-| Bare `make all` default | `dma_compress_aes_input1` / `input1.txt` |
-| Verilator DRC | `make drc` PASS |
-| FPGA implementation | split TX-only and RX-only bitstreams at 50 MHz |
-| TX-only timing | WNS `+0.217 ns`, power `0.239 W` |
-| RX-only timing | WNS `+0.341 ns`, power `0.193 W` |
-| Paper comparison result | MIT-BIH preprocessed input: `32.76%` final storage ratio |
+| DMEM capacity used by SoC flow | 32 KiB, byte-addressed |
+| DMA MMIO base | `0x4000_0000` |
+| Latest focused secure-storage simulation | `dma_storage_table_input1_then_input3`, `PASS=22`, `FAIL=0` |
+| Historical full regression baseline | `34/34` PASS before the secure-storage API refactor; rerun required for updated full-regression number |
+| Historical raw DUT coverage | `93.52%` full `bcesft` |
+| Historical closed DUT coverage | `95.90%` |
+| FPGA implementation strategy | Area-optimized project-mode runs at 50 MHz; TX-only and full TX+RX route successfully |
+| TX-only implementation | `rv32_soc_synth_tx_opt4`, routed, WNS `+1.277 ns` |
+| TX-only utilization | `11933` LUTs, `5469` registers, `3979` slices, `208` unique control sets, `10` BRAM tiles |
+| Full TX+RX implementation | `rv32_soc_synth_full_opt4`, routed, WNS `+0.334 ns` |
+| Full TX+RX utilization | `28067` LUTs, `18501` registers, `9955` slices, `757` unique control sets, `11` BRAM tiles |
+| Legacy RX-only implementation | routed, WNS `+0.341 ns`, power `0.193 W` |
+| Legacy RX-only utilization | `22730` LUTs, `27658` registers, `917` unique control sets |
+| Paper comparison result | MIT-BIH preprocessed input: `32.76%` average final storage ratio |
 
-## 3. Architecture top-level
+The latest implementation reports are under:
+
+```text
+vivado/build/rv32_soc_synth_tx_opt4/reports/
+vivado/build/rv32_soc_synth_full_opt4/reports/
+vivado/build/rv32_soc_synth_rx/reports/
+```
+
+## 3. Top-Level Architecture
 
 ```mermaid
 flowchart LR
-  HOST["Host/Testbench/UART Loader"] --> DMEM["DMEM 32 KiB"]
-  CPU["RV32I CPU\ncontrol plane"] --> IMEM["IMEM\ninstruction.mem"]
+  HOST["Host/Testbench/UART loader"] --> DMEM["DMEM 32 KiB"]
+  CPU["RV32I CPU control plane"] --> IMEM["IMEM instruction.mem"]
   CPU <-->|"load/store"| DMEM
-  CPU -->|"MMIO"| BR["cpu_mmio_to_apb_bridge"]
+  CPU -->|"MMIO load/store"| BR["cpu_mmio_to_apb_bridge"]
   BR -->|"APB"| REG["dma_regfile"]
 
   REG -->|"TX config/start/status"| TXDMA["dma_tx_engine"]
@@ -67,12 +81,14 @@ flowchart LR
   REG -->|"IV0..IV3"| RX["apb_huffman_aes_rx_top"]
 
   TXDMA <-->|"read plaintext / write ciphertext"| DMEM
-  TXDMA -->|"private APB"| TX
-  TX -->|"ciphertext/transport FIFO"| TXDMA
+  TXDMA -->|"private APB writes"| TX
+  TX -->|"ciphertext or transport FIFO"| TXDMA
 
   RXDMA <-->|"read ciphertext / write plaintext"| DMEM
   RXDMA -->|"ciphertext stream"| RX
-  RX -->|"plaintext APB readback"| RXDMA
+  RX -->|"plaintext readback"| RXDMA
+
+  CPU <-->|"metadata table and IV counter"| DMEM
 ```
 
 Design split:
@@ -81,57 +97,59 @@ Design split:
 |---|---|---|
 | Control plane | RV32I CPU | Configure DMA registers, write IV, start TX/RX, poll status |
 | Data plane | DMA + accelerators | Move data between DMEM and Huffman/AES engines |
-| Storage plane | DMEM | Hold source input, TX output, RX restored output, software metadata |
-| FPGA input plane | UART loader | Load runtime input into DMEM before releasing SoC reset |
+| Storage plane | DMEM + firmware metadata | Hold input, ciphertext slots, restored output, metadata records |
+| Input plane | Testbench or UART loader | Preload input bytes and input lengths before releasing SoC reset |
 
-## 4. Map of the module in use
+## 4. Active Module Map
 
-| Module | Responsibility | Main spec |
-|---|---|---|
-| `rv32_soc_top` | Simulation/integration SoC top | this file |
-| `rv32_soc_fpga_demo_top` | FPGA wrapper with UART loader and LEDs | `fpga_uart_dmem_loader_spec.md` |
-| `uart_dmem_loader` | UART protocol loader that preloads DMEM source bytes before CPU release | `fpga_uart_dmem_loader_spec.md` |
-| `top_rv32_sync` | RV32I CPU core | this file, `dma_riscv_instruction_programming_spec.md` |
-| `imem_sync` / `IMEM_ip` | Instruction memory | `bram_port_usage_spec.md` |
-| `dmem_ip_wrapper` / `DMEM_ip` | Shared data memory | `bram_port_usage_spec.md` |
-| `cpu_mmio_to_apb_bridge` | Convert CPU MMIO load/store into APB | `cpu_mmio_to_apb_bridge_spec.md` |
-| `dma_regfile` | CPU-visible DMA registers | `dma_regfile_spec.md` |
-| `dma_tx_engine` | DMEM -> TX accelerator -> DMEM mover | `dma_tx_engine_spec.md` |
-| `dma_rx_engine` | DMEM -> RX accelerator -> DMEM mover | `dma_rx_engine_spec.md` |
-| `apb_huffman_aes_tx_top` | TX APB wrapper, Huffman encode, CBC encrypt/bypass | `apb_huffman_aes_tx_top_spec.md` |
-| `dynamic_huffman_encoder` | Whole-file dynamic canonical Huffman encode | `dynamic_huffman_encoder_spec.md` |
-| `bit_packer_128` | Pack Huffman transport into 128-bit words | `bit_packer_128_spec.md` |
-| `apb_huffman_aes_rx_top` | RX wrapper, CBC decrypt, depack, parse, decode | `apb_huffman_aes_rx_top_spec.md` |
-| `bit_depacker_128` | Depack 128-bit transport words | `bit_depacker_128_spec.md` |
-| `huffman_block_parser` | Parse transport header/table/payload | `huffman_block_parser_spec.md` |
-| `huffman_block_decoder` | Canonical Huffman decode with main table/fallback | `huffman_block_decoder_spec.md` |
-| `rx_byte_packer_32` | Pack decoded bytes into 32-bit DMEM words | `rx_byte_packer_32_spec.md` |
-| `apb_huffman_rx_if` | RX APB status/output readback | `apb_huffman_rx_if_spec.md` |
+| Module | Responsibility |
+|---|---|
+| `rv32_soc_top` | Simulation/integration SoC top |
+| `rv32_soc_fpga_demo_top` | FPGA wrapper with UART loader and LEDs |
+| `top_rv32_sync` | RV32I control CPU |
+| `imem_sync` / `IMEM_ip` | Instruction memory |
+| `dmem_ip_wrapper` / `DMEM_ip` | Shared data memory |
+| `cpu_mmio_to_apb_bridge` | CPU MMIO load/store to APB |
+| `dma_regfile` | CPU-visible DMA registers, status, IV registers |
+| `dma_tx_engine` | DMEM to TX accelerator to DMEM mover |
+| `dma_rx_engine` | DMEM to RX accelerator to DMEM mover |
+| `apb_huffman_aes_tx_top` | TX APB wrapper, Huffman encoder, AES-CBC or bypass |
+| `dynamic_huffman_encoder` | Whole-file dynamic canonical Huffman encoder |
+| `bit_packer_128` | Pack Huffman transport into 128-bit words |
+| `apb_huffman_aes_rx_top` | RX wrapper, AES-CBC decrypt, depack, parse, decode |
+| `bit_depacker_128` | Depack 128-bit transport words |
+| `huffman_block_parser` | Parse transport header/table/payload |
+| `huffman_block_decoder` | Canonical Huffman decode with table/fallback |
+| `rx_byte_packer_32` | Pack decoded bytes into 32-bit DMEM words |
+| `apb_huffman_rx_if` | RX APB status/output readback |
 
-## 5. Memory map
+## 5. Memory Map
 
 Global map:
 
-| Region | Address range | Owner / usage |
+| Region | Address range | Owner/use |
 |---|---:|---|
 | IMEM | implementation-specific | RV32I instruction fetch |
-| DMEM | `0x0000_0000..0x0000_7FFF` | CPU data, DMA source/destination, testbench/UART preload |
+| DMEM | `0x0000_0000..0x0000_7FFF` | CPU data, DMA source/destination, metadata, testbench/UART preload |
 | DMA MMIO | `0x4000_0000..0x4000_00FF` | CPU-visible DMA register file |
 
-DMEM software layout:
+Current DMEM software layout:
 
 | Address | Name | Meaning |
 |---:|---|---|
-| `0x0000_0040` | `INPUT_LEN_ADDR` | Input length written by testbench/UART loader |
+| `0x0000_0000` | `RESULT_BASE_ADDR` | Firmware result/debug words for the testbench |
+| `0x0000_0040` | `INPUT_LEN_ADDR` | Primary input length from TB/UART |
 | `0x0000_0044` | `INPUT2_LEN_ADDR` | Secondary input length for storage-table testcase |
-| `0x0000_0100` | `STORAGE_TABLE_BASE` | RV32I-managed metadata table |
-| `0x0000_2000` | `SRC_BASE_ADDR` | Source input byte stream |
-| `0x0000_3000` | `SRC2_BASE_ADDR` | Secondary source input |
-| `0x0000_4000` | `TX_DST_BASE_ADDR` | TX ciphertext/transport output |
-| `0x0000_5000` | `TX2_DST_BASE_ADDR` | Secondary TX output |
-| `0x0000_6000` | `RX_DST_BASE_ADDR` | RX restored plaintext/output |
+| `0x0000_0100` | `SECURE_META_BASE_ADDR` | Secure-storage metadata table |
+| `0x0000_0140` | second metadata slot | Slot 1, because record stride is `0x40` bytes |
+| `0x0000_01F0` | `SECURE_IV_COUNTER_ADDR` | Firmware IV/version counter |
+| `0x0000_2000` | `INPUT1_SRC_ADDR` | Primary plaintext source |
+| `0x0000_3000` | `INPUT2_SRC_ADDR` | Secondary plaintext source |
+| `0x0000_4000` | ciphertext slot 0 | Firmware-selected ciphertext storage for slot 0 |
+| `0x0000_5000` | ciphertext slot 1 | Firmware-selected ciphertext storage for slot 1 |
+| `0x0000_6000` | `INPUT1_RX_ADDR` | Restored plaintext output |
 
-## 6. Register map DMA
+## 6. DMA Register Map
 
 Base:
 
@@ -142,7 +160,7 @@ DMA_BASE = 0x4000_0000
 | Offset | Register | Access | Function |
 |---:|---|---|---|
 | `0x00` | `CONTROL` | W | start, soft reset, clear sticky flags |
-| `0x04` | `STATUS` | R | busy/done/error/config/mode status |
+| `0x04` | `STATUS` | R | busy, done, error, config-valid, mode mirror |
 | `0x08` | `SRC_ADDR` | R/W | DMEM source byte address |
 | `0x0C` | `DST_ADDR` | R/W | DMEM destination byte address |
 | `0x10` | `LEN_BYTES` | R/W | TX plaintext length or RX ciphertext length |
@@ -156,28 +174,156 @@ DMA_BASE = 0x4000_0000
 | `0x30` | `IV2` | R/W | CBC IV bits `[95:64]` |
 | `0x34` | `IV3` | R/W | CBC IV bits `[127:96]` |
 
-Contract mode:
+Mode contract:
 
-| Mode | Meaning | Current usage |
+| Mode | Meaning | Current use |
 |---:|---|---|
-| `0x1` | TX `COMPRESS_AES`, legacy per-block Huffman | coverage/compatibility |
-| `0x5` | TX `COMPRESS_ONLY`, legacy per-block Huffman | coverage/compatibility |
-| `0x9` | TX `COMPRESS_AES`, whole-file Huffman | main secure-storage TX |
+| `0x1` | TX `COMPRESS_AES`, legacy per-block Huffman | compatibility/coverage |
+| `0x5` | TX `COMPRESS_ONLY`, legacy per-block Huffman | compatibility/coverage |
+| `0x9` | TX `COMPRESS_AES`, whole-file Huffman | secure-storage write path |
 | `0xD` | TX `COMPRESS_ONLY`, whole-file Huffman | TX-only compression benchmark |
-| `0x2` | RX AES-CBC decrypt + Huffman decode | main RX |
+| `0x2` | RX AES-CBC decrypt + Huffman decode | secure-storage read path |
 
-AES Policy:
+`MODE` does not select ECB/CBC. AES mode is fixed to CBC for
+`COMPRESS_AES`. `COMPRESS_ONLY` bypasses AES and does not consume IV.
 
-- `COMPRESS_AES` means Huffman transport is encrypted by AES-128-CBC.
-- `COMPRESS_ONLY` means AES is bypassed and output is compressed transport.
-- RX main flow is for `COMPRESS_AES` ciphertext.
-- CBC mode is fixed in RTL; `MODE` does not select ECB/CBC.
+## 7. Secure Storage Firmware API
 
-## 7. TX stream
+The active secure-storage interface is implemented in:
+
+```text
+testcase/secure_storage_fw.h
+```
+
+API:
+
+| Function | Purpose |
+|---|---|
+| `secure_storage_init()` | Clear metadata slots and seed the IV counter |
+| `secure_write(file_id, plain_addr, plain_len, result)` | Compress + encrypt plaintext, allocate a ciphertext slot, commit metadata |
+| `secure_read(file_id, dst_addr, result)` | Lookup metadata by `file_id`, restore IV, decrypt + decode into `dst_addr` |
+| `secure_delete(file_id)` | Clear the metadata record for one file |
+| `secure_find_record(file_id)` | Return metadata slot index or `0xffffffff` |
+| `secure_record_count()` | Count committed metadata records |
+
+Firmware owns the storage policy:
+
+- The caller provides `file_id`, plaintext address, and plaintext length.
+- Firmware chooses ciphertext destination from the metadata slot.
+- Firmware creates and stores the IV.
+- Firmware launches DMA TX/RX through normal MMIO registers.
+- Firmware commits the metadata only after DMA TX succeeds.
+
+### 7.1 Write Path
+
+```mermaid
+flowchart TD
+  A["secure_write(file_id, plain_addr, plain_len)"] --> B["find or allocate metadata slot"]
+  B --> C["choose cipher_addr = 0x4000 + slot * 0x1000"]
+  C --> D["generate IV and store provisional metadata"]
+  D --> E["write IV0..IV3 to DMA regfile"]
+  E --> F["run DMA mode 0x9"]
+  F --> G{"DMA OK and ciphertext length valid?"}
+  G -->|"yes"| H["commit cipher_len and valid=1"]
+  G -->|"no"| I["return error, record remains invalid"]
+```
+
+### 7.2 Read Path
+
+```mermaid
+flowchart TD
+  A["secure_read(file_id, dst_addr)"] --> B["find valid metadata record"]
+  B --> C["restore IV0..IV3 from metadata"]
+  C --> D["read cipher_addr, cipher_len, plain_len"]
+  D --> E["run DMA mode 0x2"]
+  E --> F{"bytes_done == plain_len?"}
+  F -->|"yes"| G["plaintext restored in dst_addr"]
+  F -->|"no"| H["return read-length error"]
+```
+
+### 7.3 Metadata Record Layout
+
+Metadata base:
+
+```text
+SECURE_META_BASE_ADDR    = 0x0000_0100
+SECURE_META_RECORD_COUNT = 2
+SECURE_META_RECORD_SHIFT = 6
+SECURE_META_RECORD_WORDS = 16
+```
+
+Record `slot` starts at:
+
+```text
+0x0000_0100 + slot * 0x40
+```
+
+| Word index | Field | Meaning |
+|---:|---|---|
+| `0` | `valid` | `1` only after TX success and metadata commit |
+| `1` | `file_id` | Application-visible storage object ID |
+| `2` | `plain_addr` | Source plaintext address used by `secure_write` |
+| `3` | `cipher_addr` | Ciphertext slot address selected by firmware |
+| `4` | `plain_len` | Expected restored plaintext length |
+| `5` | `cipher_len` | TX output length, used as RX `LEN_BYTES` |
+| `6` | `mode` | Current TX mode, normally `0x9` |
+| `7` | `iv0` | Stored CBC IV word 0 |
+| `8` | `iv1` | Stored CBC IV word 1 |
+| `9` | `iv2` | Stored CBC IV word 2 |
+| `10` | `iv3` | Stored CBC IV word 3 |
+| `11` | `version` | Current implementation stores the IV counter value |
+| `12` | `flags` | Reserved software flags, currently `0` |
+| `13..15` | reserved | Cleared by init/delete |
+
+The metadata table is not a separate RTL filesystem. It is a firmware-owned
+DMEM data structure.
+
+## 8. IV And CBC Contract
+
+Current IV source:
+
+- RV32I firmware creates a deterministic demo IV.
+- Firmware writes `IV0..IV3` into `dma_regfile`.
+- Firmware also stores the same IV words in metadata.
+- TX consumes the IV for AES-CBC encryption.
+- RX restores the IV from metadata before AES-CBC decryption.
+
+Current constants:
+
+```text
+SECURE_IV_COUNTER_ADDR = 0x0000_01F0
+SECURE_IV_SEED         = 0x31415926
+```
+
+Current generation in `secure_prepare_record()`:
+
+```c
+counter = SECURE_IV_COUNTER_WORD + 1;
+mix = plain_len ^ plain_addr ^ cipher_addr ^ file_id ^ counter ^ 0x43424331u;
+mix = mix ^ (mix << 13);
+mix = mix ^ (mix >> 17);
+mix = mix ^ (mix << 5);
+
+iv0 = 0x43424331u ^ file_id;
+iv1 = mix ^ 0x3a5c742eu;
+iv2 = rotl32(iv1 ^ 0x9e3779b9u, 7u);
+iv3 = rotl32(iv2 + 0x3c6ef372u, 17u);
+```
+
+This IV is deterministic and repeatable for simulation. It is acceptable for
+the current academic prototype but is not a production entropy source.
+
+CBC word order:
+
+```text
+cbc_iv = {IV3, IV2, IV1, IV0}
+```
+
+## 9. TX Flow
 
 ```mermaid
 flowchart LR
-  SRC["DMEM source"] --> TXDMA["dma_tx_engine"]
+  SRC["DMEM plaintext"] --> TXDMA["dma_tx_engine"]
   TXDMA --> APB["TX private APB writes"]
   APB --> COLLECT["input_collect_unit"]
   COLLECT --> FREQ["frequency_counter"]
@@ -191,34 +337,27 @@ flowchart LR
   CBC --> FIFO["TX output FIFO"]
   BYP --> FIFO
   FIFO --> TXDMA
-  TXDMA --> DST["DMEM TX output"]
+  TXDMA --> DST["DMEM ciphertext/transport"]
 ```
 
-TX software steps:
+Secure write uses:
 
-1. CPU reads `INPUT_LEN_ADDR`.
-2. CPU writes `IV0..IV3` if AES is enabled.
-3. CPU writes `SRC_ADDR = 0x2000`.
-4. CPU writes `DST_ADDR = 0x4000`.
-5. CPU writes `LEN_BYTES = input_len`.
-6. CPU writes `BLOCK_CFG = 32`.
-7. CPU writes `MODE = 0x9` for secure storage or `0xD` for TX-only benchmark.
-8. CPU writes `CONTROL.start`.
-9. CPU polls `STATUS.done_sticky` or `STATUS.error_sticky`.
-10. CPU reads `CIPHERTEXT_BYTES_PRODUCED`.
+```text
+SRC_ADDR   = plain_addr
+DST_ADDR   = cipher_addr selected by firmware
+LEN_BYTES  = plain_len
+BLOCK_CFG  = 32
+MODE       = 0x9
+CONTROL    = start
+```
 
-TX output:
+TX output in secure mode is AES-CBC ciphertext over the Huffman transport.
 
-| Mode | Output in DMEM |
-|---|---|
-| `0x9` | AES-CBC ciphertext over Huffman transport |
-| `0xD` | Plain compressed Huffman transport, no AES |
-
-## 8. RX stream
+## 10. RX Flow
 
 ```mermaid
 flowchart LR
-  CT["DMEM TX output"] --> RXDMA["dma_rx_engine"]
+  CT["DMEM ciphertext"] --> RXDMA["dma_rx_engine"]
   RXDMA --> STRM["128-bit ciphertext stream"]
   STRM --> AESI["AES-128-CBC decrypt"]
   AESI --> DEP["bit_depacker_128"]
@@ -227,306 +366,152 @@ flowchart LR
   DEC --> PACK32["rx_byte_packer_32"]
   PACK32 --> IF["apb_huffman_rx_if"]
   IF --> RXDMA
-  RXDMA --> OUT["DMEM RX output"]
+  RXDMA --> OUT["DMEM restored plaintext"]
 ```
 
-RX software steps:
+Secure read uses:
 
-1. CPU keeps or rewrites the same `IV0..IV3` used for TX.
-2. CPU writes `SRC_ADDR = 0x4000`.
-3. CPU writes `DST_ADDR = 0x6000`.
-4. CPU writes `LEN_BYTES = CIPHERTEXT_BYTES_PRODUCED`.
-5. CPU writes `MODE = 0x2`.
-6. CPU writes `CONTROL.start`.
-7. CPU polls `STATUS.done_sticky` or `STATUS.error_sticky`.
-8. CPU checks `BYTES_DONE == original_input_len`.
+```text
+SRC_ADDR   = metadata.cipher_addr
+DST_ADDR   = caller dst_addr
+LEN_BYTES  = metadata.cipher_len
+BLOCK_CFG  = 32
+MODE       = 0x2
+CONTROL    = start
+```
 
 RX correctness criterion:
 
 ```text
-DMEM[RX_DST_BASE_ADDR .. RX_DST_BASE_ADDR + input_len - 1]
+DMEM[dst_addr .. dst_addr + plain_len - 1]
 ==
-DMEM[SRC_BASE_ADDR .. SRC_BASE_ADDR + input_len - 1]
+original plaintext byte stream
 ```
 
-For MIT-BIH preprocessed tests, this means RX restores the processed bytes
-stream exactly. It does not reconstruct raw ECG samples inside the SoC.
+## 11. Current Software Polling Contract
 
-## 9. IV And AES-CBC Contract
+`secure_run_dma()` is the current delay-safe MMIO helper. It does the following:
 
-Current IV bridge:
+1. Write `CONTROL = 0xC` to clear done/error sticky flags.
+2. Write `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, and `BLOCK_CFG`.
+3. Read `STATUS` and delay before using the loaded value.
+4. Write `CONTROL = 0x1` to start.
+5. Poll `STATUS` until done or error.
+6. Read `BYTES_DONE`, `CIPHERTEXT_BYTES_PRODUCED`, and `DEBUG`.
 
-- RV32I software computes demo IV words.
-- CPU writes `IV0..IV3` into `dma_regfile`.
-- TX and RX consume the same IV words.
+The helper intentionally inserts two `nop` instructions after volatile reads
+through `secure_load_delay()`. This matches the current RV32I/MMIO path, where
+immediate use of a freshly loaded value can expose a load-use hazard in the
+firmware flow.
 
-Security note:
+## 12. Verification Status
 
-- Current IV generation is deterministic demo logic, not production entropy.
-- A real FPGA deployment should use host nonce, TRNG, secure seed, or a
-  board-level entropy source.
-- AES key material is fixed in RTL in the current design.
+Latest focused secure-storage command:
 
-CBC operation:
+```bash
+make -C sim compile C_SRC=test_mmio_dma_storage_table.c
+make -C sim all TESTNAME=dma_storage_table_input1_then_input3 \
+  TB_NAME=test_bench \
+  RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+```
+
+Observed result:
 
 ```text
-TX block0: AES(transport0 XOR IV)
-TX blockN: AES(transportN XOR ciphertextN-1)
-
-RX block0: AES_INV(ciphertext0) XOR IV
-RX blockN: AES_INV(ciphertextN) XOR ciphertextN-1
+SUMMARY: PASS=22 FAIL=0
+[PASS] rv32_soc_unified_test
+storage ratio: 40.14%
+RX restored 2551 bytes
 ```
 
-## 10. CPU/MMIO Stall Policy
+The historical full regression and coverage reports remain useful report
+evidence, but the full regression should be rerun after the secure-storage API
+update if a fresh final number is required.
 
-CPU behavior:
+## 13. FPGA Status
 
-- CPU does not stall for the full DMA operation.
-- CPU stalls only while its own MMIO APB transaction is not complete.
-- During DMA busy, CPU can execute polling loads from `STATUS`.
-- Software must not rewrite config registers while `STATUS.busy = 1`.
-
-Bridge behavior:
-
-- `cpu_mmio_to_apb_bridge` is an APB master.
-- It follows setup/access phases.
-- It holds CPU memory-return path until APB read/write completes.
-- It returns APB error status to the CPU-side memory path.
-
-## 11. BRAM And Port Ownership
-
-| Memory | Main role | Active access |
-|---|---|---|
-| IMEM | RV32I instruction storage | CPU fetch only in normal simulation |
-| DMEM | source/TX/RX data storage | CPU data access, DMA data access, testbench/UART preload |
-
-DMEM ownership rules:
-
-- CPU uses DMEM for normal loads/stores.
-- DMA engines use DMEM for TX/RX data movement.
-- Testbench or UART loader preloads input before CPU starts.
-- Do not allow the UART loader and DMA to own the same aux port at the same time.
-
-## 12. Software Contract
-
-Main C files:
-
-| C file | Purpose |
-|---|---|
-| `test_mmio_dma.c` | Main TX->RX secure-storage loopback |
-| `test_mmio_tx_only.c` | TX-only compression benchmark |
-| `test_mmio_dma_storage_table.c` | RV32I software metadata table demo |
-| `test_mmio_regfile_basic.c` | Register/MMIO sanity |
-| `test_mmio_regfile_negative.c` | Illegal MMIO and error paths |
-| `test_cpu_instruction_cov.c` | RV32I instruction coverage |
-
-Main RV32I instruction categories:
-
-| Instruction type | Use |
-|---|---|
-| `lw`, `sw` | DMEM/MMIO load-store |
-| arithmetic/logical | address, IV, status, metadata calculations |
-| branch/jump | polling loops and control flow |
-| `lui`/immediates | build MMIO base addresses and constants |
-
-No interrupt/trap flow is implemented in the active control software. Polling
-is the current software synchronization mechanism.
-
-## 13. Active Test And Coverage Flow
-
-Simulation commands:
-
-```bash
-cd sim
-make compile C_SRC=test_mmio_dma.c
-make drc
-make all
-```
-
-Specific testcase override:
-
-```bash
-cd sim
-make all TESTNAME=dma_compress_aes_input3 RUN_ARGS="+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
-```
-
-Coverage commands:
-
-```bash
-cd sim
-./run.csh cov
-./report.csh
-```
-
-Main 4.5 SoC end-to-end tests:
-
-| Testcase | Input | Expected |
-|---|---|---|
-| `dma_compress_aes_input1` | `input1.txt` | PASS, RX output matches input |
-| `dma_compress_aes_input3` | `input3.txt` | PASS, RX output matches input |
-| `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | PASS functional stress, saving can be negative |
-| `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | PASS, RV32I selects old register and decodes it |
-
-MIT-BIH preprocessed comparison tests:
-
-| Testcase | Input file | Expected |
-|---|---|---|
-| `dma_mitdb_100_delta2_var_e2e` | `mitdb_100_mlii_10s_delta2_var.bin` | PASS |
-| `dma_mitdb_106_delta2_var_e2e` | `mitdb_106_mlii_10s_delta2_var.bin` | PASS |
-| `dma_mitdb_112_delta2_var_e2e` | `mitdb_112_mlii_10s_delta2_var.bin` | PASS |
-| `dma_mitdb_117_delta2_var_e2e` | `mitdb_117_mlii_10s_delta2_var.bin` | PASS |
-| `dma_mitdb_213_delta2_var_e2e` | `mitdb_213_mlii_10s_delta2_var.bin` | PASS |
-
-MIT-BIH command pattern:
-
-```bash
-cd sim
-make compile C_SRC=test_mmio_dma.c
-make all TESTNAME=dma_mitdb_100_delta2_var_e2e \
-  RUN_ARGS="+CASE_NAME=dma_mitdb_100_delta2_var_e2e +INPUT_FILE=mitdb_100_mlii_10s_delta2_var.bin +INPUT_BINARY"
-```
-
-## 14. MIT-BIH Paper Comparison
-
-Reference paper:
+The latest area-optimized Vivado flow uses:
 
 ```text
-A lossless compression and encryption mechanism for remote monitoring of ECG
-data using Huffman coding and CBC-AES
+VIVADO_SYNTH_DIRECTIVE=AreaOptimized_high
+VIVADO_OPT_DIRECTIVE=Explore
+VIVADO_PLACE_DIRECTIVE=Explore
+VIVADO_PHYS_OPT_DIRECTIVE=AggressiveExplore
+VIVADO_ROUTE_DIRECTIVE=Explore
+VIVADO_CLOCK_MHZ=50
 ```
 
-Reported paper result:
+Implementation result:
 
-| Metric | Paper |
-|---|---:|
-| Compression ratio | `35.015%` |
-| Space saving | `64.985%` |
+| Build | Status | WNS | LUTs | Registers | Slices | Control sets | BRAM |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `rv32_soc_synth_tx_opt4` | routed | `+1.277 ns` | `11933` | `5469` | `3979` | `208` | `10` |
+| `rv32_soc_synth_full_opt4` | routed | `+0.334 ns` | `28067` | `18501` | `9955` | `757` | `11` |
+| legacy `rv32_soc_synth_rx` | routed | `+0.341 ns` | `22730` | `27658` | not rechecked | `917` | `11` |
 
-Current SoC comparison flow:
+Route/timing status:
+
+- TX-only: route completed, `0` failed nets, timing met.
+- Full TX+RX: route completed, `0` failed nets, timing met.
+
+The previous `[Place 30-487]` packing failure was caused by LUT/FF/control-set
+pressure from large Huffman tables and reset-heavy arrays. The current RTL
+reduces this by:
+
+- inferring LUTRAM/distributed RAM for TX frequency, symbol, code-length,
+  canonical-code, block-buffer, and FIFO tables
+- removing reset/clear loops from large data memories in synthesis
+- using valid bits or state sequencing instead of resetting every memory entry
+- splitting Huffman tree writes in `code_length_builder` into one write-port
+  per table
+- moving RX fallback and output FIFO storage into distributed RAM while keeping
+  the main decode table in BRAM
+
+RX `symbol_local`, `len_local`, and `code_local` still use register/mux logic
+because the current canonical sort swaps adjacent entries. This is acceptable
+for the routed full build, but the next area step would be a one-write-port
+sort/table-builder or a length-bucket canonical generator.
+
+## 14. What RISC-V Contributes
+
+In the current secure-storage design, RV32I contributes:
+
+- Storage firmware API: `secure_write`, `secure_read`, `secure_delete`.
+- Metadata management: file IDs, lengths, ciphertext addresses, IV words,
+  version/counter, valid commit state.
+- IV management: deterministic IV creation, MMIO IV programming, IV restore
+  before read.
+- DMA orchestration: source/destination/length/mode configuration and polling.
+- Error handling: timeout, DMA error, invalid ciphertext length, not found,
+  read length mismatch.
+
+The accelerator datapath contributes high-throughput compression, encryption,
+decryption, and decompression. The CPU contributes the secure-storage control
+and object-management layer.
+
+## 15. Known Limitations
+
+- No production TRNG or hardware entropy source.
+- AES key material is fixed in RTL; there is no runtime key register.
+- No authentication tag or integrity/MAC check is implemented yet.
+- Metadata is stored in DMEM for the prototype; it is not a persistent flash
+  filesystem.
+- Only two firmware metadata records are allocated in the current testcase.
+- The current firmware API is polling-based; no interrupt/trap completion path
+  is implemented.
+- Custom RISC-V instructions are not implemented.
+- RX local canonical sort tables are not fully memory-inferred yet; full TX+RX
+  still routes successfully at 50 MHz after the current area optimization.
+
+## 16. Report Wording
+
+Recommended short description:
 
 ```text
-MIT-BIH record
--> external preprocessing outside RTL
--> delta2+varuint `.bin` byte stream
--> SoC dynamic Huffman + AES-128-CBC
--> RX loopback verifies restored byte stream
+The system is an RV32I secure-storage SoC. The CPU manages a firmware storage
+API, metadata records, IV generation/restoration, and DMA control through MMIO.
+The accelerator datapath performs whole-file dynamic Huffman compression and
+AES-128-CBC encryption on write, and AES-CBC decryption plus Huffman decode on
+read. The latest focused storage-table simulation stores two file records,
+restores one selected record by file_id, and passes with PASS=22, FAIL=0.
 ```
-
-Current results:
-
-| Register | Raw bytes reference | SoC input bytes | TX bytes | Final ratio vs raw | Saving |
-|---:|---:|---:|---:|---:|---:|
-| 100 | 7200 | 3601 | 2304 | 32.00% | 68.00% |
-| 106 | 7200 | 3614 | 2608 | 36.22% | 63.78% |
-| 112 | 7200 | 3601 | 2112 | 29.33% | 70.67% |
-| 117 | 7200 | 3602 | 2288 | 31.78% | 68.22% |
-| 213 | 7200 | 3601 | 2480 | 34.44% | 65.56% |
-| Average | 7200 | 3603.8 | 2358.4 | 32.76% | 67.24% |
-
-Conclusion:
-
-```text
-With externally preprocessed MIT-BIH input, the SoC secure-storage path reaches
-32.76% average final storage ratio, which is better than the paper's 35.015%.
-The preprocessing is outside the current RTL scope.
-```
-
-## 15. FPGA Flow
-
-Current FPGA strategy:
-
-- Full TX+RX SoC is too large for the selected target when built monolithically.
-- Practical demo flow uses split TX-only and RX-only bitstreams.
-- Default demo target clock is 50 MHz.
-- UART loader can preload DMEM before CPU starts.
-
-Main commands:
-
-```bash
-cd sim
-make vivado_impl_tx
-make vivado_impl_rx
-make vivado_bit_tx
-make vivado_bit_rx
-```
-
-Report locations:
-
-```text
-sim/vivado_reports/rv32_soc_synth_tx/
-sim/vivado_reports/rv32_soc_synth_rx/
-```
-
-Bitstream use:
-
-- `.bit` configures the FPGA fabric.
-- TX-only bitstream includes the TX demo path.
-- RX-only bitstream includes the RX demo path.
-- A `.bit` does not run software by itself; IMEM/DMEM initialization and board
-  I/O path must also be prepared.
-
-## 16. Usage Summary
-
-Run normal SoC loopback:
-
-```bash
-cd sim
-make compile C_SRC=test_mmio_dma.c
-make drc
-make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
-```
-
-Run MIT-BIH preprocessed comparison:
-
-```bash
-cd sim
-make compile C_SRC=test_mmio_dma.c
-make all TESTNAME=dma_mitdb_112_delta2_var_e2e \
-  RUN_ARGS="+CASE_NAME=dma_mitdb_112_delta2_var_e2e +INPUT_FILE=mitdb_112_mlii_10s_delta2_var.bin +INPUT_BINARY"
-```
-
-Open waveform after a run:
-
-```bash
-cd sim
-make wave
-```
-
-Clean:
-
-```bash
-cd sim
-make clean
-make clean_vivado
-```
-
-## 17. Report Wording
-
-Use this concise wording:
-
-```text
-The implemented design is an RV32I-controlled secure-storage SoC. The CPU
-programs a DMA register file through MMIO/APB, starts TX and RX DMA transfers,
-and polls status registers. The TX path reads input from DMEM, performs
-dynamic whole-file Huffman compression, encrypts the transport stream using
-AES-128-CBC, and writes the result back to DMEM. The RX path reads the stored
-ciphertext, decrypts it, decodes the Huffman stream, and restores the original
-byte stream to DMEM. End-to-end tests compare the RX output byte-by-byte with
-the source input.
-
-For comparison with the referenced ECG Huffman + CBC-AES paper, the SoC is
-fed already-preprocessed MIT-BIH byte streams. Under this flow, the average
-final storage ratio is 32.76%, compared with the paper's 35.015%. The
-preprocessing is external to the current RTL; the RTL contribution is the
-verified RV32I + DMA + Huffman + AES-CBC secure-storage architecture.
-```
-
-## 18. What Is Not In Scope
-
-The current report flow does not claim:
-
-- RTL implementation of ECG signal preprocessing.
-- Interrupt/trap-driven DMA completion.
-- Production-grade IV entropy.
-- Full TX+RX monolithic bitstream closure on the selected small FPGA target.
-- 100% raw DUT coverage.

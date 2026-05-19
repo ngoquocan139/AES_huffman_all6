@@ -2,14 +2,14 @@
 
 ## 1. Purpose
 
-This document describes the current SoC's own fast `TX`:
+Tai lieu nay mo ta rieng nhanh `TX` cua SoC hien tai:
 
-- Which module is involved?
-- connections between modules
-- function of each module
-- flow only sets CPU/MMIO to `DMEM -> TX -> DMEM`
+- module nao tham gia
+- ket noi giua cac module
+- chuc nang cua tung module
+- flow chi tiet tu CPU/MMIO den `DMEM -> TX -> DMEM`
 
-This spec only describes the current active path in the repo.
+Spec nay chi mo ta path active hien tai trong repo.
 
 Current verification status:
 
@@ -19,18 +19,18 @@ Current verification status:
 | TX-only saving mode | `MODE=0xD`, whole-file Huffman + AES bypass |
 | Active TX testcase examples | `dma_compress_aes_input1`, `tx_compress_only_input4_cov`, `tx_apb_error_cov` |
 | Coverage hooks | `tx_if_direct_cov`, `tx_encoder_direct_cov`, `tx_builder_packer_direct_cov` |
-| Latest regression | included in `34/34` PASS coverage baseline |
+| Historical full regression | included in `34/34` PASS coverage baseline before secure-storage API refactor |
 
 ## 2. TX Goal
 
-TX receives plaintext in `DMEM`, Huffman compression, then:
+TX nhan plaintext trong `DMEM`, nen Huffman, sau do:
 
-- if `COMPRESS_AES`: AES-128 CBC encryption
-- if `COMPRESS_ONLY`: bypass AES
+- neu `COMPRESS_AES`: ma hoa AES-128 CBC
+- neu `COMPRESS_ONLY`: bo qua AES
 
-and write output back to `DMEM`.
+va ghi output tro lai `DMEM`.
 
-## 3. Top-level TX line
+## 3. Top-Level TX Path
 
 ```mermaid
 flowchart LR
@@ -46,7 +46,7 @@ flowchart LR
     TXDMA --> DMEMW["DMEM Port B write"]
 ```
 
-## 4. Modules and roles
+## 4. Modules And Roles
 
 ### 4.0 Module to spec map
 
@@ -70,28 +70,28 @@ flowchart LR
 
 | Module | Role |
 |---|---|
-| `top_rv32_sync` | Run program RV32I to configure DMA |
-| `cpu_mmio_to_apb_bridge` | Switch CPU MMIO read/write to APB transaction |
-| `dma_regfile` | Keep TX config: `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`, `IV0..IV3` |
+| `top_rv32_sync` | Chay chuong trinh RV32I de cau hinh DMA |
+| `cpu_mmio_to_apb_bridge` | Chuyen CPU MMIO read/write thanh APB transaction |
+| `dma_regfile` | Giu config TX: `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`, `IV0..IV3` |
 
 ### 4.2 Data plane modules
 
 | Module | Role |
 |---|---|
-| `DMEM_ip` / `dmem_ip_wrapper` | Where to store plaintext input and ciphertext output |
-| `dma_tx_engine` | Data mover TX, read DMEM, loop TX APB, drain output FIFO, write DMEM |
+| `DMEM_ip` / `dmem_ip_wrapper` | Noi luu plaintext input va ciphertext output |
+| `dma_tx_engine` | Data mover TX, doc DMEM, lap trinh TX APB, drain output FIFO, ghi DMEM |
 | `apb_huffman_aes_tx_top` | TX accelerator top |
-| `apb_huffman_tx_if` | APB slave wrapper inside TX |
+| `apb_huffman_tx_if` | APB slave wrapper ben trong TX |
 | `huffman_aes_tx_top` | Input adapter + Huffman TX + bit packer |
 | `dynamic_huffman_encoder` | [dynamic_huffman_encoder_spec.md](./dynamic_huffman_encoder_spec.md) |
 | `bit_packer_128` | [bit_packer_128_spec.md](./bit_packer_128_spec.md) |
 | `aes128_cipher_top` | AES encrypt core active |
 
-## 5. Main connection
+## 5. Key Connections
 
 ### 5.1 CPU to DMA register file
 
-CPU writes MMIO to:
+CPU ghi MMIO vao:
 
 - `SRC_ADDR`
 - `DST_ADDR`
@@ -103,7 +103,7 @@ CPU writes MMIO to:
 
 ### 5.2 `dma_regfile` to `dma_tx_engine`
 
-`dma_regfile` output:
+`dma_regfile` xuat:
 
 - `src_addr_o`
 - `dst_addr_o`
@@ -114,30 +114,30 @@ CPU writes MMIO to:
 - `block_size_o`
 - `start_pulse_o`
 
-`dma_tx_engine` receives this config board to run transfer.
+`dma_tx_engine` nhan bo config nay de chay transfer.
 
-### 5.3 `dma_regfile` In TX CBC Path
+### 5.3 `dma_regfile` to TX CBC path
 
-`dma_regfile` output:
+`dma_regfile` xuat:
 
 ```text
 iv_o = {IV3, IV2, IV1, IV0}
 ```
 
-In [rv32_soc_top.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_top.v), `iv_o` is appended:
+Trong [rv32_soc_top.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/rv32_soc_top.v), `iv_o` duoc noi vao:
 
 - `apb_huffman_aes_tx_top.cbc_iv_i`
 
 ### 5.4 `dma_tx_engine` to DMEM
 
-`dma_tx_engine` uses `DMEM` Port B to:
+`dma_tx_engine` dung `DMEM` Port B de:
 
-- Read plaintext from `SRC_ADDR`
-- Write ciphertext or compressed transport stream to `DST_ADDR`
+- doc plaintext tu `SRC_ADDR`
+- ghi ciphertext hoac compressed transport stream ve `DST_ADDR`
 
 ### 5.5 `dma_tx_engine` to `apb_huffman_aes_tx_top`
 
-`dma_tx_engine` is TX's private APB master:
+`dma_tx_engine` la private APB master cua TX:
 
 - `tx_psel_o`
 - `tx_penable_o`
@@ -145,7 +145,7 @@ In [rv32_soc_top.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all
 - `tx_paddr_o`
 - `tx_pwdata_o`
 
-TX top is APB slave returns:
+TX top la APB slave tra:
 
 - `tx_prdata_i`
 - `tx_pready_i`
@@ -166,174 +166,185 @@ flowchart LR
     BYP --> FIFO
 ```
 
-## 7. Function of each TX stage
+## 7. Function Of Each TX Stage
 
 ### 7.1 `apb_huffman_tx_if`
 
-Function:
+Chuc nang:
 
-- get `BLOCK_SIZE`
-- get `WORD_IN`
-- get `START_BLOCK`
-- hold FIFO input APB
-- expose the TX's FIFO output for DMA to read
-- keep sticky status/error
+- nhan `BLOCK_SIZE`
+- nhan `WORD_IN`
+- nhan `START_BLOCK`
+- giu FIFO input APB
+- expose output FIFO cua TX de DMA doc
+- giu sticky status / error
 
 ### 7.2 Input adapter
 
-Convert each 32-bit word into the byte stream in TX internal byte order.
+Chuyen tung word 32-bit thanh byte stream theo thu tu byte noi bo cua TX.
 
 ### 7.3 `dynamic_huffman_encoder`
 
-Function:
+Chuc nang:
 
-- collect bytes of block
+- collect byte cua block
 - build codebook
-- Decide on encoding mode
+- quyet dinh mode encode
 - emit header + payload bitstream
 
-TX currently has 2 types of content:
+TX hien tai co 2 kieu dung:
 
 - per-block dynamic Huffman
 - whole-file dynamic Huffman
 
 ### 7.4 `bit_packer_128`
 
-Include 128-bit `transport_word` into bitstream.
+Gop bitstream thanh `transport_word` 128-bit.
 
-If the transfer has the next block in the same frame:
+Neu transfer con block tiep theo trong cung frame:
 
-- packer keeps the frame continuously
-- just flush on the last block
+- packer giu frame lien tuc
+- chi flush o block cuoi
 
 ### 7.5 CBC + AES
 
-If `compress_only = 0`:
+Neu `compress_only = 0`:
 
 ```text
 C0 = AES_encrypt(P0 XOR IV)
 Cn = AES_encrypt(Pn XOR Cn-1)
 ```
 
-If `compress_only = 1`:
+Neu `compress_only = 1`:
 
-- board via AES
-- output is compressed transport stream
+- bo qua AES
+- output la compressed transport stream
 
 ### 7.6 Output FIFO
 
-Save output 32-bit word to `dma_tx_engine` drain via APB:
+Luu output 32-bit word de `dma_tx_engine` drain qua APB:
 
 - `AES_OUT_STATUS`
 - `AES_OUT_META`
 - `AES_OUT_DATA`
 
-## 8. TX software flow
+Area-optimized implementation notes:
+
+- Global frequency, Huffman tree, code-length, canonical-code, block-buffer,
+  and APB FIFO tables infer distributed RAM in `rv32_soc_synth_tx_opt4`.
+- Large table contents are not reset entry-by-entry in synthesis; reset clears
+  control state and validity only.
+- `code_length_builder` separates parent/weight/order table writes into
+  one-write-port memory processes, which removes the previous LUT/FF explosion.
+- Latest TX-only implementation at 50 MHz: `11933` LUTs, `5469` FFs,
+  `3979` slices, `208` control sets, WNS `+1.277 ns`.
+
+## 8. TX Software Flow
 
 ### 8.1 CPU steps
 
-1. Load plaintext into `DMEM`
-2. write `SRC_ADDR`
-3. write `DST_ADDR`
-4. write `LEN_BYTES = plaintext_len`
-5. write `MODE`
-6. write `BLOCK_CFG`
-7. If using AES, write `IV0..IV3`
-8. write `CONTROL.start`
+1. nap plaintext vao `DMEM`
+2. ghi `SRC_ADDR`
+3. ghi `DST_ADDR`
+4. ghi `LEN_BYTES = plaintext_len`
+5. ghi `MODE`
+6. ghi `BLOCK_CFG`
+7. neu dung AES, ghi `IV0..IV3`
+8. ghi `CONTROL.start`
 9. poll `STATUS`
-10. read `CIPHERTEXT_BYTES_PRODUCED`
+10. doc `CIPHERTEXT_BYTES_PRODUCED`
 
 ### 8.2 Main TX mode currently used
 
-Current main regression mode:
+Mode regression chinh hien tai:
 
 - `MODE = 0x9`
-- meaning `TX + COMPRESS_AES + whole_file`
+- nghia la `TX + COMPRESS_AES + whole_file`
 - `BLOCK_CFG = 32`
 
-## 9. DMA TX stream
+## 9. TX DMA Flow
 
-### 9.1 Start and configuration
+### 9.1 Start and config
 
 `dma_tx_engine`:
 
-1. wait for `start_i`
+1. doi `start_i`
 2. check:
    - `direction_i == TX`
    - `len_bytes_i != 0`
-   - `block_size_i` is valid
+   - `block_size_i` hop le
    - `src/dst` aligned
 3. snapshot config
 4. soft reset TX wrapper
-5. loop `TX_POLICY`
+5. lap trinh `TX_POLICY`
 
-If `whole_file_i = 1`, the engine runs a global-count/global-build phase before the emit phase.
+Neu `whole_file_i = 1`, engine chay them pha global-count/global-build truoc pha emit.
 
 ### 9.2 Per-block load
 
-For each block:
+Voi moi block:
 
-1. calculate `current_block_bytes = min(bytes_remaining, block_size)`
-2. calculate `words_remaining = ceil(current_block_bytes / 4)`
-3. Read each word from `DMEM`
-4. write `BLOCK_SIZE`
-5. write each `WORD_IN`
+1. tinh `current_block_bytes = min(bytes_remaining, block_size)`
+2. tinh `words_remaining = ceil(current_block_bytes / 4)`
+3. doc tung word tu `DMEM`
+4. ghi `BLOCK_SIZE`
+5. ghi tung `WORD_IN`
 6. poll `TX STATUS.can_start`
-7. write `START_BLOCK`
+7. ghi `START_BLOCK`
 
 ### 9.3 Continue-frame policy
 
-If transfer still blocks:
+Neu transfer con block nua:
 
 - `START_BLOCK = 0x3`
 - bit `continue_frame = 1`
 
-If it is the last block:
+Neu la block cuoi:
 
 - `START_BLOCK = 0x1`
 - bit `continue_frame = 0`
 
 ### 9.4 Output drain
 
-After the block has been released by TX:
+Sau khi block da duoc TX xu ly:
 
 1. poll `AES_OUT_STATUS`
-2. if FIFO nonempty:
-   - read `AES_OUT_META`
-   - read `AES_OUT_DATA`
-   - write word output to `DMEM`
-3. Repeat for me when output FIFO is wide
+2. neu FIFO nonempty:
+   - doc `AES_OUT_META`
+   - doc `AES_OUT_DATA`
+   - ghi word output ve `DMEM`
+3. lap lai cho toi khi output FIFO rong
 
 ### 9.5 Completion
 
-Transfer TX is complete when:
+Transfer TX complete khi:
 
-- no more plaintext input
-- output FIFO has been drained
-- TX wrapper is idle on Dinh
+- khong con plaintext input
+- output FIFO da duoc drain
+- TX wrapper da idle on dinh
 
-At that time:
+Luc do:
 
 - `dma_done_o` pulse
-- `bytes_done_o` contains the number of output bytes number write to `DMEM`
-- `CIPHERTEXT_BYTES_PRODUCED` mirrors this value for software
+- `bytes_done_o` chua so byte output da ghi ve `DMEM`
+- `CIPHERTEXT_BYTES_PRODUCED` mirror gia tri nay cho software
 
 ## 10. Active Data Meaning
 
 ### 10.1 TX input
 
-- `SRC_ADDR` enters plaintext in `DMEM`
-- `LEN_BYTES` is the plaintext byte number
+- `SRC_ADDR` tro vao plaintext trong `DMEM`
+- `LEN_BYTES` la so plaintext byte
 
 ### 10.2 TX output
 
-If `COMPRESS_AES`:
+Neu `COMPRESS_AES`:
 
-- output is ciphertext stream after Huffman + CBC + AES
+- output la ciphertext stream sau Huffman + CBC + AES
 
-If `COMPRESS_ONLY`:
+Neu `COMPRESS_ONLY`:
 
-- output is compressed transport stream, not encrypted
+- output la compressed transport stream, chua encrypt
 
 ## 11. Current Main Regression Flow
 
@@ -351,13 +362,13 @@ CPU writes MODE=0x9, BLOCK_CFG=32, IV0..IV3
 -> CPU reads CIPHERTEXT_BYTES_PRODUCED
 ```
 
-## 12. Current limit
+## 12. Current Limitations
 
-- `COMPRESS_ONLY` TX can run, but RX symmetric bypass path is not the main flow
-- The current AES key is a fixed key in RTL
-- The current IV is created by software RV32I, not strong entropy
-- TX top does not use `AES_top.v` da-mode; Just use `aes128_cipher_top` + small CBC wrapper
-- Raw full coverage of TX-related logic is still stuck by toggle and some condition/expression rare; Functional branch/statement closure is reached in general regression
+- `COMPRESS_ONLY` TX da chay duoc, nhung RX symmetric bypass path chua la flow chinh
+- key AES hien tai la fixed key trong RTL
+- IV hien tai do firmware RV32I tao va luu trong metadata, chua phai entropy manh
+- TX top khong dung `AES_top.v` da-mode; chi dung `aes128_cipher_top` + CBC wrapper nho
+- raw full coverage cua TX-related logic van bi keo boi toggle va mot so condition/expression hiem; functional branch/statement closure da dat trong regression chung
 
 ## 13. Source Files
 

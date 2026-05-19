@@ -20,9 +20,7 @@ module block_buffer #(
     output reg                          overflow_error
 );
 
-    reg [DATA_WIDTH-1:0] block_mem [0:BLOCK_SIZE-1];
-
-    integer i;
+    (* ram_style = "distributed" *) reg [DATA_WIDTH-1:0] block_mem [0:BLOCK_SIZE-1];
 
     localparam [BLOCK_SIZE_WIDTH-1:0] BLOCK_SIZE_VALUE = BLOCK_SIZE;
 
@@ -39,25 +37,23 @@ module block_buffer #(
             read_data = {DATA_WIDTH{1'b0}};
     end
 
+    always @(posedge clk) begin
+        if (!clear && write_en && (block_size < BLOCK_SIZE_VALUE))
+            block_mem[block_size[ADDR_WIDTH-1:0]] <= write_data;
+    end
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             block_size     <= {BLOCK_SIZE_WIDTH{1'b0}};
             overflow_error <= 1'b0;
-
-            for (i = 0; i < BLOCK_SIZE; i = i + 1)
-                block_mem[i] <= {DATA_WIDTH{1'b0}};
         end
         else begin
             if (clear) begin
                 block_size     <= {BLOCK_SIZE_WIDTH{1'b0}};
                 overflow_error <= 1'b0;
-
-                for (i = 0; i < BLOCK_SIZE; i = i + 1)
-                    block_mem[i] <= {DATA_WIDTH{1'b0}};
             end
             else if (write_en) begin
                 if (block_size < BLOCK_SIZE_VALUE) begin
-                    block_mem[block_size[ADDR_WIDTH-1:0]] <= write_data;
                     block_size <= block_size + {{(BLOCK_SIZE_WIDTH-1){1'b0}}, 1'b1};
                 end
                 else begin

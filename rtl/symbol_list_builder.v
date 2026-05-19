@@ -46,10 +46,9 @@ module symbol_list_builder #(
 
     assign start_pulse = start & ~start_d;
 
-    reg [SYMBOL_WIDTH-1:0] symbol_list_mem [0:MAX_SYMBOLS_PER_BLOCK-1];
+    (* ram_style = "distributed" *) reg [SYMBOL_WIDTH-1:0] symbol_list_mem [0:MAX_SYMBOLS_PER_BLOCK-1];
     reg [SYMBOL_INDEX_WIDTH-1:0] scan_index;
 
-    integer i;
     localparam [7:0] ASCII_MAX = 8'h7E;
 
 `include "huffman_symbol_map.vh"
@@ -114,6 +113,13 @@ module symbol_list_builder #(
         endcase
     end
 
+    always @(posedge clk) begin
+        if ((state == ST_SCAN) &&
+            has_symbol &&
+            (symbol_count < MAX_SYMBOLS_VALUE))
+            symbol_list_mem[symbol_count[LIST_INDEX_WIDTH-1:0]] <= current_symbol_id;
+    end
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state        <= ST_IDLE;
@@ -122,10 +128,6 @@ module symbol_list_builder #(
             symbol_count <= {SYMBOL_COUNT_WIDTH{1'b0}};
             error_flag   <= 1'b0;
 
-`ifndef SYNTHESIS
-            for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1)
-                symbol_list_mem[i] <= {SYMBOL_WIDTH{1'b0}};
-`endif
         end
         else begin
             state   <= next_state;
@@ -140,16 +142,11 @@ module symbol_list_builder #(
                     symbol_count <= {SYMBOL_COUNT_WIDTH{1'b0}};
                     error_flag   <= 1'b0;
 
-`ifndef SYNTHESIS
-                    for (i = 0; i < MAX_SYMBOLS_PER_BLOCK; i = i + 1)
-                        symbol_list_mem[i] <= {SYMBOL_WIDTH{1'b0}};
-`endif
                 end
 
                 ST_SCAN: begin
                     if (has_symbol) begin
                         if (symbol_count < MAX_SYMBOLS_VALUE) begin
-                            symbol_list_mem[symbol_count[LIST_INDEX_WIDTH-1:0]] <= current_symbol_id;
                             symbol_count <= symbol_count +
                                             {{(SYMBOL_COUNT_WIDTH-1){1'b0}}, 1'b1};
                         end

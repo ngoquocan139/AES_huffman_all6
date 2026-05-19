@@ -22,6 +22,24 @@ Khong can trinh bay tung spec module con tren slide. Cac file nhu
 `huffman_block_decoder_spec.md`, `apb_huffman_rx_if_spec.md` chi dung de tra
 loi cau hoi chi tiet.
 
+## 1.1 Current Snapshot For Slides
+
+Dung bang nay de mo dau phan ket qua hien tai:
+
+| Item | Current slide value |
+|---|---|
+| Main claim | RV32I secure-storage SoC with Huffman + AES-128-CBC accelerators |
+| Firmware API | `secure_storage_fw.h`: `secure_write`, `secure_read`, `secure_delete` |
+| Metadata | DMEM table at `0x00000100`, 2 records, `0x40` bytes/record |
+| IV policy | Firmware-generated deterministic demo IV, counter at `0x000001F0`, seed `0x31415926` |
+| Latest focused test | `dma_storage_table_input1_then_input3`, `PASS=22`, `FAIL=0` |
+| Storage API result | Stores input1 and input3, then restores input1 by `file_id=1` |
+| FPGA claim | Area-optimized 50 MHz implementation passes for TX-only and full TX+RX |
+| TX FPGA | WNS `+1.277 ns`, LUT `11933`, slices `3979`, control sets `208` |
+| Full TX+RX FPGA | WNS `+0.334 ns`, LUT `28067`, slices `9955`, control sets `757` |
+| Legacy RX FPGA | WNS `+0.341 ns`, LUT `22730`, control sets `917` |
+| Historical regression | `34/34` PASS, raw DUT `93.52%`, closed DUT `95.90%` |
+
 ## 2. Main Story To Tell
 
 Ten de tai:
@@ -33,16 +51,20 @@ for Secure Data Storage
 
 Nen bao cao theo cau chuyen nay:
 
-1. He thong la mot SoC RV32I nho, CPU dong vai tro control plane.
+1. He thong la mot SoC RV32I secure-storage prototype, CPU dong vai tro control
+   plane va storage-management plane.
 2. Du lieu nam trong DMEM, CPU khong tu copy tung byte ma cau hinh DMA qua MMIO.
+   CPU dong thoi quan ly firmware API, metadata, IV, va object `file_id`.
 3. TX DMA doc plaintext tu DMEM, dua qua Huffman dynamic whole-file va AES-128
    CBC, roi ghi ciphertext/transport stream ve DMEM.
 4. RX DMA doc ciphertext tu DMEM, AES-CBC decrypt, Huffman decode, roi ghi
    plaintext phuc hoi ve DMEM.
 5. Testbench kiem tra loopback bang cach so sanh RX output voi input goc, dong
-   thoi dump source/TX/RX DMEM va tinh compression/throughput.
-6. FPGA demo thuc dung hien tai tach TX-only va RX-only de vua tai nguyen va
-   timing tren Zynq-7020.
+   thoi dump source/TX/RX DMEM va tinh compression/throughput. Storage-table
+   testcase kiem tra them `secure_write`/`secure_read` theo `file_id`.
+6. Sau toi uu table/control-set, TX-only va full TX+RX deu implement duoc tren
+   Zynq-7020 o 50 MHz. Split TX/RX van la tuy chon demo nhe hon, khong con la
+   cach duy nhat de tranh loi place.
 
 ## 3. Architecture Points To Present
 
@@ -62,9 +84,38 @@ RV32I CPU
 Them cac khoi phu:
 
 - IMEM chua `instruction.mem`.
-- DMEM 32 KiB chua input, ciphertext va output.
+- DMEM 32 KiB chua input, ciphertext, output, metadata table va IV counter.
 - UART DMEM loader cho FPGA demo.
 - IV registers `IV0..IV3` cho AES-CBC.
+
+### 3.1.1 Secure-storage firmware layer
+
+Nen them mot slide nho giua architecture va TX/RX:
+
+```text
+Application request
+  -> secure_write(file_id, plain_addr, plain_len)
+  -> firmware chooses ciphertext slot
+  -> firmware creates IV and metadata
+  -> DMA TX: Huffman + AES-CBC
+  -> metadata commit valid=1
+
+secure_read(file_id, dst_addr)
+  -> firmware scans metadata
+  -> firmware restores IV
+  -> DMA RX: AES-CBC + Huffman decode
+  -> plaintext restored in DMEM
+```
+
+Metadata fields can noi tren slide:
+
+```text
+valid, file_id, plain_addr, cipher_addr, plain_len, cipher_len,
+mode, iv0..iv3, version, flags
+```
+
+Day la phan RISC-V dong gop them vao "secure data storage", khong chi la
+kick accelerator.
 
 ### 3.2 Control plane
 
@@ -72,6 +123,8 @@ CPU dung instruction RV32I co ban:
 
 - `lw/sw` de doc/ghi DMEM va MMIO.
 - `addi/and/or/xor/sll/srl` de tinh config va demo IV.
+- `secure_storage_fw.h` gom cac ham `secure_write`, `secure_read`,
+  `secure_delete`, quan ly metadata va IV.
 - `beq/bne/jal` de polling status.
 
 CPU cau hinh DMA bang MMIO:
@@ -128,8 +181,24 @@ DMEM ciphertext
 -> DMEM plaintext output
 ```
 
-RX can cung IV voi TX va `LEN_BYTES` cua RX bang
-`CIPHERTEXT_BYTES_PRODUCED` tu TX.
+RX can cung IV voi TX. Trong firmware secure-storage hien tai, IV va
+`cipher_len` duoc lay tu metadata record; `LEN_BYTES` cua RX bang
+`metadata.cipher_len`.
+
+### 4.1 Storage API flow to explain
+
+Neu thầy hỏi "RISC-V tham gia secure storage o dau", tra loi theo flow nay:
+
+| Step | RV32I firmware responsibility | RTL accelerator responsibility |
+|---:|---|---|
+| 1 | Receive `file_id`, source address, length | none |
+| 2 | Allocate metadata slot and ciphertext address | none |
+| 3 | Generate IV and write `IV0..IV3` | snapshot IV for CBC |
+| 4 | Configure `SRC/DST/LEN/MODE` and start DMA | run Huffman + AES-CBC TX |
+| 5 | Store `cipher_len`, `plain_len`, IV, mark `valid=1` | report produced bytes |
+| 6 | On read, lookup metadata by `file_id` | none |
+| 7 | Restore IV and configure RX with `cipher_len` | decrypt and decode |
+| 8 | Check `bytes_done == plain_len` | produce plaintext bytes |
 
 ## 5. Main Results To Report
 
@@ -139,7 +208,8 @@ Day la nhom testcase chinh nen dua vao bao cao:
 
 | Testcase | Input | Result | Storage saving | Note |
 |---|---|---:|---:|---|
-| `dma_compress_aes_input1` | `input1.txt`, 2551 bytes | PASS | 59.86% | Main secure-storage loopback |
+| `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | PASS | 59.86% for selected input1 | Current secure-storage API: 2 metadata records, readback by `file_id` |
+| `dma_compress_aes_input1` | `input1.txt`, 2551 bytes | PASS | 59.86% | Legacy direct TX/RX loopback |
 | `dma_compress_aes_input3` | `input3.txt`, 242 bytes | PASS | 53.72% | Small/repeated input |
 | `dma_compress_aes_alnum63_cov` | 63-symbol stress, 504 bytes | PASS | -11.11% | Functional stress, not compression-optimized |
 
@@ -147,7 +217,8 @@ Can nhan manh:
 
 - `src_mismatch=0`
 - `rx_mismatch=0`
-- `SUMMARY: PASS=18 FAIL=0`
+- Direct loopback summary: `SUMMARY: PASS=18 FAIL=0`
+- Storage API focused summary: `SUMMARY: PASS=22 FAIL=0`
 - TX output non-zero, nghia la co tao ciphertext/transport data that.
 
 ### 5.2 Throughput benchmark
@@ -164,7 +235,7 @@ Neu noi ve FPGA demo 50 MHz, throughput ly thuyet xap xi mot nua so tren.
 
 ### 5.3 Coverage
 
-Bao cao coverage dung so nay:
+Bao cao coverage dung so nay nhu historical full-regression baseline:
 
 | Metric | Value |
 |---|---:|
@@ -176,24 +247,33 @@ Bao cao coverage dung so nay:
 
 Can noi ro:
 
+- Day la so full regression lich su truoc secure-storage API refactor; neu can
+  so cuoi cung moi nhat thi chay lai `./run.csh cov`.
 - Khong noi raw full coverage la 100%.
 - Closed coverage 95.90% la sau exclusion/closure co reason.
 - Neu thay hoi theo goc functional, dua so `Branches 94.22%` va `Statements 96.33%` thay vi co gang gom thanh 1 so duy nhat.
 
 ### 5.4 Vivado implementation
 
-Ket qua implementation moi nhat o 50 MHz:
+Ket qua implementation moi nhat o 50 MHz sau area optimization:
 
-| Build | WNS | Power | LUT | BRAM | Status |
-|---|---:|---:|---:|---:|---|
-| TX-only | +0.217 ns | 0.239 W | 45501 | 10 | Timing pass |
-| RX-only | +0.341 ns | 0.193 W | 22730 | 11 | Timing pass |
+| Build | WNS | LUT | FF | Slices | Control sets | BRAM | Status |
+|---|---:|---:|---:|---:|---:|---:|---|
+| TX-only `rv32_soc_synth_tx_opt4` | +1.277 ns | 11933 | 5469 | 3979 | 208 | 10 | Timing pass |
+| Full TX+RX `rv32_soc_synth_full_opt4` | +0.334 ns | 28067 | 18501 | 9955 | 757 | 11 | Timing pass |
+| Legacy RX-only | +0.341 ns | 22730 | 27658 | n/a | 917 | 11 | Timing pass |
 
 Can noi ro:
 
-- Day la split TX/RX implementation, khong phai full TX+RX chung mot bitstream.
-- TX LUT tang sau khi nang dynamic codebook len 256 symbol; van con timing pass o 50 MHz.
-- Power report la vectorless, confidence `Medium`, chua co SAIF activity that.
+- Loi cu `[Place 30-487]` khong con xuat hien; full TX+RX da qua
+  `place_design` va `route_design`.
+- Giam area chinh den tu viec dua Huffman table/FIFO sang distributed RAM,
+  bo reset loop tren memory lon va tach write-port cua `code_length_builder`.
+- RX main decode table dung BRAM `2K x 15`; RX fallback/FIFO dung distributed
+  RAM. RX local sort table con la diem co the toi uu tiep, nhung full build da
+  route pass.
+- Power report cu la vectorless, confidence `Medium`; run moi tap trung vao
+  timing/utilization/placement.
 - Neu can nap board thi can regenerate bitstream sau implementation.
 
 ### 5.5 Paper comparison
@@ -254,7 +334,7 @@ end-to-end:
 |---|---|
 | `mem_err_o_should_be_zero` | Toan he thong khong phat sinh loi truy cap memory/bus trong suot testcase. |
 | `cpu_should_publish_known_signature` | CPU da chay den cuoi chuong trinh test va ghi ket qua ra vung result trong DMEM. |
-| `result_signature` | Xac nhan dung chuong trinh `test_mmio_dma.c` da hoan tat; `0x44525831` la ma nhan dang cua testcase TX->RX loopback. |
+| `result_signature` | Xac nhan dung chuong trinh da hoan tat; `0x44525831` la testcase TX->RX loopback, `0x53544f52` la storage-table API testcase. |
 | `cpu_error_mask_should_be_zero` | Tu goc nhin phan mem RV32I, khong co loi nao trong flow cau hinh DMA, polling status, kiem tra TX/RX. |
 | `tx_status_before_start` | Truoc khi start, TX dang o trang thai idle hop le va cau hinh mode da dung. |
 | `tx_status_after_done` | Sau khi hoan tat, TX set `done_sticky` dung va khong bao loi. |
@@ -292,34 +372,37 @@ Can nam chac cac phan nay:
    co phan bo ky tu lech.
 5. AES-128 CBC: IV la gi, TX encrypt va RX decrypt dung IV giong nhau.
 6. DMEM layout: source `0x2000`, TX output `0x4000`, RX output `0x6000`.
-7. Testbench: load input txt vao DMEM, dump 3 vung DMEM, compare loopback.
-8. Coverage: phan biet raw coverage, branch+statement coverage va closed coverage.
-9. Vivado: hieu WNS duong la timing pass, power vectorless chi la estimate.
-10. Software storage table: cach RV32I luu metadata `file_id/cipher_addr/cipher_len/IV` de lay lai du lieu da luu.
+7. Secure metadata: `file_id`, `cipher_addr`, `cipher_len`, `plain_len`, IV,
+   `valid` commit.
+8. Testbench: load input txt vao DMEM, dump 3 vung DMEM, compare loopback.
+9. Coverage: phan biet raw coverage, branch+statement coverage va closed coverage.
+10. Vivado: hieu WNS duong la timing pass, power vectorless chi la estimate.
+11. Software storage table: cach RV32I luu metadata de lay lai du lieu da luu.
 
 ## 8. Suggested Slide Order
 
 1. Problem and goal.
 2. Overall SoC architecture diagram.
-3. Memory map and DMA/MMIO software contract.
-4. TX datapath: Huffman + AES-CBC.
-5. RX datapath: AES-CBC decrypt + Huffman decode.
-6. RV32I software flow: configure, start, poll, read result.
-7. Main end-to-end testcase results.
-8. Coverage and testcase strategy.
-9. FPGA implementation results.
-10. Limitations and future work.
+3. RV32I secure-storage firmware API: write/read/delete, metadata, IV.
+4. Memory map and DMA/MMIO software contract.
+5. TX datapath: Huffman + AES-CBC.
+6. RX datapath: AES-CBC decrypt + Huffman decode.
+7. RV32I software flow: configure, start, poll, read result.
+8. Main end-to-end testcase results.
+9. Coverage and testcase strategy.
+10. FPGA implementation results.
+11. Limitations and future work.
 
 ## 9. Limitations / Future Work
 
 Nen noi thang cac diem nay:
 
-- Full TX+RX chung mot FPGA build van nang, huong demo hien tai la split TX-only
-  va RX-only.
+- Full TX+RX chung da route pass o 50 MHz sau toi uu area, nhung board demo
+  wrapper van nen co split TX-only/RX-only khi can demo nhe va nhanh.
 - Board demo can output readback tot hon de doc ciphertext/plaintext/saving tu
   board that.
-- IV hien tai la demo IV do RV32I tao; san pham that can nonce/TRNG/host-provided
-  IV va policy luu IV kem ciphertext.
+- IV hien tai la demo IV do firmware RV32I tao va luu trong metadata; san pham
+  that can nonce/TRNG/host-provided IV va authentication policy.
 - Power estimate chua dung switching activity that.
 - Huffman nen tot voi input co redundancy; input gan uniform co the bi am saving
   do codebook/header overhead.

@@ -2,15 +2,15 @@
 
 ## 1. Purpose
 
-This document explains how to synchronize your local repo with GitHub and how to use GitHub
-Actions to run `make` on 2 new fields:
+Tai lieu nay huong dan cach dong bo repo local voi GitHub va cach dung GitHub
+Actions de chay `make` tren 2 moi truong:
 
 | Environment | Runs where | Purpose |
 |---|---|---|
-| GitHub-hosted runner | GitHub cloud Ubuntu runner | Check: `make drc` with Verilator |
-| Self-hosted runner | May the user's local WSL | Full local flow: Questa simulation and Vivado Windows |
+| GitHub-hosted runner | GitHub cloud Ubuntu runner | Check nhe: `make drc` bang Verilator |
+| Self-hosted runner | May WSL local cua user | Full local flow: Questa simulation va Vivado Windows |
 
-Current GitHub repo:
+Repo GitHub hien tai:
 
 ```text
 git@github.com:ngoquocan139/AES_huffman_all6.git
@@ -71,7 +71,7 @@ git pull origin main
 
 ## 3. What Should Be Versioned
 
-Need to push len GitHub:
+Nen push len GitHub:
 
 | Path | Reason |
 |---|---|
@@ -85,7 +85,7 @@ Need to push len GitHub:
 | `vivado/*.tcl`, `vivado/constraints/*.xdc` | FPGA build scripts and constraints |
 | `.github/workflows/*.yml` | GitHub Actions workflows |
 
-Should not push:
+Khong nen push:
 
 | Path / file type | Reason |
 |---|---|
@@ -231,7 +231,7 @@ make drc
 make all
 ```
 
-### 8.2 Multi-register storage testcase
+### 8.2 Multi-record storage testcase
 
 GitHub Actions inputs:
 
@@ -317,10 +317,10 @@ Important rules:
 - Do not commit runner credentials files such as `.runner`, `.credentials`,
   `.credentials_rsaparams`.
 - Do not enable this self-hosted workflow on arbitrary pull requests.
-- Treat `workflow_dispatch` as the safe although because the user chooses when
+- Treat `workflow_dispatch` as the safe default because the user chooses when
   local machine resources are used.
 - Registration tokens from GitHub are short-lived; after a runner is configured,
-do not store or commit the token.
+  do not store or commit the token.
 
 ## 11. Troubleshooting
 
@@ -374,7 +374,7 @@ Run locally:
 
 ```bash
 cd /mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/sim
-make license SUDO_PASS=1412
+make license
 ```
 
 Then rerun the GitHub workflow.

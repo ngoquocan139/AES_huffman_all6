@@ -1,11 +1,31 @@
 #!/bin/bash
+set -e
 
-git add -A
+if [ -n "$GIT_ADD_PATHS" ]; then
+  # shellcheck disable=SC2086
+  git add $GIT_ADD_PATHS
+else
+  git add -A
+fi
 
 git status
 
-echo "Nhap commit message:"
-read msg
+if [ -n "$COMMIT_MSG" ]; then
+  msg="$COMMIT_MSG"
+else
+  echo "Nhap commit message:"
+  read -r msg
+fi
 
-git commit -m "$msg"
-git push
+if git diff --cached --quiet; then
+  echo "[INFO] no staged changes to commit"
+else
+  git commit -m "$msg"
+fi
+
+if [ -n "$GIT_PUSH_ARGS" ]; then
+  # shellcheck disable=SC2086
+  git push $GIT_PUSH_ARGS
+else
+  git push
+fi

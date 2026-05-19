@@ -5,8 +5,14 @@
 This diagram illustrates the RV32I software control flow for:
 
 ```text
-make all
+make all TESTNAME=dma_compress_aes_input1 \
+  RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
 ```
+
+This is the legacy direct TX/RX loopback timeline for `test_mmio_dma.c`.
+The current secure-storage API flow is documented in
+`00_current_system_spec.md`, `memory_map_dma_software_contract.md`, and
+`iv_generation_and_cbc_contract_spec.md`.
 
 Source data from `sim/log/dma_compress_aes_input1.log`:
 

@@ -7,8 +7,9 @@ Repo hien tai co nhom chuong trinh C phuc vu RV32I simulation/coverage:
 | C file | Main role | Active baseline |
 |---|---|---|
 | `testcase/test.c` | smoke program cu cho core sync | reference only |
-| `testcase/test_mmio_dma.c` | main DMA loopback: TX `COMPRESS_AES + whole_file` roi RX decode ve DMEM | yes |
-| `testcase/test_mmio_dma_storage_table.c` | software storage table demo: TX input1, TX input3, then RX selected input1 by metadata | yes |
+| `testcase/secure_storage_fw.h` | active secure-storage firmware API: metadata, IV, DMA write/read/delete helpers | yes |
+| `testcase/test_mmio_dma_storage_table.c` | current secure-storage API demo: `secure_write` input1, `secure_write` input3, then `secure_read` selected input1 by metadata | yes |
+| `testcase/test_mmio_dma.c` | legacy direct DMA loopback: TX `COMPRESS_AES + whole_file` roi RX decode ve DMEM | yes/legacy |
 | `testcase/test_mmio_tx_only.c` | TX-only `COMPRESS_ONLY + whole_file` de do saving truc tiep | yes |
 | `testcase/test_mmio_tx_only_aes_block.c` | TX-only `COMPRESS_AES` per-block 32B | coverage |
 | `testcase/test_mmio_tx_only_compress_block.c` | TX-only `COMPRESS_ONLY` per-block 32B | coverage |
@@ -36,8 +37,8 @@ Tai lieu nay giai thich ro:
 flowchart TD
   A["Choose what to verify"] --> B{"Goal"}
   B -->|"core smoke"| C["test.c"]
-  B -->|"full TX/RX loopback"| D["test_mmio_dma.c"]
-  B -->|"multi-record storage"| S["test_mmio_dma_storage_table.c"]
+  B -->|"secure-storage API"| S["secure_storage_fw.h + test_mmio_dma_storage_table.c"]
+  B -->|"direct TX/RX loopback"| D["test_mmio_dma.c"]
   B -->|"TX-only saving"| E["test_mmio_tx_only.c"]
   B -->|"MMIO/CPU coverage"| F["test_mmio_regfile_basic.c / test_cpu_*.c"]
   C --> G["make compile C_SRC=test.c"]
@@ -63,8 +64,13 @@ Compile trong `sim/Makefile`:
 - File `.mem` sinh ra duoc copy sang `sim/instruction.mem` de `imem_sync` dung cho simulation.
 
 Luu y:
-- Instruction sequence cua `test_mmio_dma.c` duoi day la theo disassembly hien tai cua `testcase/test_mmio_dma.elf`.
-- Neu doi compiler/version/optimization, dia chi PC va instruction co the thay doi.
+- Current secure-storage API code lives in `secure_storage_fw.h`; the testcase
+  `test_mmio_dma_storage_table.c` includes it and compiles it into the RV32I
+  image.
+- Instruction sequence cua `test_mmio_dma.c` duoi day la theo disassembly hien
+  tai cua `testcase/test_mmio_dma.elf`.
+- Neu doi compiler/version/optimization, dia chi PC va instruction co the thay
+  doi.
 
 ---
 
@@ -177,20 +183,22 @@ Pass condition:
 
 ---
 
-## 5. `testcase/test_mmio_dma_storage_table.c` (Multi-Record Storage Demo)
+## 5. `testcase/secure_storage_fw.h` and `testcase/test_mmio_dma_storage_table.c`
 
 ### 5.1 Muc tieu test
 
-Test nay chung minh phan mem RV32I co the quan ly nhieu ban ghi du lieu da
-compressed/encrypted:
+Test nay chung minh phan mem RV32I co the cung cap secure-storage firmware API,
+khong chi la loopback DMA truc tiep:
 
 - testbench load `input1.txt` vao `DMEM[0x00002000 ..]`;
-- CPU TX `input1` voi `MODE=0x9`, output vao `DMEM[0x00004000 ..]`;
-- CPU tao metadata record 0 cho `file_id=1`;
+- CPU goi `secure_write(1, 0x00002000, input1_len, ...)`;
+- firmware chon ciphertext slot 0 tai `DMEM[0x00004000 ..]`;
+- firmware tao IV, ghi DMA IV registers, chay TX `MODE=0x9`, va commit metadata record 0;
 - testbench load `input3.txt` vao `DMEM[0x00003000 ..]`;
-- CPU TX `input3` voi `MODE=0x9`, output vao `DMEM[0x00005000 ..]`;
-- CPU tao metadata record 1 cho `file_id=3`;
-- CPU chon lai record `file_id=1`, ghi RX config/IV tu metadata, roi RX ve `DMEM[0x00006000 ..]`;
+- CPU goi `secure_write(3, 0x00003000, input2_len, ...)`;
+- firmware chon ciphertext slot 1 tai `DMEM[0x00005000 ..]`;
+- CPU goi `secure_read(1, 0x00006000, ...)`;
+- firmware tim metadata `file_id=1`, restore IV, chay RX `MODE=0x2`;
 - testbench compare RX output voi `input1.txt`.
 
 ### 5.2 DMEM metadata layout
@@ -198,22 +206,38 @@ compressed/encrypted:
 Base:
 
 ```text
-STORAGE_TABLE_BASE = 0x00000100
-RECORD_STRIDE      = 64 bytes
+SECURE_META_BASE_ADDR    = 0x00000100
+SECURE_META_RECORD_COUNT = 2
+SECURE_META_RECORD_SHIFT = 6
+SECURE_IV_COUNTER_ADDR   = 0x000001F0
+SECURE_IV_SEED           = 0x31415926
 ```
 
 Moi record la software-owned structure trong DMEM:
 
 | Field | Meaning |
 |---|---|
-| `valid` | Record hop le |
+| `valid` | Record hop le; set `1` only after TX commit |
 | `file_id` | ID phan mem dung de chon lai du lieu |
 | `plain_addr` | Dia chi plaintext source ban dau |
-| `plain_len` | So byte plaintext ban dau |
 | `cipher_addr` | Dia chi ciphertext/transport trong DMEM |
+| `plain_len` | So byte plaintext ban dau |
 | `cipher_len` | So byte ciphertext/transport do TX tao |
 | `mode` | TX mode da dung, hien la `0x9` |
 | `iv0..iv3` | IV phai dung lai khi RX |
+| `version` | Counter value used when creating IV |
+| `flags` | Reserved, currently `0` |
+
+Ciphertext slots:
+
+| Slot | Address |
+|---:|---:|
+| `0` | `0x00004000` |
+| `1` | `0x00005000` |
+
+Current IV formula is documented in
+`docs/iv_generation_and_cbc_contract_spec.md`. It uses `plain_len`,
+`plain_addr`, `cipher_addr`, `file_id`, and the counter at `0x000001F0`.
 
 ### 5.3 Result layout
 
@@ -479,6 +503,11 @@ De tranh chay nham chuong trinh:
 
 ## 10. Flow khuyen nghi theo loai input
 
+- Current secure-storage API:
+  - compile: `make compile C_SRC=test_mmio_dma_storage_table.c`
+  - run: `make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"`
+  - policy: `secure_write`, `secure_write`, `secure_read` with metadata and IV restore.
+
 - `input1.txt` full loopback:
   - compile: `make compile C_SRC=test_mmio_dma.c`
   - run: `make all`
@@ -496,4 +525,4 @@ De tranh chay nham chuong trinh:
 
 - Full coverage:
   - command: `cd sim && ./run.csh cov && ./report.csh`
-  - result hien tai: `34/34` PASS, closed DUT `95.90%`.
+  - historical result: `34/34` PASS, closed DUT `95.90%`.

@@ -43,10 +43,10 @@ module apb_huffman_rx_if #(
     localparam [2:0] VALID_BYTES_ZERO = 3'd0;
     localparam [2:0] VALID_BYTES_FOUR = 3'd4;
 
-    reg [31:0] fifo_data_mem [0:FIFO_DEPTH-1];
-    reg [2:0]  fifo_valid_bytes_mem [0:FIFO_DEPTH-1];
-    reg        fifo_last_block_mem [0:FIFO_DEPTH-1];
-    reg        fifo_last_frame_mem [0:FIFO_DEPTH-1];
+    (* ram_style = "distributed" *) reg [31:0] fifo_data_mem [0:FIFO_DEPTH-1];
+    (* ram_style = "distributed" *) reg [2:0]  fifo_valid_bytes_mem [0:FIFO_DEPTH-1];
+    (* ram_style = "distributed" *) reg        fifo_last_block_mem [0:FIFO_DEPTH-1];
+    (* ram_style = "distributed" *) reg        fifo_last_frame_mem [0:FIFO_DEPTH-1];
 
     reg [FIFO_PTR_WIDTH-1:0]   wr_ptr_r;
     reg [FIFO_PTR_WIDTH-1:0]   rd_ptr_r;
@@ -95,8 +95,6 @@ module apb_huffman_rx_if #(
     wire        ctxt_start_write_ok_w;
     wire        invalid_write_commit_w;
 
-    integer i;
-
     assign apb_access_w               = PSEL && PENABLE;
     assign apb_write_access_w         = apb_access_w && PWRITE;
     assign apb_read_access_w          = apb_access_w && (!PWRITE);
@@ -129,6 +127,15 @@ module apb_huffman_rx_if #(
     assign head_valid_bytes_w         = fifo_valid_bytes_mem[rd_ptr_r];
     assign head_last_block_w          = fifo_last_block_mem[rd_ptr_r];
     assign head_last_frame_w          = fifo_last_frame_mem[rd_ptr_r];
+
+    always @(posedge PCLK) begin
+        if (rx_push_w) begin
+            fifo_data_mem[wr_ptr_r]        <= rx_word_data_i;
+            fifo_valid_bytes_mem[wr_ptr_r] <= rx_word_valid_bytes_i;
+            fifo_last_block_mem[wr_ptr_r]  <= rx_word_last_in_block_i;
+            fifo_last_frame_mem[wr_ptr_r]  <= rx_word_last_in_frame_i;
+        end
+    end
 
     assign cipher_stage_complete_w    = &cipher_stage_valid_r;
     assign ciphertext_word_o          = cipher_pending_word_r;
@@ -330,12 +337,6 @@ module apb_huffman_rx_if #(
             cipher_pending_word_r <= 128'h0;
             cipher_pending_valid_r<= 1'b0;
 
-            for (i = 0; i < FIFO_DEPTH; i = i + 1) begin
-                fifo_data_mem[i]        <= 32'h00000000;
-                fifo_valid_bytes_mem[i] <= VALID_BYTES_ZERO;
-                fifo_last_block_mem[i]  <= 1'b0;
-                fifo_last_frame_mem[i]  <= 1'b0;
-            end
         end
         else begin
             if (soft_reset_pulse_w) begin
@@ -400,11 +401,6 @@ module apb_huffman_rx_if #(
                     cipher_pending_valid_r <= 1'b0;
 
                 if (rx_push_w) begin
-                    fifo_data_mem[wr_ptr_r]        <= rx_word_data_i;
-                    fifo_valid_bytes_mem[wr_ptr_r] <= rx_word_valid_bytes_i;
-                    fifo_last_block_mem[wr_ptr_r]  <= rx_word_last_in_block_i;
-                    fifo_last_frame_mem[wr_ptr_r]  <= rx_word_last_in_frame_i;
-
                     if (rx_word_last_in_block_i)
                         block_done_sticky_r <= 1'b1;
 

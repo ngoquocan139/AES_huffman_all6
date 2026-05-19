@@ -2,38 +2,38 @@
 
 ## 1. Purpose
 
-This document is used to print reports.
+Tai lieu nay dung de on bao cao.
 
-Goal:
+Muc tieu:
 
-- Point out which parts of the code need to be the most accurate;
-- It's better to make a short answer, but ask to be questioned;
-- Keep a detailed diagram so, if necessary, you can open the module code immediately.
+- chi ra nhung phan code can nam chac nhat;
+- dua ra cau tra loi ngan gon cho nhung cau hoi de bi hoi;
+- kem so do chi tiet de neu can thi mo code dung module ngay.
 
-This document does not replace the `00_current_system_spec.md`.
-This is a "backup oral defense" board to respond to errors when the code is asked.
+Tai lieu nay khong thay the `00_current_system_spec.md`.
+No la ban "backup oral defense" de tra loi luc bi hoi code.
 
 ---
 
 ## 2. Code Areas To Know Best
 
-If you only have time to learn 5 cum codes, prioritize using this order.
+Neu chi co thoi gian hoc 5 cum code, uu tien dung thu tu nay.
 
-| Priority | Cum code | Why do I have to lie down? |
+| Priority | Cum code | Vi sao phai nam |
 |---:|---|---|
-| 1 | `rv32_soc_top.v` | This is the general diagram of the system. New architectural questions are all about this top-level. |
-| 2 | `cpu_mmio_to_apb_bridge.v` + `dma_regfile.v` | This is the control plane: how does the CPU configure DMA, MMIO decode at the beginning, status/read and write at the beginning. |
-| 3 | `dma_tx_engine.v` + `dma_rx_engine.v` | This is the real data mover: reads DMEM, goes to accelerator, lays output to DMEM. |
-| 4 | `apb_huffman_aes_tx_top.v` + `apb_huffman_aes_rx_top.v` | This is the input/output of TX and RX accelerator from SoC perspective. |
-| 5 | `tb_rv32_soc_mmio_dma.v` | This is the main evidence for reporting: end-to-end testcase, throughput, saving, dump file, pass/fail. |
+| 1 | `rv32_soc_top.v` | Day la so do tong cua ca he thong. Moi cau hoi kien truc deu quay ve top-level nay. |
+| 2 | `cpu_mmio_to_apb_bridge.v` + `dma_regfile.v` | Day la control plane: CPU cau hinh DMA nhu the nao, MMIO decode o dau, status/doc ghi o dau. |
+| 3 | `dma_tx_engine.v` + `dma_rx_engine.v` | Day la data mover thuc su: doc DMEM, day vao accelerator, lay output ve DMEM. |
+| 4 | `apb_huffman_aes_tx_top.v` + `apb_huffman_aes_rx_top.v` | Day la cua vao/cua ra cua TX va RX accelerator tu goc nhin SoC. |
+| 5 | `tb_rv32_soc_mmio_dma.v` | Day la bang chung chinh de bao cao: testcase end-to-end, throughput, saving, dump file, pass/fail. |
 
-If you get asked again, continue:
+Neu bi hoi sau nua, tiep tuc xuong:
 
 | Group | File |
 |---|---|
 | TX core | `dynamic_huffman_encoder.v`, `bit_packer_128.v`, `wrapper.v` |
 | RX core | `huffman_block_parser.v`, `huffman_block_decoder.v`, `bit_depacker_128.v`, `wrapper_rx.v`, `rx_byte_packer_32.v` |
-| Software | `test_mmio_dma.c` and `c_files_explained.md` |
+| Software | `secure_storage_fw.h`, `test_mmio_dma_storage_table.c`, legacy `test_mmio_dma.c`, va `c_files_explained.md` |
 
 ---
 
@@ -102,20 +102,20 @@ flowchart TD
     D -->|error_sticky=1| F["CPU reads debug_error and reports fail"]
 ```
 
-### 3.5 Multi-register storage register/mux detail
+### 3.5 Multi-record storage register/mux detail
 
-This diagram is used to answer the question: "If you save input1 as compressed/encrypted,
-Then save input3, then how to go back to decoding input1?
+So do nay dung de tra loi cau hoi: "Neu da luu input1 dang compressed/encrypted,
+sau do luu tiep input3, thi lam sao quay lai giai ma input1?"
 
-Main medical:
+Y chinh:
 
-- RTL does not need to know "file name"; RV32I software manages metadata registers.
-- Have you just registered `file_id`, `cipher_addr`, `cipher_len`, `plain_len`, `mode`,
+- RTL khong can biet "file name"; RV32I software quan ly bang metadata record.
+- Moi record chua `file_id`, `cipher_addr`, `cipher_len`, `plain_len`, `mode`,
   `iv0..iv3`.
-- When the user selects `file_id`, the software scans the metadata table and mux to register
-select, then register the fields into `dma_regfile`.
-- `dma_regfile` is the hardware tap register; mux selects the register located in the software
-logic/runs using RV32I instructions, not a separate RTL mux.
+- Khi user chon `file_id`, software scan metadata table, mux ra record duoc
+  chon, roi ghi lai cac field vao `dma_regfile`.
+- `dma_regfile` la tap register phan cung; mux chon record nam trong software
+  logic/chay bang instruction RV32I, khong phai mux RTL rieng.
 
 ```mermaid
 flowchart LR
@@ -181,244 +181,254 @@ flowchart LR
 
 ### 4.1 `rv32_soc_top.v`
 
-Must be able to say 4 things:
+Phai noi duoc 4 y:
 
-1. This is where the CPU, IMEM, DMEM, MMIO bridge, DMA regfile, TX engine, RX engine, TX accelerator, RX accelerator are located.
-2. CPU acts as control plane; accelerator + DMA act as data plane.
-3. The MMIO address decode is missing entries to `dma_regfile` and APB-related control/status.
-4. The final result still goes back to DMEM for the CPU and testbench to read/verify.
+1. Day la noi ghep CPU, IMEM, DMEM, bridge MMIO, DMA regfile, TX engine, RX engine, TX accelerator, RX accelerator.
+2. CPU dong vai tro control plane; accelerator + DMA dong vai tro data plane.
+3. MMIO address decode toi thieu di vao `dma_regfile` va APB-related control/status.
+4. Ket qua cuoi cung van quay lai DMEM de CPU va testbench co the doc/xac minh.
 
 ### 4.2 `cpu_mmio_to_apb_bridge.v`
 
-Must be able to say 4 things:
+Phai noi duoc 4 y:
 
-1. The bridge represents an MMIO access of the CPU and an APB access for the peripheral.
-2. APB master still follows 3 phases: setup, access, complete.
-3. When the CPU is performing MMIO access and the APB is not finished, the pipeline is architecturally held.
-4. MMIO readback data is connected to the memory-return path so CPU `lw` reads the register like normal memory.
+1. Bridge bien mot MMIO access cua CPU thanh APB access cho peripheral.
+2. APB master van theo 3 pha co ban: setup, access, complete.
+3. Khi CPU dang thuc hien MMIO access ma APB chua xong, pipeline duoc hold kien truc.
+4. Du lieu readback cua MMIO duoc noi vao memory-return path de CPU `lw` doc thanh ghi nhu doc memory.
 
 ### 4.3 `dma_regfile.v`
 
-Must be able to say 5 y:
+Phai noi duoc 5 y:
 
-1. This is where the DMA configuration and status are located.
-2. CPU registers `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`, `IV0..IV3`.
-3. CPU kicked with `CONTROL.start`.
-4. DMA engine updates `busy`, `done_sticky`, `error_sticky`, `bytes_done`.
-5. TX exposes `ciphertext_bytes_produced` so RX knows how many ciphertext bytes to read.
+1. Day la noi chua config va status cua DMA.
+2. CPU ghi `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`, `IV0..IV3`.
+3. CPU kick bang `CONTROL.start`.
+4. DMA engine cap nhat `busy`, `done_sticky`, `error_sticky`, `bytes_done`.
+5. TX expose `ciphertext_bytes_produced` de RX biet phai doc bao nhieu byte ciphertext.
 
 ### 4.4 `dma_tx_engine.v`
 
-Must be able to say 4 things:
+Phai noi duoc 4 y:
 
-1. TX DMA reads plaintext from DMEM.
-2. Then it transfers the data word into the TX APB interface.
-3. It does not compress or encode; it is only a data mover.
-4. When the TX accelerator generates transport/ciphertext, the data is written to DMEM in the port.
+1. TX DMA doc plaintext tu DMEM.
+2. Sau do no dua word du lieu vao TX APB interface.
+3. No khong nen/ma hoa; no chi data-mover.
+4. Khi TX accelerator tao ra transport/ciphertext, du lieu duoc ghi ve DMEM o vung dich.
 
 ### 4.5 `dma_rx_engine.v`
 
-Must be able to say 4 things:
+Phai noi duoc 4 y:
 
-1. RX DMA reads ciphertext/transport from DMEM.
-2. It supplies RX accelerator via APB RX side.
-3. When the RX accelerator returns the recovery plaintext, the RX DMA writes back DMEM.
-4. Testbench compares RX output with source input to determine pass/fail.
+1. RX DMA doc ciphertext/transport tu DMEM.
+2. No cap cho RX accelerator qua APB RX side.
+3. Khi RX accelerator tra plaintext da phuc hoi, RX DMA ghi lai DMEM.
+4. Testbench so sanh vung RX output voi source input de ket luan pass/fail.
 
 ### 4.6 `apb_huffman_aes_tx_top.v`
 
-Must be able to say 4 things:
+Phai noi duoc 4 y:
 
-1. This is the top TX accelerator from a SoC perspective.
-2. Inside it says: Huffman encode -> bit pack -> AES/bypass -> output APB/FIFO.
-3. There are modes `COMPRESS_ONLY` and `COMPRESS_AES`.
-4. Output is the transport/ciphertext that aligns for DMA to write to DMEM.
+1. Day la top cua TX accelerator duoi goc nhin SoC.
+2. Ben trong no noi chuoi: Huffman encode -> bit pack -> AES/bypass -> output APB/FIFO.
+3. Co mode `COMPRESS_ONLY` va `COMPRESS_AES`.
+4. Output la transport/ciphertext da align de DMA ghi ve DMEM.
 
 ### 4.7 `apb_huffman_aes_rx_top.v`
 
-Must be able to say 4 things:
+Phai noi duoc 4 y:
 
-1. This is the top of the RX accelerator from an SoC perspective.
-2. Inside it says: AES decrypt -> bit depack -> parser -> decoder -> byte pack.
-3. It can mirror IV and contract frame arc with TX.
-4. The final output is a plaintext 32-bit word stream for RX DMA writes to DMEM.
+1. Day la top cua RX accelerator duoi goc nhin SoC.
+2. Ben trong no noi chuoi: AES decrypt -> bit depack -> parser -> decoder -> byte pack.
+3. No can cung IV va cung contract frame voi TX.
+4. Output cuoi la plaintext 32-bit word stream cho RX DMA ghi DMEM.
 
 ### 4.8 `tb_rv32_soc_mmio_dma.v`
 
-Must be able to say 5 y:
+Phai noi duoc 5 y:
 
-1. TB loads `input.txt` into DMEM.
-2. The TB runs the RV32I program to let the CPU configure the DMA using MMIO that.
+1. TB load `input.txt` vao DMEM.
+2. TB chay chuong trinh RV32I de CPU tu cau hinh DMA bang MMIO that.
 3. TB dump 3 vung: source DMEM, TX region, RX region.
-4. TB calculates benchmarks: cycles, throughput, compression ratio, storage ratio.
-5. TB checks end-to-end with pass/fail lines and `rx_mismatch_count`.
+4. TB tinh benchmark: cycles, throughput, compression ratio, storage ratio.
+5. TB kiem tra end-to-end bang pass/fail lines va `rx_mismatch_count`.
 
 ---
 
 ## 5. Most Important Oral Questions And Short Answers
 
-### Q1. What is this system?
+### Q1. He thong nay la gi?
 
-**Short error response:**
+**Tra loi ngan:**
 
-This is an RV32I SoC that the CPU only uses for configuration and sat reduction. Data is moved using DMA, while the encoding/decoding functions/phases are located in the TX and RX accelerators.
+Day la mot SoC RV32I ma CPU chi dung de cau hinh va giam sat. Du lieu duoc di chuyen bang DMA, con nen/giai nen va ma hoa/giai ma nam o accelerator TX va RX.
 
-**If asked to continue:**
+**Neu bi hoi tiep:**
 
 - CPU = control plane
 - DMA + accelerator = data plane
-- DMEM = contains source, ciphertext, and output
+- DMEM = noi chua source, ciphertext, va output
 
-### Q2. Why use DMA, why not let the CPU copy by load/store?
+### Q2. Tai sao phai dung DMA, sao khong de CPU copy bang load/store?
 
-**Short error response:**
+**Tra loi ngan:**
 
-If the CPU is allowed to copy each byte, the CPU must both move data and polling accelerator, which is very time consuming. DMA separates data movement from the CPU, so the CPU only configures the transfer and waits for results.
+Neu de CPU copy tung byte thi CPU vua phai di chuyen du lieu, vua phai polling accelerator, rat ton chu ky. DMA tach phan di chuyen du lieu ra khoi CPU, de CPU chi can config va doi ket qua.
 
-**If asked to continue:**
+**Neu bi hoi tiep:**
 
-- Reduce software copy loop
-- clear control/data plane
-- to expand to make FPGA more practical
+- giam phan mem copy loop
+- ro control/data plane
+- de mo rong de len FPGA thuc dung hon
 
-### Q3. Does the CPU stall while DMA is running?
+### Q3. CPU co bi stall trong luc DMA chay khong?
 
-**Short error response:**
+**Tra loi ngan:**
 
-No global stalls. The CPU is only held while performing MMIO/APB access can for the peripheral to return an error. The DMA engine runs in the background.
+Khong stall toan cuc. CPU chi bi hold khi dang thuc hien MMIO/APB access can cho peripheral tra loi. Ban than DMA chay background.
 
-**Module can be opened if asked:**
+**Module can mo neu bi hoi:**
 
 - `cpu_mmio_to_apb_bridge.v`
 - `cpu_dma_stall_policy_spec.md`
 
-### Q4. Does APB bridge have 3-phase capacity?
+### Q4. APB bridge co dung 3-phase khong?
 
-**Short error response:**
+**Tra loi ngan:**
 
-Have. At the execution level, the bridge still follows setup -> access -> complete, and holds request/hold CPU until `pready` confirms the transaction is complete.
+Co. O muc thuc hien, bridge van di theo setup -> access -> complete, va giu request/hold CPU cho den khi `pready` xac nhan giao dich xong.
 
-### Q5. How does TX and RX data travel?
+### Q5. TX va RX du lieu di nhu the nao?
 
-**Short error response:**
+**Tra loi ngan:**
 
 TX: DMEM -> TX DMA -> Huffman/AES TX -> DMEM.  
 RX: DMEM -> RX DMA -> AES/Huffman RX -> DMEM.
 
-**If asked later:**
+**Neu bi hoi sau:**
 
 - TX sinh ciphertext/transport stream
-- RX uses ciphertext bytes to read back and recover the source
+- RX dung ciphertext bytes do de doc lai va phuc hoi source
 
-### Q6. Why does the TX output go back to DMEM?
+### Q6. Tai sao output TX quay lai DMEM?
 
-**Short error response:**
+**Tra loi ngan:**
 
-Because our goal is secure storage. TX does not travel outside the chip in simulation; It registers ciphertext to DMEM to simulate secure storage. The RX then reads the DMEM amendment again to verify the loopback.
+Vi muc tieu cua de tai la secure storage. TX khong dua ra ngoai chip trong simulation; no ghi ciphertext ve DMEM de mo phong luu tru an toan. Sau do RX doc lai tu chinh DMEM de kiem tra loopback.
 
-### Q7. Input1 can be compressed, but input4 sometimes expands; is that expected?
+### Q7. Input1 compress duoc, input4 co luc am saving la tai sao?
 
-**Short error response:**
+**Tra loi ngan:**
 
-Because Huffman is only effective when distributing skewed characters. If the input appears to be "all symbolic" or has high entropy, header + transport base + AES padding/fixed frame can add up to a larger capacity than the original input.
+Vi Huffman chi hieu qua khi phan bo ky tu lech ro. Neu input gan nhu "deu ky hieu" hoac co entropy cao, header + canh transport + AES padding/co dinh frame co the lam tong dung luong lon hon input goc.
 
-**Must know 2 numbers:**
+**Phai phan biet 2 so:**
 
-- `payload compression`: only see the payload part
-- `final storage ratio`: looks after header/frame/AES/transport port
+- `payload compression`: chi nhin phan payload nen
+- `final storage ratio`: nhin tong sau khi cong header/frame/AES/transport
 
-### Q8. Why separate TX-only and RX-only bitstream?
+### Q8. Tai sao phai tach TX-only va RX-only bitstream?
 
-**Short error response:**
+**Tra loi ngan:**
 
-Vi full TX+RX on Zynq-7020 is applied during LUT/timing. If you separate it, you'll need to use timing pass and isolation for FPGA demo.
+Vi full TX+RX tren Zynq-7020 bi ap luc LUT/timing. Tach ra thi moi ben de timing pass va hop ly cho demo FPGA.
 
-### Q9. What is polling status?
+### Q9. Polling status la gi?
 
-**Short error response:**
+**Tra loi ngan:**
 
-The CPU continuously reads `STATUS` in `dma_regfile` to see if `done_sticky` or `error_sticky` has been set. This is the current software control mechanism.
+CPU lien tuc doc `STATUS` trong `dma_regfile` de xem `done_sticky` hoac `error_sticky` da duoc set chua. Day la co che dieu khien phan mem hien tai.
 
-### Q10. Why not use interrupt?
+### Q10. Tai sao chua dung interrupt?
 
-**Short error response:**
+**Tra loi ngan:**
 
-The current board prioritizes time and risk control. Polling to debug better in simulation. Interrupt/trap is recommended, but not required to demonstrate SoC architecture and DMA/accelerator capacity.
+Ban hien tai uu tien don gian va ro luong control. Polling de debug de hon trong simulation. Interrupt/trap la huong nang cap, nhung khong bat buoc de chung minh kien truc SoC va luong DMA/accelerator.
 
-### Q11. Who is the current IV operator?
+### Q11. IV hien tai do ai cap?
 
-**Short error response:**
+**Tra loi ngan:**
 
-IV is written by CPU RV32I to registers `IV0..IV3` in `dma_regfile`, then TX and RX are also read back from the regfile for common use in CBC.
+IV do firmware RV32I cap. Trong flow secure-storage hien tai,
+`secure_storage_fw.h` tao IV, ghi vao `IV0..IV3` cua `dma_regfile`, va luu lai
+chinh 4 word IV do trong metadata record. Khi doc lai, firmware restore
+`IV0..IV3` tu metadata truoc khi start RX.
 
-### Q12. How is IV created?
+### Q12. IV duoc tao nhu the nao?
 
-**Short error response:**
+**Tra loi ngan:**
 
-In the current flow, the CPU calculates IV using RV32I software and then writes it to MMIO. This means that the current IV is a software-provided IV, not a hardware TRNG.
+Trong flow hien tai, CPU tinh IV bang phan mem RV32I trong
+`secure_prepare_record()`. Counter dat tai `DMEM[0x000001F0]`, seed
+`0x31415926`, moi lan `secure_write` counter tang len va duoc tron voi
+`plain_len`, `plain_addr`, `cipher_addr`, `file_id`, va constant `0x43424331`.
+Day la deterministic demo IV, khong phai TRNG phan cung.
 
-### Q13. Why is raw DUT coverage not 100% yet?
+### Q13. Tai sao raw DUT coverage chua 100%?
 
-**Short error response:**
+**Tra loi ngan:**
 
-Because of some condition/expression and internal toggle only shows very directional properties
-rare, know parser/decode error path, fallback decode, AES/Huffman bus
-builder's width and memory-array toggle. However, the main test case passed,
-raw DUT coverage is over 90%, branch/statement coverage is high, and closed coverage is higher.
+Vi mot so condition/expression va toggle noi bo chi xuat hien o tinh huong rat
+hiem, dac biet parser/decode error path, fallback decode, bus AES/Huffman
+rong va memory-array toggle cua builder. Tuy nhien nhung testcase chinh da pass,
+raw DUT da tren 90%, branch/statement da cao, va closed coverage cao hon.
 
-### Q14. What do end-to-end results prove?
+### Q14. Ket qua end-to-end chung minh cai gi?
 
-**Short error response:**
+**Tra loi ngan:**
 
-It proves that CPU RV32I configures DMA with MMIO, TX creates ciphertext/transport, RX recovers plaintext, and the final RX data is the same as the original input.
+No chung minh CPU RV32I da cau hinh DMA bang MMIO that, TX da tao ciphertext/transport that, RX da phuc hoi plaintext that, va du lieu RX cuoi cung giong input goc.
 
-### Q15. Why is `loopback_rx_should_match_input_file` the most important check?
+### Q15. Tai sao `loopback_rx_should_match_input_file` la check quan trong nhat?
 
-**Short error response:**
+**Tra loi ngan:**
 
-Because this is the final proof that the entire TX->storage->RX chain works functionally. If this check fails, the end-to-end secure storage architecture is not in use.
+Vi day la bang chung cuoi cung rang toan bo chuoi TX->luu tru->RX hoat dong dung ve chuc nang. Neu check nay fail thi kien truc secure storage end-to-end chua dung.
 
-### Q16. If you save input1 as compressed/encrypted, then continue to save input3, can you reset input1 later?
+### Q16. Neu da luu input1 dang compressed/encrypted, sau do tiep tuc luu input3, sau nay co lay lai input1 duoc khong?
 
-**Short error response:**
+**Tra loi ngan:**
 
-Yes, if the RV32I software keeps metadata for each registering board. Metadata required
-`file_id`, ciphertext address in DMEM, ciphertext length, plaintext length,
-mode and IV. When you want to reset input1, the CPU searches for register `file_id=1`, registers it
-`SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE=0x2`, `IV0..IV3`, then start RX.
+Duoc, neu phan mem RV32I giu metadata cho tung ban ghi. Metadata can co
+`file_id`, dia chi ciphertext trong DMEM, ciphertext length, plaintext length,
+mode va IV. Hien tai viec nay da duoc dong goi thanh `secure_write()` va
+`secure_read()`: khi muon lay lai input1, firmware tim record `file_id=1`,
+restore `IV0..IV3`, lay `cipher_addr/cipher_len/plain_len`, cau hinh RX
+`MODE=0x2`, roi start DMA.
 
-**Available evidence:**
+**Bang chung hien co:**
 
-`dma_storage_table_input1_then_input3` da pass: TX input1, TX input3, then
-Select register input1 again and RX out plaintext file `input1.txt`.
+`dma_storage_table_input1_then_input3` da pass `PASS=22`, `FAIL=0`: TX input1,
+TX input3, sau do chon lai record input1 bang `secure_read(file_id=1)` va RX ra
+plaintext khop `input1.txt`.
 
 ---
 
 ## 6. How To Explain The Main PASS Lines
 
-This is a good short phrase to say on a backup slide or when explaining logs.
+Day la ban ngan gon de noi tren slide backup hoac khi thuyet minh log.
 
-| PASS line | Meaning needs to be said |
+| PASS line | Y nghia can noi |
 |---|---|
-| `mem_err_o_should_be_zero` | There are no memory/bus errors in the test case. |
-| `cpu_should_publish_known_signature` | The CPU finishes running the test program and writes the results to DMEM. |
-| `result_signature` | Confirm the end-to-end testcase you want to run. |
-| `cpu_error_mask_should_be_zero` | RV32I software does not detect configuration or polling errors. |
-| `tx_status_before_start` | TX is in a valid idle state before kicking. |
-| `tx_status_after_done` | TX completed and set done content. |
-| `tx_ciphertext_bytes_produced_should_match_tx_bytes_done` | The number of ciphertext bytes contained in TX must be equal to the number of DMA bytes to be extracted. |
-| `rx_status_after_done` | RX completed and no error reported. |
-| `rx_bytes_done_should_match_input_len` | RX recovers the same number of plaintext bytes as the original input. |
-| `source_dmem_should_match_input_file` | Input loader into DMEM is empty. |
-| `loopback_rx_should_match_input_file` | The plaintext after the loopback is the same as the original input. |
-| `tx_ciphertext_region_should_not_be_all_zero` | TX actually creates output, not a false pass. |
-| `dma_start_pulse_count` | Compare the times kick DMA is used with flow testcases. |
+| `mem_err_o_should_be_zero` | Khong co loi memory/bus trong testcase. |
+| `cpu_should_publish_known_signature` | CPU chay xong chuong trinh test va ghi dau hieu ket qua vao DMEM. |
+| `result_signature` | Xac nhan dung testcase end-to-end mong muon da chay xong. |
+| `cpu_error_mask_should_be_zero` | Phan mem RV32I khong tu phat hien loi cau hinh hay polling. |
+| `tx_status_before_start` | TX dang o trang thai idle hop le truoc khi kick. |
+| `tx_status_after_done` | TX hoan tat va set done dung. |
+| `tx_ciphertext_bytes_produced_should_match_tx_bytes_done` | So byte ciphertext ma TX bao phai khop so byte DMA da xu ly. |
+| `rx_status_after_done` | RX hoan tat va khong bao loi. |
+| `rx_bytes_done_should_match_input_len` | RX phuc hoi du so byte plaintext nhu input goc. |
+| `source_dmem_should_match_input_file` | Input loader vao DMEM la dung. |
+| `loopback_rx_should_match_input_file` | Plaintext sau loopback giong input goc. |
+| `tx_ciphertext_region_should_not_be_all_zero` | TX that su da tao output, khong phai false pass. |
+| `dma_start_pulse_count` | So lan kick DMA dung voi flow testcase. |
 
 ---
 
 ## 7. Code Reading Order Before Defense
 
-If you have little time left, read this in order:
+Neu con it thoi gian, doc dung thu tu nay:
 
 1. [00_current_system_spec.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/00_current_system_spec.md)
 2. [soc_4_5_end_to_end_report.md](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/docs/soc_4_5_end_to_end_report.md)
@@ -438,28 +448,28 @@ If you have little time left, read this in order:
 
 Latest checked date: **May 10, 2026**.
 
-To keep small when it boils quickly:
+De de nho khi bi hoi nhanh:
 
 | Item | Value |
 |---|---:|
-| Main end-to-end evidence | `SUMMARY: PASS=18 FAIL=0` for main SoC TX->RX testcase |
-| Multi-register storage evidence | `SUMMARY: PASS=22 FAIL=0` for `dma_storage_table_input1_then_input3` |
+| Main end-to-end evidence | `SUMMARY: PASS=18 FAIL=0` cho testcase SoC TX->RX chinh |
+| Multi-record storage evidence | `SUMMARY: PASS=22 FAIL=0` cho `dma_storage_table_input1_then_input3` |
 | Raw DUT full coverage | `93.52%` |
-| Closed DUT coverage | `95.90%` after coverage closure |
+| Closed DUT coverage | `95.90%` sau coverage closure |
 | Main weak raw areas | RX parser/decoder condition/expression, AES/Huffman wide-bus toggles, dynamic builder memory-array toggles |
 
-If you ask "why not 100% coverage", say:
+Neu thay hoi "tai sao khong 100% coverage", dung noi:
 
-> Functional end-to-end, MMIO, DMA, TX, RX, error path main pass. What's missing are mainly the internal conditions/expressions and toggles in the parser/decode table, AES/Huffman wide bus and memory-array activity, not the core components of the secure-storage SoC.
+> Functional end-to-end, MMIO, DMA, TX, RX, error path chinh da pass. Phan con thieu chu yeu la cac condition/expression va toggle noi bo hiem trong parser/decode table, AES/Huffman wide bus va memory-array activity, khong phai cac luong chinh cua secure-storage SoC.
 
 ---
 
 ## 9. Final Advice
 
-High dosage, no need to take each dose of RTL.
-Need to sleep:
+Di bao cao, khong can thuoc tung dong RTL.
+Can nam chac:
 
-- data moves to beginning -> to beginning;
-- What does CPU do, what does DMA do, what does accelerator do;
-- Which test can prove anything?
-- What is the current shield and why is it still acceptable for the target audience?
+- du lieu di dau -> den dau;
+- CPU lam gi, DMA lam gi, accelerator lam gi;
+- test nao chung minh duoc gi;
+- han che hien tai la gi va tai sao van chap nhan duoc cho muc tieu de tai.

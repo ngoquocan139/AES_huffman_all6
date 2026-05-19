@@ -12,14 +12,21 @@ cho bao cao:
 | SOC-03 | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | Alnum63/codebook stress loopback |
 | SOC-04 | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | Software-managed storage table demo |
 
-Ba testcase loopback dau dung software:
+Ba testcase loopback dau dung direct-DMA software:
 
 ```text
 testcase/test_mmio_dma.c
 ```
 
-`dma_storage_table_input1_then_input3` dung `testcase/test_mmio_dma_storage_table.c`
-vi no can quan ly hai metadata record trong DMEM.
+`dma_storage_table_input1_then_input3` dung:
+
+```text
+testcase/secure_storage_fw.h
+testcase/test_mmio_dma_storage_table.c
+```
+
+vi no can chung minh secure-storage firmware API, metadata records, IV restore,
+va readback theo `file_id`.
 
 `TESTNAME` chon file testcase Verilog trong `testcase/`. `CASE_NAME` la
 plusarg de testbench in ten case vao log va gan report/dump voi dung testcase.
@@ -30,7 +37,7 @@ Chay lai rieng nhom 4.5:
 
 ```bash
 cd sim
-make license SUDO_PASS=1412
+make license
 make compile C_SRC=test_mmio_dma.c
 make all
 make all TESTNAME=dma_compress_aes_input3 RUN_ARGS="+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
@@ -40,13 +47,20 @@ make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_
 ./report.csh
 ```
 
-Latest run:
+Latest focused secure-storage API run:
 
 ```text
-Date: 2026-05-10
+Date: 2026-05-18
+Testcase: dma_storage_table_input1_then_input3
 Clock used by TB benchmark: 10 ns period, 100 MHz
-Result: 3 main loopback tests PASS; storage-table demo PASS; all are in the 34/34 clean baseline
+Result: PASS=22, FAIL=0
+Storage ratio: 40.14%
+RX restored: 2551 bytes
 ```
+
+Historical group result before the secure-storage API refactor remains
+`34/34` PASS. Rerun the full regression if a fresh final post-API number is
+required.
 
 ## 3. Data Flow Under Test
 
@@ -54,7 +68,7 @@ Result: 3 main loopback tests PASS; storage-table demo PASS; all are in the 34/3
 flowchart LR
   TXT["input .txt file"] --> TB["test_bench loader"]
   TB --> SRC["DMEM source @ 0x00002000"]
-  CPU["RV32I test_mmio_dma.c"] --> REG["DMA regfile via CPU MMIO -> APB bridge"]
+  CPU["RV32I firmware"] --> REG["DMA regfile via CPU MMIO -> APB bridge"]
   REG --> TXDMA["dma_tx_engine"]
   SRC --> TXDMA
   TXDMA --> TX["TX accelerator\nwhole-file Huffman + AES-CBC"]
@@ -69,7 +83,9 @@ flowchart LR
 Step-by-step:
 
 1. Testbench load input text vao `DMEM` source region `0x00002000`.
-2. CPU RV32I doc `input_len` tu DMEM, tao IV demo, va ghi `DMA_IV0..3`.
+2. CPU RV32I doc `input_len` tu DMEM. Trong direct loopback, CPU tao IV demo va
+   ghi `DMA_IV0..3`; trong storage-table testcase, `secure_storage_fw.h` tao IV,
+   luu IV vao metadata, va restore IV khi doc lai.
 3. CPU cau hinh TX: `SRC=0x00002000`, `DST=0x00004000`, `LEN=input_len`, `MODE=0x9`, `BLOCK=0x20`, roi start DMA.
 4. `dma_tx_engine` doc plaintext tu DMEM, nap TX accelerator qua private APB.
 5. TX accelerator tao dynamic Huffman codebook cho whole file, pack thanh transport word 128-bit, AES-CBC encrypt, va ghi ciphertext ve DMEM TX region.
@@ -113,7 +129,7 @@ Interpretation:
 | `dma_compress_aes_input1` | Nen tot, storage saving `59.86%`, loopback dung. |
 | `dma_compress_aes_input3` | Input ngan/lap lai cao, storage saving `53.72%`, loopback dung. |
 | `dma_compress_aes_alnum63_cov` | Input gan uniform voi 63 symbol, header/codebook overhead lon hon payload saving, nen storage saving am. Day la stress functional, khong phai case toi uu nen. |
-| `dma_storage_table_input1_then_input3` | Chung minh software RV32I co the luu 2 ciphertext record, sau do chon lai input1 bang metadata va RX dung. |
+| `dma_storage_table_input1_then_input3` | Chung minh `secure_write` luu 2 ciphertext record, metadata giu `file_id/cipher_addr/cipher_len/plain_len/IV`, va `secure_read(file_id=1)` restore lai input1 dung. |
 
 ## 6. Throughput Benchmark
 

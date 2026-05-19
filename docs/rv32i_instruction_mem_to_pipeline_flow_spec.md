@@ -1,34 +1,36 @@
 # 09. RV32I `instruction.mem` To Pipeline Flow Specification
 
-## 1. Purpose
+## 1. Muc dich
 
-This document explains the **RV32I CPU** flow from `instruction.mem` loading into `IMEM` until the CPU:
+Tai lieu nay giai thich luong **RV32I CPU** tu luc file `instruction.mem`
+duoc nap vao `IMEM` cho toi khi CPU:
 
-1. fetches an instruction,
-2. decodes it,
-3. executes it,
-4. accesses `DMEM` or `MMIO` when required,
-5. writes the result back to the register file or DMEM.
+1. fetch lenh
+2. decode
+3. thuc thi
+4. truy cap `DMEM` hoac `MMIO`
+5. ghi ket qua ve thanh ghi hoac DMEM
 
-The scope is the CPU pipeline. TX/RX details are only mentioned where software uses RV32I `lw`/`sw` instructions to configure DMA registers.
+Tai lieu nay tap trung vao **CPU pipeline**. No khong mo ta chi tiet TX/RX,
+ngoai tru nhung cho CPU phai dung `lw/sw` de cau hinh DMA.
 
-## 2. Scope of `.mem` Files
+## 2. Pham vi file `.mem`
 
-In the current system:
+Trong he thong hien tai:
 
-- `instruction.mem` is the RV32I program image.
-- `make compile` generates the file.
-- `imem_sync` loads it with `$readmemh("instruction.mem", ...)`.
-- `instruction.mem` is not input payload data.
+- `instruction.mem` la image cua chuong trinh RV32I
+- file nay duoc tao khi `make compile`
+- `imem_sync` nap file bang `$readmemh("instruction.mem", ...)`
+- `instruction.mem` khong phai input data file
 
-Keep these two flows separate:
+Luon phai tach 2 luong:
 
-| File type | Load location | Purpose |
+| Loai file | Noi nap | Muc dich |
 |---|---|---|
-| `instruction.mem` | `IMEM` | RV32I program instructions |
-| `input*.txt` / `input*.bin` | `DMEM` | Payload data processed by CPU/DMA |
+| `instruction.mem` | `IMEM` | Chuong trinh RV32I |
+| `input*.txt` / `input*.bin` | `DMEM` | Du lieu de CPU/DMA xu ly |
 
-## 3. Flow Overview
+## 3. Tong quan flow
 
 ```mermaid
 flowchart TD
@@ -43,27 +45,27 @@ flowchart TD
   I --> J["register file / DMEM / MMIO"]
 ```
 
-## 4. Loading `instruction.mem` Into `IMEM`
+## 4. `instruction.mem` vao `IMEM`
 
-### 4.1 File Generation
+### 4.1 Tao file
 
-Current build flow:
+Flow build hien tai:
 
-1. `make compile` builds the C testcase into ELF/BIN/MEM outputs.
-2. The generated memory image is copied to `sim/instruction.mem`.
-3. `imem_sync` loads this file when simulation starts.
+1. `make compile` build C testcase thanh ELF/BIN/MEM
+2. file output duoc copy thanh `sim/instruction.mem`
+3. `imem_sync` nap file nay khi simulation bat dau
 
-### 4.2 IMEM Load In RTL
+### 4.2 IMEM load trong RTL
 
-`rtl/imem_sync.v` has two implementations:
+`rtl/imem_sync.v` co 2 che do:
 
-- simulation behavioral model:
-  - uses `reg [31:0] instructions_r [0:2047]`,
-  - calls `$readmemh("instruction.mem", instructions_r)`;
-- Vivado IP model:
-  - uses `IMEM_ip`.
+- simulation behavioral:
+  - dung `reg [31:0] instructions_r [0:2047]`
+  - goi `$readmemh("instruction.mem", instructions_r)`
+- Vivado IP:
+  - dung `IMEM_ip`
 
-Simulation behavior:
+Neu simulation:
 
 ```verilog
 always @(posedge clk_i) begin
@@ -74,30 +76,30 @@ always @(posedge clk_i) begin
 end
 ```
 
-This means:
+Nghia la:
 
-- when fetch is enabled, IMEM returns the instruction at `PC[12:2]`;
-- when fetch is disabled, IMEM returns NOP.
+- khi CPU enable fetch, IMEM tra ve lenh tai `PC[12:2]`
+- khi khong enable, output ve NOP
 
-### 4.3 First Cycle After Reset
+### 4.3 Chu ky dau tien sau khi reset
 
-After simulation starts:
+Sau khi simulation bat dau:
 
-1. `instruction.mem` is already loaded in `IMEM`.
-2. `rst_i` holds the CPU in reset.
-3. `PC` returns to `RESET_PC = 0x00000000`.
-4. When reset is released, IF starts fetching the first word at `PC = 0`.
-5. `instruction_o` updates on the synchronous IMEM clock and then moves through ID/EX/MEM/WB.
+1. `instruction.mem` da nam trong `IMEM`
+2. `rst_i` giu CPU o trang thai reset
+3. `PC` quay ve `RESET_PC = 0x00000000`
+4. khi reset duoc tha, IF stage bat dau fetch word dau tien tai `PC = 0`
+5. `instruction_o` tu IMEM cap nhat theo clock sync, sau do di qua ID/EX/MEM/WB
 
-In short:
+Noi don gian:
 
-- `instruction.mem` does not go through DMA.
-- `instruction.mem` is not stored in DMEM.
-- The CPU fetches instructions only from IMEM; payload data is loaded into DMEM by the loader, testbench, or UART path.
+- `instruction.mem` khong di qua DMA
+- `instruction.mem` khong nam trong DMEM
+- CPU chi fetch lenh tu IMEM, con data phai duoc nap vao DMEM bang loader/testbench/UART
 
-## 5. RV32I Pipeline In `top_rv32_sync`
+## 5. RV32I pipeline trong `top_rv32_sync`
 
-The current CPU uses five stages:
+Pipeline hien tai gom 5 pha chinh:
 
 1. IF
 2. ID
@@ -105,258 +107,258 @@ The current CPU uses five stages:
 4. MEM
 5. WB
 
-### 5.1 IF Stage (`if_stage_sync`)
+### 5.1 IF stage (`if_stage_sync`)
 
-| Item | Content |
+| Muc | Noi dung |
 |---|---|
-| Inputs | `clk_i`, `rst_i`, `flush_i`, `stall_i`, `if_bj_taken_i`, `if_pc_bj_i`, `imem_instr_i` |
-| Outputs | `imem_en_o`, `imem_addr_o`, `ifid_pc_o`, `ifid_instruction_o` |
-| Function | Maintains the PC, sends fetch requests to IMEM, receives the synchronous instruction response, holds state on stall, and clears stale fetch state on branch/jump/flush. |
+| Input | `clk_i`, `rst_i`, `flush_i`, `stall_i`, `if_bj_taken_i`, `if_pc_bj_i`, `imem_instr_i` |
+| Output | `imem_en_o`, `imem_addr_o`, `ifid_pc_o`, `ifid_instruction_o` |
+| Chuc nang | Quan ly PC, gui fetch request sang IMEM, nhan instruction tra ve sau 1 chu ky, giu pipeline khi stall, xoa fetch cu khi branch/jump/flush |
 
-Input/output description:
+Mo ta input/output:
 
-| Signal | Direction | Description |
+| Tin hieu | Huong | Description |
 |---|---|---|
-| `clk_i` | input | Synchronous clock for all IF registers. |
-| `rst_i` | input | Resets IF state to `RESET_PC` and drives the IF/ID instruction to NOP. |
-| `flush_i` | input | Clears pending fetch request/response state and injects NOP into IF/ID. |
-| `stall_i` | input | Holds PC and IF/ID state; an IMEM response that arrives during stall is buffered. |
-| `if_bj_taken_i` | input | Branch/jump redirect decision from EX. |
-| `if_pc_bj_i` | input | Redirect target PC when branch/jump is taken. |
-| `imem_instr_i` | input | 32-bit instruction returned by IMEM for the previous fetch request. |
-| `imem_en_o` | output | Fetch request enable to IMEM. |
-| `imem_addr_o` | output | Fetch address derived from the current PC. |
-| `ifid_pc_o` | output | PC latched into the IF/ID pipeline register. |
-| `ifid_instruction_o` | output | Instruction latched into the IF/ID pipeline register; NOP on reset, flush, or invalid response. |
+| `clk_i` | input | Clock dong bo cho tat ca thanh ghi IF |
+| `rst_i` | input | Reset pipeline IF ve `RESET_PC` va dua instruction output ve NOP |
+| `flush_i` | input | Xoa request/response dang cho va dua IF/ID ve NOP |
+| `stall_i` | input | Dung cap nhat PC/IFID; neu response IMEM ve trong luc stall thi buffer lai |
+| `if_bj_taken_i` | input | Bao EX stage da quyet dinh branch/jump taken |
+| `if_pc_bj_i` | input | Dia chi PC moi khi branch/jump taken |
+| `imem_instr_i` | input | Instruction 32-bit tra ve tu IMEM cho fetch request truoc do |
+| `imem_en_o` | output | Enable request fetch sang IMEM |
+| `imem_addr_o` | output | Dia chi fetch hien tai, lay tu `pc_r` |
+| `ifid_pc_o` | output | PC da chot sang ID stage |
+| `ifid_instruction_o` | output | Instruction da chot sang ID stage; co the la NOP khi reset/flush/khong co response hop le |
 
-Registers in IF stage:
+Thanh ghi trong IF stage:
 
-| Register | Bit width | Data format | Function |
-|---|---:|---|---|
-| `pc_r` | 32 | Byte PC, word-aligned (`PC[1:0]=00`) | Current IF-stage PC and source for the next IMEM fetch address. |
-| `req_pc_r` | 32 | Byte PC | PC associated with the outstanding fetch request. |
-| `req_valid_r` | 1 | Valid flag (`0/1`) | Marks that an IMEM request is waiting for an instruction response. |
-| `resp_pc_r` | 32 | Byte PC | Buffered response PC when an instruction returns during stall. |
-| `resp_instr_r` | 32 | Raw RV32I instruction word (`opcode=instr[6:0]`) | Buffered instruction response when an instruction returns during stall. |
-| `resp_valid_r` | 1 | Valid flag (`0/1`) | Marks that `resp_pc_r` and `resp_instr_r` are valid. |
-| `ifid_pc_r` | 32 | Byte PC | IF/ID pipeline register holding the PC for ID. |
-| `ifid_instruction_r` | 32 | Raw RV32I instruction word; NOP is `0x00000013` | IF/ID pipeline register holding the instruction for ID. |
-
-### 5.2 ID Stage (`id_stage`)
-
-| Item | Content |
+| Thanh ghi | Chuc nang |
 |---|---|
-| Inputs | `clk_i`, `rst_i`, `ifid_pc_i`, `ifid_instruction_i`, `flush_i`, `hold_i`, `bubble_i`, `rf_rs1_data_i`, `rf_rs2_data_i` |
-| Outputs | `rf_rs1_addr_o`, `rf_rs2_addr_o`, `idex_jal_o`, `idex_jalr_o`, `idex_se_alu_src1_o`, `idex_se_alu_src2_o`, `idex_aluop_o`, `idex_rs1_data_o`, `idex_rs2_data_o`, `idex_imm_o`, `idex_rs1_addr_o`, `idex_rs2_addr_o`, `idex_mem_we_o`, `idex_mem_en_o`, `idex_width_se_o`, `idex_wb_se_o`, `idex_regwrite_o`, `idex_rd_addr_o`, `idex_pc_o` |
-| Function | Decodes opcode/funct fields, selects `rs1`/`rs2`/`rd`, generates the immediate, creates EX/MEM/WB control bits, reads register data, and latches all decoded values into ID/EX. `hold_i` preserves state; `bubble_i` or `flush_i` injects an inactive operation. |
+| `pc_r` | PC hien tai cua IF stage, cung cap dia chi fetch cho IMEM |
+| `req_pc_r` | PC cua fetch request dang outstanding, dung de ghep voi response |
+| `req_valid_r` | Danh dau co fetch request dang cho instruction tra ve |
+| `resp_pc_r` | PC duoc buffer lai khi response den trong luc stall |
+| `resp_instr_r` | Instruction duoc buffer lai khi response den trong luc stall |
+| `resp_valid_r` | Danh dau response buffer hop le |
+| `ifid_pc_r` | Thanh ghi IF/ID chot PC sang ID stage |
+| `ifid_instruction_r` | Thanh ghi IF/ID chot instruction sang ID stage |
 
-Input/output description:
+### 5.2 ID stage (`id_stage`)
 
-| Signal | Direction | Description |
-|---|---|---|
-| `clk_i` | input | Synchronous clock for ID/EX registers. |
-| `rst_i` | input | Resets ID/EX to NOP and inactive controls. |
-| `ifid_pc_i` | input | PC of the instruction being decoded. |
-| `ifid_instruction_i` | input | 32-bit instruction from IF/ID. |
-| `flush_i` | input | Clears ID/EX on branch/jump redirect or global pipeline flush. |
-| `hold_i` | input | Holds current ID/EX state and prevents latching a new instruction. |
-| `bubble_i` | input | Inserts NOP/inactive controls into ID/EX for hazard handling. |
-| `rf_rs1_data_i` | input | Register file read data at `rs1`. |
-| `rf_rs2_data_i` | input | Register file read data at `rs2`. |
-| `rf_rs1_addr_o` | output | Register file read address for `rs1`. |
-| `rf_rs2_addr_o` | output | Register file read address for `rs2`. |
-| `idex_jal_o` | output | Latched control flag for `jal`. |
-| `idex_jalr_o` | output | Latched control flag for `jalr`. |
-| `idex_se_alu_src1_o` | output | ALU operand A select: `1=PC`, `0=rs1`. |
-| `idex_se_alu_src2_o` | output | ALU operand B select: `1=rs2`, `0=immediate`. |
-| `idex_aluop_o` | output | ALU/branch operation code sent to EX. |
-| `idex_rs1_data_o` | output | Latched `rs1` data for EX. |
-| `idex_rs2_data_o` | output | Latched `rs2` data for EX and stores. |
-| `idex_imm_o` | output | Decoded immediate, sign/zero-extended as required by instruction format. |
-| `idex_rs1_addr_o` | output | Latched `rs1` index for forwarding and hazard checks. |
-| `idex_rs2_addr_o` | output | Latched `rs2` index for forwarding and hazard checks. |
-| `idex_mem_we_o` | output | Store enable; asserted for `sb/sh/sw`. |
-| `idex_mem_en_o` | output | Memory access enable; asserted for load/store. |
-| `idex_width_se_o` | output | Load/store width code for byte, halfword, word, signed, and unsigned variants. |
-| `idex_wb_se_o` | output | Writeback source select: ALU, memory, or `PC+4`. |
-| `idex_regwrite_o` | output | Register file write enable for WB. |
-| `idex_rd_addr_o` | output | Destination register index `rd`; `0` when no writeback is needed. |
-| `idex_pc_o` | output | Latched PC for EX, branch target calculation, and `PC+4`. |
-
-Registers in ID stage:
-
-| Register | Bit width | Data format | Function |
-|---|---:|---|---|
-| `idex_jal_o` | 1 | Control flag (`0/1`) | Marks `jal`; EX redirects PC and WB writes `PC+4`. |
-| `idex_jalr_o` | 1 | Control flag (`0/1`) | Marks `jalr`; EX redirects PC through computed target. |
-| `idex_se_alu_src1_o` | 1 | Mux select (`1=PC`, `0=rs1`) | Selects ALU operand A. |
-| `idex_se_alu_src2_o` | 1 | Mux select (`1=rs2`, `0=imm`) | Selects ALU operand B. |
-| `idex_aluop_o` | 4 | ALU/branch op code from `defines.vh` | Drives ALU operation and branch comparison in EX. |
-| `idex_rs1_data_o` | 32 | Raw register data word | Value read from register file `rs1`. |
-| `idex_rs2_data_o` | 32 | Raw register data word | Value read from register file `rs2`; also store data. |
-| `idex_imm_o` | 32 | Sign/zero-extended immediate word | Immediate generated from instruction fields. |
-| `idex_rs1_addr_o` | 5 | Register index `x0..x31` | Source register 1 index for forwarding/hazard logic. |
-| `idex_rs2_addr_o` | 5 | Register index `x0..x31` | Source register 2 index for forwarding/hazard logic. |
-| `idex_mem_we_o` | 1 | Store enable flag (`0/1`) | Enables memory writes for store instructions. |
-| `idex_mem_en_o` | 1 | Memory enable flag (`0/1`) | Enables memory access for load/store instructions. |
-| `idex_width_se_o` | 3 | Load/store size code (`LB/LH/LW/LBU/LHU` or `SB/SH/SW`) | Selects access width and signed/unsigned load behavior. |
-| `idex_wb_se_o` | 2 | Writeback select (`00=ALU`, `01=MEM`, `10=PC+4`, `11=INVALID`) | Selects WB data source. |
-| `idex_regwrite_o` | 1 | Register write enable (`0/1`) | Allows WB to write the register file. |
-| `idex_rd_addr_o` | 5 | Register index `x0..x31` | Destination register `rd`. |
-| `idex_pc_o` | 32 | Byte PC, word-aligned | PC of the current instruction. |
-
-### 5.3 EX Stage (`ex_stage`)
-
-| Item | Content |
+| Muc | Noi dung |
 |---|---|
-| Inputs | `clk_i`, `rst_i`, `flush_i`, `stall_i`, `ex_pc_i`, `ex_imm_i`, `ex_rs1_data_i`, `ex_rs2_data_i`, `ex_jal_i`, `ex_jalr_i`, `ex_alu_src1_i`, `ex_alu_src2_i`, `ex_aluop_i`, `ex_mem_we_i`, `ex_mem_en_i`, `ex_width_se_i`, `ex_wb_se_i`, `ex_regwrite_i`, `ex_rd_addr_i` |
-| Outputs | `exif_pc_bj_o`, `exif_bj_taken_o`, `exmem_mem_we_o`, `exmem_mem_en_o`, `exmem_width_se_o`, `exmem_wb_se_o`, `exmem_regwrite_o`, `exmem_rd_addr_o`, `exmem_alu_result_o`, `exmem_rs2_data_o`, `exmem_pc_plus_o` |
-| Function | Selects ALU operands, computes ALU result/effective address, evaluates branches, computes jump target, raises redirect for taken branch/jump, and latches control/data into EX/MEM. |
+| Input | `clk_i`, `rst_i`, `ifid_pc_i`, `ifid_instruction_i`, `flush_i`, `hold_i`, `bubble_i`, `rf_rs1_data_i`, `rf_rs2_data_i` |
+| Output | `rf_rs1_addr_o`, `rf_rs2_addr_o`, `idex_jal_o`, `idex_jalr_o`, `idex_se_alu_src1_o`, `idex_se_alu_src2_o`, `idex_aluop_o`, `idex_rs1_data_o`, `idex_rs2_data_o`, `idex_imm_o`, `idex_rs1_addr_o`, `idex_rs2_addr_o`, `idex_mem_we_o`, `idex_mem_en_o`, `idex_width_se_o`, `idex_wb_se_o`, `idex_regwrite_o`, `idex_rd_addr_o`, `idex_pc_o` |
+| Chuc nang | Decode opcode/funct, chon `rs1/rs2/rd`, sinh immediate, tao control bit cho EX/MEM/WB, lay du lieu tu register file, va lat cac gia tri nay sang ID/EX. `hold_i` giu nguyen trang thai; `bubble_i` va `flush_i` xoa noi dung pipeline. |
 
-Input/output description:
+Mo ta input/output:
 
-| Signal | Direction | Description |
+| Tin hieu | Huong | Description |
 |---|---|---|
-| `clk_i` | input | Synchronous clock for EX/MEM registers. |
-| `rst_i` | input | Resets EX/MEM to inactive controls and zero data. |
-| `flush_i` | input | Clears EX/MEM on branch/jump redirect. |
-| `stall_i` | input | Holds EX/MEM and prevents latching a new EX result. |
-| `ex_pc_i` | input | PC of the instruction in EX. |
-| `ex_imm_i` | input | Immediate from ID. |
-| `ex_rs1_data_i` | input | Forwarded `rs1` operand. |
-| `ex_rs2_data_i` | input | Forwarded `rs2` operand; also store data for stores. |
-| `ex_jal_i` | input | `jal` control flag. |
-| `ex_jalr_i` | input | `jalr` control flag. |
-| `ex_alu_src1_i` | input | ALU operand A select: `1=PC`, `0=rs1`. |
-| `ex_alu_src2_i` | input | ALU operand B select: `1=rs2`, `0=immediate`. |
-| `ex_aluop_i` | input | ALU operation or branch comparison code. |
-| `ex_mem_we_i` | input | Store enable associated with the instruction. |
-| `ex_mem_en_i` | input | Memory access enable associated with the instruction. |
-| `ex_width_se_i` | input | Load/store width code associated with the instruction. |
-| `ex_wb_se_i` | input | Writeback source select associated with the instruction. |
-| `ex_regwrite_i` | input | Register write enable associated with the instruction. |
-| `ex_rd_addr_i` | input | Destination register index associated with the instruction. |
-| `exif_pc_bj_o` | output | Redirect target PC for taken branch/jump. |
-| `exif_bj_taken_o` | output | Redirect flag to IF when branch/jump is taken. |
-| `exmem_mem_we_o` | output | Store enable latched to MEM. |
-| `exmem_mem_en_o` | output | Memory enable latched to MEM. |
-| `exmem_width_se_o` | output | Memory access width latched to MEM. |
-| `exmem_wb_se_o` | output | Writeback source select latched to MEM/WB. |
-| `exmem_regwrite_o` | output | Register write enable latched to MEM/WB. |
-| `exmem_rd_addr_o` | output | Destination register index latched to MEM/WB. |
-| `exmem_alu_result_o` | output | ALU result; effective address for load/store. |
-| `exmem_rs2_data_o` | output | Store data latched to MEM. |
-| `exmem_pc_plus_o` | output | `PC + 4` latched for jump writeback. |
+| `clk_i` | input | Clock dong bo cho thanh ghi ID/EX |
+| `rst_i` | input | Reset ID/EX ve NOP/control inactive |
+| `ifid_pc_i` | input | PC cua instruction dang decode |
+| `ifid_instruction_i` | input | Instruction 32-bit nhan tu IF/ID |
+| `flush_i` | input | Xoa ID/EX khi branch/jump redirect hoac flush pipeline |
+| `hold_i` | input | Giu nguyen ID/EX, khong chot instruction moi |
+| `bubble_i` | input | Chen NOP vao ID/EX de xu ly hazard |
+| `rf_rs1_data_i` | input | Du lieu doc tu register file tai dia chi `rs1` |
+| `rf_rs2_data_i` | input | Du lieu doc tu register file tai dia chi `rs2` |
+| `rf_rs1_addr_o` | output | Dia chi doc cong rs1 cua register file |
+| `rf_rs2_addr_o` | output | Dia chi doc cong rs2 cua register file |
+| `idex_jal_o` | output | Control bit bao instruction la `jal` |
+| `idex_jalr_o` | output | Control bit bao instruction la `jalr` |
+| `idex_se_alu_src1_o` | output | Chon operand A cua ALU: `1` dung PC, `0` dung rs1 |
+| `idex_se_alu_src2_o` | output | Chon operand B cua ALU: `1` dung rs2, `0` dung immediate |
+| `idex_aluop_o` | output | Ma lenh ALU/branch dua sang EX |
+| `idex_rs1_data_o` | output | Gia tri rs1 da chot sang EX |
+| `idex_rs2_data_o` | output | Gia tri rs2 da chot sang EX |
+| `idex_imm_o` | output | Immediate da decode va extend theo format instruction |
+| `idex_rs1_addr_o` | output | Dia chi rs1 da chot, dung cho forwarding/hazard |
+| `idex_rs2_addr_o` | output | Dia chi rs2 da chot, dung cho forwarding/hazard |
+| `idex_mem_we_o` | output | Store enable; `1` voi `sb/sh/sw` |
+| `idex_mem_en_o` | output | Memory access enable; `1` voi load/store |
+| `idex_width_se_o` | output | Ma do rong load/store: byte, halfword, word, signed/unsigned |
+| `idex_wb_se_o` | output | Chon nguon writeback: ALU, MEM, hoac `PC+4` |
+| `idex_regwrite_o` | output | Cho phep ghi ve register file o WB |
+| `idex_rd_addr_o` | output | Dia chi thanh ghi dich `rd`; bang 0 neu instruction khong ghi rd |
+| `idex_pc_o` | output | PC cua instruction da chot sang EX |
 
-Registers in EX stage:
+Thanh ghi trong ID stage:
 
-| Register | Bit width | Data format | Function |
-|---|---:|---|---|
-| `exmem_mem_we_o` | 1 | Store enable flag (`0/1`) | Carries store enable to MEM. |
-| `exmem_mem_en_o` | 1 | Memory enable flag (`0/1`) | Carries memory access enable to MEM. |
-| `exmem_width_se_o` | 3 | Load/store size code | Carries access width to MEM. |
-| `exmem_wb_se_o` | 2 | Writeback select | Carries WB source select to WB. |
-| `exmem_regwrite_o` | 1 | Register write enable | Carries register write enable to WB. |
-| `exmem_rd_addr_o` | 5 | Register index `x0..x31` | Carries destination register index to WB. |
-| `exmem_alu_result_o` | 32 | ALU result / effective address | Carries ALU result or load/store address. |
-| `exmem_rs2_data_o` | 32 | Raw store data word | Carries store data to MEM. |
-| `exmem_pc_plus_o` | 32 | Byte PC + 4 | Carries return address for `jal/jalr`. |
-
-### 5.4 MEM Stage (`mem_stage`)
-
-| Item | Content |
+| Thanh ghi | Chuc nang |
 |---|---|
-| Inputs | `clk_i`, `rst_i`, `mem_we_i`, `mem_en_i`, `mem_width_se_i`, `mem_alu_result_i`, `mem_data_i`, `mem_regwrite_i`, `mem_rd_addr_i`, `mem_wb_se_i`, `mem_pc_plus_i`, `data_r_i` |
-| Outputs | `en_o`, `we_o`, `addr_o`, `data_w_o`, `mem_data_w`, `memwb_regwrite_o`, `memwb_rd_addr_o`, `memwb_wb_se_o`, `memwb_pc_plus_o`, `memwb_alu_result_o`, `memwb_mem_data_o`, `mem_stage_err_o` |
-| Function | Performs DMEM/MMIO loads and stores, aligns byte/halfword/word accesses, sign/zero-extends load data, reports invalid access errors, and latches data/control into MEM/WB. |
+| `idex_jal_o` | Danh dau lenh `jal`, cho EX stage biet phai jump va ghi `PC+4` ve rd |
+| `idex_jalr_o` | Danh dau lenh `jalr`, cho EX stage biet phai jump qua dia chi tinh toan |
+| `idex_se_alu_src1_o` | Chon `PC` lam operand A cua ALU (vi du `auipc`) |
+| `idex_se_alu_src2_o` | Chon `rs2` lam operand B cua ALU; neu =0 thi dung immediate |
+| `idex_aluop_o` | Ma dieu khien ALU / branch cho EX stage |
+| `idex_rs1_data_o` | Gia tri doc tu register file o `rs1` |
+| `idex_rs2_data_o` | Gia tri doc tu register file o `rs2` |
+| `idex_imm_o` | Immediate da duoc sinh va sign-extend / zero-extend phu hop loai lenh |
+| `idex_rs1_addr_o` | So hieu thanh ghi `rs1`, dung cho forwarding/hazard check |
+| `idex_rs2_addr_o` | So hieu thanh ghi `rs2`, dung cho forwarding/hazard check |
+| `idex_mem_we_o` | Bat ghi memory cho lenh store |
+| `idex_mem_en_o` | Bat truy cap memory cho lenh load/store |
+| `idex_width_se_o` | Chon do rong truy cap: byte/half/word |
+| `idex_wb_se_o` | Chon nguon ghi ve rd: ALU, MEM, hoac `PC+4` |
+| `idex_regwrite_o` | Cho phep ghi ve register file |
+| `idex_rd_addr_o` | So hieu thanh ghi dich `rd` |
+| `idex_pc_o` | PC cua instruction hien tai, dung cho `PC+4` va branch target |
 
-Input/output description:
+### 5.3 EX stage (`ex_stage`)
 
-| Signal | Direction | Description |
-|---|---|---|
-| `clk_i` | input | Synchronous clock for MEM/WB registers. |
-| `rst_i` | input | Resets MEM/WB to inactive controls and zero data. |
-| `mem_we_i` | input | Store indicator for the current memory transaction. |
-| `mem_en_i` | input | Enables a load/store access to DMEM or MMIO. |
-| `mem_width_se_i` | input | Load/store width and signed/unsigned code. |
-| `mem_alu_result_i` | input | Effective address from EX. |
-| `mem_data_i` | input | Store data from `rs2`. |
-| `mem_regwrite_i` | input | Register write enable passed from EX/MEM. |
-| `mem_rd_addr_i` | input | Destination register index passed from EX/MEM. |
-| `mem_wb_se_i` | input | Writeback source select passed from EX/MEM. |
-| `mem_pc_plus_i` | input | `PC + 4` passed through for jump writeback. |
-| `data_r_i` | input | 32-bit data read from DMEM/MMIO. |
-| `en_o` | output | Request enable to DMEM/MMIO fabric. |
-| `we_o` | output | 4-bit byte write enable for stores. |
-| `addr_o` | output | DMEM/MMIO address derived from `mem_alu_result_i`. |
-| `data_w_o` | output | Store data aligned into byte/halfword/word lanes. |
-| `mem_data_w` | output | Sign/zero-extended load data for forwarding. |
-| `memwb_regwrite_o` | output | Register write enable latched to WB. |
-| `memwb_rd_addr_o` | output | Destination register index latched to WB. |
-| `memwb_wb_se_o` | output | Writeback source select latched to WB. |
-| `memwb_pc_plus_o` | output | `PC + 4` latched to WB. |
-| `memwb_alu_result_o` | output | ALU result/effective address latched to WB. |
-| `memwb_mem_data_o` | output | Load data latched to WB. |
-| `mem_stage_err_o` | output | MEM error code: `00=OK`, `01=write_error`, `10=read_error`. |
-
-Registers in MEM stage:
-
-| Register | Bit width | Data format | Function |
-|---|---:|---|---|
-| `write_error` | 1 | Error flag (`0/1`) | Marks invalid stores, such as unsupported width or misalignment. |
-| `read_error` | 1 | Error flag (`0/1`) | Marks invalid loads, such as unsupported width or misalignment. |
-| `data_r_cvt_w` | 32 | Sign/zero-extended data word | Converted load data before latching to `memwb_mem_data_o`. |
-| `memwb_regwrite_o` | 1 | Register write enable (`0/1`) | Carries register write enable to WB. |
-| `memwb_rd_addr_o` | 5 | Register index `x0..x31` | Carries destination register index to WB. |
-| `memwb_wb_se_o` | 2 | Writeback select | Carries WB data-source select to WB. |
-| `memwb_pc_plus_o` | 32 | Byte PC + 4 | Carries jump return address to WB. |
-| `memwb_alu_result_o` | 32 | ALU result / effective address | Carries ALU result or computed address to WB. |
-| `memwb_mem_data_o` | 32 | Load data word | Carries final load data to WB. |
-| `mem_stage_err_o` | 2 | Error code (`00=OK`, `01=write_error`, `10=read_error`) | Encodes MEM-stage access errors. |
-
-### 5.5 WB Stage
-
-| Item | Content |
+| Muc | Noi dung |
 |---|---|
-| Inputs | `memwb_regwrite_w`, `memwb_rd_addr_w`, `memwb_wb_se_w`, `memwb_pc_plus_w`, `memwb_alu_result_w`, `memwb_mem_data_w` |
-| Outputs | `wb_data_w`, `rf_reg_write_w`, `rf_rd_addr_w` |
-| Function | Selects final writeback data according to `wb_se`, then drives register-file write enable, destination index, and write data. ALU ops, loads, `jal`, `lui`, and `auipc` converge here; stores do not write `rd`. |
+| Input | `clk_i`, `rst_i`, `flush_i`, `stall_i`, `ex_pc_i`, `ex_imm_i`, `ex_rs1_data_i`, `ex_rs2_data_i`, `ex_jal_i`, `ex_jalr_i`, `ex_alu_src1_i`, `ex_alu_src2_i`, `ex_aluop_i`, `ex_mem_we_i`, `ex_mem_en_i`, `ex_width_se_i`, `ex_wb_se_i`, `ex_regwrite_i`, `ex_rd_addr_i` |
+| Output | `exif_pc_bj_o`, `exif_bj_taken_o`, `exmem_mem_we_o`, `exmem_mem_en_o`, `exmem_width_se_o`, `exmem_wb_se_o`, `exmem_regwrite_o`, `exmem_rd_addr_o`, `exmem_alu_result_o`, `exmem_rs2_data_o`, `exmem_pc_plus_o` |
+| Chuc nang | Chon operand, tinh ALU result, so sanh branch, tinh jump target, phat hien branch/jump taken, va chot thong tin sang EX/MEM cho MEM stage. |
 
-Input/output description:
+Mo ta input/output:
 
-| Signal | Direction | Description |
+| Tin hieu | Huong | Description |
 |---|---|---|
-| `memwb_regwrite_w` | input | Register file write enable from MEM/WB. |
-| `memwb_rd_addr_w` | input | Destination register index `rd`. |
-| `memwb_wb_se_w` | input | Writeback data-source select. |
-| `memwb_pc_plus_w` | input | `PC + 4` value for `jal/jalr`. |
-| `memwb_alu_result_w` | input | ALU result for ALU ops, `lui`, `auipc`, or other rd-writing system path. |
-| `memwb_mem_data_w` | input | Load data from MEM. |
-| `wb_data_w` | output | Final 32-bit data written to the register file. |
-| `rf_reg_write_w` | output | Register file write enable. |
-| `rf_rd_addr_w` | output | Register file destination write address. |
+| `clk_i` | input | Clock dong bo cho thanh ghi EX/MEM |
+| `rst_i` | input | Reset EX/MEM ve control inactive va data 0 |
+| `flush_i` | input | Xoa EX/MEM khi branch/jump redirect |
+| `stall_i` | input | Giu nguyen EX/MEM, khong chot ket qua EX moi |
+| `ex_pc_i` | input | PC cua instruction dang o EX |
+| `ex_imm_i` | input | Immediate da decode tu ID stage |
+| `ex_rs1_data_i` | input | Operand rs1 sau forwarding |
+| `ex_rs2_data_i` | input | Operand rs2 sau forwarding; cung la data store neu instruction la store |
+| `ex_jal_i` | input | Control bit cho lenh `jal` |
+| `ex_jalr_i` | input | Control bit cho lenh `jalr` |
+| `ex_alu_src1_i` | input | Chon operand A: `1` dung PC, `0` dung rs1 |
+| `ex_alu_src2_i` | input | Chon operand B: `1` dung rs2, `0` dung immediate |
+| `ex_aluop_i` | input | Ma phep toan ALU hoac so sanh branch |
+| `ex_mem_we_i` | input | Store enable di kem instruction |
+| `ex_mem_en_i` | input | Memory access enable di kem instruction |
+| `ex_width_se_i` | input | Do rong load/store di kem instruction |
+| `ex_wb_se_i` | input | Lua chon nguon writeback di kem instruction |
+| `ex_regwrite_i` | input | Cho phep ghi rd di kem instruction |
+| `ex_rd_addr_i` | input | Dia chi rd di kem instruction |
+| `exif_pc_bj_o` | output | Dia chi PC dich neu branch/jump taken |
+| `exif_bj_taken_o` | output | Tin hieu redirect IF khi branch/jump duoc lay |
+| `exmem_mem_we_o` | output | Store enable da chot sang MEM |
+| `exmem_mem_en_o` | output | Memory enable da chot sang MEM |
+| `exmem_width_se_o` | output | Do rong truy cap memory da chot sang MEM |
+| `exmem_wb_se_o` | output | Lua chon writeback da chot sang MEM/WB |
+| `exmem_regwrite_o` | output | Regwrite da chot sang MEM/WB |
+| `exmem_rd_addr_o` | output | Dia chi rd da chot sang MEM/WB |
+| `exmem_alu_result_o` | output | Ket qua ALU; voi load/store day la effective address |
+| `exmem_rs2_data_o` | output | Data store da chot sang MEM |
+| `exmem_pc_plus_o` | output | `PC + 4` da chot de writeback cho jump |
 
-Registers in WB stage:
+Thanh ghi trong EX stage:
 
-| Register | Bit width | Data format | Function |
-|---|---:|---|---|
-| None | - | Combinational mux over `memwb_*` inputs | WB has no separate pipeline register; it consumes MEM/WB registers produced by MEM stage. |
+| Thanh ghi | Chuc nang |
+|---|---|
+| `exmem_mem_we_o` | Giu bit store enable sang MEM stage |
+| `exmem_mem_en_o` | Giu bit memory access enable sang MEM stage |
+| `exmem_width_se_o` | Giu do rong truy cap memory sang MEM stage |
+| `exmem_wb_se_o` | Giu lua chon nguon writeback sang WB stage |
+| `exmem_regwrite_o` | Giu bit cho phep ghi register file sang WB stage |
+| `exmem_rd_addr_o` | Giu so hieu rd sang WB stage |
+| `exmem_alu_result_o` | Giu ALU result, effective address, hoac ket qua branch-related can dung tiep |
+| `exmem_rs2_data_o` | Giu du lieu rs2 thuc te de store vao memory/MMIO |
+| `exmem_pc_plus_o` | Giu `PC + 4` de ghi ve rd khi lenh `jal/jalr` |
 
-### 5.6 Control Signal Mapping By Instruction Group
+### 5.4 MEM stage (`mem_stage`)
 
-| Instruction group | `idex_mem_en_o` | `idex_mem_we_o` | `idex_wb_se_o` | `idex_regwrite_o` | Note |
+| Muc | Noi dung |
+|---|---|
+| Input | `clk_i`, `rst_i`, `mem_we_i`, `mem_en_i`, `mem_width_se_i`, `mem_alu_result_i`, `mem_data_i`, `mem_regwrite_i`, `mem_rd_addr_i`, `mem_wb_se_i`, `mem_pc_plus_i`, `data_r_i` |
+| Output | `en_o`, `we_o`, `addr_o`, `data_w_o`, `mem_data_w`, `memwb_regwrite_o`, `memwb_rd_addr_o`, `memwb_wb_se_o`, `memwb_pc_plus_o`, `memwb_alu_result_o`, `memwb_mem_data_o`, `mem_stage_err_o` |
+| Chuc nang | Thuc hien read/write DMEM hoac MMIO, canh lane theo byte/half/word, sign/zero-extend du lieu doc, bao loi truy cap khong hop le, va chot du lieu sang MEM/WB. |
+
+Mo ta input/output:
+
+| Tin hieu | Huong | Description |
+|---|---|---|
+| `clk_i` | input | Clock dong bo cho thanh ghi MEM/WB |
+| `rst_i` | input | Reset MEM/WB ve control inactive va data 0 |
+| `mem_we_i` | input | Cho biet transaction hien tai la store |
+| `mem_en_i` | input | Bat truy cap memory/MMIO cho load/store |
+| `mem_width_se_i` | input | Ma do rong va signed/unsigned cua load/store |
+| `mem_alu_result_i` | input | Effective address tu EX stage |
+| `mem_data_i` | input | Data store tu rs2 |
+| `mem_regwrite_i` | input | Regwrite pass-through tu EX/MEM |
+| `mem_rd_addr_i` | input | Dia chi rd pass-through tu EX/MEM |
+| `mem_wb_se_i` | input | Lua chon nguon writeback pass-through |
+| `mem_pc_plus_i` | input | `PC + 4` pass-through cho jump |
+| `data_r_i` | input | Data 32-bit doc tu DMEM/MMIO |
+| `en_o` | output | Enable request sang DMEM/MMIO fabric |
+| `we_o` | output | Byte write enable 4-bit cho store |
+| `addr_o` | output | Dia chi memory/MMIO, lay tu `mem_alu_result_i` khi `mem_en_i=1` |
+| `data_w_o` | output | Data write da canh lane theo byte/half/word |
+| `mem_data_w` | output | Data load da sign/zero-extend, dung cho forwarding |
+| `memwb_regwrite_o` | output | Regwrite da chot sang WB |
+| `memwb_rd_addr_o` | output | Dia chi rd da chot sang WB |
+| `memwb_wb_se_o` | output | Lua chon nguon writeback da chot sang WB |
+| `memwb_pc_plus_o` | output | `PC + 4` da chot sang WB |
+| `memwb_alu_result_o` | output | ALU result/effective address da chot sang WB |
+| `memwb_mem_data_o` | output | Data load da chuan hoa va chot sang WB |
+| `mem_stage_err_o` | output | Ma loi MEM stage: `01` write error, `10` read error, `00` khong loi |
+
+Thanh ghi trong MEM stage:
+
+| Thanh ghi | Chuc nang |
+|---|---|
+| `write_error` | Danh dau store khong hop le (sai canh / sai do rong) |
+| `read_error` | Danh dau load khong hop le (sai canh / sai do rong) |
+| `data_r_cvt_w` | Du lieu doc sau khi da sign/zero extend, se di vao `memwb_mem_data_o` |
+| `memwb_regwrite_o` | Giu bit cho phep ghi register file sang WB stage |
+| `memwb_rd_addr_o` | Giu so hieu thanh ghi dich sang WB stage |
+| `memwb_wb_se_o` | Giu lua chon nguon writeback sang WB stage |
+| `memwb_pc_plus_o` | Giu `PC + 4` cho writeback cua jump |
+| `memwb_alu_result_o` | Giu ALU result / dia chi tinh toan sang WB stage |
+| `memwb_mem_data_o` | Giu du lieu load da chuan hoa sang WB stage |
+| `mem_stage_err_o` | Ma loi 2-bit cua MEM stage: write error hoac read error |
+
+### 5.5 WB stage
+
+| Muc | Noi dung |
+|---|---|
+| Input | `memwb_regwrite_w`, `memwb_rd_addr_w`, `memwb_wb_se_w`, `memwb_pc_plus_w`, `memwb_alu_result_w`, `memwb_mem_data_w` |
+| Output | `wb_data_w`, `rf_reg_write_w`, `rf_rd_addr_w` |
+| Chuc nang | Chon du lieu ghi ve register file theo `wb_se` va phat xung write enable + rd index sang register file. Day la noi `addi`, `lw`, `jal`, `lui`, `auipc` ket thuc ve mat writeback. `sw` khong ghi rd. |
+
+Mo ta input/output:
+
+| Tin hieu | Huong | Description |
+|---|---|---|
+| `memwb_regwrite_w` | input | Cho phep ghi register file, da duoc chot tu MEM/WB |
+| `memwb_rd_addr_w` | input | Dia chi thanh ghi dich `rd` can ghi |
+| `memwb_wb_se_w` | input | Chon nguon du lieu writeback |
+| `memwb_pc_plus_w` | input | Gia tri `PC + 4` cho `jal/jalr` |
+| `memwb_alu_result_w` | input | Ket qua ALU cho ALU-op, `lui`, `auipc`, hoac CSR/system co ghi rd |
+| `memwb_mem_data_w` | input | Du lieu load tu MEM stage |
+| `wb_data_w` | output | Du lieu 32-bit cuoi cung ghi vao register file |
+| `rf_reg_write_w` | output | Write enable cua register file |
+| `rf_rd_addr_w` | output | Dia chi write port cua register file |
+
+Thanh ghi trong WB stage:
+
+| Thanh ghi | Chuc nang |
+|---|---|
+| Khong co thanh ghi rieng | WB stage khong chot them state moi; no su dung truc tiep cac thanh ghi `memwb_*` da duoc luu o MEM stage |
+
+### 5.6 Control signal mapping theo nhom lenh
+
+| Nhom lenh | `idex_mem_en_o` | `idex_mem_we_o` | `idex_wb_se_o` | `idex_regwrite_o` | Ghi chu |
 |---|---|---|---|---|---|
-| `lw/lh/lb/lhu/lbu` | `1` | `0` | `MEM` | `1` | Load data writes `rd` in WB. |
-| `sw/sh/sb` | `1` | `1` | invalid / don't care | `0` | Store writes DMEM/MMIO only. |
-| `add/sub/xor/...` | `0` | `0` | `ALU` | `1` | ALU result writes `rd`. |
-| `addi/ori/andi/xori/slli/srli/srai/slti/sltiu` | `0` | `0` | `ALU` | `1` | ALU immediate result writes `rd`. |
-| `lui/auipc` | `0` | `0` | `ALU` | `1` | `lui` writes immediate; `auipc` writes `PC+imm`. |
-| `jal/jalr` | `0` | `0` | `PC+4` | `1` | Jump and write return address. |
-| `beq/bne/blt/bge/bltu/bgeu` | `0` | `0` | invalid | `0` | Branch compare only; no writeback. |
-| `fence` | `0` | `0` | invalid | `0` | Placeholder; no data result. |
-| `ebreak` | `0` | `0` | invalid | `0` | Testcase terminator. |
+| `lw/lh/lb/lhu/lbu` | `1` | `0` | `MEM` | `1` | load vao rd o WB |
+| `sw/sh/sb` | `1` | `1` | invalid / don't care | `0` | chi ghi DMEM/MMIO |
+| `add/sub/xor/...` | `0` | `0` | `ALU` | `1` | ALU result vao rd |
+| `addi/ori/andi/xori/slli/srli/srai/slti/sltiu` | `0` | `0` | `ALU` | `1` | ALU voi immediate |
+| `lui/auipc` | `0` | `0` | `ALU` | `1` | `lui` ghi imm, `auipc` ghi `PC+imm` |
+| `jal/jalr` | `0` | `0` | `PC+4` | `1` | jump va ghi return address |
+| `beq/bne/blt/bge/bltu/bgeu` | `0` | `0` | invalid | `0` | chi tao branch control |
+| `fence` | `0` | `0` | invalid | `0` | placeholder, khong tao data result |
+| `ebreak` | `0` | `0` | invalid | `0` | testcase terminator |
 
-## 6. Data flow according to each type of instruction
+## 6. Data flow theo tung loai instruction
 
 ### 6.1 `lw`
 
@@ -368,20 +370,20 @@ flowchart LR
   D --> E["WB write rd"]
 ```
 
-In this project, `lw` is used to:
+Trong project nay, `lw` duoc dung de:
 
-- read `INPUT_LEN_ADDR`
-- read `DMA_STATUS`
-- read `BYTES_DONE`
-- read `CIPHERTEXT_BYTES_PRODUCED`
-- Read result words from DMEM
+- doc `INPUT_LEN_ADDR`
+- doc `DMA_STATUS`
+- doc `BYTES_DONE`
+- doc `CIPHERTEXT_BYTES_PRODUCED`
+- doc result words tu DMEM
 
-`lw` in the DMA flow is the most important instruction because it creates the polling loop:
+`lw` trong flow DMA la instruction quan trong nhat vi no tao polling loop:
 
-1. CPU reads `STATUS`
+1. CPU doc `STATUS`
 2. CPU check `busy/done/error`
-3. CPU repeats if not done
-4. `mem_stage_sync` can hold 1 cycle for synchronous read
+3. CPU lap lai neu chua xong
+4. `mem_stage_sync` co the giu 1 cycle cho synchronous read
 
 ### 6.2 `sw`
 
@@ -393,66 +395,67 @@ flowchart LR
   D --> E["No WB writeback"]
 ```
 
-In this project, `sw` is used to:
+Trong project nay, `sw` duoc dung de:
 
-- write `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`
-- write `IV0..IV3`
-- write result words into DMEM
+- ghi `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`
+- ghi `IV0..IV3`
+- ghi result words vao DMEM
 
-`sw` in DMA flow is the CPU way:
+`sw` trong flow DMA la cach CPU:
 
-- select source/destination
-- Load mode for TX/RX
+- chon vung source/destination
+- nap mode cho TX/RX
 - start transfer
-- save the result summary
+- luu summary ket qua
 
 ### 6.3 Branch / jump
 
-Branch/jump is not a data plane, but is very important to the CPU:
+Branch/jump khong phai data-plane, nhung rat quan trong voi CPU:
 
 - `beq`, `bne`
 - `jal`
 - `jalr`
 
-General use for:
+Chung dung de:
 
-- exit the polling loop
-- Jump to error handler
-- Repeat check status
+- thoat vong polling
+- nhay sang error handler
+- lap check status
 
-In the current testcase:
+Trong testcase hien tai:
 
-- `beq`/`bne` is used to escape polling
-- `jal`/`jalr` are used to jump between code blocks or enter `main`
-- But this command does not need MMIO, but still goes through IF/ID/EX/WB as usual
+- `beq`/`bne` dung de thoat vong polling
+- `jal`/`jalr` dung de nhay giua cac block code hoac vao `main`
+- nhung lenh nay khong can MMIO, nhung van di qua IF/ID/EX/WB nhu binh thuong
 
 ### 6.4 ALU immediate
 
-`addi`, `andi`, `ori`, `xori`, `slli`, `srli`, `lui` are commonly used for:
+`addi`, `andi`, `ori`, `xori`, `slli`, `srli`, `lui` duoc dung nhieu cho:
 
-- Calculate MMIO address
-- create IV demo
+- tinh dia chi MMIO
+- tao IV demo
 - mask bit status
-- shift/pack value
+- shift/pack gia tri
 
-This is the group of RV32I commands used most to create demo IVs in `test_mmio_dma.c`.
-Enough:
+Day la nhom lenh RV32I dung nhieu de tao IV demo trong firmware hien tai
+`secure_storage_fw.h` va trong legacy direct-loopback `test_mmio_dma.c`.
+Vi du:
 
-- `lui` generates the above 20-bit base value
+- `lui` tao gia tri base 20-bit tren
 - `xori` tron input length, address, counter
-- `slli/srli` generates entropy based on bit pattern
-- `ori/andi` mask or live bit control
+- `slli/srli` tao entropy lua chon tu bit pattern
+- `ori/andi` mask hoac gan bit control
 
-## 7.1.1 Enough flow with `input1`
+## 7.1.1 Vi du flow voi `input1`
 
-A graphical test case `input1` can be understood according to the following commands:
+Mot testcase `input1` dien hinh co the hieu theo cac lenh sau:
 
 ```asm
-lw    a2, 64(zero)        # read input_len from DMEM[0x40]
-sw    a4, 40(a3)          # write IV0
-sw    a5, 44(a4)          # write IV1
-sw    a5, 48(a4)          # write IV2
-sw    a5, 52(a4)          # write IV3
+lw    a2, 64(zero)        # doc input_len tu DMEM[0x40]
+sw    a4, 40(a3)          # ghi IV0
+sw    a5, 44(a4)          # ghi IV1
+sw    a5, 48(a4)          # ghi IV2
+sw    a5, 52(a4)          # ghi IV3
 sw    a4, 8(a5)           # SRC_ADDR
 sw    a4, 12(a5)          # DST_ADDR
 sw    a2, 16(a5)          # LEN_BYTES
@@ -465,197 +468,197 @@ lw    a5, 28(a3)          # BYTES_DONE / result
 ebreak                    # testcase end marker
 ```
 
-This assembly is not always 100% identical to the actual binary, but
-This is the amount of logic that the CPU is running.
+Khong phai assembly nay luc nao cung giong 100% binary thuc te, nhung
+day la luong logic ma CPU dang chay.
 
-## 7. Amount of CPU used in DMA testcase
+## 7. Luong CPU dung trong testcase DMA
 
-### 7.1 Getting Started
+### 7.1 Bat dau
 
-CPU runs `instruction.mem`, then:
+CPU chay tu `instruction.mem`, roi:
 
-1. `lw input_len` from `DMEM[0x40]`
-2. Create `IV0..IV3` using instruction RV32I
-3. write `DMA_SRC_ADDR`
-4. write `DMA_DST_ADDR`
-5. write `DMA_LEN_BYTES`
-6. write `DMA_MODE`
-7. write `DMA_BLOCK_CFG`
-8. write `CONTROL.start`
+1. `lw input_len` tu `DMEM[0x40]`
+2. tao `IV0..IV3` bang instruction RV32I
+3. ghi `DMA_SRC_ADDR`
+4. ghi `DMA_DST_ADDR`
+5. ghi `DMA_LEN_BYTES`
+6. ghi `DMA_MODE`
+7. ghi `DMA_BLOCK_CFG`
+8. ghi `CONTROL.start`
 
 ### 7.2 Polling
 
-Repeat CPU:
+CPU lap:
 
 1. `lw DMA_STATUS`
-2. Check `busy/done/error`
-3. If not done, repeat
+2. kiem tra `busy/done/error`
+3. neu chua xong thi lap lai
 
-This is **software polling**, not an interrupt.
+Day la **software polling**, khong phai interrupt.
 
-### 7.3 Closing
+### 7.3 Ket thuc
 
-CPU read:
+CPU doc:
 
 - `BYTES_DONE`
 - `CIPHERTEXT_BYTES_PRODUCED`
 - `DEBUG`
 
-Then write:
+Sau do ghi:
 
 - signature
 - error mask
 - status summary
 - result head
 
-Go to DMEM for testbench to read again.
+vao DMEM de testbench doc lai.
 
-## 8. Pipeline semantics are important
+## 8. Pipeline semantics quan trong
 
 ### 8.1 Load-use hazard
 
-`top_rv32_sync` has hazard detection for load-use.
-If `lw` generates an instruction code value immediately after use, the pipeline will bubble/hold.
+`top_rv32_sync` co hazard detection cho load-use.
+Neu `lw` tao ra gia tri ma instruction sau dung ngay, pipeline se bubble/hold.
 
 ### 8.2 MMIO hold
 
-When CPU accesses MMIO:
+Khi CPU truy cap MMIO:
 
-- `cpu_mmio_to_apb_bridge` creates `cpu_stall_req_o`
+- `cpu_mmio_to_apb_bridge` tao `cpu_stall_req_o`
 - `top_rv32_sync` hold front-end pipeline
-- The current instruction cannot be run until APB is finished
+- instruction hien tai khong duoc chay tiep cho toi khi APB xong
 
-This is the reason why `lw DMA_STATUS` can stall, while `DMA busy` cannot cause global CPU stall.
+Day la ly do `lw DMA_STATUS` co the stall, con `DMA busy` khong lam CPU global stall.
 
 ### 8.3 Branch flush
 
-When branch taken:
+Khi branch taken:
 
-- IF and ID are flushed
-- The PC is reloaded with the branch target address
+- IF va ID bi flush
+- PC duoc nap lai dia chi branch target
 
 ### 8.4 Synchronous IMEM/DMEM
 
-Current system reduces sat synchronous BRAM behavior:
+He thong hien tai giam sat synchronous BRAM behavior:
 
-- instruction after 1 fetch cycle
-- load/store has response according to memory model timing
+- instruction vao sau 1 cycle fetch
+- load/store co response theo timing cua memory model
 
-## 9. RV32I instruction set is actually used in the project
+## 9. RV32I instruction set thuc su dung trong project
 
-Mainly gathering the following groups:
+Chu yeu gom cac nhom sau:
 
-### 9.1 By instruction support
+### 9.1 Bang instruction ho tro
 
-| Nhom | Command | Current status | How to do it in RTL |
+| Nhom | Lenh | Trang thai hien tai | Cach thuc thi trong RTL |
 |---|---|---|---|
-| U-type | `lui` | Support | Create ID `imm_u`, EX does not need rs1, WB writes `imm_u` into `rd` |
-| U-type | `auipc` | Support | ID creates `imm_u`, EX uses `PC + imm_u`, WB writes results into `rd` |
-| J-type | `jal` | Support | ID created `imm_j`, EX calculated `PC + imm_j`, IF/ID flushed when taken, WB registered `PC+4` |
-| I-jump | `jalr` | Support | ID created `imm_i`, EX calculated `(rs1 + imm_i) & ~1`, IF/ID flushed when taken, WB registered `PC+4` |
-| Branch | `beq` | Support | EX compares rs1/rs2 using ALU branch opcode |
-| Branch | `bne` | Support | EX compares rs1/rs2 using ALU branch opcode |
-| Branch | `blt` | Support | EX compares signed `<` |
-| Branch | `bge` | Support | EX compares signed `>=` |
-| Branch | `bltu` | Support | EX compares unsigned `<` |
-| Branch | `bgeu` | Support | EX compares unsigned `>=` |
-| Load | `lb` | Support | MEM reads 1 byte, sign-extends `rd` |
-| Load | `lh` | Support | MEM reads 2 bytes, sign-extends `rd` |
-| Load | `lw` | Support | MEM reads 4 bytes, write-back via `MEM` path |
-| Load | `lbu` | Support | MEM reads 1 byte, zero-extended to `rd` |
-| Load | `lhu` | Support | MEM reads 2 bytes, zero-extending `rd` |
-| Store | `sb` | Support | MEM writes 1 byte according to `we_o` byte-enable |
-| Store | `sh` | Support | MEM writes 2 bytes according to halfword alignment |
-| Store | `sw` | Support | MEM writes 4 bytes to DMEM or MMIO |
-| OP-IMM | `addi` | Support | ID creates `imm_i`, EX executes `ADD` with immediate |
-| OP-IMM | `slti` | Support | ID created `imm_i`, EX performs signed compare |
-| OP-IMM | `sltiu` | Support | ID creates `imm_i`, EX performs unsigned compare |
-| OP-IMM | `xori` | Support | ID creates `imm_i`, EX performs XOR |
-| OP-IMM | `ori` | Support | ID creates `imm_i`, EX performs OR |
-| OP-IMM | `andi` | Support | ID creates `imm_i`, EX performs AND |
-| OP-IMM | `slli` | Support | Creation ID `shamt`, EX shift left logical |
-| OP-IMM | `srli` | Support | Creation ID `shamt`, EX shift right logical |
-| OP-IMM | `srai` | Support | Create ID `shamt`, EX shift right arithmetic |
-| OP | `add` | Support | EX ALU `ADD` |
-| OP | `sub` | Support | EX ALU `SUB` |
-| OP | `sll` | Support | EX ALU `SLL` |
-| OP | `slt` | Support | EX ALU `SLT` |
-| OP | `sltu` | Support | EX ALU `SLTU` |
-| OP | `xor` | Support | EX ALU `XOR` |
-| OP | `srl` | Support | EX ALU `SRL` |
-| OP | `sra` | Support | EX ALU `SRA` |
-| OP | `or` | Support | EX ALU `OR` |
-| OP | `and` | Support | EX ALU `AND` |
-| Fence | `fence` | Placeholder | Decoder passes as instruction non-data; There is no separate memory ordering engine |
-| System | `ebreak` | Used as testcase terminator | Assembly testcase uses `ebreak` to complete the list; The current CPU does not have a trap/interrupt handler |
-| System | `ecall` / CSR ops | Do not use in main flow | The decoder does receive the `SYSTEM` baseline, but the SoC currently does not have enough CSR/trap architecture. |
+| U-type | `lui` | Ho tro | ID tao `imm_u`, EX khong can rs1, WB ghi `imm_u` vao `rd` |
+| U-type | `auipc` | Ho tro | ID tao `imm_u`, EX dung `PC + imm_u`, WB ghi ket qua vao `rd` |
+| J-type | `jal` | Ho tro | ID tao `imm_j`, EX tinh `PC + imm_j`, IF/ID bi flush khi taken, WB ghi `PC+4` |
+| I-jump | `jalr` | Ho tro | ID tao `imm_i`, EX tinh `(rs1 + imm_i) & ~1`, IF/ID bi flush khi taken, WB ghi `PC+4` |
+| Branch | `beq` | Ho tro | EX so sanh rs1/rs2 bang ALU branch opcode |
+| Branch | `bne` | Ho tro | EX so sanh rs1/rs2 bang ALU branch opcode |
+| Branch | `blt` | Ho tro | EX so sanh signed `<` |
+| Branch | `bge` | Ho tro | EX so sanh signed `>=` |
+| Branch | `bltu` | Ho tro | EX so sanh unsigned `<` |
+| Branch | `bgeu` | Ho tro | EX so sanh unsigned `>=` |
+| Load | `lb` | Ho tro | MEM doc 1 byte, sign-extend ve `rd` |
+| Load | `lh` | Ho tro | MEM doc 2 byte, sign-extend ve `rd` |
+| Load | `lw` | Ho tro | MEM doc 4 byte, write-back qua `MEM` path |
+| Load | `lbu` | Ho tro | MEM doc 1 byte, zero-extend ve `rd` |
+| Load | `lhu` | Ho tro | MEM doc 2 byte, zero-extend ve `rd` |
+| Store | `sb` | Ho tro | MEM ghi 1 byte theo `we_o` byte-enable |
+| Store | `sh` | Ho tro | MEM ghi 2 byte theo halfword alignment |
+| Store | `sw` | Ho tro | MEM ghi 4 byte vao DMEM hoac MMIO |
+| OP-IMM | `addi` | Ho tro | ID tao `imm_i`, EX thuc hien `ADD` voi immediate |
+| OP-IMM | `slti` | Ho tro | ID tao `imm_i`, EX thuc hien signed compare |
+| OP-IMM | `sltiu` | Ho tro | ID tao `imm_i`, EX thuc hien unsigned compare |
+| OP-IMM | `xori` | Ho tro | ID tao `imm_i`, EX thuc hien XOR |
+| OP-IMM | `ori` | Ho tro | ID tao `imm_i`, EX thuc hien OR |
+| OP-IMM | `andi` | Ho tro | ID tao `imm_i`, EX thuc hien AND |
+| OP-IMM | `slli` | Ho tro | ID tao `shamt`, EX shift left logical |
+| OP-IMM | `srli` | Ho tro | ID tao `shamt`, EX shift right logical |
+| OP-IMM | `srai` | Ho tro | ID tao `shamt`, EX shift right arithmetic |
+| OP | `add` | Ho tro | EX ALU `ADD` |
+| OP | `sub` | Ho tro | EX ALU `SUB` |
+| OP | `sll` | Ho tro | EX ALU `SLL` |
+| OP | `slt` | Ho tro | EX ALU `SLT` |
+| OP | `sltu` | Ho tro | EX ALU `SLTU` |
+| OP | `xor` | Ho tro | EX ALU `XOR` |
+| OP | `srl` | Ho tro | EX ALU `SRL` |
+| OP | `sra` | Ho tro | EX ALU `SRA` |
+| OP | `or` | Ho tro | EX ALU `OR` |
+| OP | `and` | Ho tro | EX ALU `AND` |
+| Fence | `fence` | Placeholder | Decoder cho qua nhu instruction non-data; khong co memory ordering engine rieng |
+| System | `ebreak` | Used as testcase terminator | Assembly testcase dung `ebreak` de danh dau ket thuc; CPU hien tai khong co trap/interrupt handler day du |
+| System | `ecall` / CSR ops | Khong dung trong flow chinh | Decoder co nhan `SYSTEM` baseline, nhung SoC hien tai chua co CSR/trap architecture day du |
 
-### 9.2 Notes on `SYSTEM`
+### 9.2 Ghi chu ve `SYSTEM`
 
-In current RTL:
+Trong RTL hien tai:
 
-- `opcode == SYSTEM` is received by the decoder
-- But the system doesn't have a trap handler/CSR block yet
-- testcase uses `ebreak` as a terminal marker in the assembly, not
-a complete trap flow
+- `opcode == SYSTEM` duoc decoder nhan dien
+- nhung he thong chua co trap handler/CSR block day du
+- testcase dung `ebreak` nhu mot terminal marker trong assembly, khong phai
+  mot trap flow hoan chinh
 
-### 9.3 How each group of commands moves through the pipeline
+### 9.3 Cach tung nhom lenh di qua pipeline
 
-| Instruction group | IF | ID | EX | MEM | WB |
+| Nhom lenh | IF | ID | EX | MEM | WB |
 |---|---|---|---|---|---|
-| `lui`, `auipc` | fetch | decode imm_u | calculate/take value | does not use memory | write `rd` |
-| `jal`, `jalr` | fetch | decode jump | Calculate target, flush IF/ID | does not use memory | write `PC+4` |
-| Branch | fetch | decode branch | compare and decide taken | does not use memory | no writebacks |
-| `lb/lh/lw/lbu/lhu` | fetch | decode load | calculate address | Read DMEM/MMIO, have synchronous wait | write `rd` |
-| `sb/sh/sw` | fetch | decode store | calculate address | DMEM/MMIO registering | no writebacks |
-| OP/OP-IMM | fetch | decode ALU | Calculate ALU results | does not use memory | write `rd` |
-| `fence` | fetch | decode placeholder | There is no data-plane operation | no action | no writebacks |
-| `ebreak` | fetch | decode terminal marker | No trap handler is implemented here | no action | no writebacks |
+| `lui`, `auipc` | fetch | decode imm_u | tinh/lay gia tri | khong dung memory | ghi `rd` |
+| `jal`, `jalr` | fetch | decode jump | tinh target, flush IF/ID | khong dung memory | ghi `PC+4` |
+| Branch | fetch | decode branch | so sanh va quyet dinh taken | khong dung memory | khong writeback |
+| `lb/lh/lw/lbu/lhu` | fetch | decode load | tinh address | doc DMEM/MMIO, co synchronous wait | ghi `rd` |
+| `sb/sh/sw` | fetch | decode store | tinh address | ghi DMEM/MMIO | khong writeback |
+| OP/OP-IMM | fetch | decode ALU | tinh ket qua ALU | khong dung memory | ghi `rd` |
+| `fence` | fetch | decode placeholder | khong co hanh dong data-plane | khong co hanh dong | khong writeback |
+| `ebreak` | fetch | decode terminal marker | khong co trap handler day du | khong co hanh dong | khong writeback |
 
-No additional instructions are needed to run the main flow.
+Khong can cac lenh phuc tap hon de chay flow chinh.
 
-### 9.4 Make detailed notes for each relevant link
+### 9.4 Ghi chu chi tiet cho tung lenh quan trong
 
-| Command | Description is limited to the current design |
+| Lenh | Mo ta chi tiet trong design hien tai |
 |---|---|
-| `lui` | Read the upper 20 bits of immediate, read the rd register; used to create constants 0x4000_0000, 0x0000_2000, 0x0000_6000, ... |
-| `auipc` | Port `PC + imm_u`; Not used in the main control-path as much as `lui`, but the pipeline still supports it |
-| `addi` | Used to set small offset port, create `sp`, increase counter, address port, loop command port |
-| `lw` | Content to read `INPUT_LEN_ADDR`, `DMA_STATUS`, `BYTES_DONE`, `CIPHERTEXT_BYTES_PRODUCED`, result words |
-| `sw` | Used to write DMA registers and result words; This is the main command to configure TX/RX |
-| `beq/bne` | Used to repeat the polling loop and exit when `done/error` |
-| `jal/jalr` | Use this to jump into `main`, call block control, and dial back if necessary |
-| `xori/ori/andi` | Used to create IV demo, mask flag, and bit twiddle |
-| `slli/srli/srai` | Used to mix bits when creating IVs and extracting control values |
-| `ebreak` | Used as an initial signal to end the test case in simulation, not a trap handler is enough |
-| `fence` | Not the mainline instruction in the testcase; Currently it's just a decode placeholder and doesn't have its own memory-order engine |
+| `lui` | Doc 20 bit tren cua immediate, dat len thanh ghi rd; dung de tao constant 0x4000_0000, 0x0000_2000, 0x0000_6000, ... |
+| `auipc` | Cong `PC + imm_u`; khong dung trong control-path chinh nhieu bang `lui`, nhung pipeline van ho tro |
+| `addi` | Dung de cong offset nho, tao `sp`, tang counter, cong dia chi, cong lenh loop |
+| `lw` | Dung de doc `INPUT_LEN_ADDR`, `DMA_STATUS`, `BYTES_DONE`, `CIPHERTEXT_BYTES_PRODUCED`, result words |
+| `sw` | Dung de ghi thanh ghi DMA va result words; day la lenh chinh de cau hinh TX/RX |
+| `beq/bne` | Dung de lap polling loop va thoat khi `done/error` |
+| `jal/jalr` | Dung de nhay vao `main`, goi block control, va quay ve neu can |
+| `xori/ori/andi` | Dung de tao IV demo, mask flag, and bit twiddle |
+| `slli/srli/srai` | Dung de mix bit khi tao IV va xu ly gia tri control |
+| `ebreak` | Dung nhu dau hieu ket thuc testcase trong simulation, khong phai trap handler day du |
+| `fence` | Khong phai instruction mainline trong testcase; hien tai chi la decode placeholder va khong co memory-order engine rieng |
 
 ## 10. Instruction-to-use summary for this SoC
 
-In the control-plane test cases of this system, the command RV32I is important
-especially:
+Trong cac testcase control-plane cua he thong nay, nhung lenh RV32I quan trong
+nhat la:
 
-- `lw` to read `INPUT_LEN_ADDR`, `STATUS`, `BYTES_DONE`, result words
-- `sw` to register `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`, `IV0..IV3`
-- `addi` / `lui` / `xori` / `ori` / `andi` / shift ops to create IV demo and mask flag
-- `beq` / `bne` to polling loop to exit when done/error
-- `jal` / `jalr` to control program volume
+- `lw` de doc `INPUT_LEN_ADDR`, `STATUS`, `BYTES_DONE`, result words
+- `sw` de ghi `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`, `IV0..IV3`
+- `addi` / `lui` / `xori` / `ori` / `andi` / shift ops de tao IV demo va mask flag
+- `beq` / `bne` de polling loop thoat khi done/error
+- `jal` / `jalr` de control luong program
 
-## 11. Conclusion
+## 11. Ket luan
 
-`instruction.mem` just hasn't **programmed** yet.
-The actual data that the CPU retrieves is in `DMEM`.
+`instruction.mem` chi chua **chuong trinh**.
+Du lieu thuc su ma CPU xu ly nam trong `DMEM`.
 
-The main quantity of RV32I currently is:
+Luong chinh cua RV32I hien tai la:
 
-1. fetch commands from `IMEM`
-2. Read input length and status from `DMEM/MMIO`
-3. Write DMA config via MMIO
+1. fetch lenh tu `IMEM`
+2. doc input length va status tu `DMEM/MMIO`
+3. ghi config DMA qua MMIO
 4. polling `STATUS`
-5. write results/metadata to `DMEM`
+5. ghi ket qua/metadata ve `DMEM`
 
-This means:
+Nghia la:
 
-- file `.mem` is not a data stream
-- The CPU does not "parse the input file" directly
-- The CPU only controls the system and observes the results through memory-mapped registers
+- file `.mem` khong phai data stream
+- CPU khong “parse file input” truc tiep
+- CPU chi dieu khien he thong va quan sat ket qua qua memory-mapped registers

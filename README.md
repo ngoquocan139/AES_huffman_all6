@@ -44,10 +44,19 @@ flowchart LR
 
 ## Main Results
 
-- `34/34` testcase PASS baseline
+- Latest secure-storage API focused test: `dma_storage_table_input1_then_input3`,
+  `PASS=22`, `FAIL=0`
+- Firmware API: `secure_write`, `secure_read`, `secure_delete` with DMEM
+  metadata and IV restore
+- Historical full-regression baseline: `34/34` testcase PASS
 - Raw DUT coverage: `93.52%`
 - Closed DUT coverage: `95.90%`
-- FPGA strategy: split TX-only and RX-only bitstreams
+- FPGA closure: TX-only and full TX+RX implementation pass at 50 MHz after
+  Huffman table/control-set area optimization
+- Full TX+RX post-impl: `28067` LUTs, `18501` registers, `9955` slices,
+  `757` control sets, WNS `+0.334 ns`
+- TX-only post-impl: `11933` LUTs, `5469` registers, `3979` slices,
+  `208` control sets, WNS `+1.277 ns`
 - MIT-BIH preprocessed comparison: `32.76%` average final storage ratio
 
 ## Core Docs
@@ -58,3 +67,4 @@ flowchart LR
 - [Coverage regression report](docs/coverage_regression_report.md)
 - [Paper comparison](docs/paper_comparison_huffman_aes_cbc.md)
 - [SoC usage guide](docs/soc_usage_and_fpga_guide.md)
+- [Report presentation guide](docs/report_presentation_guide.md)
