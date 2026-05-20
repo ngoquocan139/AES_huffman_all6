@@ -27,5 +27,6 @@ if [ -n "$GIT_PUSH_ARGS" ]; then
   # shellcheck disable=SC2086
   git push $GIT_PUSH_ARGS
 else
-  git push
+  # shellcheck disable=SC2086
+  git push ${DEFAULT_GIT_PUSH_ARGS:-origin HEAD:main}
 fi
