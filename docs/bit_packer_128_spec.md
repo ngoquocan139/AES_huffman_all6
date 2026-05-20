@@ -99,8 +99,9 @@ So voi bitstream raw:
 - no chi thay doi cach luu/truyen
 - storage cost sau cung duoc quantize theo transport word 128-bit
 
-Vi vay mode decision cua TX phai xem ket qua sau packer, khong chi xem
-so bit Huffman thuan.
+Vi vay neu can quyet dinh compressed/raw o cap storage, firmware phai so sanh
+ket qua sau packer/AES padding, khong chi xem so bit Huffman thuan. RTL TX hien
+khong con block-level mode decision.
 
 ## 8. Error Conditions
 

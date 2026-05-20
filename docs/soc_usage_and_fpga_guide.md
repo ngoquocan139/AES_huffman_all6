@@ -313,19 +313,19 @@ xoa `instruction.mem`.
 
 ## 11. FPGA Build Flow
 
-Huong FPGA hien tai co hai muc:
+Huong FPGA hien tai co ba muc:
 
-- `rv32_soc_fpga_demo_top`: board/demo wrapper, co the build TX-only hoac
-  RX-only de demo nhe hon.
-- `rv32_soc_top`: raw full SoC TX+RX, dung de kiem tra closure tai nguyen va
-  timing chung.
+- `rv32_soc_fpga_demo_top`: board/demo wrapper co UART loader, dung cho TX-only,
+  RX-only va full TX+RX khi muc tieu la chay tren FPGA board.
+- `rv32_soc_top`: raw SoC integration top, van co the override bang bien
+  `VIVADO_TOP` neu can phan tich noi bo khong can UART wrapper.
 
 | Build | Command | Purpose |
 |---|---|---|
 | TX-only | `make vivado_flow_tx` | compression/encryption demo |
 | RX-only | `make vivado_flow_rx` | decrypt/decode demo |
 | TX + RX split | `make vivado_flow_split` | build ca hai bitstreams rieng |
-| Full TX+RX raw SoC | `make vivado_impl_full` | synth/implement full SoC chung TX va RX |
+| Full TX+RX FPGA SoC | `make vivado_impl_full` | synth/implement full SoC chung TX, RX va UART loader |
 
 TX-only FPGA build:
 
@@ -345,7 +345,7 @@ make compile C_SRC=test_mmio_dma.c
 make vivado_flow_rx
 ```
 
-Full TX+RX raw SoC implementation:
+Full TX+RX FPGA SoC implementation:
 
 ```bash
 cd sim
@@ -363,8 +363,10 @@ Open Vivado GUI:
 
 ```bash
 cd sim
+make vivado_gui
 make vivado_gui_tx
 make vivado_gui_rx
+make vivado_gui_full
 ```
 
 Open reports:
@@ -373,7 +375,7 @@ Open reports:
 cd sim
 make vivado_report VIVADO_PROJECT=rv32_soc_synth_tx
 make vivado_report VIVADO_PROJECT=rv32_soc_synth_rx
-make vivado_report VIVADO_PROJECT=rv32_soc_synth_full_opt4
+make vivado_report VIVADO_PROJECT=rv32_soc_synth_full_fpga
 ```
 
 Latest 50 MHz implementation result after Huffman table/control-set
@@ -382,12 +384,14 @@ optimization:
 | Build | WNS | LUT | FF | Slices | Control sets | BRAM | Status |
 |---|---:|---:|---:|---:|---:|---:|---|
 | TX-only `rv32_soc_synth_tx_opt4` | +1.277 ns | 11933 | 5469 | 3979 | 208 | 10 | Timing pass |
-| Full TX+RX `rv32_soc_synth_full_opt4` | +0.334 ns | 28067 | 18501 | 9955 | 757 | 11 | Timing pass |
+| Full FPGA demo SoC `rv32_soc_synth_full_fpga` | +0.811 ns | 28379 | 18898 | 10165 | 778 | 11 | Timing pass |
 | Legacy RX-only | +0.341 ns | 22730 | 27658 | n/a | 917 | 11 | Timing pass |
 
 The previous full-build packing failure was fixed by moving large Huffman
-tables/FIFOs to distributed RAM, avoiding reset loops on memories, and
-reducing control sets. `rv32_soc_synth_full_opt4` routes with zero failed nets.
+tables/FIFOs to distributed RAM, avoiding reset loops on memories, reducing
+control sets, and removing block-level `mode_decision_logic` from the active TX
+datapath. `rv32_soc_synth_full_fpga` is the current full board-oriented project;
+its post-route vectorless power estimate is `0.282 W`.
 
 ## 12. UART Loader Flow For FPGA
 

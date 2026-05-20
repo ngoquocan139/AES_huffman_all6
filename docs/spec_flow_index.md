@@ -39,7 +39,7 @@ Policy for the current report:
 | MIT-BIH comparison | External preprocessed input, `32.76%` average final storage ratio |
 | FPGA strategy | Area-optimized project-mode implementation at 50 MHz |
 | TX-only FPGA status | Routed, WNS `+1.277 ns`, LUTs `11933`, regs `5469`, slices `3979`, control sets `208` |
-| Full TX+RX FPGA status | Routed, WNS `+0.334 ns`, LUTs `28067`, regs `18501`, slices `9955`, control sets `757` |
+| Full FPGA demo SoC status | Routed, WNS `+0.811 ns`, LUTs `28379`, regs `18898`, slices `10165`, control sets `778` |
 | Legacy RX-only FPGA status | Routed, WNS `+0.341 ns`, LUTs `22730`, regs `27658`, control sets `917` |
 | Historical full regression | `34/34` PASS before secure-storage API refactor |
 | Historical coverage | Raw DUT `93.52%`, closed DUT `95.90%` |
@@ -175,7 +175,7 @@ Do not use these as the main report story:
 
 | Branch/topic | Current status |
 |---|---|
-| Full TX+RX monolithic build | Now routes in `rv32_soc_synth_full_opt4`; board bitstream wrapper still uses the FPGA demo top |
+| Full TX+RX monolithic build | Current full target is board-oriented `rv32_soc_synth_full_fpga` using `rv32_soc_fpga_demo_top` |
 | Interrupt/trap DMA completion | Not implemented; polling is active |
 | Production entropy/secret IV generation | Not implemented; current IV is deterministic firmware demo IV |
 | Custom RISC-V instruction | Not implemented; current integration uses MMIO and firmware API |

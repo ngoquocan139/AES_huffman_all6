@@ -18,7 +18,7 @@ module control_fsm (
     input  wire       build_busy,
     input  wire       build_error,
 
-    // status from mode_decision_logic
+    // fixed mode-select phase
     input  wire       mode_done,
     input  wire       mode_busy,
     input  wire       mode_error,
@@ -235,7 +235,7 @@ module control_fsm (
             else if ((state == ST_WAIT_EMIT) && emit_error)
                 error_flag <= 1'b1;
 
-            // latch mode once mode_decision_logic completes successfully
+            // latch fixed/per-block mode once the mode-select phase completes
             if ((state == ST_WAIT_MODE) && mode_done && !mode_error)
                 mode_selected_latched <= selected_mode;
             else if ((state == ST_WAIT_COLLECT) && collect_done &&

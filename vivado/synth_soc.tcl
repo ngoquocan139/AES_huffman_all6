@@ -46,6 +46,8 @@ set opt_directive   [env_or_default VIVADO_OPT_DIRECTIVE ""]
 set place_directive [env_or_default VIVADO_PLACE_DIRECTIVE ""]
 set phys_opt_directive [env_or_default VIVADO_PHYS_OPT_DIRECTIVE ""]
 set route_directive [env_or_default VIVADO_ROUTE_DIRECTIVE ""]
+set power_opt     [env_or_default VIVADO_POWER_OPT "0"]
+set power_opt_post_place [env_or_default VIVADO_POWER_OPT_POST_PLACE $power_opt]
 set reuse_synth  [env_or_default VIVADO_REUSE_SYNTH "0"]
 set reuse_impl   [env_or_default VIVADO_REUSE_IMPL "0"]
 set part_name    "xc7z020clg484-1"
@@ -77,6 +79,8 @@ puts "INFO: opt_directive=$opt_directive"
 puts "INFO: place_directive=$place_directive"
 puts "INFO: phys_opt_directive=$phys_opt_directive"
 puts "INFO: route_directive=$route_directive"
+puts "INFO: power_opt=$power_opt"
+puts "INFO: power_opt_post_place=$power_opt_post_place"
 puts "INFO: reuse_synth=$reuse_synth"
 puts "INFO: reuse_impl=$reuse_impl"
 
@@ -194,10 +198,20 @@ if {$flow eq "synth"} {
       opt_design
     }
 
+    if {$power_opt eq "1"} {
+      puts "INFO: running pre-place power_opt_design"
+      power_opt_design
+    }
+
     if {$place_directive ne ""} {
       place_design -directive $place_directive
     } else {
       place_design
+    }
+
+    if {$power_opt_post_place eq "1"} {
+      puts "INFO: running post-place power_opt_design"
+      power_opt_design
     }
 
     if {$phys_opt_directive ne ""} {

@@ -242,6 +242,11 @@ Other values are invalid for the current DMA contract.
 `MODE` does not select ECB/CBC. AES mode is fixed to CBC for
 `COMPRESS_AES`. `COMPRESS_ONLY` bypasses AES and does not consume IV.
 
+Current RTL no longer contains a block-level `mode_decision_logic` module. When
+TX compression is selected, the encoder emits Huffman `COMPRESSED` blocks; any
+future decision to store a whole file as compressed AES or raw AES belongs in
+RV32I firmware metadata policy, not inside the Huffman block datapath.
+
 ### 7.6 BLOCK_CFG
 
 - Valid range is `1..32`.

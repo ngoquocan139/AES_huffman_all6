@@ -34,9 +34,9 @@ Dung bang nay de mo dau phan ket qua hien tai:
 | IV policy | Firmware-generated deterministic demo IV, counter at `0x000001F0`, seed `0x31415926` |
 | Latest focused test | `dma_storage_table_input1_then_input3`, `PASS=22`, `FAIL=0` |
 | Storage API result | Stores input1 and input3, then restores input1 by `file_id=1` |
-| FPGA claim | Area-optimized 50 MHz implementation passes for TX-only and full TX+RX |
+| FPGA claim | Area-optimized 50 MHz implementation passes for TX-only and full FPGA demo SoC |
 | TX FPGA | WNS `+1.277 ns`, LUT `11933`, slices `3979`, control sets `208` |
-| Full TX+RX FPGA | WNS `+0.334 ns`, LUT `28067`, slices `9955`, control sets `757` |
+| Full FPGA demo SoC | WNS `+0.811 ns`, LUT `28379`, slices `10165`, control sets `778`, power `0.282 W` |
 | Legacy RX FPGA | WNS `+0.341 ns`, LUT `22730`, control sets `917` |
 | Historical regression | `34/34` PASS, raw DUT `93.52%`, closed DUT `95.90%` |
 
@@ -62,9 +62,9 @@ Nen bao cao theo cau chuyen nay:
 5. Testbench kiem tra loopback bang cach so sanh RX output voi input goc, dong
    thoi dump source/TX/RX DMEM va tinh compression/throughput. Storage-table
    testcase kiem tra them `secure_write`/`secure_read` theo `file_id`.
-6. Sau toi uu table/control-set, TX-only va full TX+RX deu implement duoc tren
-   Zynq-7020 o 50 MHz. Split TX/RX van la tuy chon demo nhe hon, khong con la
-   cach duy nhat de tranh loi place.
+6. Sau toi uu table/control-set, TX-only va full FPGA demo SoC deu implement
+   duoc tren Zynq-7020 o 50 MHz. Split TX/RX van la tuy chon demo nhe hon,
+   khong con la cach duy nhat de tranh loi place.
 
 ## 3. Architecture Points To Present
 
@@ -260,20 +260,21 @@ Ket qua implementation moi nhat o 50 MHz sau area optimization:
 | Build | WNS | LUT | FF | Slices | Control sets | BRAM | Status |
 |---|---:|---:|---:|---:|---:|---:|---|
 | TX-only `rv32_soc_synth_tx_opt4` | +1.277 ns | 11933 | 5469 | 3979 | 208 | 10 | Timing pass |
-| Full TX+RX `rv32_soc_synth_full_opt4` | +0.334 ns | 28067 | 18501 | 9955 | 757 | 11 | Timing pass |
+| Full FPGA demo SoC `rv32_soc_synth_full_fpga` | +0.811 ns | 28379 | 18898 | 10165 | 778 | 11 | Timing pass |
 | Legacy RX-only | +0.341 ns | 22730 | 27658 | n/a | 917 | 11 | Timing pass |
 
 Can noi ro:
 
-- Loi cu `[Place 30-487]` khong con xuat hien; full TX+RX da qua
+- Loi cu `[Place 30-487]` khong con xuat hien; full FPGA demo SoC da qua
   `place_design` va `route_design`.
 - Giam area chinh den tu viec dua Huffman table/FIFO sang distributed RAM,
   bo reset loop tren memory lon va tach write-port cua `code_length_builder`.
 - RX main decode table dung BRAM `2K x 15`; RX fallback/FIFO dung distributed
   RAM. RX local sort table con la diem co the toi uu tiep, nhung full build da
   route pass.
-- Power report cu la vectorless, confidence `Medium`; run moi tap trung vao
-  timing/utilization/placement.
+- Power report moi la vectorless estimate: total `0.282 W`, dynamic `0.176 W`,
+  static `0.106 W`; Vivado canh bao reset fanout/activity nen day la estimate,
+  khong phai do board.
 - Neu can nap board thi can regenerate bitstream sau implementation.
 
 ### 5.5 Paper comparison
@@ -397,7 +398,7 @@ Can nam chac cac phan nay:
 
 Nen noi thang cac diem nay:
 
-- Full TX+RX chung da route pass o 50 MHz sau toi uu area, nhung board demo
+- Full FPGA demo SoC da route pass o 50 MHz sau toi uu area, nhung board demo
   wrapper van nen co split TX-only/RX-only khi can demo nhe va nhanh.
 - Board demo can output readback tot hon de doc ciphertext/plaintext/saving tu
   board that.

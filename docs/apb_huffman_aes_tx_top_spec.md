@@ -138,7 +138,7 @@ whole-file hien ho tro full byte alphabet.
 | `encoder_busy` | out | 1 | Trang thai busy cua `dynamic_huffman_encoder`. |
 | `encoder_done` | out | 1 | Trang thai done cua `dynamic_huffman_encoder`. |
 | `encoder_error` | out | 1 | Loi cua `dynamic_huffman_encoder`. |
-| `selected_mode_out` | out | 2 | Mode duoc encoder chon cho block hien tai. |
+| `selected_mode_out` | out | 2 | Debug mirror cua encoder block mode; active TX hien luon `2'b10` (`COMPRESSED`). |
 | `fsm_state` | out | 4 | State debug cua `control_fsm` trong encoder. |
 | `packer_busy` | out | 1 | Trang thai busy cua `bit_packer_128`. |
 | `packer_done` | out | 1 | Trang thai done cua `bit_packer_128`. |
@@ -187,7 +187,8 @@ Khoi nay gom 4 lop chuc nang:
 1. Input adapter:
    chuyen `word_in[31:0]` thanh tung byte theo thu tu `word_in[7:0]`, `word_in[15:8]`, `word_in[23:16]`, `word_in[31:24]`.
 2. `dynamic_huffman_encoder`:
-   nen block theo 4 pha `collect -> build -> mode decision -> emit`.
+   nen block theo cac pha `collect -> build/fixed-mode-select -> emit`; khong
+   con instantiate `mode_decision_logic.v`.
 3. `bit_packer_128`:
    gop stream bit thanh `transport_word`; neu `continue_frame = 1` thi giu lai bit du de noi sang block sau, chi flush o block cuoi frame.
 4. `wrapper`:
@@ -400,15 +401,17 @@ No khong co nghia:
 
 Top khong them co che retry hay recover tu dong. Sau khi co loi, APB side can xoa state bang `CONTROL`.
 
-## 12. Mode nen do encoder chon
+## 12. Block Mode
 
-`selected_mode_out` mang 1 trong 4 gia tri:
+`selected_mode_out` hien luon la `2'b10` trong TX active path. Cac gia tri
+khac van duoc RX parser/decoder ho tro de giu compatibility va coverage format
+cu, nhung TX khong con tu chon raw/one-symbol theo block.
 
 | Gia tri | Ten | Mo ta |
 |---|---|---|
 | `2'b00` | `RAW_FULL` | Header 2 bit, payload raw 32 byte day du. |
 | `2'b01` | `RAW_PARTIAL` | Header co them thong tin do dai block, payload raw. |
-| `2'b10` | `COMPRESSED` | Header chua symbol list + code length, payload la Huffman bitstream. |
+| `2'b10` | `COMPRESSED` | Active TX mode: header chua symbol list + code length, payload la Huffman bitstream. |
 | `2'b11` | `ONE_SYMBOL_COMP` | Toi uu cho block chi co 1 symbol, khong can payload data thong thuong. |
 
 ## 13. Reset behavior

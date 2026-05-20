@@ -109,21 +109,13 @@ module dynamic_huffman_encoder #(
     wire                          build_error_w;
 
     // ------------------------------------------------------------
-    // mode_decision_logic wires
+    // Fixed block storage mode
     // ------------------------------------------------------------
-    wire [BUFFER_ADDR_WIDTH-1:0]  mdl_buffer_read_addr_w;
-    wire [SYMBOL_INDEX_WIDTH-1:0] mdl_code_len_read_index_w;
-
+    localparam [1:0] MODE_COMPRESSED = 2'b10;
     wire                          mode_busy_w;
     wire                          mode_done_w;
     wire                          mode_error_w;
     wire [1:0]                    mode_selected_w;
-
-    wire [TOTAL_BITS_WIDTH-1:0]   raw_total_bits_w;
-    wire [TOTAL_BITS_WIDTH-1:0]   compressed_header_bits_w;
-    wire [TOTAL_BITS_WIDTH-1:0]   compressed_payload_bits_w;
-    wire [TOTAL_BITS_WIDTH-1:0]   compressed_total_bits_w;
-    wire [TOTAL_BITS_WIDTH-1:0]   one_symbol_total_bits_w;
 
     // ------------------------------------------------------------
     // emit_backend wires
@@ -145,6 +137,9 @@ module dynamic_huffman_encoder #(
     // Dummy/use wires to avoid unused-signal warnings
     // ------------------------------------------------------------
     wire unused_debug_w;
+    wire unused_total_bits_width_w;
+
+    assign unused_total_bits_width_w = ^{TOTAL_BITS_WIDTH{1'b0}};
 
 `ifdef SYNTHESIS
     assign whole_file_mode_w = 1'b1;
@@ -154,11 +149,8 @@ module dynamic_huffman_encoder #(
 
     assign unused_debug_w =
         ^normalized_byte_w ^
-        ^raw_total_bits_w ^
-        ^compressed_header_bits_w ^
-        ^compressed_payload_bits_w ^
-        ^compressed_total_bits_w ^
-        ^one_symbol_total_bits_w;
+        ctrl_start_mode_w ^
+        (1'b0 & unused_total_bits_width_w);
 
     assign busy = ctrl_busy_w | (1'b0 & unused_debug_w);
 
@@ -171,11 +163,9 @@ module dynamic_huffman_encoder #(
     // Mux shared readback interfaces by active phase
     // ------------------------------------------------------------
 
-    // block_buffer read consumers:
-    //   mode_decision_logic during MODE phase
-    //   emit_backend        during EMIT phase
+    // block_buffer read consumer:
+    //   emit_backend during EMIT phase
     assign icu_buffer_read_addr_mux_w =
-        (ctrl_start_mode_w || mode_busy_w) ? mdl_buffer_read_addr_w :
         (ctrl_start_emit_w || emit_busy_w) ? emit_buffer_read_addr_w :
         {BUFFER_ADDR_WIDTH{1'b0}};
 
@@ -188,13 +178,10 @@ module dynamic_huffman_encoder #(
             hb_symbol_read_addr_mux_w = {SYMBOL_COUNT_WIDTH{1'b0}};
     end
 
-    // code_len_table read consumers:
-    //   mode_decision_logic during MODE phase
-    //   emit_backend        during EMIT phase
+    // code_len_table read consumer:
+    //   emit_backend during EMIT phase
     always @(*) begin
-        if (ctrl_start_mode_w || mode_busy_w)
-            hb_code_len_read_index_mux_w = mdl_code_len_read_index_w;
-        else if ((ctrl_start_emit_w || emit_busy_w) && !whole_file_mode_w)
+        if ((ctrl_start_emit_w || emit_busy_w) && !whole_file_mode_w)
             hb_code_len_read_index_mux_w = emit_code_len_read_index_w;
         else
             hb_code_len_read_index_mux_w = {SYMBOL_INDEX_WIDTH{1'b0}};
@@ -323,58 +310,14 @@ module dynamic_huffman_encoder #(
 `endif
 
     // ------------------------------------------------------------
-    // mode_decision_logic
+    // Fixed compressed-mode latch
     // ------------------------------------------------------------
-`ifdef SYNTHESIS
-    assign mdl_buffer_read_addr_w      = {BUFFER_ADDR_WIDTH{1'b0}};
-    assign mdl_code_len_read_index_w   = {SYMBOL_INDEX_WIDTH{1'b0}};
-    assign mode_busy_w                 = 1'b0;
-    assign mode_done_w                 = 1'b0;
-    assign mode_error_w                = 1'b0;
-    assign mode_selected_w             = 2'b10;
-    assign raw_total_bits_w            = {TOTAL_BITS_WIDTH{1'b0}};
-    assign compressed_header_bits_w    = {TOTAL_BITS_WIDTH{1'b0}};
-    assign compressed_payload_bits_w   = {TOTAL_BITS_WIDTH{1'b0}};
-    assign compressed_total_bits_w     = {TOTAL_BITS_WIDTH{1'b0}};
-    assign one_symbol_total_bits_w     = {TOTAL_BITS_WIDTH{1'b0}};
-`else
-    mode_decision_logic #(
-        .BLOCK_SIZE_WIDTH   (BLOCK_SIZE_WIDTH),
-        .BUFFER_ADDR_WIDTH  (BUFFER_ADDR_WIDTH),
-        .SYMBOL_WIDTH       (SYMBOL_WIDTH),
-        .SYMBOL_COUNT_WIDTH (SYMBOL_COUNT_WIDTH),
-        .SYMBOL_INDEX_WIDTH (SYMBOL_INDEX_WIDTH),
-        .CODE_LEN_WIDTH     (CODE_LEN_WIDTH),
-        .TOTAL_BITS_WIDTH   (TOTAL_BITS_WIDTH),
-        .ASCII_MIN          (ASCII_MIN),
-        .ASCII_MAX          (ASCII_MAX)
-    ) u_mode_decision_logic (
-        .clk                    (clk),
-        .rst_n                  (rst_n),
-        .start                  (ctrl_start_mode_w),
-
-        .block_size             (collect_block_size_w),
-        .symbol_count           (hb_symbol_count_w),
-
-        .buffer_read_addr       (mdl_buffer_read_addr_w),
-        .buffer_read_data       (icu_buffer_read_data_w),
-
-        .code_len_read_index    (mdl_code_len_read_index_w),
-        .code_len_read_data     (hb_code_len_read_data_w),
-
-        .busy                   (mode_busy_w),
-        .done                   (mode_done_w),
-        .error_flag             (mode_error_w),
-
-        .selected_mode          (mode_selected_w),
-
-        .raw_total_bits         (raw_total_bits_w),
-        .compressed_header_bits (compressed_header_bits_w),
-        .compressed_payload_bits(compressed_payload_bits_w),
-        .compressed_total_bits  (compressed_total_bits_w),
-        .one_symbol_total_bits  (one_symbol_total_bits_w)
-    );
-`endif
+    // File-level storage selection is owned by RV32I firmware/metadata. The
+    // encoder datapath always emits Huffman compressed blocks when TX is used.
+    assign mode_busy_w     = 1'b0;
+    assign mode_done_w     = 1'b1;
+    assign mode_error_w    = 1'b0;
+    assign mode_selected_w = MODE_COMPRESSED;
 
     // ------------------------------------------------------------
     // emit_backend
