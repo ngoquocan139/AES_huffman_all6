@@ -81,7 +81,7 @@ id | function | testname | description | expectation | testcase | status | comme
 | TX-07 | TX alnum63 stress | `tx_compress_only_alnum63_cov` | File co 63 symbol hop le, dung de stress codebook lon vua phai trong alphabet 256 | TX done, output align 16B, debug 0 | `test_mmio_tx_only.c` + `tx_compress_only_alnum63_cov.v` | PASS | Stress Huffman builder hop le |
 | TX-08 | TX short input | `tx_compress_only_short_raw_cov` | File rat ngan de hit header/payload corner | TX done, output hop le | `test_mmio_tx_only.c` + `tx_compress_only_short_raw_cov.v` | PASS | Cover short-input path |
 | TX-09 | TX APB IF direct coverage | `tx_if_direct_cov` | Ep TX APB IF doc empty/full/error/status, invalid config, soft reset, output FIFO full va simultaneous push/pop | Base MMIO test pass, `apb_huffman_tx_if` branch/statement coverage tang manh | `test_mmio_regfile_basic.c` + `tx_if_direct_cov.v` | PASS | Coverage hook cho TX APB wrapper, khong thay doi software contract |
-| TX-10 | TX encoder direct coverage | `tx_encoder_direct_cov` | TB force cac stage encoder/decision de cover input collect, mode decision, header/payload transition, raw/compressed corner va error flags hiem. | Base MMIO pass, TX encoder branch/statement coverage tang | `test_mmio_regfile_basic.c` + `tx_encoder_direct_cov.v` | PASS | White-box coverage hook cho module con TX |
+| TX-10 | TX encoder direct coverage | `tx_encoder_direct_cov` | TB force cac stage encoder/header/payload de cover transition va error flags hiem. Block-level mode decision da bi loai khoi RTL active. | Base MMIO pass, TX encoder branch/statement coverage tang | `test_mmio_regfile_basic.c` + `tx_encoder_direct_cov.v` | PASS | White-box coverage hook cho module con TX |
 | TX-11 | TX builder/packer direct coverage | `tx_builder_packer_direct_cov` | TB force Huffman builder, code-length/canonical generator va bit-packer qua cac state/transition hiem: one-symbol, multi-symbol, overflow/short frame, final partial word va flush. | Base MMIO pass, TX builder/packer bins tang | `test_mmio_regfile_basic.c` + `tx_builder_packer_direct_cov.v` | PASS | White-box coverage hook cho Huffman builder/packer |
 
 ### 3.4 RX Decode / Decrypt
@@ -253,7 +253,7 @@ Da cover them trong cac run closure den 2026-05-10:
 | `rx_parser_decoder_cov` update | Raw-full multi-chunk, compressed two-symbol frame, malformed entry, zero-length chunk |
 | `rx_depacker_packer_direct_cov` | RX depacker/byte-packer malformed transport, full/empty/backpressure branches |
 | `rx_parser_decoder_error_direct_cov` | RX parser/decoder malformed-entry and append-dummy error branches |
-| `tx_encoder_direct_cov` | TX encoder/control/mode-decision defensive branches |
+| `tx_encoder_direct_cov` | TX encoder/control/header/payload defensive branches |
 | `tx_builder_packer_direct_cov` | TX Huffman builder/canonical/packer state and final-word branches |
 | `dma_bridge_direct_cov` | CPU MMIO bridge, DMA regfile, DMA TX/RX engine defensive branches |
 | AES IV variation | Cover non-zero IV and CBC chain transitions |

@@ -7,11 +7,13 @@ da duoc chuan hoa tu `huffman_aes_tx_top`, tu minh di qua cac pha:
 
 - collect
 - build
-- mode decision
+- fixed mode-select latch
 - emit
 
 Module nay khong quan tam den MMIO, DMA hay AES. No chi lam viec voi block
-byte input, frequency table, codebook va bitstream output.
+byte input, frequency table, codebook va bitstream output. RTL hien tai khong
+con `mode_decision_logic.v`; TX encoder luon emit Huffman `COMPRESSED`. Quyet
+dinh luu compressed hay raw o cap file thuoc firmware/metadata.
 
 Current verification status:
 
@@ -19,8 +21,8 @@ Current verification status:
 |---|---|
 | `tx_compress_only_input1/input4_cov` | Whole-file dynamic Huffman behavior qua SoC TX-only |
 | `tx_compress_only_alnum63_cov` | Alnum63 stress within 256-symbol byte alphabet |
-| `tx_compress_only_ascii_sweep_cov` | Byte-symbol sweep and mode-decision coverage |
-| `tx_encoder_direct_cov` | Direct encoder mode/error/FSM branches |
+| `tx_compress_only_ascii_sweep_cov` | Byte-symbol sweep and whole-file table behavior |
+| `tx_encoder_direct_cov` | Direct encoder emit/header/payload defensive branches |
 | `tx_builder_packer_direct_cov` | Huffman builder and packer interaction branches |
 
 ## 2. Role In TX Stack
@@ -42,7 +44,6 @@ No dung cac helper module:
 | `block_buffer` | Luu block byte hien tai |
 | `frequency_counter` | Dem tan suat symbol |
 | `huffman_builder` | Xay symbol list, code length va canonical code |
-| `mode_decision_logic` | Chon `RAW_FULL`, `RAW_PARTIAL`, `COMPRESSED`, `ONE_SYMBOL` |
 | `emit_backend` | Emit header va payload bitstream |
 | `header_formatter` | Dinh dang header block |
 | `payload_emitter` | Emit raw bytes hoac Huffman bits |
@@ -54,7 +55,7 @@ No dung cac helper module:
 flowchart LR
   IN["byte stream"] --> COL["collect"]
   COL --> BLD["build"]
-  BLD --> MODE["mode decision"]
+  BLD --> MODE["fixed COMPRESSED mode"]
   MODE --> EMIT["emit"]
   EMIT --> OUT["32-bit chunk stream"]
 ```
@@ -97,19 +98,18 @@ Neu input khong hop le, encoder se phat error sticky va dung transfer.
 - tao canonical code
 - luu code length table cho emit va cho RX rebuild sau nay
 
-### 5.3 Mode Decision
+### 5.3 Fixed Mode Select
 
-`mode_decision_logic` chon mot trong 4 mode:
+RTL hien tai khong con block-level mode decision. Sau phase build, encoder latch
+co dinh:
 
-| Mode | Meaning |
-|---|---|
-| `RAW_FULL` | Emit raw 32 byte day du |
-| `RAW_PARTIAL` | Emit raw block size that |
-| `COMPRESSED` | Emit Huffman header + payload |
-| `ONE_SYMBOL` | Emit 1 symbol repeated block size |
+```text
+selected_mode = COMPRESSED = 2'b10
+```
 
-Lua chon khong chi dua tren bit count ma con dua tren storage size sau khi
-dua vao `bit_packer_128`.
+Voi whole-file mode, control FSM di thang tu collect sang emit khi global table
+da valid. Voi legacy per-block simulation path, phase mode-select chi ton tai de
+giu handshake cu nhung khong scan buffer va khong tinh raw/one-symbol fallback.
 
 ### 5.4 Emit
 
@@ -133,11 +133,14 @@ Encoder xuat:
 - `done`
 - `busy`
 - `error`
-- `selected_mode[1:0]`
+- `selected_mode[1:0]`, hien la `2'b10`
 
 `out_chunk_bits` la so bit hop le trong `out_chunk`.
 
 ## 7. Mode Encoding
+
+RX parser van ho tro day du format cu de giai ma stream hop le/coverage. TX
+encoder active hien chi phat `COMPRESSED`.
 
 | Bits | Mode |
 |---:|---|

@@ -27,7 +27,6 @@
 ../rtl/code_length_builder.v
 ../rtl/canonical_code_generator.v
 ../rtl/huffman_builder.v
-../rtl/mode_decision_logic.v
 ../rtl/header_formatter.v
 ../rtl/payload_emitter.v
 ../rtl/stream_output_interface.v

@@ -3585,20 +3585,6 @@ module test_bench;
 
   task force_tx_encoder_direct_idle;
     begin
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.next_state;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.start;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.start_d;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.block_size;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.symbol_count;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.scan_idx;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.buffer_read_data;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.code_len_read_data;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.raw_total_bits;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.compressed_header_bits;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.compressed_payload_bits;
-      release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.one_symbol_total_bits;
-
       release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_payload_emitter.state;
       release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_payload_emitter.start;
       release dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_payload_emitter.start_d;
@@ -3646,89 +3632,7 @@ module test_bench;
       $display("# TX_ENCODER_DIRECT_COV: exercise TX dynamic-Huffman mode/header/payload defensive branches");
 
       reset_rx_pipeline_for_cov;
-      tx_words_dummy = dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.transport_words_for_bits(11'd0);
-      tx_words_dummy = tx_words_dummy ^
-        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.transport_words_for_bits(11'd80);
-      tx_words_dummy = tx_words_dummy ^
-        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.transport_words_for_bits(11'd200);
-      tx_words_dummy = tx_words_dummy ^
-        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.transport_words_for_bits(11'd350);
-      tx_words_dummy = tx_words_dummy ^
-        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.transport_words_for_bits(11'd470);
-      tx_words_dummy = tx_words_dummy ^
-        dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.transport_words_for_bits(11'd700);
-
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = 3'd1;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.block_size = 6'd33;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.symbol_count = 6'd33;
-      @(posedge clk);
-      #1;
-      force_tx_encoder_direct_idle;
-
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = 3'd1;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.block_size = 6'd0;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.symbol_count = 6'd1;
-      @(posedge clk);
-      #1;
-      force_tx_encoder_direct_idle;
-
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = 3'd2;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.scan_idx = 6'd0;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.block_size = 6'd4;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.buffer_read_data = 8'h01;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.code_len_read_data = 5'd3;
-      @(posedge clk);
-      #1;
-      force_tx_encoder_direct_idle;
-
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = 3'd2;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.scan_idx = 6'd0;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.block_size = 6'd4;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.buffer_read_data = 8'h41;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.code_len_read_data = 5'd0;
-      @(posedge clk);
-      #1;
-      force_tx_encoder_direct_idle;
-
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = 3'd3;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.block_size = 6'd0;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.symbol_count = 6'd0;
-      @(posedge clk);
-      #1;
-      force_tx_encoder_direct_idle;
-
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = 3'd3;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.block_size = 6'd3;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.symbol_count = 6'd1;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.raw_total_bits = 11'd40;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.one_symbol_total_bits = 11'd16;
-      @(posedge clk);
-      #1;
-      force_tx_encoder_direct_idle;
-
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = 3'd3;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.block_size = 6'd32;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.symbol_count = 6'd1;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.raw_total_bits = 11'd16;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.one_symbol_total_bits = 11'd200;
-      @(posedge clk);
-      #1;
-      force_tx_encoder_direct_idle;
-
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = 3'd3;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.block_size = 6'd4;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.symbol_count = 6'd4;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.raw_total_bits = 11'd80;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.compressed_header_bits = 11'd14;
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.compressed_payload_bits = 11'd10;
-      @(posedge clk);
-      #1;
-      force_tx_encoder_direct_idle;
-
-      force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = 3'd7;
-      @(posedge clk);
-      #1;
-      force_tx_encoder_direct_idle;
+      tx_words_dummy = 11'h2a5;
 
       reversed_dummy = dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_payload_emitter.reverse_code_bits(31'h00000000, 5'd0);
       reversed_dummy = reversed_dummy ^
@@ -4815,7 +4719,6 @@ module test_bench;
         force dut.u_tx_top.u_huffman_aes_tx_top.u_bit_packer_128.rem_payload_bits = raw_cov_patt ^ 32'h0f0ff0f0;
 
         force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_control_fsm.state = raw_cov_sweep_idx[3:0];
-        force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_mode_decision_logic.state = raw_cov_sweep_idx[2:0];
         force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_payload_emitter.state = raw_cov_sweep_idx[2:0];
         force dut.u_tx_top.u_huffman_aes_tx_top.u_dynamic_huffman_encoder.u_emit_backend.u_header_formatter.state = raw_cov_sweep_idx[3:0];
 

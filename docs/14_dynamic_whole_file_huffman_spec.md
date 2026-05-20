@@ -153,7 +153,9 @@ COMPRESSED cho ca frame:
 - cac block sau emit `symbol_count=0` de reuse table
 
 Fallback raw theo tung block khong duoc dung trong mode whole-file, de RX
-contract don gian va de benchmark compression ratio ro rang.
+contract don gian va de benchmark compression ratio ro rang. `mode_decision_logic.v`
+da duoc loai khoi RTL active; neu can compressed/raw decision thi RISC-V firmware
+se so sanh ket qua cap file va ghi policy vao metadata.
 
 ## 5. RX Behavior
 
@@ -182,6 +184,8 @@ Da lam:
 - Decoder bao error neu reuse block xuat hien truoc khi co table hop le.
 - `huffman_aes_tx_top` them global frequency counter va global Huffman builder.
 - `dynamic_huffman_encoder` co external codebook interface cho whole-file.
+- `dynamic_huffman_encoder` khong con instantiate block-level
+  `mode_decision_logic`; TX block mode active co dinh la `COMPRESSED`.
 - `apb_huffman_tx_if` co policy/control/status cho count/build/emit.
 - `dma_tx_engine` co two-pass flow: count pass, build table, emit pass.
 - `dma_regfile.MODE[3]` chon whole-file dynamic.
@@ -207,9 +211,10 @@ Gioi han con lai:
   phan bo tan suat pathological co code length dai hon, can tang lai
   `CODE_WIDTH` hoac them fallback long-code.
 - TX whole-file hien chon COMPRESSED cho ca frame, chua co raw fallback theo
-  file neu ket qua nen xau.
+  file neu ket qua nen xau. Huong mo rong dung RV32I firmware de quyet dinh
+  compressed/raw AES o cap file.
 - RX bypass AES cho `COMPRESS_ONLY` loopback chua duoc dung trong test chinh.
-- RX local canonical sort tables are still register/mux based; full TX+RX
+- RX local canonical sort tables are still register/mux based; full FPGA demo SoC
   implementation passes, but a future one-write-port sort or length-bucket
   builder would reduce RX area further.
 
@@ -282,11 +287,11 @@ Vivado area-optimized result at 50 MHz:
 | Build | LUT | FF | Slices | Control sets | BRAM | WNS |
 |---|---:|---:|---:|---:|---:|---:|
 | TX-only `rv32_soc_synth_tx_opt4` | 11933 | 5469 | 3979 | 208 | 10 | +1.277 ns |
-| Full TX+RX `rv32_soc_synth_full_opt4` | 28067 | 18501 | 9955 | 757 | 11 | +0.334 ns |
+| Full FPGA demo SoC `rv32_soc_synth_full_fpga` | 28379 | 18898 | 10165 | 778 | 11 | +0.811 ns |
 
 The previous full-build place packing issue is resolved in this run. Sharing or
 time-multiplexing AES cores is therefore not required for the current 50 MHz
-full SoC closure.
+full SoC closure. The same run reports vectorless power `0.282 W` total.
 
 ## 9. Tradeoff
 

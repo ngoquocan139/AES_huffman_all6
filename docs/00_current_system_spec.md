@@ -48,11 +48,12 @@ Important data policy:
 | Historical full regression baseline | `34/34` PASS before the secure-storage API refactor; rerun required for updated full-regression number |
 | Historical raw DUT coverage | `93.52%` full `bcesft` |
 | Historical closed DUT coverage | `95.90%` |
-| FPGA implementation strategy | Area-optimized project-mode runs at 50 MHz; TX-only and full TX+RX route successfully |
+| FPGA implementation strategy | Area-optimized project-mode runs at 50 MHz; TX-only and full FPGA demo SoC route successfully |
 | TX-only implementation | `rv32_soc_synth_tx_opt4`, routed, WNS `+1.277 ns` |
 | TX-only utilization | `11933` LUTs, `5469` registers, `3979` slices, `208` unique control sets, `10` BRAM tiles |
-| Full TX+RX implementation | `rv32_soc_synth_full_opt4`, routed, WNS `+0.334 ns` |
-| Full TX+RX utilization | `28067` LUTs, `18501` registers, `9955` slices, `757` unique control sets, `11` BRAM tiles |
+| Full FPGA demo SoC implementation | `rv32_soc_synth_full_fpga`, top `rv32_soc_fpga_demo_top`, routed, WNS `+0.811 ns`, WHS `+0.024 ns` |
+| Full FPGA demo SoC utilization | `28379` LUTs, `18898` registers, `10165` slices, `778` unique control sets, `11` BRAM tiles |
+| Full FPGA demo SoC power | vectorless estimate `0.282 W` total, `0.176 W` dynamic, `0.106 W` static |
 | Legacy RX-only implementation | routed, WNS `+0.341 ns`, power `0.193 W` |
 | Legacy RX-only utilization | `22730` LUTs, `27658` registers, `917` unique control sets |
 | Paper comparison result | MIT-BIH preprocessed input: `32.76%` average final storage ratio |
@@ -61,7 +62,7 @@ The latest implementation reports are under:
 
 ```text
 vivado/build/rv32_soc_synth_tx_opt4/reports/
-vivado/build/rv32_soc_synth_full_opt4/reports/
+vivado/build/rv32_soc_synth_full_fpga/reports/
 vivado/build/rv32_soc_synth_rx/reports/
 ```
 
@@ -446,13 +447,13 @@ Implementation result:
 | Build | Status | WNS | LUTs | Registers | Slices | Control sets | BRAM |
 |---|---|---:|---:|---:|---:|---:|---:|
 | `rv32_soc_synth_tx_opt4` | routed | `+1.277 ns` | `11933` | `5469` | `3979` | `208` | `10` |
-| `rv32_soc_synth_full_opt4` | routed | `+0.334 ns` | `28067` | `18501` | `9955` | `757` | `11` |
+| `rv32_soc_synth_full_fpga` | routed | `+0.811 ns` | `28379` | `18898` | `10165` | `778` | `11` |
 | legacy `rv32_soc_synth_rx` | routed | `+0.341 ns` | `22730` | `27658` | not rechecked | `917` | `11` |
 
 Route/timing status:
 
 - TX-only: route completed, `0` failed nets, timing met.
-- Full TX+RX: route completed, `0` failed nets, timing met.
+- Full FPGA demo SoC: route completed, `0` failed nets, timing met, vectorless power `0.282 W`.
 
 The previous `[Place 30-487]` packing failure was caused by LUT/FF/control-set
 pressure from large Huffman tables and reset-heavy arrays. The current RTL
@@ -500,8 +501,9 @@ and object-management layer.
 - The current firmware API is polling-based; no interrupt/trap completion path
   is implemented.
 - Custom RISC-V instructions are not implemented.
-- RX local canonical sort tables are not fully memory-inferred yet; full TX+RX
-  still routes successfully at 50 MHz after the current area optimization.
+- RX local canonical sort tables are not fully memory-inferred yet; full FPGA
+  demo SoC still routes successfully at 50 MHz after the current area
+  optimization.
 
 ## 16. Report Wording
 

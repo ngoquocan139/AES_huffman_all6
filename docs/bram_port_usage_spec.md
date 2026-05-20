@@ -328,7 +328,7 @@ nam giu tam thoi. Khi DMA duoc tich hop that, owner mac dinh cua `aux_*` phai la
 Ngoai IMEM/DMEM, RTL hien tai co cac table Huffman/FIFO noi bo duoc map sang
 BRAM hoac distributed RAM trong Vivado area-optimized run.
 
-Full TX+RX `rv32_soc_synth_full_opt4` post-synthesis mapping:
+Full FPGA demo SoC `rv32_soc_synth_full_fpga` post-synthesis/post-route mapping:
 
 | Storage | Vivado mapping | Purpose |
 |---|---|---|
@@ -349,8 +349,8 @@ Implementation rules that made this infer correctly:
 
 `huffman_block_decoder` still keeps `symbol_local`, `len_local`, and
 `code_local` in register/mux logic because the current canonical sort swaps
-adjacent entries. This does not block 50 MHz full TX+RX closure, but it is the
-next obvious RX area target.
+adjacent entries. This does not block 50 MHz full FPGA demo SoC closure, but it
+is the next obvious RX area target.
 
 ## 10. Chot huong dung cho cac file
 

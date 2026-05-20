@@ -1,0 +1,89 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
+| Date         : Wed May 20 17:11:42 2026
+| Host         : An running 64-bit major release  (build 9200)
+| Command      : report_utilization -hierarchical -file H:/Academic/senior_project/DATN/work/luc/AES_huffman_all6/vivado/build/rv32_soc_synth_full_fpga/reports/post_impl_utilization_hier.rpt
+| Design       : rv32_soc_fpga_demo_top
+| Device       : xc7z020clg484-1
+| Speed File   : -1
+| Design State : Physopt postRoute
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++---------------------------------------+-----------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+|                Instance               |               Module              | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
++---------------------------------------+-----------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+| rv32_soc_fpga_demo_top                |                             (top) |      28379 |      27317 |    1062 |    0 | 18898 |     11 |      0 |          0 |
+|   (rv32_soc_fpga_demo_top)            |                             (top) |          1 |          1 |       0 |    0 |    42 |      0 |      0 |          0 |
+|   u_soc                               |                      rv32_soc_top |      28066 |      27004 |    1062 |    0 | 18500 |     11 |      0 |          0 |
+|     (u_soc)                           |                      rv32_soc_top |          0 |          0 |       0 |    0 |     2 |      0 |      0 |          0 |
+|     u_cpu                             |                     top_rv32_sync |       1715 |       1715 |       0 |    0 |   647 |      0 |      0 |          0 |
+|       u_ex_stage                      |                          ex_stage |        535 |        535 |       0 |    0 |   109 |      0 |      0 |          0 |
+|       u_id_stage                      |                          id_stage |        761 |        761 |       0 |    0 |   159 |      0 |      0 |          0 |
+|       u_if_stage                      |                     if_stage_sync |        166 |        166 |       0 |    0 |   194 |      0 |      0 |          0 |
+|       u_mem_stage                     |                    mem_stage_sync |        258 |        258 |       0 |    0 |   185 |      0 |      0 |          0 |
+|     u_cpu_mmio_to_apb_bridge          |            cpu_mmio_to_apb_bridge |         21 |         21 |       0 |    0 |   103 |      0 |      0 |          0 |
+|     u_dma_regfile                     |                       dma_regfile |         60 |         60 |       0 |    0 |   239 |      0 |      0 |          0 |
+|     u_dma_rx_engine                   |                     dma_rx_engine |        229 |        229 |       0 |    0 |   303 |      0 |      0 |          0 |
+|     u_dma_tx_engine                   |                     dma_tx_engine |        456 |        456 |       0 |    0 |   321 |      0 |      0 |          0 |
+|     u_dmem                            |                   dmem_ip_wrapper |          0 |          0 |       0 |    0 |     0 |      8 |      0 |          0 |
+|       u_dmem_ip                       |                           DMEM_ip |          0 |          0 |       0 |    0 |     0 |      8 |      0 |          0 |
+|     u_imem                            |                         imem_sync |          0 |          0 |       0 |    0 |     0 |      2 |      0 |          0 |
+|     u_reg_file                        |                    registers_file |        576 |        576 |       0 |    0 |   992 |      0 |      0 |          0 |
+|     u_rx_top                          |            apb_huffman_aes_rx_top |      16215 |      15949 |     266 |    0 | 13125 |      1 |      0 |          0 |
+|       (u_rx_top)                      |            apb_huffman_aes_rx_top |          0 |          0 |       0 |    0 |   518 |      0 |      0 |          0 |
+|       u_AES_top_rx                    |             aes128_cipher_inv_top |       1346 |       1346 |       0 |    0 |   261 |      0 |      0 |          0 |
+|         u_aes128_cipher_core_inv      |            aes128_cipher_core_inv |       1115 |       1115 |       0 |    0 |   133 |      0 |      0 |          0 |
+|         u_aes128_key_expansion_inv    |          aes128_key_expansion_inv |        231 |        231 |       0 |    0 |   128 |      0 |      0 |          0 |
+|       u_aes_input_wrapper_rx          |                        wrapper_rx |          1 |          1 |       0 |    0 |   129 |      0 |      0 |          0 |
+|       u_apb_huffman_rx_if             |                 apb_huffman_rx_if |         53 |         27 |      26 |    0 |    16 |      0 |      0 |          0 |
+|       u_bit_depacker_128              |                  bit_depacker_128 |        712 |        712 |       0 |    0 |   206 |      0 |      0 |          0 |
+|       u_huffman_block_decoder         |             huffman_block_decoder |      12913 |      12673 |     240 |    0 | 11724 |      1 |      0 |          0 |
+|         (u_huffman_block_decoder)     |             huffman_block_decoder |      10275 |      10035 |     240 |    0 | 11724 |      0 |      0 |          0 |
+|         u_main_decode_table           |           HUFFMAN_DECODE_TABLE_IP |       2639 |       2639 |       0 |    0 |     0 |      1 |      0 |          0 |
+|       u_huffman_block_parser          |              huffman_block_parser |       1138 |       1138 |       0 |    0 |   204 |      0 |      0 |          0 |
+|       u_rx_byte_packer_32             |                 rx_byte_packer_32 |         60 |         60 |       0 |    0 |    67 |      0 |      0 |          0 |
+|     u_tx_top                          |            apb_huffman_aes_tx_top |       8797 |       8001 |     796 |    0 |  2768 |      0 |      0 |          0 |
+|       (u_tx_top)                      |            apb_huffman_aes_tx_top |          0 |          0 |       0 |    0 |   392 |      0 |      0 |          0 |
+|       u_AES_top_tx                    |                 aes128_cipher_top |       1331 |       1331 |       0 |    0 |   261 |      0 |      0 |          0 |
+|         u_aes128_cipher_core          |                aes128_cipher_core |       1022 |       1022 |       0 |    0 |   133 |      0 |      0 |          0 |
+|         u_aes128_key_expansion        |              aes128_key_expansion |        309 |        309 |       0 |    0 |   128 |      0 |      0 |          0 |
+|       u_apb_huffman_tx_if             |                 apb_huffman_tx_if |        275 |        229 |      46 |    0 |    51 |      0 |      0 |          0 |
+|       u_huffman_aes_tx_top            |                huffman_aes_tx_top |       7192 |       6442 |     750 |    0 |  2064 |      0 |      0 |          0 |
+|         (u_huffman_aes_tx_top)        |                huffman_aes_tx_top |         13 |         13 |       0 |    0 |    65 |      0 |      0 |          0 |
+|         u_aes_input_wrapper           |                           wrapper |        130 |        130 |       0 |    0 |   129 |      0 |      0 |          0 |
+|         u_bit_packer_128              |                    bit_packer_128 |       2430 |       2430 |       0 |    0 |   311 |      0 |      0 |          0 |
+|         u_dynamic_huffman_encoder     |           dynamic_huffman_encoder |       1275 |       1221 |      54 |    0 |   490 |      0 |      0 |          0 |
+|           u_control_fsm               |                       control_fsm |         34 |         34 |       0 |    0 |    13 |      0 |      0 |          0 |
+|           u_emit_backend              |                      emit_backend |        782 |        782 |       0 |    0 |   207 |      0 |      0 |          0 |
+|             (u_emit_backend)          |                      emit_backend |          1 |          1 |       0 |    0 |     7 |      0 |      0 |          0 |
+|             u_header_formatter        |                  header_formatter |        177 |        177 |       0 |    0 |   134 |      0 |      0 |          0 |
+|             u_payload_emitter         |                   payload_emitter |         84 |         84 |       0 |    0 |    61 |      0 |      0 |          0 |
+|             u_stream_output_interface |           stream_output_interface |        521 |        521 |       0 |    0 |     5 |      0 |      0 |          0 |
+|           u_input_collect_unit        |                input_collect_unit |        460 |        406 |      54 |    0 |   270 |      0 |      0 |          0 |
+|             (u_input_collect_unit)    |                input_collect_unit |         17 |         17 |       0 |    0 |     6 |      0 |      0 |          0 |
+|             u_block_buffer            |                      block_buffer |         33 |         27 |       6 |    0 |     7 |      0 |      0 |          0 |
+|             u_frequency_counter       | frequency_counter__parameterized0 |        411 |        363 |      48 |    0 |   257 |      0 |      0 |          0 |
+|         u_file_frequency_counter      |                 frequency_counter |        604 |        476 |     128 |    0 |   257 |      0 |      0 |          0 |
+|         u_file_huffman_builder        |                   huffman_builder |       2751 |       2183 |     568 |    0 |   812 |      0 |      0 |          0 |
+|           (u_file_huffman_builder)    |                   huffman_builder |         12 |         12 |       0 |    0 |    10 |      0 |      0 |          0 |
+|           u_canonical_code_generator  |          canonical_code_generator |        224 |        104 |     120 |    0 |    59 |      0 |      0 |          0 |
+|           u_code_length_builder       |               code_length_builder |       2387 |       1987 |     400 |    0 |   720 |      0 |      0 |          0 |
+|           u_symbol_list_builder       |               symbol_list_builder |        149 |        101 |      48 |    0 |    23 |      0 |      0 |          0 |
+|   u_uart_dmem_loader                  |                  uart_dmem_loader |        312 |        312 |       0 |    0 |   356 |      0 |      0 |          0 |
+|     (u_uart_dmem_loader)              |                  uart_dmem_loader |        116 |        116 |       0 |    0 |   277 |      0 |      0 |          0 |
+|     u_uart_rx                         |                           uart_rx |        144 |        144 |       0 |    0 |    40 |      0 |      0 |          0 |
+|     u_uart_tx                         |                           uart_tx |         53 |         53 |       0 |    0 |    39 |      0 |      0 |          0 |
++---------------------------------------+-----------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+
