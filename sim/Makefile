@@ -364,8 +364,14 @@ license:
 		echo "[FAIL] pubkey_verify failed"; \
 		exit 1; \
 	fi
+.PHONY: push github push_github
+push: push_github
+
+github:
+	@true
+
 push_github:
-	cd .. && ./push_source.sh	
+	cd .. && ./push_source.sh
 help:
 	@echo ""
 	@echo "****************************************"
@@ -411,6 +417,7 @@ help:
 	@echo "** make vivado_gui_rx: open Vivado GUI RX-only project"
 	@echo "** make vivado_gui_full: open optimized full TX+RX Vivado project"
 	@echo "** make vivado_report VIVADO_PROJECT=$(VIVADO_TX_PROJECT) : open a Vivado report folder"
+	@echo "** make push github : safely commit source/docs/config changes and push to GitHub main"
 	@echo "****************************************"
 	@echo ""
 
