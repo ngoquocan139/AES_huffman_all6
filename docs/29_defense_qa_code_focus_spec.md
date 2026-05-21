@@ -190,12 +190,13 @@ Phai noi duoc 4 y:
 
 ### 4.2 `cpu_mmio_to_apb_bridge.v`
 
-Phai noi duoc 4 y:
+Phai noi duoc 5 y:
 
 1. Bridge bien mot MMIO access cua CPU thanh APB access cho peripheral.
-2. APB master van theo 3 pha co ban: setup, access, complete.
-3. Khi CPU dang thuc hien MMIO access ma APB chua xong, pipeline duoc hold kien truc.
-4. Du lieu readback cua MMIO duoc noi vao memory-return path de CPU `lw` doc thanh ghi nhu doc memory.
+2. APB transfer co 2 phase ben ngoai: setup va access; `complete` la su kien khi `PREADY=1`.
+3. RTL bridge hien co 2 state (`IDLE`, `ACCESS`); setup la cycle accept request, khong phai state rieng.
+4. Khi CPU dang thuc hien MMIO access ma APB chua xong, pipeline duoc hold kien truc trong `ACCESS`.
+5. Du lieu readback cua MMIO duoc noi vao memory-return path de CPU `lw` doc thanh ghi nhu doc memory.
 
 ### 4.3 `dma_regfile.v`
 
@@ -292,11 +293,11 @@ Khong stall toan cuc. CPU chi bi hold khi dang thuc hien MMIO/APB access can cho
 - `cpu_mmio_to_apb_bridge.v`
 - `cpu_dma_stall_policy_spec.md`
 
-### Q4. APB bridge co dung 3-phase khong?
+### Q4. APB bridge co dung 3 buoc setup/access/complete khong?
 
 **Tra loi ngan:**
 
-Co. O muc thuc hien, bridge van di theo setup -> access -> complete, va giu request/hold CPU cho den khi `pready` xac nhan giao dich xong.
+Neu noi theo luong thao tac thi co 3 buoc: setup, access, complete. Nhung theo APB protocol chi co 2 phase bus la `SETUP` va `ACCESS`; `complete` la su kien khi `PREADY=1`. Trong RTL, bridge chi co 2 state (`IDLE`, `ACCESS`): setup duoc drive ngay luc accept request, sau do bridge vao `ACCESS`, giu request va hold CPU cho den khi `PREADY` xac nhan giao dich xong.
 
 ### Q5. TX va RX du lieu di nhu the nao?
 

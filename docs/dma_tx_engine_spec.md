@@ -2,271 +2,263 @@
 
 ## 1. Purpose
 
-`dma_tx_engine` la data-plane engine cho huong:
+`dma_tx_engine` is the TX-side data mover:
 
-- `DMEM plaintext -> TX accelerator -> DMEM ciphertext`
+```text
+DMEM plaintext -> apb_huffman_aes_tx_top -> DMEM ciphertext/transport
+```
 
-Trong SoC hien tai, module nay nhan config tu `dma_regfile`, chiem `DMEM` port B trong luc transfer dang chay, dieu khien `apb_huffman_aes_tx_top` bang private APB master, va ghi ciphertext tro lai `DMEM`.
+It does not implement Huffman or AES itself. It owns `DMEM` Port B while TX is
+busy, acts as a private APB master toward the TX accelerator, and reports
+`busy/done/error/bytes_done` back to `dma_regfile`.
 
 Current verification status:
 
 | Case | Coverage/use |
 |---|---|
-| `dma_compress_aes_input1/input3/alnum63` | Normal whole-file `COMPRESS_AES` TX phase trong loopback SoC |
-| `tx_compress_only_input1/input4_cov` | TX-only `COMPRESS_ONLY` path de do saving truc tiep |
-| `tx_apb_wait_cov` | Private APB wait-state giua DMA TX va TX accelerator |
-| `tx_apb_error_cov` | Private APB error path va `last_error_code_o` |
-| `dma_bridge_direct_cov` | Defensive config/error branches cua DMA/APB path |
+| `dma_compress_aes_input1/input3/alnum63` | Whole-file `COMPRESS_AES` TX phase inside full loopback |
+| `tx_compress_only_input1/input4_cov` | Whole-file `COMPRESS_ONLY` TX-only saving benchmark |
+| `tx_apb_wait_cov` | Private APB wait-state between TX DMA and TX accelerator |
+| `tx_apb_error_cov` | Private APB error path and `last_error_code_o` |
+| `dma_bridge_direct_cov` | Defensive DMA/APB/config branches |
 | Historical full coverage regression | Included in `34/34` PASS baseline before secure-storage API refactor |
 
-## 1.1 Flow Chart
+## 1.1 Current TX Flow Chart
 
 ```mermaid
 flowchart TD
-  A["start_i"] --> B{"direction_i == TX\nand config valid?"}
+  A["start_i"] --> B{"direction=TX and config valid?"}
   B -->|"no"| ERR["STATE_ERROR"]
   B -->|"yes"| C["Snapshot config"]
-  C --> D["APB write TX CONTROL soft reset"]
-  D --> E["APB write TX_POLICY"]
-  E --> F["Prepare current block"]
-  F --> G["Read plaintext word from DMEM"]
-  G --> H["APB write WORD_IN"]
-  H --> I{"Block words loaded?"}
-  I -->|"no"| G
-  I -->|"yes"| J["Poll TX STATUS can_start"]
-  J --> K["APB write START_BLOCK"]
-  K --> L["Poll TX STATUS done_sticky"]
-  L --> M["Drain AES_OUT_STATUS/META/DATA"]
-  M --> N["Write output word to DMEM"]
-  N --> O{"More output or input?"}
-  O -->|"more output"| M
-  O -->|"next block"| F
-  O -->|"complete"| P["Pulse dma_done_o"]
+  C --> D["APB write TX CONTROL soft_reset=1"]
+  D --> E{"whole_file_i?"}
+
+  E -->|"no"| P0["APB write TX_POLICY bit0=compress_only"]
+  P0 --> P1["Single pass: read DMEM blocks"]
+  P1 --> P2["write BLOCK_SIZE/WORD_IN/START_BLOCK"]
+  P2 --> P3["poll done, drain AES_OUT FIFO"]
+  P3 --> DONE["STATE_COMPLETE"]
+
+  E -->|"yes"| W0["APB write TX CONTROL global_clear=1"]
+  W0 --> W1["APB write TX_POLICY=0x6\nwhole_file=1 count_mode=1"]
+  W1 --> W2["Pass 1: read all DMEM input by 32-byte blocks"]
+  W2 --> W3["TX top accumulates global frequency table"]
+  W3 --> W4["APB write TX CONTROL global_build_start=1"]
+  W4 --> W5["poll STATUS global build done/error"]
+  W5 --> W6["APB write TX_POLICY\nwhole_file=1 count_mode=0\ncompress_only=mode bit"]
+  W6 --> W7["Pass 2: reread DMEM input and emit Huffman stream"]
+  W7 --> W8["drain AES_OUT FIFO to DMEM"]
+  W8 --> DONE
 ```
 
-## 2. Scope of the current code
+## 2. Interface
 
-Phien ban trong repo hien tai la engine rieng cho direction `TX`:
-
-1. nhan `start_i` tu `dma_regfile`
-2. chi xu ly khi `direction_i == 2'b01`
-3. nhan them `compress_only_i` tu `dma_regfile`
-4. validate alignment va block size
-5. soft-reset TX wrapper
-6. lap trinh `TX_POLICY`
-7. chia transfer thanh cac block theo `block_size_i`
-8. doc plaintext 32-bit word tu `DMEM`
-9. ghi `BLOCK_SIZE`, `WORD_IN`, `START_BLOCK` vao TX APB slave
-10. poll `STATUS` de doi `can_start` va `done_sticky`
-11. drain `AES_OUT_STATUS`, `AES_OUT_META`, `AES_OUT_DATA`
-12. ghi output 32-bit word ve `DMEM`
-13. phat `dma_done_o` hoac `dma_error_o`
-
-`bytes_done_o` hien tai dem so byte output da ghi ve `DMEM`:
-
-- neu `compress_only_i = 0`: day la AES output bytes
-- neu `compress_only_i = 1`: day la compressed transport bytes
-
-## 3. Interface
-
-### 3.1 Control and snapshot config
+### 2.1 Control and config
 
 | Port | Dir | Width | Meaning |
 |---|---|---:|---|
 | `clk_i` | in | 1 | System clock |
 | `rst_i` | in | 1 | Active-high reset |
-| `start_i` | in | 1 | Pulse bat dau transfer |
-| `soft_reset_i` | in | 1 | Pulse reset engine state |
-| `clear_done_i` | in | 1 | Pulse clear done/debug state |
-| `clear_error_i` | in | 1 | Pulse clear last error |
-| `src_addr_i` | in | 32 | Byte address plaintext source trong `DMEM` |
-| `dst_addr_i` | in | 32 | Byte address ciphertext destination trong `DMEM` |
-| `len_bytes_i` | in | 32 | Tong plaintext bytes can xu ly |
-| `direction_i` | in | 2 | Phai la `2'b01` de engine nay chay |
-| `compress_only_i` | in | 1 | `1`: TX bypass AES, `0`: TX di qua AES |
-| `block_size_i` | in | 6 | So byte/block, code hien tai cho phep `1..32` |
+| `start_i` | in | 1 | One-cycle start pulse from `dma_regfile` |
+| `soft_reset_i` | in | 1 | Reset this engine state |
+| `clear_done_i` | in | 1 | Consumed only in lint-safe reduction |
+| `clear_error_i` | in | 1 | Clears `last_error_code_o` |
+| `src_addr_i` | in | 32 | Plaintext source byte address in DMEM |
+| `dst_addr_i` | in | 32 | Output destination byte address in DMEM |
+| `len_bytes_i` | in | 32 | Plaintext input length |
+| `direction_i` | in | 2 | Must be `2'b01` |
+| `compress_only_i` | in | 1 | `1`: bypass AES, `0`: AES-CBC encrypt |
+| `whole_file_i` | in | 1 | `1`: two-pass whole-file Huffman table |
+| `block_size_i` | in | 6 | Block chunk size, valid `1..32`, normally `32` |
 
-### 3.2 DMEM port B master
+### 2.2 DMEM Port B master
 
 | Port | Dir | Width | Meaning |
 |---|---|---:|---|
-| `dmem_en_o` | out | 1 | Bat truy cap `DMEM` port B |
-| `dmem_we_o` | out | 4 | Byte write enable; `4'b1111` khi ghi ciphertext |
-| `dmem_addr_o` | out | 32 | Byte address port B |
-| `dmem_wdata_o` | out | 32 | Du lieu ghi ve `DMEM` |
-| `dmem_rdata_i` | in | 32 | Du lieu doc tu `DMEM` |
+| `dmem_en_o` | out | 1 | Asserted for read issue or write issue |
+| `dmem_we_o` | out | 4 | `4'b1111` when writing output words |
+| `dmem_addr_o` | out | 32 | Read source or write destination byte address |
+| `dmem_wdata_o` | out | 32 | Output word written to DMEM |
+| `dmem_rdata_i` | in | 32 | Plaintext word read from DMEM |
 
-### 3.3 Private APB master sang TX
+### 2.3 Private APB master to TX
 
 | Port | Dir | Width | Meaning |
 |---|---|---:|---|
 | `tx_psel_o` | out | 1 | APB `PSEL` |
 | `tx_penable_o` | out | 1 | APB `PENABLE` |
 | `tx_pwrite_o` | out | 1 | APB `PWRITE` |
-| `tx_paddr_o` | out | 32 | APB `PADDR` |
-| `tx_pwdata_o` | out | 32 | APB `PWDATA` |
-| `tx_prdata_i` | in | 32 | APB `PRDATA` |
-| `tx_pready_i` | in | 1 | APB `PREADY` |
-| `tx_pslverr_i` | in | 1 | APB `PSLVERR` |
+| `tx_paddr_o` | out | 32 | TX local APB address |
+| `tx_pwdata_o` | out | 32 | TX APB write data |
+| `tx_prdata_i` | in | 32 | TX APB read data |
+| `tx_pready_i` | in | 1 | TX APB ready; DMA waits while low |
+| `tx_pslverr_i` | in | 1 | TX APB slave error |
 
-### 3.4 Status outputs
+### 2.4 Status outputs
 
 | Port | Dir | Width | Meaning |
 |---|---|---:|---|
-| `dma_busy_o` | out | 1 | Engine dang active |
-| `dma_done_o` | out | 1 | Pulse 1 cycle khi transfer xong |
-| `dma_error_o` | out | 1 | Pulse 1 cycle khi transfer loi |
-| `bytes_done_o` | out | 32 | Output bytes da ghi ve `DMEM` |
-| `last_error_code_o` | out | 8 | Ma loi cuoi |
-| `engine_state_o` | out | 4 | Low nibble cua FSM state |
+| `dma_busy_o` | out | 1 | Engine state is not `STATE_IDLE` |
+| `dma_done_o` | out | 1 | One-cycle completion pulse |
+| `dma_error_o` | out | 1 | One-cycle error pulse |
+| `bytes_done_o` | out | 32 | Output bytes written to DMEM |
+| `last_error_code_o` | out | 8 | Last error code |
+| `engine_state_o` | out | 4 | Low nibble of current FSM state |
 
-## 4. Accepted config in current code
+`engine_state_o` intentionally exposes only `state_r[3:0]`. Some current FSM
+states are above `15`, so this field is debug-oriented, not a unique full state
+ID.
 
-`dma_tx_engine` chi nhan `start_i` neu:
+## 3. Accepted Config
+
+TX starts only when:
 
 - `direction_i == 2'b01`
 - `len_bytes_i != 0`
-- `block_size_i != 0`
-- `block_size_i <= 32`
-- `src_addr_i[1:0] == 2'b00`
-- `dst_addr_i[1:0] == 2'b00`
+- `block_size_i` is in `1..32`
+- `src_addr_i` and `dst_addr_i` are 4-byte aligned
 
-Neu sai mot trong cac dieu kien tren, engine vao `STATE_ERROR` va dat `last_error_code_o = 8'h02`.
+Invalid config raises `dma_error_o` and sets `last_error_code_o = 8'h02`.
 
-## 5. TX-side APB register usage
+## 4. TX APB Register Usage
 
-`dma_tx_engine` dung cac offset sau tren `apb_huffman_tx_if`:
+`dma_tx_engine` uses the following registers in `apb_huffman_tx_if`:
 
 | Offset | Register | Access | Engine usage |
-|---|---|---|---|
-| `0x00` | `START_BLOCK` | write | Ghi `0x1` cho block cuoi, `0x3` khi `continue_frame=1` |
-| `0x04` | `BLOCK_SIZE` | write | Ghi so byte cua block hien tai |
-| `0x08` | `WORD_IN` | write | Nap plaintext 32-bit words |
-| `0x0C` | `STATUS` | read | Poll `error_sticky`, `done_sticky`, `tx_busy`, `can_start` |
-| `0x10` | `CONTROL` | write | Ghi `0x1` de soft reset TX wrapper luc start transfer |
-| `0x18` | `TX_POLICY` | write | Ghi bit0 = `compress_only_i` |
-| `0x20` | `AES_OUT_DATA` | read | Lay ciphertext 32-bit word |
-| `0x24` | `AES_OUT_META` | read | Lay bit `last` va `compress_only` cua head word |
-| `0x28` | `AES_OUT_STATUS` | read | Poll output FIFO nonempty va AES output error |
+|---:|---|---|---|
+| `0x00` | `START_BLOCK` | W | bit0 starts block; bit1 marks `continue_frame` |
+| `0x04` | `BLOCK_SIZE` | W | current block byte count |
+| `0x08` | `WORD_IN` | W | one 32-bit plaintext word |
+| `0x0C` | `STATUS` | R | poll `can_start`, block done, global build status, errors |
+| `0x10` | `CONTROL` | W | soft reset, global clear, global build start |
+| `0x18` | `TX_POLICY` | W | bit0 `compress_only`, bit1 `whole_file`, bit2 `count_mode` |
+| `0x20` | `AES_OUT_DATA` | R | one output word |
+| `0x24` | `AES_OUT_META` | R | output metadata; latched for debug |
+| `0x28` | `AES_OUT_STATUS` | R | output FIFO nonempty/error status |
 
-`dma_tx_engine` khong dung `0x14` (`DEBUG`) hay `0x2C` (`AES_OUT_DEBUG`) trong logic chinh.
+The engine does not use `DEBUG` or `AES_OUT_DEBUG` in normal logic.
 
-## 6. Status bits the engine actually relies on
+## 5. TX Status Bits Used By DMA
 
-### 6.1 `TX STATUS` (`0x0C`)
+### 5.1 `STATUS` at `0x0C`
 
-Engine dang dung:
+| Bit | Meaning | Engine use |
+|---:|---|---|
+| `3` | `tx_busy` | final idle check |
+| `4` | `done_sticky` | current block/count pass done |
+| `5` | `error_sticky` | abort with `ERR_TX_STATUS` |
+| `7` | `can_start` | safe to write `START_BLOCK` |
+| `8` | `global_table_valid` | whole-file build success indication |
+| `10` | `global_build_done` | whole-file build success indication |
+| `11` | `global_build_error` | abort with `ERR_TX_GLOBAL_BUILD` |
 
-- `STATUS[3]`: `tx_busy`
-- `STATUS[4]`: `done_sticky`
-- `STATUS[5]`: `tx_core_error_sticky`
-- `STATUS[7]`: `can_start`
+### 5.2 `AES_OUT_STATUS` at `0x28`
 
-Engine khong dua vao `STATUS[1]` hay `STATUS[6]` trong FSM chinh.
+| Bit | Meaning | Engine use |
+|---:|---|---|
+| `0` | output FIFO nonempty | read `AES_OUT_META/DATA` |
+| `9` | AES/output error sticky | abort with `ERR_TX_AES_OUT` |
+| `10` | `compress_only` mirror | debug/coverage |
+| `11` | `whole_file` mirror | debug/coverage |
 
-### 6.2 `AES_OUT_STATUS` (`0x28`)
+## 6. FSM States
 
-Engine dang dung:
-
-- `STATUS[0]`: output FIFO nonempty
-- `STATUS[9]`: `aes_out_error_sticky`
-- `STATUS[10]`: mirror cua `compress_only`
-
-`AES_OUT_META[0]` duoc doc va latch vao `tx_meta_r`, nhung code hien tai khong dung bit nay de chot complete; completion cua block cuoi dang dua vao heuristic empty-and-idle ben duoi. `AES_OUT_META[1]` la mirror cua `compress_only` cho future consumer.
-
-## 7. FSM in the current code
+Current RTL state values:
 
 | State | Value | Meaning |
 |---|---:|---|
-| `STATE_IDLE` | 0 | Doi `start_i` cho mode TX |
-| `STATE_CAPTURE_CFG` | 1 | Snapshot config va reset counters |
-| `STATE_RESET_TX` | 2 | Sau APB write `CONTROL=1` |
-| `STATE_PREP_BLOCK` | 3 | Chot `current_block_bytes` va so words can nap |
-| `STATE_LOAD_WORD_CHECK` | 4 | Kiem tra da nap het words cua block chua |
-| `STATE_DMEM_READ_ISSUE` | 5 | Phat lenh doc 1 word plaintext tu `DMEM` |
-| `STATE_DMEM_READ_CAPTURE` | 6 | Latch `dmem_rdata_i`, tang `src_ptr`, write `WORD_IN` |
-| `STATE_CHECK_CAN_START` | 7 | Bat dau poll `TX STATUS` |
-| `STATE_CHECK_CAN_START_EVAL` | 8 | Doi `can_start=1`, neu loi thi abort |
-| `STATE_WAIT_BLOCK_DONE` | 9 | Poll `TX STATUS` sau `START_BLOCK` |
-| `STATE_WAIT_BLOCK_DONE_EVAL` | 10 | Doi `done_sticky=1`, cap nhat `bytes_done_o` |
-| `STATE_DRAIN_STATUS` | 11 | Poll `AES_OUT_STATUS` |
-| `STATE_DRAIN_STATUS_EVAL` | 12 | Neu FIFO nonempty thi doc output; neu block cuoi va empty thi vao final-drain check |
-| `STATE_DRAIN_META` | 13 | Read `AES_OUT_META` |
-| `STATE_DRAIN_META_EVAL` | 14 | Latch `tx_meta_r` |
-| `STATE_DRAIN_DATA` | 15 | Read `AES_OUT_DATA` |
-| `STATE_DRAIN_DATA_EVAL` | 16 | Latch output word |
-| `STATE_DMEM_WRITE_ISSUE` | 17 | Ghi ciphertext word ve `DMEM`, tang `dst_ptr` |
-| `STATE_FINAL_IDLE_CHECK` | 18 | Poll lai `TX STATUS` o tail cua transfer |
-| `STATE_FINAL_IDLE_EVAL` | 19 | Neu `tx_busy==0` on dinh thi complete |
-| `STATE_APB_SETUP` | 20 | APB setup phase |
-| `STATE_APB_ACCESS` | 21 | APB access phase, doi `PREADY` |
-| `STATE_COMPLETE` | 22 | Pulse `dma_done_o` |
-| `STATE_ERROR` | 23 | Pulse `dma_error_o` |
+| `STATE_IDLE` | 0 | Wait for valid TX start |
+| `STATE_CAPTURE_CFG` | 1 | Snapshot config and reset counters |
+| `STATE_RESET_TX` | 2 | After TX wrapper soft reset |
+| `STATE_PREP_BLOCK` | 3 | Compute current chunk length and write `BLOCK_SIZE` |
+| `STATE_LOAD_WORD_CHECK` | 4 | Check whether all words for this block were loaded |
+| `STATE_DMEM_READ_ISSUE` | 5 | Issue DMEM read |
+| `STATE_DMEM_READ_WAIT` | 6 | Wait one sync DMEM cycle |
+| `STATE_DMEM_READ_CAPTURE` | 7 | Capture read word and write TX `WORD_IN` |
+| `STATE_CHECK_CAN_START` | 8 | Read TX `STATUS` |
+| `STATE_CHECK_CAN_START_EVAL` | 9 | Wait for `can_start` or error |
+| `STATE_WAIT_BLOCK_DONE` | 10 | Read TX `STATUS` after `START_BLOCK` |
+| `STATE_WAIT_BLOCK_DONE_EVAL` | 11 | Process done/error for current block |
+| `STATE_DRAIN_STATUS` | 12 | Read `AES_OUT_STATUS` |
+| `STATE_DRAIN_STATUS_EVAL` | 13 | Decide drain/next/final |
+| `STATE_DRAIN_META` | 14 | Read `AES_OUT_META` |
+| `STATE_DRAIN_META_EVAL` | 15 | Latch output meta |
+| `STATE_DRAIN_DATA` | 16 | Read `AES_OUT_DATA` |
+| `STATE_DRAIN_DATA_EVAL` | 17 | Latch output word |
+| `STATE_DMEM_WRITE_ISSUE` | 18 | Write one output word to DMEM |
+| `STATE_FINAL_IDLE_CHECK` | 19 | Poll TX status at tail |
+| `STATE_FINAL_IDLE_EVAL` | 20 | Require 64 empty/idle polls before complete |
+| `STATE_APB_SETUP` | 21 | Private APB setup phase |
+| `STATE_APB_ACCESS` | 22 | Private APB access phase, wait for `PREADY` |
+| `STATE_COMPLETE` | 23 | Pulse `dma_done_o` |
+| `STATE_ERROR` | 24 | Pulse `dma_error_o` |
+| `STATE_GLOBAL_CLEAR` | 25 | Whole-file table clear command complete |
+| `STATE_SET_COUNT_POLICY` | 26 | Enter whole-file count pass |
+| `STATE_START_GLOBAL_BUILD` | 27 | Write global build start command |
+| `STATE_WAIT_GLOBAL_BUILD` | 28 | Read TX status during table build |
+| `STATE_WAIT_GLOBAL_BUILD_EVAL` | 29 | Wait for global table valid/build done |
+| `STATE_SET_EMIT_POLICY` | 30 | Reset pointers and enter whole-file emit pass |
 
-## 8. Block handling and `START_BLOCK` policy
+## 7. Whole-File Mode Contract
 
-Moi transfer duoc cat thanh nhieu block:
+When `whole_file_i = 1`, TX DMA reads the source twice:
 
-- `current_block_bytes_r = min(bytes_remaining_r, block_size_i)`
-- `words_remaining_r = ceil(current_block_bytes_r / 4)`
+1. Count pass:
+   - write `CONTROL.global_clear = 1` (`0x8`)
+   - write `TX_POLICY = 0x6` (`whole_file=1`, `count_mode=1`)
+   - feed all input chunks to TX
+   - no output is drained in this pass
+2. Build pass:
+   - write `CONTROL.global_build_start = 1` (`0x10`)
+   - poll `STATUS[8]` or `STATUS[10]`
+   - abort on `STATUS[11]`
+3. Emit pass:
+   - write `TX_POLICY = 0x2 | compress_only_i`
+   - reset `src_ptr`, `dst_ptr`, `bytes_remaining`, and `bytes_done`
+   - feed the same input chunks again
+   - drain output FIFO to DMEM
 
-Sau khi nap du word cho block hien tai:
+This is why `BLOCK_CFG=32` is still used: it is the chunk size for reading and
+feeding the file, not the Huffman codebook scope. The codebook scope is the
+whole file.
 
-- engine doi `STATUS[7] = can_start`
-- neu day khong phai block cuoi, ghi `START_BLOCK = 0x0000_0003`
-  - bit0 = `start`
-  - bit1 = `continue_frame`
-- neu day la block cuoi, ghi `START_BLOCK = 0x0000_0001`
+## 8. Output and Completion Policy
 
-Dieu nay khop voi APB TX wrapper: `continue_frame_o <= PWDATA[1]`.
+Every output word drained from `AES_OUT_DATA` is written to DMEM with
+`dmem_we_o = 4'b1111`, and `bytes_done_o += 4`.
 
-## 9. Completion policy in current code
+Completion requires:
 
-Completion cua `dma_tx_engine` duoc chia lam 2 lop:
+1. final block emitted,
+2. output FIFO empty,
+3. TX `tx_busy` low for `FINAL_EMPTY_POLLS_REQUIRED = 64` status polls.
 
-1. Khi `TX STATUS[4] = done_sticky`, engine coi block hien tai da duoc TX core xu ly xong va cap nhat `bytes_remaining_r`.
-2. Engine drain output FIFO; moi lan ghi mot word output ve `DMEM`, `bytes_done_o += 4`.
-3. Neu day la block cuoi, engine khong complete ngay. No tiep tuc:
-   - drain `AES_OUT_STATUS/META/DATA` cho toi khi output FIFO rong
-   - poll lai `TX STATUS[3] = tx_busy`
-   - neu `tx_busy == 0` lien tiep `64` lan, engine moi vao `STATE_COMPLETE`
+The tail-idle requirement prevents completing before late AES/CBC output words
+have reached the output FIFO.
 
-Heuristic tail-idle nay duoc dieu khien boi:
-
-- `FINAL_EMPTY_POLLS_REQUIRED = 64`
-
-Ly do la output ciphertext co the ra cham hon su kien `done_sticky`, dac biet o tail cua frame cuoi.
-
-## 10. Ownership of DMEM port B in SoC
-
-Trong `rv32_soc_top`:
-
-- khi `tx_dma_busy_w = 1`, `dma_tx_engine` chiem `DMEM` port B
-- khi `rx_dma_busy_w = 1`, port B thuoc `dma_rx_engine`
-- khi ca hai DMA deu idle, port B tra lai cho `aux_*`
-
-`dma_regfile` chi nhan 1 bo status tong hop, nen top dang mux status ve theo `dma_active_dir_r`.
-
-## 11. Error codes used by the current code
+## 9. Error Codes
 
 | Code | Meaning |
 |---:|---|
 | `0x00` | No error |
 | `0x01` | Default/unexpected state path |
-| `0x02` | Bad alignment / invalid config |
-| `0x03` | APB `PSLVERR` tu TX wrapper |
-| `0x04` | `TX STATUS[5] = error_sticky` |
-| `0x05` | `AES_OUT_STATUS[9] = aes_out_error_sticky` |
+| `0x02` | Bad direction, zero length, bad block size, or unaligned address |
+| `0x03` | TX APB returned `PSLVERR` |
+| `0x04` | TX `STATUS[5]` error sticky |
+| `0x05` | `AES_OUT_STATUS[9]` output error sticky |
+| `0x06` | Whole-file global Huffman build error |
 
-## 12. Important limitation of the current TX contract
+## 10. Integration Notes
 
-`dma_tx_engine` da phan biet duoc `COMPRESS_AES` va `COMPRESS_ONLY`, nhung no van chua xuat:
+In `rv32_soc_top`:
 
-- so transport words da ghi ve `DMEM`
-- final `dst_ptr`
-- RX-side policy metadata consume
+- TX DMA owns DMEM Port B while `tx_dma_busy_w = 1`.
+- RX DMA is disabled in TX-only FPGA builds through `FPGA_TX_ONLY`.
+- TX accelerator is disabled in RX-only FPGA builds through `FPGA_RX_ONLY`.
+- `dma_regfile.CIPHERTEXT_BYTES_PRODUCED` mirrors `tx_dma_bytes_done_w`, so
+  software can feed that value into RX `LEN_BYTES`.
 
-Dieu nay co nghia:
+Current limitation:
 
-- TX-side user policy da co
-- nhung loopback doi xung cho `COMPRESS_ONLY` chua duoc hoan tat o RX
+- `COMPRESS_ONLY` is the TX-only benchmark path. The main RX loopback path is
+  still `COMPRESS_AES` with AES-CBC, not a symmetric RX AES-bypass storage flow.

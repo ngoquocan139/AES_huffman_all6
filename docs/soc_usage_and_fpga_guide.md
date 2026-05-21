@@ -101,6 +101,7 @@ Practical limits:
 |---|---:|
 | DMEM total | 32 KiB |
 | Testbench loader max | 10000 bytes |
+| FPGA UART loader max | 7168 bytes |
 | Main source buffer | 8192 bytes: `0x00002000..0x00003FFF` |
 | TX output region | 8192 bytes: `0x00004000..0x00005FFF` |
 | RX output region | 8192 bytes: `0x00006000..0x00007FFF` |
@@ -270,12 +271,28 @@ Sau run data-path:
 | `sim/dmem_dump/<CASE_NAME>_src.txt` | source DMEM dump |
 | `sim/dmem_dump/<CASE_NAME>_tx.txt` | TX output/ciphertext dump |
 | `sim/dmem_dump/<CASE_NAME>_rx.txt` | RX plaintext dump |
+| `sim/<TESTNAME>.wlf` | waveform database created by the latest run |
+| `sim/sim.wlf` | copy of the latest waveform database used by `make wave` |
+| `sim/log/<TESTNAME>.wlf` | archived waveform database for that testcase |
 
 Pass condition chinh:
 
 - log co `[PASS] rv32_soc_unified_test`;
 - `SUMMARY: PASS=... FAIL=0`;
 - loopback RX mismatch bang `0` voi full TX->RX cases.
+
+Waveform commands:
+
+```bash
+cd sim
+make wave
+make kill_wave
+```
+
+`make wave` opens `sim.wlf` and adds only the curated root-level flow signals
+`clk`, `rst`, and `wf_*` from `test_bench`. It does not recursively add the
+whole DUT by default, to reduce Questa GUI load. `make kill_wave` is the
+emergency cleanup command if the Questa viewer gets stuck.
 
 ## 10. Clean Commands
 
@@ -373,7 +390,7 @@ Open reports:
 
 ```bash
 cd sim
-make vivado_report VIVADO_PROJECT=rv32_soc_synth_tx
+make vivado_report VIVADO_PROJECT=rv32_soc_synth_tx_opt4
 make vivado_report VIVADO_PROJECT=rv32_soc_synth_rx
 make vivado_report VIVADO_PROJECT=rv32_soc_synth_full_fpga
 ```

@@ -188,14 +188,19 @@ Chuyen tung word 32-bit thanh byte stream theo thu tu byte noi bo cua TX.
 Chuc nang:
 
 - collect byte cua block
-- build codebook
-- quyet dinh mode encode
+- dung codebook per-block legacy hoac global whole-file
+- active TX hien emit mode `COMPRESSED` co dinh
 - emit header + payload bitstream
 
 TX hien tai co 2 kieu dung:
 
 - per-block dynamic Huffman
 - whole-file dynamic Huffman
+
+Trong `whole_file` mode, "whole-file" nghia la codebook/frequency table duoc
+tinh tren toan input. Du lieu van duoc DMA feed vao TX theo cac block payload
+toi da 32 byte de giu adapter, packer, AES-CBC va RX parser khop voi RTL hien
+tai.
 
 ### 7.4 `bit_packer_128`
 
@@ -280,17 +285,21 @@ Mode regression chinh hien tai:
 
 Neu `whole_file_i = 1`, engine chay them pha global-count/global-build truoc pha emit.
 
-### 9.2 Per-block load
+### 9.2 Block chunk load
 
 Voi moi block:
 
 1. tinh `current_block_bytes = min(bytes_remaining, block_size)`
 2. tinh `words_remaining = ceil(current_block_bytes / 4)`
-3. doc tung word tu `DMEM`
-4. ghi `BLOCK_SIZE`
+3. ghi `BLOCK_SIZE`
+4. doc tung word tu `DMEM`
 5. ghi tung `WORD_IN`
 6. poll `TX STATUS.can_start`
 7. ghi `START_BLOCK`
+
+Trinh tu nay van xay ra trong `whole_file` mode. Khac biet la count pass dung
+cac block nay chi de dem tan suat, con emit pass dung global codebook da build
+tu toan file thay vi build codebook moi cho tung block.
 
 ### 9.3 Continue-frame policy
 

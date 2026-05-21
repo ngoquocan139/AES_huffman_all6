@@ -1,264 +1,66 @@
 # 13. C Program Test Spec
 
-## 1. Scope
+## 1. Purpose and scope
 
-Repo hien tai co nhom chuong trinh C phuc vu RV32I simulation/coverage:
+This document explains the C programs under `testcase/` that are compiled into
+RV32I instruction memory for SoC simulation. It focuses on what each file does,
+which inputs it consumes, which outputs it writes, how it drives DMA/MMIO, and
+which result words or error bits the testbench should check.
 
-| C file | Main role | Active baseline |
-|---|---|---|
-| `testcase/test.c` | smoke program cu cho core sync | reference only |
-| `testcase/secure_storage_fw.h` | active secure-storage firmware API: metadata, IV, DMA write/read/delete helpers | yes |
-| `testcase/test_mmio_dma_storage_table.c` | current secure-storage API demo: `secure_write` input1, `secure_write` input3, then `secure_read` selected input1 by metadata | yes |
-| `testcase/test_mmio_dma.c` | legacy direct DMA loopback: TX `COMPRESS_AES + whole_file` roi RX decode ve DMEM | yes/legacy |
-| `testcase/test_mmio_tx_only.c` | TX-only `COMPRESS_ONLY + whole_file` de do saving truc tiep | yes |
-| `testcase/test_mmio_tx_only_aes_block.c` | TX-only `COMPRESS_AES` per-block 32B | coverage |
-| `testcase/test_mmio_tx_only_compress_block.c` | TX-only `COMPRESS_ONLY` per-block 32B | coverage |
-| `testcase/test_mmio_tx_encoder_error.c` | legacy TX error-path program kept for debug, not used by current 256-symbol clean baseline | coverage/debug |
-| `testcase/test_mmio_regfile_basic.c` | legal MMIO register read/write, IV, reset/clear pulse | coverage |
-| `testcase/test_mmio_regfile_negative.c` | invalid MMIO/config/error propagation | coverage |
-| `testcase/test_mmio_mode_matrix.c` | mode decode/status matrix | coverage |
-| `testcase/test_mmio_rx_bad_length.c` | expected RX bad ciphertext length error | coverage |
-| `testcase/test_cpu_instruction_cov.c` | RV32I instruction coverage | coverage |
-| `testcase/test_cpu_mem_forward_cov.c` | CPU memory-stage/forwarding corner coverage | coverage |
-
-Nhanh cu `RV32I` tu preprocess/parser text va host-preprocess benchmark khong con
-la flow chinh. Neu thay cac artifact ten `*_preprocess*`, xem chung la
-deprecated/debug history, khong dung lam demo mac dinh.
-
-Tai lieu nay giai thich ro:
-
-1. Moi file test cai gi.
-2. Dung instruction nao.
-3. Tieu chi pass/fail va expected state.
-
-## 1.1 C Test Selection Flow Chart
-
-```mermaid
-flowchart TD
-  A["Choose what to verify"] --> B{"Goal"}
-  B -->|"core smoke"| C["test.c"]
-  B -->|"secure-storage API"| S["secure_storage_fw.h + test_mmio_dma_storage_table.c"]
-  B -->|"direct TX/RX loopback"| D["test_mmio_dma.c"]
-  B -->|"TX-only saving"| E["test_mmio_tx_only.c"]
-  B -->|"MMIO/CPU coverage"| F["test_mmio_regfile_basic.c / test_cpu_*.c"]
-  C --> G["make compile C_SRC=test.c"]
-  D --> H["make compile C_SRC=test_mmio_dma.c"]
-  S --> HS["make compile C_SRC=test_mmio_dma_storage_table.c"]
-  E --> I["make compile C_SRC=test_mmio_tx_only.c"]
-  F --> J["make compile C_SRC=<coverage>.c"]
-  G --> K["make all TESTNAME=... RUN_ARGS=..."]
-  H --> K
-  HS --> K
-  I --> K
-  J --> K
-```
-
-## 2. Build Profile (dang duoc dung)
-
-Compile trong `sim/Makefile`:
-
-- ASM: `-march=rv32i -mabi=ilp32 -Os -S`
-- ELF: `-march=rv32i -mabi=ilp32 -O1 -nostdlib -ffreestanding -Ttext=0x0 -Wl,-e,_start`
-- Objcopy: binary
-- Output `.S/.elf/.bin/.mem` duoc tao trong `testcase/`.
-- File `.mem` sinh ra duoc copy sang `sim/instruction.mem` de `imem_sync` dung cho simulation.
-
-Luu y:
-- Current secure-storage API code lives in `secure_storage_fw.h`; the testcase
-  `test_mmio_dma_storage_table.c` includes it and compiles it into the RV32I
-  image.
-- Instruction sequence cua `test_mmio_dma.c` duoi day la theo disassembly hien
-  tai cua `testcase/test_mmio_dma.elf`.
-- Neu doi compiler/version/optimization, dia chi PC va instruction co the thay
-  doi.
-
----
-
-## 3. `testcase/test.c` (RV32I Smoke Program)
-
-### 3.1 Muc tieu test
-
-- Xac nhan duong arith + load/store co ban.
-- Xac nhan vong lap branch va ghi DMEM word0.
-- Dung cho testbench sync core (`tb_risc_v_sync_mem.v`).
-
-### 3.2 Instruction sequence (co dinh bang `.word`)
-
-| Idx | Hex       | Mnemonic           | Y nghia |
-|-----|-----------|--------------------|--------|
-| 0   | 00500093  | `addi x1, x0, 5`   | x1 = 5 |
-| 1   | 00a00113  | `addi x2, x0, 10`  | x2 = 10 |
-| 2   | 002081b3  | `add x3, x1, x2`   | x3 = 15 |
-| 3   | 00302023  | `sw x3, 0(x0)`     | DMEM[0] = 15 |
-| 4   | 00000213  | `addi x4, x0, 0`   | x4 = 0 |
-| 5   | 00000293  | `addi x5, x0, 0`   | x5 = 0 |
-| 6   | 00800313  | `addi x6, x0, 8`   | x6 = 8 |
-| 7   | 00520233  | `add x4, x4, x5`   | x4 += x5 |
-| 8   | 00128293  | `addi x5, x5, 1`   | x5++ |
-| 9   | fe62cce3  | `blt x5, x6, loop` | lap den khi x5 == 8 |
-| 10  | 00402023  | `sw x4, 0(x0)`     | DMEM[0] = tong |
-| 11  | 00002383  | `lw x7, 0(x0)`     | x7 = DMEM[0] |
-| 12  | 00138393  | `addi x7, x7, 1`   | x7++ |
-| 13  | 00702023  | `sw x7, 0(x0)`     | DMEM[0] = x7 |
-| 14  | fe000ae3  | `beq x0, x0, spin` | dung tai vong lap vo han |
-
-### 3.3 Expected state
-
-- `x1 = 5`
-- `x2 = 10`
-- `x3 = 15`
-- `x4 = 0x1c` (tong 0..7 = 28)
-- `DMEM[0] >= 0x1c` (thuc te thuong la `0x1d` sau buoc increment x7 + store)
-
----
-
-## 4. `testcase/test_mmio_dma.c` (DMA TX/RX Loopback Test)
-
-### 4.1 Muc tieu test
-
-Test duong data-plane loopback hien tai:
-
-- testbench load file input text vao `DMEM[0x00002000 ..]`;
-- CPU cau hinh DMA TX whole-file Huffman + AES (`MODE = 0x9`);
-- DMA TX doc plaintext 2 pass: pass 1 count/build global table, pass 2 emit compressed AES stream vao `DMEM[0x00004000 ..]`;
-- CPU doc `DMA_CIPHERTEXT_BYTES_PRODUCED`;
-- CPU cau hinh DMA RX (`MODE = 0x2`) de doc ciphertext vua tao va ghi plaintext ve `DMEM[0x00006000 ..]`;
-- CPU ghi `signature + error_mask + status + length/result head` ve `DMEM word 0..15`;
-- testbench dump source/TX/RX va compare RX output voi input goc.
-
-### 4.2 DMA MMIO map su dung trong test
-
-Base: `0x4000_0000`
-
-- `+0x00` `DMA_CONTROL`
-- `+0x04` `DMA_STATUS`
-- `+0x08` `DMA_SRC_ADDR`
-- `+0x0C` `DMA_DST_ADDR`
-- `+0x10` `DMA_LEN_BYTES`
-- `+0x14` `DMA_MODE`
-- `+0x18` `DMA_BLOCK_CFG`
-- `+0x1C` `DMA_BYTES_DONE`
-- `+0x20` `DMA_DEBUG`
-- `+0x24` `DMA_CIPHERTEXT_BYTES_PRODUCED`
-
-Gia tri config duoc ghi:
-
-- TX: `SRC_ADDR = 0x00002000`
-- TX: `DST_ADDR = 0x00004000`
-- TX: `LEN_BYTES = INPUT_LEN_ADDR`
-- TX: `MODE = 0x00000009`
-- RX: `SRC_ADDR = 0x00004000`
-- RX: `DST_ADDR = 0x00006000`
-- RX: `LEN_BYTES = DMA_CIPHERTEXT_BYTES_PRODUCED`
-- RX: `MODE = 0x00000002`
-- `BLOCK_CFG = 0x20`
-- `CONTROL = 0x1` (start)
-
-### 4.3 Result layout trong DMEM (word offset)
-
-- `word0`  = signature `0x44525831`
-- `word1`  = `error_mask`
-- `word2`  = `tx_status_before_start`
-- `word3`  = `tx_status_after_done`
-- `word4`  = `tx_bytes_done`
-- `word5`  = `tx_ciphertext_bytes`
-- `word6`  = `tx_poll_count`
-- `word7`  = `rx_status_before_start`
-- `word8`  = `rx_status_after_done`
-- `word9`  = `rx_bytes_done`
-- `word10` = `rx_debug`
-- `word11` = `rx_poll_count`
-- `word12..15` = 4 word dau cua RX output
-
-Pass condition:
-
-- `word1 == 0`
-- `word2 == 0x98`
-- `word3 == 0x9a`
-- `word4 != 0` va align `16 byte`
-- `word5 == word4`
-- `word8 == 0x2a`
-- `word9 == input_len`
-- RX output trong dump phai match input goc.
-
----
-
-## 5. `testcase/secure_storage_fw.h` and `testcase/test_mmio_dma_storage_table.c`
-
-### 5.1 Muc tieu test
-
-Test nay chung minh phan mem RV32I co the cung cap secure-storage firmware API,
-khong chi la loopback DMA truc tiep:
-
-- testbench load `input1.txt` vao `DMEM[0x00002000 ..]`;
-- CPU goi `secure_write(1, 0x00002000, input1_len, ...)`;
-- firmware chon ciphertext slot 0 tai `DMEM[0x00004000 ..]`;
-- firmware tao IV, ghi DMA IV registers, chay TX `MODE=0x9`, va commit metadata record 0;
-- testbench load `input3.txt` vao `DMEM[0x00003000 ..]`;
-- CPU goi `secure_write(3, 0x00003000, input2_len, ...)`;
-- firmware chon ciphertext slot 1 tai `DMEM[0x00005000 ..]`;
-- CPU goi `secure_read(1, 0x00006000, ...)`;
-- firmware tim metadata `file_id=1`, restore IV, chay RX `MODE=0x2`;
-- testbench compare RX output voi `input1.txt`.
-
-### 5.2 DMEM metadata layout
-
-Base:
+The active SoC firmware path is:
 
 ```text
-SECURE_META_BASE_ADDR    = 0x00000100
-SECURE_META_RECORD_COUNT = 2
-SECURE_META_RECORD_SHIFT = 6
-SECURE_IV_COUNTER_ADDR   = 0x000001F0
-SECURE_IV_SEED           = 0x31415926
+RV32I C program
+  -> RV32I load/store instructions
+  -> CPU DMEM or DMA MMIO address decode
+  -> cpu_mmio_to_apb_bridge
+  -> dma_regfile
+  -> DMA TX/RX engines and private accelerator APB paths
 ```
 
-Moi record la software-owned structure trong DMEM:
+All C programs are freestanding. They do not use libc, heap, interrupts, OS
+services, or a trap handler. Each program sets `sp`, jumps to `main`, writes a
+small result block into DMEM, then spins forever so the testbench can inspect
+the final state.
 
-| Field | Meaning |
-|---|---|
-| `valid` | Record hop le; set `1` only after TX commit |
-| `file_id` | ID phan mem dung de chon lai du lieu |
-| `plain_addr` | Dia chi plaintext source ban dau |
-| `cipher_addr` | Dia chi ciphertext/transport trong DMEM |
-| `plain_len` | So byte plaintext ban dau |
-| `cipher_len` | So byte ciphertext/transport do TX tao |
-| `mode` | TX mode da dung, hien la `0x9` |
-| `iv0..iv3` | IV phai dung lai khi RX |
-| `version` | Counter value used when creating IV |
-| `flags` | Reserved, currently `0` |
+## 2. C source inventory
 
-Ciphertext slots:
+| C file | Main role | Status |
+|---|---|---|
+| `testcase/test.c` | Core smoke program with fixed RV32I instructions | reference |
+| `testcase/secure_storage_fw.h` | Firmware helper API for secure write/read/delete, metadata, IV, DMA polling | active |
+| `testcase/test_mmio_dma_storage_table.c` | Secure-storage demo: write file 1, write file 3, read file 1 back | active baseline |
+| `testcase/test_mmio_dma.c` | Direct DMA TX+RX loopback without metadata table | active legacy |
+| `testcase/test_mmio_tx_only.c` | Direct TX-only benchmark, default mode `0xD` | active |
+| `testcase/test_mmio_tx_only_aes_block.c` | Wrapper for `test_mmio_tx_only.c` with mode `0x1` | coverage |
+| `testcase/test_mmio_tx_only_compress_block.c` | Wrapper for `test_mmio_tx_only.c` with mode `0x5` | coverage |
+| `testcase/test_mmio_tx_apb_error.c` | Expected TX APB error-path program | coverage/debug |
+| `testcase/test_mmio_tx_encoder_error.c` | Expected TX encoder error-path program | coverage/debug |
+| `testcase/test_mmio_regfile_basic.c` | Legal DMA register read/write, IV readback, reset behavior | coverage |
+| `testcase/test_mmio_regfile_negative.c` | Illegal register/config accesses and sticky error behavior | coverage |
+| `testcase/test_mmio_mode_matrix.c` | Mode-to-status decode matrix | coverage |
+| `testcase/test_mmio_rx_bad_length.c` | RX rejects invalid ciphertext length | coverage |
+| `testcase/test_cpu_instruction_cov.c` | RV32I instruction coverage | coverage |
+| `testcase/test_cpu_mem_forward_cov.c` | Memory-stage and forwarding coverage | coverage |
+| `testcase/test_log_preprocess.c` | Older preprocessing comparison flow | deprecated/debug |
+| `testcase/test_sensor_phi_preprocess_rv32.c` | RV32 preprocessing + TX compression experiment | deprecated/debug |
 
-| Slot | Address |
-|---:|---:|
-| `0` | `0x00004000` |
-| `1` | `0x00005000` |
+Files named `*_preprocess*` are not the main secure-storage demo anymore. Keep
+them as debug/reference programs unless a testcase explicitly selects them.
 
-Current IV formula is documented in
-`docs/iv_generation_and_cbc_contract_spec.md`. It uses `plain_len`,
-`plain_addr`, `cipher_addr`, `file_id`, and the counter at `0x000001F0`.
+## 3. Build profile
 
-### 5.3 Result layout
+`sim/Makefile` compiles each selected C file into RV32I code:
 
-- `word0` = signature `0x53544f52`
-- `word1` = error mask
-- `word2..6` = TX1 status/bytes/polls
-- `word7..11` = RX1 status/bytes/debug/polls
-- `word12` = TX2 ciphertext length
-- `word13` = input2 length echo
-- `word14` = selected file id, expected `1`
-- `word15` = total records, expected `2`
+```text
+ASM compile : -march=rv32i -mabi=ilp32 -Os -S
+ELF link    : -march=rv32i -mabi=ilp32 -O1 -nostdlib -ffreestanding -Ttext=0x0 -Wl,-e,_start
+Objcopy     : ELF -> binary -> .mem
+Output      : testcase/<name>.S, .elf, .bin, .mem
+SoC input   : sim/instruction.mem
+```
 
-Pass condition:
-
-- `SUMMARY: PASS=22 FAIL=0`
-- `storage_selected_file_id == 1`
-- `storage_total_records == 2`
-- `storage_dma_start_pulse_count == 3`
-- RX output khop `input1.txt`
-
-Run command:
+Typical command:
 
 ```bash
 cd sim
@@ -266,263 +68,1029 @@ make compile C_SRC=test_mmio_dma_storage_table.c
 make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
 ```
 
----
+Important build rules:
 
-## 6. `testcase/test_mmio_tx_only.c` (COMPRESS_ONLY TX-Only Benchmark)
+- Compile the C file before running the matching testcase.
+- The `.mem` copied to `sim/instruction.mem` is what `imem_sync` executes.
+- If compiler version or optimization changes, exact PC/disassembly can change,
+  but the MMIO protocol and result-word contract should stay the same.
 
-### 6.1 Muc tieu test
+## 4. Common software-visible memory map
 
-Test rieng nhanh `COMPRESS_ONLY` de do saving truc tiep o phia TX:
+All addresses are byte addresses. All result words and DMA registers are
+32-bit little-endian words unless stated otherwise.
 
-- testbench load file text vao `DMEM[SRC_BASE_ADDR ..]`;
-- CPU ghi `dma_regfile` qua MMIO/APB;
-- `DMA_MODE = 0xD` (`direction=TX`, `compress_only=1`, `whole_file=1`);
-- DMA doc plaintext tu `DMEM`, day qua Huffman TX, bypass AES, roi ghi ket qua ve `DMEM[TX_DST_BASE_ADDR ..]`;
-- CPU poll `DMA_STATUS`, doc `DMA_BYTES_DONE`, `DMA_CIPHERTEXT_BYTES_PRODUCED`, `DMA_DEBUG`, va 4 word dau cua output;
-- CPU ghi `signature + error_mask + status + output head` ve `DMEM word 0..13`;
-- testbench chi check TX output va benchmark saving, khong chay RX.
-- flow dung cho nhom input "chi can nen", mac dinh la `input1.txt`.
+| Address or range | Name | Owner | Format | Meaning |
+|---:|---|---|---|---|
+| `0x0000_0000` | `RESULT_BASE_ADDR` | RV32I firmware | 32-bit words | Result/debug block for testbench |
+| `0x0000_0040` | `INPUT_LEN_ADDR` / `INPUT1_LEN_ADDR` | testbench writes, firmware reads | 32-bit byte count | Primary input length |
+| `0x0000_0044` | `INPUT2_LEN_ADDR` / `PREPROC_LEN_ADDR` | testbench or firmware | 32-bit byte count | Secondary input length or preprocessed length |
+| `0x0000_0100` | `SECURE_META_BASE_ADDR` | secure-storage firmware | metadata records | Slot metadata table |
+| `0x0000_01F0` | `SECURE_IV_COUNTER_ADDR` | secure-storage firmware | 32-bit counter | IV/version counter |
+| `0x0000_0200..0x0000_03FF` | misc CPU scratch | RV32I tests | bytes/halves/words | CPU coverage scratch area |
+| `0x0000_2000` | `SRC_BASE_ADDR` / input1 | testbench writes, DMA reads | byte array | Primary plaintext source |
+| `0x0000_3000` | input2 | testbench writes, DMA reads | byte array | Secondary plaintext source |
+| `0x0000_4000` | TX output / cipher slot 0 | DMA writes | byte stream | TX ciphertext/compressed stream |
+| `0x0000_5000` | cipher slot 1 | DMA writes | byte stream | Second secure-storage ciphertext slot |
+| `0x0000_6000` | RX output | DMA writes | byte array | Restored plaintext destination |
+| `0x4000_0000..0x4000_00FF` | DMA MMIO window | CPU via APB bridge | 32-bit registers | DMA software control plane |
 
-### 6.2 DMA MMIO map su dung trong test
+The direct DMA tests normally use:
 
-Base: `0x4000_0000`
+```text
+plaintext source  = 0x0000_2000
+TX destination    = 0x0000_4000
+RX destination    = 0x0000_6000
+```
 
-- `+0x00` `DMA_CONTROL`
-- `+0x04` `DMA_STATUS`
-- `+0x08` `DMA_SRC_ADDR`
-- `+0x0C` `DMA_DST_ADDR`
-- `+0x10` `DMA_LEN_BYTES`
-- `+0x14` `DMA_MODE`
-- `+0x18` `DMA_BLOCK_CFG`
-- `+0x1C` `DMA_BYTES_DONE`
-- `+0x20` `DMA_DEBUG`
-- `+0x24` `DMA_CIPHERTEXT_BYTES_PRODUCED`
+The secure-storage testcase uses two ciphertext slots:
 
-Gia tri config duoc ghi:
+```text
+slot 0 = 0x0000_4000
+slot 1 = 0x0000_5000
+slot size = 0x1000 bytes
+```
 
-- `SRC_ADDR = 0x00002000`
-- `DST_ADDR = 0x00004000`
-- `LEN_BYTES = INPUT_LEN_ADDR`
-- `MODE = 0x0000000D`
-- `BLOCK_CFG = 0x00000020`
-- `CONTROL = 0x1` (start)
+## 5. Common DMA MMIO register contract
 
-### 6.3 Result layout trong DMEM (word offset)
+The C files use `volatile uint32_t *` macros for DMA registers. This is
+intentional: every read/write must become an RV32I `lw`/`sw` transaction and
+must not be optimized away by the compiler.
 
-- `word0`  = signature `0x44545843`
-- `word1`  = `error_mask`
-- `word2`  = `tx_status_before_start`
-- `word3`  = `tx_status_after_done`
-- `word4`  = `tx_bytes_done`
-- `word5`  = `tx_ciphertext_bytes`
-- `word6`  = `tx_poll_count`
-- `word7`  = `tx_debug`
-- `word8`  = `mode_echo`
-- `word9`  = `input_len_echo`
-- `word10` = TX output word 0
-- `word11` = TX output word 1
-- `word12` = TX output word 2
-- `word13` = TX output word 3
+Base address:
 
-### 6.4 Expected state
+```text
+DMA_BASE_ADDR = 0x4000_0000
+```
 
-- `word0 = 0x44545843`
-- `word1 = 0`
-- `word2 = 0x000000d8`
-- `word3 = 0x000000da`
-- `word4 != 0` va align `16 byte`
-- `word5 = word4`
-- `word6 != 0`
-- `word7 = 0`
-- `word8 = 0x0000000D`
-- vung `TX_DST_BASE_ADDR` khong duoc all-zero
+| Offset | Register | Access from C | Width | Data format and function |
+|---:|---|---|---:|---|
+| `0x00` | `DMA_CONTROL` | write | 32 bit | Pulse-style control. Bit0 `start`, bit1 `soft_reset`, bit2 `clear_done`, bit3 `clear_error`. Common writes are `0x1` start, `0x8` clear error, `0x0C` clear done+error, `0x2` soft reset. |
+| `0x04` | `DMA_STATUS` | read | 32 bit | Status. Bit0 `busy`, bit1 `done_sticky`, bit2 `error_sticky`, bit3 `cfg_valid`, bits `[5:4]` direction echo, bits `[7:6]` policy echo from mode bits `[3:2]`. |
+| `0x08` | `DMA_SRC_ADDR` | read/write | 32 bit | DMEM byte address where DMA reads input. Current engines expect aligned DMEM addresses. |
+| `0x0C` | `DMA_DST_ADDR` | read/write | 32 bit | DMEM byte address where DMA writes output. |
+| `0x10` | `DMA_LEN_BYTES` | read/write | 32 bit | Number of input bytes requested by software. TX uses plaintext length. RX uses ciphertext stream length. |
+| `0x14` | `DMA_MODE` | read/write | 32 bit | Mode selector. `0x1` TX AES block, `0x5` TX compress-only block, `0x9` TX AES whole-file, `0xD` TX compress-only whole-file, `0x2` RX. Reserved values should raise error. |
+| `0x18` | `DMA_BLOCK_CFG` | read/write | 32 bit | Block size/config. Current C tests use `0x20` (32 bytes). Whole-file modes still require a valid nonzero config. |
+| `0x1C` | `DMA_BYTES_DONE` | read | 32 bit | Number of bytes completed/reported by DMA. TX reports output stream bytes in current tests. RX should report restored plaintext bytes. |
+| `0x20` | `DMA_DEBUG` | read | 32 bit | Debug/error code. Normal path expects `0`. Error tests check bits `[11:4]`, for example `0x20`, `0x30`, `0x60`. |
+| `0x24` | `DMA_CIPHERTEXT_BYTES_PRODUCED` | read | 32 bit | TX-produced stream length. Direct TX/RX code uses it as RX input length. |
+| `0x28` | `DMA_IV0` | read/write | 32 bit | AES-CBC IV word 0. |
+| `0x2C` | `DMA_IV1` | read/write | 32 bit | AES-CBC IV word 1. |
+| `0x30` | `DMA_IV2` | read/write | 32 bit | AES-CBC IV word 2. |
+| `0x34` | `DMA_IV3` | read/write | 32 bit | AES-CBC IV word 3. |
 
-### 6.5 Input policy
+Common expected idle/done status values:
 
-- `input1.txt` va cac file text thuong: chay `test_mmio_tx_only.c` + `test_bench`
-- mode DMA: `COMPRESS_ONLY`
-- du lieu di theo duong `DMEM -> Huffman TX -> DMEM`
+| Mode | Meaning | Idle/configured status | Done status |
+|---:|---|---:|---:|
+| `0x1` | TX `COMPRESS_AES`, block mode | `0x18` | `0x1A` |
+| `0x5` | TX `COMPRESS_ONLY`, block mode | `0x58` | `0x5A` |
+| `0x9` | TX `COMPRESS_AES`, whole-file mode | `0x98` | `0x9A` |
+| `0xD` | TX `COMPRESS_ONLY`, whole-file mode | `0xD8` | `0xDA` |
+| `0x2` | RX | `0x28` | `0x2A` |
 
-## 7. `testcase/test_cpu_instruction_cov.c` (RV32I Instruction Coverage)
+## 6. Common RV32I DMA software flow
 
-### 7.1 Muc tieu test
+The phrase "RV32I software flow: configure, start, poll, read result" refers to
+the same pattern implemented by `secure_run_dma()`, `run_dma()`, and
+`run_tx_dma()`.
 
-Test nay khong cau hinh DMA. Muc tieu la ep CPU RV32I chay that cac nhom
-instruction khong xuat hien day du trong software DMA binh thuong:
+The pattern is:
 
-- R-type ALU: `add`, `sub`, `sll`, `slt`, `sltu`, `xor`, `srl`, `sra`, `or`, `and`
-- I-type ALU: `addi`, `slti`, `sltiu`, `xori`, `ori`, `andi`, `slli`, `srli`, `srai`
-- Memory: `sw`, `sh`, `sb`, `lbu`, `lb`, `lhu`, `lh`
-- Branch/jump: `beq`, `bne`, `blt`, `bge`, `bltu`, `bgeu`, `jalr`
-- Upper immediate: `lui`
+1. Firmware writes `DMA_SRC_ADDR`, `DMA_DST_ADDR`, `DMA_LEN_BYTES`,
+   `DMA_MODE`, and `DMA_BLOCK_CFG`.
+2. Firmware optionally writes `DMA_IV0..DMA_IV3` before AES-enabled TX/RX.
+3. Firmware reads `DMA_STATUS` before start and expects an idle/config-valid
+   value such as `0x98`, `0xD8`, or `0x28`.
+4. Firmware writes `DMA_CONTROL = 0x1`.
+5. Firmware loops on `DMA_STATUS`.
+6. The loop exits when error bit2 is set, or when done bit1 is set while busy
+   bit0 is clear and progress has been observed, or when the poll counter
+   reaches `MAX_POLLS`.
+7. Firmware reads `DMA_BYTES_DONE`, `DMA_CIPHERTEXT_BYTES_PRODUCED`, and
+   `DMA_DEBUG`.
+8. Firmware writes a compact result block into DMEM word0..N.
 
-### 7.2 Result layout
+Typical C polling condition:
 
-`test_cpu_instruction_cov.c` ghi ket qua vao DMEM word 0..5:
+```text
+while true:
+  status = DMA_STATUS
+  if status[0] busy: saw_busy = 1
+  if status[2] error: break
+  if !status[0] and status[1] and (saw_busy or progress != 0): break
+  polls++
+  if polls >= MAX_POLLS: break
+```
 
-| Word | Field | Expected | Meaning |
+TX progress normally reads `DMA_CIPHERTEXT_BYTES_PRODUCED`. RX progress normally
+reads `DMA_BYTES_DONE`.
+
+## 7. Result word convention
+
+Most C programs write result words at `DMEM[0x0 + 4*idx]`.
+
+Common convention:
+
+| Word | Usual field | Format |
+|---:|---|---|
+| `0` | signature | 32-bit tag identifying the program |
+| `1` | error mask | 32-bit bitmask, `0` means pass |
+| `2..N` | testcase-specific status/data | 32-bit words |
+
+The testbench should treat `word1 == 0` as the primary firmware pass
+condition, then use the remaining words for diagnosis.
+
+## 8. `testcase/test.c` - RV32I smoke program
+
+### Function
+
+This is the simplest reference program for the sync core. It is not a DMA test.
+It proves that the core can execute arithmetic, branches, load/store, and an
+infinite spin loop.
+
+### Inputs
+
+None. It does not depend on testbench-loaded text input.
+
+### Outputs
+
+It writes to DMEM address `0x0`.
+
+Expected final behavior:
+
+| Item | Expected |
+|---|---:|
+| `x1` | `5` |
+| `x2` | `10` |
+| `x3` | `15` |
+| `x4` | `0x1C` (sum `0..7`) |
+| `DMEM[0]` | normally `0x1D` after final increment/store |
+
+### Instruction-level flow
+
+The program uses fixed `.word` instructions:
+
+| Idx | Hex | Mnemonic | Function |
+|---:|---:|---|---|
+| 0 | `00500093` | `addi x1,x0,5` | Load constant 5 |
+| 1 | `00a00113` | `addi x2,x0,10` | Load constant 10 |
+| 2 | `002081b3` | `add x3,x1,x2` | Add 5+10 |
+| 3 | `00302023` | `sw x3,0(x0)` | Store 15 to DMEM word0 |
+| 4 | `00000213` | `addi x4,x0,0` | Clear sum |
+| 5 | `00000293` | `addi x5,x0,0` | Clear loop index |
+| 6 | `00800313` | `addi x6,x0,8` | Loop limit |
+| 7 | `00520233` | `add x4,x4,x5` | Accumulate |
+| 8 | `00128293` | `addi x5,x5,1` | Increment index |
+| 9 | `fe62cce3` | `blt x5,x6,loop` | Loop while `x5 < 8` |
+| 10 | `00402023` | `sw x4,0(x0)` | Store sum |
+| 11 | `00002383` | `lw x7,0(x0)` | Load sum |
+| 12 | `00138393` | `addi x7,x7,1` | Add one |
+| 13 | `00702023` | `sw x7,0(x0)` | Store final value |
+| 14 | `fe000ae3` | `beq x0,x0,spin` | Infinite loop |
+
+## 9. `testcase/secure_storage_fw.h` - secure-storage firmware API
+
+### Function
+
+This header is compiled into C test programs that include it. It is the active
+firmware layer above the DMA register file. It provides a software storage
+table:
+
+- assign a `file_id` to a ciphertext slot;
+- generate and store a deterministic IV;
+- configure and run DMA TX for secure write;
+- restore IV and run DMA RX for secure read;
+- keep metadata in DMEM so the second operation can find the correct slot.
+
+The header does not implement encryption itself. It only programs the DMA and
+stores software metadata.
+
+### Public API
+
+| Function | Inputs | Outputs | Function |
+|---|---|---|---|
+| `secure_storage_init()` | none | clears metadata, seeds IV counter | Initializes two metadata records and `SECURE_IV_COUNTER_ADDR`. |
+| `secure_write(file_id, plain_addr, plain_len, result)` | file ID, plaintext DMEM address, plaintext byte length, result pointer | return code, `secure_dma_result_t`, metadata commit | Allocates/reuses a slot, creates IV, runs TX mode `0x9`, commits ciphertext length and valid bit. |
+| `secure_read(file_id, dst_addr, result)` | file ID, plaintext destination, result pointer | return code, `secure_dma_result_t` | Finds metadata, restores IV, runs RX mode `0x2`, verifies restored byte count. |
+| `secure_delete(file_id)` | file ID | return code | Clears metadata slot if found. |
+| `secure_find_record(file_id)` | file ID | slot index or `0xFFFFFFFF` | Scans valid metadata records. |
+| `secure_record_count()` | none | count | Counts valid metadata records. |
+
+### Return codes
+
+| Code | Name | Meaning |
+|---:|---|---|
+| `0` | `SECURE_OK` | Operation completed. |
+| `1` | `SECURE_ERR_BAD_ARG` | Invalid `file_id`, length, address, or result pointer. |
+| `2` | `SECURE_ERR_NO_SLOT` | No metadata slot is available. |
+| `3` | `SECURE_ERR_DMA_TIMEOUT` | DMA did not finish before `SECURE_MAX_POLLS`. |
+| `4` | `SECURE_ERR_DMA_ERROR` | DMA reported sticky error. |
+| `5` | `SECURE_ERR_CIPHER_LEN` | TX produced invalid ciphertext length. |
+| `6` | `SECURE_ERR_NOT_FOUND` | `secure_read/delete` could not find the `file_id`. |
+| `7` | `SECURE_ERR_READ_LEN` | RX restored byte count did not match metadata plaintext length. |
+
+### `secure_dma_result_t` data format
+
+Each field is `uint32_t`.
+
+| Field | Meaning |
+|---|---|
+| `status_before` | `DMA_STATUS` read after config and before `CONTROL.start`. |
+| `status_after` | Final `DMA_STATUS` after polling. |
+| `bytes_done` | Final `DMA_BYTES_DONE`. |
+| `ciphertext_bytes` | Final `DMA_CIPHERTEXT_BYTES_PRODUCED`. |
+| `debug_after` | Final `DMA_DEBUG`. |
+| `polls` | Number of polling iterations. |
+
+### Metadata data format
+
+Metadata starts at `0x0000_0100`. There are 2 records. Each record is 16 words
+= 64 bytes. Slot `n` starts at:
+
+```text
+record_addr = 0x0000_0100 + (n << 6)
+```
+
+| Word | Field | Width | Format / meaning |
 |---:|---|---:|---|
-| 0 | signature | `0x43505543` | ASCII-like tag `CPUC` |
-| 1 | error_mask | `0x00000000` | bitwise fail mask |
-| 2 | r_type_mix | `0xcd79bdff` | XOR/mix result of R-type ALU group |
-| 3 | mem_mix | `0x0000e595` | load/store byte/half/word check result |
-| 4 | branch_score | `0x0000003f` | all 6 branch types observed as expected |
-| 5 | i_type_mix | `0x00000874` | XOR/mix result of I-type ALU group |
+| `0` | `valid` | 32 bit | `1` only after TX completed and metadata commit succeeded. |
+| `1` | `file_id` | 32 bit | Software file ID. `0` is rejected by `secure_write`. |
+| `2` | `plain_addr` | 32 bit | Original plaintext DMEM byte address. |
+| `3` | `cipher_addr` | 32 bit | Ciphertext slot DMEM byte address. |
+| `4` | `plain_len` | 32 bit | Original plaintext byte count. |
+| `5` | `cipher_len` | 32 bit | TX-produced ciphertext/transport byte count. |
+| `6` | `mode` | 32 bit | TX mode, currently `0x9`. |
+| `7` | `iv0` | 32 bit | AES-CBC IV word 0. |
+| `8` | `iv1` | 32 bit | AES-CBC IV word 1. |
+| `9` | `iv2` | 32 bit | AES-CBC IV word 2. |
+| `10` | `iv3` | 32 bit | AES-CBC IV word 3. |
+| `11` | `version` | 32 bit | IV counter value used for this record. |
+| `12` | `flags` | 32 bit | Reserved, currently `0`. |
+| `13..15` | reserved | 32 bit each | Cleared by init/delete. |
 
-`error_mask` bit map:
+### IV generation and restore
+
+The firmware keeps a counter at `0x0000_01F0`, seeded to `0x31415926`.
+`secure_prepare_record()` increments the counter, derives four 32-bit IV words
+from `plain_len`, `plain_addr`, `cipher_addr`, `file_id`, and the counter, then
+writes the IV to both metadata and `DMA_IV0..DMA_IV3`.
+
+`secure_restore_iv_from_record()` reads metadata words `iv0..iv3` and writes
+the exact same values back to `DMA_IV0..DMA_IV3` before RX. This is required so
+AES-CBC decrypt uses the same IV used by TX.
+
+### DMA run behavior
+
+`secure_run_dma()` does the common DMA flow:
+
+1. clears the software result structure;
+2. writes `DMA_CONTROL = 0x0C` to clear done/error sticky bits;
+3. writes `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, and `BLOCK_CFG`;
+4. records `status_before`;
+5. writes `DMA_CONTROL = 0x1` to start;
+6. polls up to `SECURE_MAX_POLLS = 2_000_000`;
+7. reads `bytes_done`, `ciphertext_bytes`, and `debug_after`;
+8. returns `SECURE_OK`, timeout, or DMA error.
+
+## 10. `testcase/test_mmio_dma_storage_table.c` - secure-storage demo
+
+### Function
+
+This is the current main firmware demo. It proves the full software-managed
+secure-storage flow:
+
+```text
+secure_storage_init()
+secure_write(file_id=1, input1 at 0x2000)
+secure_write(file_id=3, input2 at 0x3000)
+secure_read(file_id=1, restore to 0x6000)
+write result words
+spin forever
+```
+
+The important behavior is that the read does not simply decode the last TX
+output. It selects `file_id=1` through metadata and therefore restores slot 0
+even after file 3 has been written to slot 1.
+
+### Inputs
+
+| Input | Address | Width/format | Producer | Meaning |
+|---|---:|---|---|---|
+| `input1_len` | `0x0000_0040` | 32-bit byte count | testbench | Length of primary input file. |
+| `input2_len` | `0x0000_0044` | 32-bit byte count | testbench | Length of secondary input file. |
+| input1 bytes | `0x0000_2000` | byte array | testbench | Plaintext for `file_id=1`. |
+| input2 bytes | `0x0000_3000` | byte array | testbench | Plaintext for `file_id=3`. |
+
+### Outputs
+
+| Output | Address | Width/format | Meaning |
+|---|---:|---|---|
+| metadata slot 0 | `0x0000_0100` | 16 x 32-bit words | Record for `file_id=1`. |
+| metadata slot 1 | `0x0000_0140` | 16 x 32-bit words | Record for `file_id=3`. |
+| ciphertext slot 0 | `0x0000_4000` | byte stream | TX output for input1. |
+| ciphertext slot 1 | `0x0000_5000` | byte stream | TX output for input2. |
+| RX output | `0x0000_6000` | byte array | Restored plaintext for selected file 1. |
+| result words | `0x0000_0000` | 16 x 32-bit words | Test result block. |
+
+### Register usage
+
+TX1 and TX2 use:
+
+```text
+MODE      = 0x9
+BLOCK_CFG = 0x20
+IV0..IV3  = generated by firmware
+```
+
+RX uses:
+
+```text
+MODE      = 0x2
+BLOCK_CFG = 0x20
+IV0..IV3  = restored from selected metadata record
+```
+
+### Result word layout
+
+| Word | Field | Expected/meaning |
+|---:|---|---|
+| `0` | signature | `0x53544F52` (`STOR`) |
+| `1` | error mask | `0` means firmware checks passed |
+| `2` | TX1 `status_before` | expected `0x98` |
+| `3` | TX1 `status_after` | expected `0x9A` |
+| `4` | TX1 `bytes_done` | nonzero, 16-byte aligned |
+| `5` | TX1 `ciphertext_bytes` | nonzero, 16-byte aligned |
+| `6` | TX1 `polls` | `< SECURE_MAX_POLLS` |
+| `7` | RX1 `status_before` | expected `0x28` or already-done `0x2A` depending previous sticky state |
+| `8` | RX1 `status_after` | expected `0x2A` |
+| `9` | RX1 `bytes_done` | expected `input1_len` |
+| `10` | RX1 `debug_after` | expected `0` |
+| `11` | RX1 `polls` | `< SECURE_MAX_POLLS` |
+| `12` | TX2 `ciphertext_bytes` | nonzero, 16-byte aligned |
+| `13` | input2 length echo | equals `input2_len` |
+| `14` | selected file ID | expected `1` |
+| `15` | total metadata records | expected `2` |
+
+### Error mask bits
 
 | Bit | Meaning |
 |---:|---|
-| 0 | R-type mix mismatch |
-| 1 | I-type mix invalid |
-| 2 | branch score mismatch |
-| 3 | load/store result mismatch |
-| 4 | `lui` result mismatch |
-| 5 | `jalr` control-flow mismatch |
+| `0` | `input1_len == 0` |
+| `1` | `input2_len == 0` |
+| `2` | TX1 status before start mismatch |
+| `3` | TX1 final status mismatch |
+| `4` | TX1 ciphertext length invalid or not 16-byte aligned |
+| `5` | TX1 output exceeds slot capacity |
+| `6` | TX1 timeout |
+| `7` | TX2 status before start mismatch |
+| `8` | TX2 final status mismatch |
+| `9` | TX2 ciphertext length invalid or not 16-byte aligned |
+| `10` | TX2 timeout |
+| `11` | Metadata selected slot for `file_id=1` is not slot 0 |
+| `12` | RX1 status before start mismatch |
+| `13` | RX1 final status mismatch |
+| `14` | RX1 restored byte count mismatch |
+| `15` | RX1 timeout |
+| `16` | `secure_write(1, ...)` returned nonzero |
+| `17` | Slot 0 ciphertext address mismatch |
+| `18` | `secure_write(3, ...)` returned nonzero |
+| `19` | Slot 1 ciphertext address mismatch |
+| `20` | IV collision between slot 0 and slot 1 |
+| `21` | `secure_read(1, ...)` returned nonzero |
 
-`branch_score` bit map:
+### Expected full-test behavior
 
-| Bit | Branch |
-|---:|---|
-| 0 | `beq` |
-| 1 | `bne` |
-| 2 | `blt` |
-| 3 | `bge` |
-| 4 | `bltu` |
-| 5 | `bgeu` |
-
-### 7.3 Log block de bao cao
-
-Sau khi cap nhat TB, `cpu_instruction_cov` in rieng block:
+Pass means:
 
 ```text
-# ===== CPU INSTRUCTION COVERAGE REPORT =====
-# covered_groups: R-type ALU, I-type ALU, load/store byte-half-word, signed/unsigned load, branch, LUI, JALR
-#   word0 signature      actual=0x43505543 expected=0x43505543 meaning='CPUC'
-#   word1 error_mask     actual=0x00000000 expected=0x00000000
-#   word2 r_type_mix     actual=0xcd79bdff expected=0xcd79bdff
-#   word3 mem_mix        actual=0x0000e595 expected=0x0000e595
-#   word4 branch_score   actual=0x0000003f expected=0x0000003f
-#   word5 i_type_mix     actual=0x00000874 expected=0x00000874
-# SUMMARY: PASS=8 FAIL=0
+result word1 == 0
+selected_file_id == 1
+total_records == 2
+DMA start count == 3
+RX output at 0x6000 matches input1 bytes
 ```
 
-Run dung:
+## 11. `testcase/test_mmio_dma.c` - direct DMA TX/RX loopback
 
-```bash
-cd sim
-make compile C_SRC=test_cpu_instruction_cov.c
-make all TESTNAME=cpu_instruction_cov RUN_ARGS="+CASE_NAME=cpu_instruction_cov +INPUT_FILE=input1.txt"
+### Function
+
+This is a direct data-plane loopback test without the metadata table:
+
+```text
+input at 0x2000
+TX COMPRESS_AES whole-file to 0x4000
+RX decode/decrypt from 0x4000 to 0x6000
+write result words
 ```
 
-## 8. Disassembly Notes for `testcase/test_mmio_dma.c`
+It is useful for debugging DMA, Huffman TX, AES-CBC TX, RX parser/depacker,
+decoder, and AES-CBC RX without involving secure-storage metadata.
 
-### 8.1 Boot
+### Inputs
 
-| PC    | Hex      | Mnemonic |
-|-------|----------|----------|
-| 0x000 | 00008137 | `lui sp,0x8` |
-| 0x004 | f0010113 | `addi sp,sp,-256` |
-| 0x008 | 0040006f | `j 0x00c` |
+| Input | Address | Format | Meaning |
+|---|---:|---|---|
+| `input_len` | `0x0000_0040` | 32-bit byte count | Number of plaintext bytes. |
+| plaintext | `0x0000_2000` | byte array | Source bytes loaded by testbench. |
 
-### 8.2 Write DMA config
+### Outputs
 
-Generated assembly co the thay doi theo option compile, nhung instruction
-class chinh van la RV32I co ban:
+| Output | Address | Format | Meaning |
+|---|---:|---|---|
+| TX output | `0x0000_4000` | byte stream | Huffman+AES transport stream. |
+| RX output | `0x0000_6000` | byte array | Restored plaintext. |
+| result words | `0x0000_0000` | 16 x 32-bit words | Status and output-head debug. |
 
-- `lui` de tao base MMIO `0x40000000`
-- `lw` de doc `INPUT_LEN_ADDR`, `DMA_STATUS`, `DMA_BYTES_DONE`,
-  `DMA_CIPHERTEXT_BYTES_PRODUCED`
-- `sw` de ghi `SRC_ADDR`, `DST_ADDR`, `LEN_BYTES`, `MODE`, `BLOCK_CFG`,
-  `CONTROL.start`
-- `andi`, `beq`, `bne`, `bltu` de poll status va check timeout
+### DMA configuration
 
-### 8.3 Poll / collect result
+TX:
 
-Sau khi ghi `CONTROL.start`, chuong trinh:
+```text
+SRC_ADDR  = 0x0000_2000
+DST_ADDR  = 0x0000_4000
+LEN_BYTES = input_len
+MODE      = 0x9
+BLOCK_CFG = 0x20
+```
 
-1. loop doc `DMA_STATUS` cho den khi:
-   - `error_sticky = 1`, hoac
-   - da thay busy roi sau do `busy = 0` va `done_sticky = 1`, hoac
-   - qua `MAX_POLLS`.
-2. TX: doc `DMA_BYTES_DONE` va `DMA_CIPHERTEXT_BYTES_PRODUCED`
-3. RX: doc `DMA_BYTES_DONE`
-4. doc `DMA_DEBUG`
-5. doc 4 word dau cua vung RX output
-6. lap `error_mask`
+RX:
 
-`error_mask` hien tai dung cac bit:
+```text
+SRC_ADDR  = 0x0000_4000
+DST_ADDR  = 0x0000_6000
+LEN_BYTES = DMA_CIPHERTEXT_BYTES_PRODUCED
+MODE      = 0x2
+BLOCK_CFG = 0x20
+```
 
-- bit0: `tx_status_before_start != 0x98`
-- bit1: `tx_status_after_done != 0x9a`
-- bit2: TX length invalid hoac ciphertext length khong align 16 byte
-- bit3: TX debug khac 0
-- bit4: TX timeout
-- bit5: ciphertext head all-zero
-- bit6: RX status_before khong phai idle/done hop le
-- bit7: `rx_status_after_done != 0x2a`
-- bit8: `rx_bytes_done != input_len`
-- bit9: RX debug khac 0
-- bit10: RX timeout
-- bit11: `CIPHERTEXT_BYTES_PRODUCED != TX_BYTES_DONE`
-- bit12: input length bang 0
+The program writes a deterministic IV before TX and reuses the same IV for RX.
 
-### 8.4 Write result words to DMEM[0..15]
+### Result word layout
 
-| PC    | Hex      | Mnemonic |
-|-------|----------|----------|
-Chuong trinh ghi:
+| Word | Field | Expected/meaning |
+|---:|---|---|
+| `0` | signature | `0x44525831` (`DRX1`) |
+| `1` | error mask | `0` means pass |
+| `2` | TX `status_before` | `0x98` |
+| `3` | TX `status_after` | `0x9A` |
+| `4` | TX `bytes_done` | nonzero, 16-byte aligned |
+| `5` | TX `ciphertext_bytes` | should equal word4 |
+| `6` | TX polls | `< MAX_POLLS` |
+| `7` | RX `status_before` | `0x28` or `0x2A` |
+| `8` | RX `status_after` | `0x2A` |
+| `9` | RX `bytes_done` | equals `input_len` |
+| `10` | RX debug | expected `0` |
+| `11` | RX polls | `< MAX_POLLS` |
+| `12..15` | first four RX output words | non-authoritative debug sample |
 
-- signature
-- error_mask
-- status_before
-- status_after
-- bytes_done
-- debug
-- poll_count
-- 4 word RX output head
+### Error mask bits
 
-roi nhay vao vong lap vo han de giu trang thai.
+| Bit | Meaning |
+|---:|---|
+| `0` | TX status before start is not `0x98` |
+| `1` | TX status after done is not `0x9A` |
+| `2` | TX length invalid or not 16-byte aligned |
+| `3` | TX debug is nonzero |
+| `4` | TX timeout |
+| `5` | First four TX output words are all zero |
+| `6` | RX status before start is not valid |
+| `7` | RX status after done is not `0x2A` |
+| `8` | RX restored byte count does not equal input length |
+| `9` | RX debug is nonzero |
+| `10` | RX timeout |
+| `11` | `DMA_CIPHERTEXT_BYTES_PRODUCED != DMA_BYTES_DONE` after TX |
+| `12` | Input length is zero |
 
----
+## 12. `testcase/test_mmio_tx_only.c` - direct TX-only benchmark
 
-## 9. Checklist khi doi bai test
+### Function
 
-De tranh chay nham chuong trinh:
+This program runs only the TX side and writes the compressed/cipher output to
+DMEM. It is used for output length, saving-ratio, and TX datapath coverage when
+RX is not part of the testcase.
 
-1. Compile dung file C:
-   - `make compile C_SRC=<file>.c`
-2. Dam bao `instruction.mem` dang la output ban muon.
-3. Dam bao `rtl.f/tb.f` dang dung unified SoC mode, `tb.f` chi compile `test_bench`.
-4. Chay:
-   - `make drc`
-   - `make all TESTNAME=<name> RUN_ARGS="+CASE_NAME=<name> +INPUT_FILE=<input>.txt"`
-5. Kiem tra 4 instruction dau trong log:
-   - MMIO test: bat dau bang `00008137`
-   - Smoke sync: bat dau bang `00500093`
+Default mode is `0xD` (`COMPRESS_ONLY + whole-file`). Two wrapper files change
+the mode at compile time.
 
-## 10. Flow khuyen nghi theo loai input
+### Inputs
 
-- Current secure-storage API:
-  - compile: `make compile C_SRC=test_mmio_dma_storage_table.c`
-  - run: `make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"`
-  - policy: `secure_write`, `secure_write`, `secure_read` with metadata and IV restore.
+| Input | Address | Format | Meaning |
+|---|---:|---|---|
+| `input_len` | `0x0000_0040` | 32-bit byte count | Number of bytes to compress. |
+| plaintext | `0x0000_2000` | byte array | Source bytes loaded by testbench. |
 
-- `input1.txt` full loopback:
-  - compile: `make compile C_SRC=test_mmio_dma.c`
-  - run: `make all`
-  - policy: TX `COMPRESS_AES + whole_file`, RX decrypt/decode.
+### Outputs
 
-- `input1.txt` TX-only saving:
-  - compile: `make compile C_SRC=test_mmio_tx_only.c`
-  - run: `make all TESTNAME=tx_compress_only_input1 RUN_ARGS="+CASE_NAME=tx_compress_only_input1 +INPUT_FILE=input1.txt"`
-  - policy: TX `COMPRESS_ONLY + whole_file`.
+| Output | Address | Format | Meaning |
+|---|---:|---|---|
+| TX output | `0x0000_4000` | byte stream | Compressed/cipher transport stream. |
+| result words | `0x0000_0000` | 14 x 32-bit words | TX status, length, mode echo, output head. |
 
-- `input4_cov.txt` TX-only log-like saving:
-  - compile: `make compile C_SRC=test_mmio_tx_only.c`
-  - run: `make all TESTNAME=tx_compress_only_input4_cov RUN_ARGS="+CASE_NAME=tx_compress_only_input4_cov +INPUT_FILE=input4_cov.txt"`
-  - policy: TX `COMPRESS_ONLY + whole_file`.
+### Mode variants
 
-- Full coverage:
-  - command: `cd sim && ./run.csh cov && ./report.csh`
-  - historical result: `34/34` PASS, closed DUT `95.90%`.
+| Source file | Compile-time `TEST_MODE_TX` | Expected idle | Expected done | Meaning |
+|---|---:|---:|---:|---|
+| `test_mmio_tx_only.c` | `0xD` | `0xD8` | `0xDA` | whole-file compress-only |
+| `test_mmio_tx_only_aes_block.c` | `0x1` | `0x18` | `0x1A` | block COMPRESS_AES |
+| `test_mmio_tx_only_compress_block.c` | `0x5` | `0x58` | `0x5A` | block COMPRESS_ONLY |
+
+### Result word layout
+
+| Word | Field | Expected/meaning |
+|---:|---|---|
+| `0` | signature | `0x44545843` (`DTXC`) |
+| `1` | error mask | `0` means pass |
+| `2` | TX `status_before` | mode-dependent idle value |
+| `3` | TX `status_after` | mode-dependent done value |
+| `4` | TX `bytes_done` | nonzero, 16-byte aligned |
+| `5` | TX `ciphertext_bytes` | equals word4 |
+| `6` | TX polls | `< MAX_POLLS` |
+| `7` | TX debug | expected `0` |
+| `8` | mode echo | `0xD`, `0x1`, or `0x5` |
+| `9` | input length echo | equals input length |
+| `10..13` | first four TX output words | should not all be zero |
+
+### Error mask bits
+
+| Bit | Meaning |
+|---:|---|
+| `0` | Input length is zero |
+| `1` | TX status before start mismatch |
+| `2` | TX final status mismatch |
+| `3` | TX byte count invalid or not 16-byte aligned |
+| `4` | `ciphertext_bytes != bytes_done` |
+| `5` | `DMA_DEBUG != 0` |
+| `6` | TX timeout |
+| `7` | First four output words are all zero |
+
+## 13. TX expected-error C programs
+
+### `testcase/test_mmio_tx_apb_error.c`
+
+Function:
+
+- Configures TX whole-file AES mode `0x9`.
+- Uses length `0x20`.
+- Starts DMA and expects an error-sticky status.
+- Checks that `DMA_DEBUG[11:4] == 0x30`.
+
+Inputs:
+
+| Input | Address | Format |
+|---|---:|---|
+| source bytes | `0x0000_2000` | byte array, content depends on testcase wrapper |
+
+Outputs:
+
+| Word | Field | Expected/meaning |
+|---:|---|---|
+| `0` | signature | `0x54584552` (`TXER`) |
+| `1` | error mask | `0` means expected error was observed correctly |
+| `2` | status before | `0x98` |
+| `3` | status after | bit2 error set |
+| `4` | bytes done | debug value, no pass requirement except code-specific checks |
+| `5` | debug after | bits `[11:4] == 0x30` |
+| `6` | polls | `< 100000` |
+
+Error bits:
+
+| Bit | Meaning |
+|---:|---|
+| `0` | status before is not `0x98` |
+| `1` | final status did not set error bit |
+| `2` | debug class is not `0x30` |
+| `3` | timeout |
+
+### `testcase/test_mmio_tx_encoder_error.c`
+
+Function is the same shape as `test_mmio_tx_apb_error.c`, but it uses
+`DMA_LEN_BYTES = 0x240` and expects encoder error class:
+
+```text
+DMA_DEBUG[11:4] == 0x60
+```
+
+The result layout and error bits are identical to `test_mmio_tx_apb_error.c`,
+except word5 should encode debug class `0x60`.
+
+## 14. DMA register-file C programs
+
+### `testcase/test_mmio_regfile_basic.c`
+
+Function:
+
+- Checks reset status.
+- Writes legal config registers.
+- Writes and reads back AES IV registers.
+- Clears done/error, then issues soft reset.
+- Checks reset returns selected registers to expected values.
+
+Inputs:
+
+None from the testbench. The program writes all needed MMIO values itself.
+
+Register writes:
+
+```text
+SRC_ADDR  = 0x00002000
+DST_ADDR  = 0x00004000
+LEN_BYTES = 0x00000040
+MODE      = 0xD
+BLOCK_CFG = 0x20
+IV0       = 0x11223344
+IV1       = 0x55667788
+IV2       = 0x99AABBCC
+IV3       = 0xDDEEFF00
+CONTROL   = 0x0C, then 0x02
+```
+
+Result words:
+
+| Word | Field | Expected |
+|---:|---|---:|
+| `0` | signature | `0x52454731` (`REG1`) |
+| `1` | error mask | `0` |
+| `2` | status reset | `0x0` |
+| `3` | status after config | `0xD8` |
+| `4` | status after soft reset | `0x0` |
+| `5` | mode readback | `0xD` |
+| `6` | block readback | `0x20` |
+| `7` | IV0 readback | `0x11223344` |
+| `8` | IV1 readback | `0x55667788` |
+| `9` | IV2 readback | `0x99AABBCC` |
+| `10` | IV3 readback | `0xDDEEFF00` |
+
+Error bits:
+
+| Bit | Meaning |
+|---:|---|
+| `0` | reset status is not zero |
+| `1` | configured status is not `0xD8` |
+| `2` | mode readback mismatch |
+| `3` | block readback mismatch |
+| `4..7` | IV0..IV3 readback mismatch |
+| `8` | status after soft reset is not zero |
+| `9` | mode not cleared after reset |
+| `10` | block config did not retain default `0x20` after reset |
+| `11` | IV registers not cleared after reset |
+
+### `testcase/test_mmio_regfile_negative.c`
+
+Function:
+
+Exercises illegal software actions and verifies `error_sticky` behavior.
+
+Inputs:
+
+None.
+
+Negative cases:
+
+| Case | C action | Expected |
+|---|---|---|
+| bad start | write `CONTROL=0x1` before valid config | `STATUS[2]` set |
+| read-only status write | write `DMA_STATUS=0xFFFFFFFF` | `STATUS[2]` set |
+| invalid address | write to `DMA_BASE+0xFC` | `STATUS[2]` set |
+| reserved mode | write `DMA_MODE=0x10` | `STATUS[2]` set and `DMA_MODE` remains `0` |
+| bad block config | set `BLOCK_CFG=0`, then start | `STATUS[2]` set |
+| partial byte store | byte-write `0xFF` to mode low byte | mode remains `0xD` |
+| write read-only bytes done | write `DMA_BYTES_DONE=1` | `STATUS[2]` set |
+| write read-only debug | write `DMA_DEBUG=1` | `STATUS[2]` set |
+
+Result words:
+
+| Word | Field |
+|---:|---|
+| `0` | signature `0x4E454731` (`NEG1`) |
+| `1` | error mask |
+| `2` | status after bad start |
+| `3` | status after read-only status write |
+| `4` | status after invalid address |
+| `5` | status after reserved mode |
+| `6` | block config after bad config write |
+| `7` | mode after partial store |
+| `8` | status after bad block start |
+
+Error bits:
+
+| Bit | Meaning |
+|---:|---|
+| `0` | bad start did not set error |
+| `1` | read-only `STATUS` write did not set error |
+| `2` | invalid APB address did not set error |
+| `3` | reserved mode did not set error |
+| `4` | reserved mode incorrectly changed `DMA_MODE` |
+| `5` | bad block start did not set error |
+| `6` | block readback after bad config was not zero |
+| `7` | partial byte store unexpectedly changed mode |
+| `8` | write to `DMA_BYTES_DONE` did not set error |
+| `9` | write to `DMA_DEBUG` did not set error |
+
+### `testcase/test_mmio_mode_matrix.c`
+
+Function:
+
+Verifies that `DMA_MODE` values decode into the expected `DMA_STATUS` fields
+after valid source/destination/length/block config is present.
+
+Inputs:
+
+None.
+
+Common config:
+
+```text
+SRC_ADDR  = 0x00002000
+DST_ADDR  = 0x00004000
+LEN_BYTES = 0x20
+BLOCK_CFG = 0x20
+```
+
+Expected status function:
+
+```text
+direction = mode[1:0]
+cfg_valid = 1 only for direction 1 (TX) or 2 (RX)
+status = cfg_valid<<3 | direction<<4 | mode[3:2]<<6
+```
+
+Result words:
+
+| Word | Field | Expected |
+|---:|---|---:|
+| `0` | signature | `0x4D4F4445` (`MODE`) |
+| `1` | error mask | `0` |
+| `2` | status for mode `0x1` | `0x18` |
+| `3` | status for mode `0x5` | `0x58` |
+| `4` | status for mode `0x9` | `0x98` |
+| `5` | status for mode `0xD` | `0xD8` |
+| `6` | status for mode `0x2` | `0x28` |
+| `7` | status for mode `0x0` | `0x00` |
+| `8` | status for mode `0x3` | `0x30` |
+| `9` | status for reserved mode `0x10` | error bit set |
+
+Error bits:
+
+| Bit | Meaning |
+|---:|---|
+| `0` | mode `0x1` status mismatch |
+| `1` | mode `0x5` status mismatch |
+| `2` | mode `0x9` status mismatch |
+| `3` | mode `0xD` status mismatch |
+| `4` | mode `0x2` status mismatch |
+| `5` | mode `0x0` status mismatch |
+| `6` | mode `0x3` status mismatch |
+| `7` | reserved mode did not set error |
+
+## 15. `testcase/test_mmio_rx_bad_length.c` - RX invalid length
+
+### Function
+
+This program verifies the RX front-end rejects an invalid ciphertext length.
+The input length is hardcoded to 4 bytes, which is not a valid AES-CBC
+ciphertext stream length for this system.
+
+### Inputs
+
+The program does not read `INPUT_LEN_ADDR`. It assumes any bytes at
+`0x0000_2000` are irrelevant because length validation should fail first.
+
+### DMA configuration
+
+```text
+SRC_ADDR  = 0x0000_2000
+DST_ADDR  = 0x0000_4000
+LEN_BYTES = 0x00000004
+MODE      = 0x2
+BLOCK_CFG = 0x20
+```
+
+### Outputs and result words
+
+| Word | Field | Expected |
+|---:|---|---|
+| `0` | signature | `0x52584552` (`RXER`) |
+| `1` | error mask | `0` |
+| `2` | status before | `0x28` |
+| `3` | status after | bit2 error set |
+| `4` | bytes done | `0` |
+| `5` | debug after | bits `[11:4] == 0x20` |
+| `6` | polls | `< 100000` |
+
+Error bits:
+
+| Bit | Meaning |
+|---:|---|
+| `0` | status before is not `0x28` |
+| `1` | final status did not set error bit |
+| `2` | `bytes_done != 0` |
+| `3` | debug class is not `0x20` |
+| `4` | timeout |
+
+## 16. CPU coverage C programs
+
+### `testcase/test_cpu_instruction_cov.c`
+
+Function:
+
+Exercises RV32I instruction classes that may not all appear in DMA firmware:
+
+- R-type ALU: `add`, `sub`, `sll`, `slt`, `sltu`, `xor`, `srl`, `sra`,
+  `or`, `and`.
+- I-type ALU: `addi`, `slti`, `sltiu`, `xori`, `ori`, `andi`, `slli`,
+  `srli`, `srai`.
+- Loads/stores: `sw`, `sh`, `sb`, `lbu`, `lb`, `lhu`, `lh`.
+- Branch/jump: `beq`, `bne`, `blt`, `bge`, `bltu`, `bgeu`, `jalr`.
+- Upper immediate: `lui`.
+
+Inputs:
+
+None.
+
+Scratch memory:
+
+```text
+0x0000_0100..0x0000_0106
+```
+
+Result words:
+
+| Word | Field | Expected |
+|---:|---|---:|
+| `0` | signature | `0x43505543` (`CPUC`) |
+| `1` | error mask | `0x00000000` |
+| `2` | `r_type_mix` | `0xCD79BDFF` |
+| `3` | `mem_mix` | `0x0000E595` |
+| `4` | `branch_score` | `0x0000003F` |
+| `5` | `i_type_mix` | nonzero, current baseline `0x00000874` |
+
+Error bits:
+
+| Bit | Meaning |
+|---:|---|
+| `0` | R-type mix mismatch |
+| `1` | I-type mix is zero |
+| `2` | branch score mismatch |
+| `3` | load/store result mismatch |
+| `4` | LUI result mismatch |
+| `5` | JALR control-flow mismatch |
+
+### `testcase/test_cpu_mem_forward_cov.c`
+
+Function:
+
+Exercises memory byte/half/word offsets, signed/unsigned loads, misaligned
+MEM-stage branches, and forwarding paths. This program is for CPU RTL
+coverage, not DMA.
+
+Inputs:
+
+None.
+
+Scratch memory:
+
+```text
+0x0000_0300..0x0000_0347
+```
+
+Result words:
+
+| Word | Field | Expected/meaning |
+|---:|---|---|
+| `0` | signature | `0x43505548` (`CPUH`) |
+| `1` | error mask | `0` |
+| `2` | `mem_error` | `0` |
+| `3` | `fwd_mix` | nonzero forwarding mix |
+
+Error bits:
+
+| Bit | Meaning |
+|---:|---|
+| `0` | Memory offset/sign-extension check failed |
+| `1` | Forwarding mix is zero |
+
+The code intentionally executes misaligned `sh`, `sw`, `lh`, and `lw` to cover
+MEM-stage RTL branches. The current core does not use a full trap flow here, so
+the test expects the program to keep running and publish a clean signature.
+
+## 17. Deprecated preprocessing C programs
+
+### `testcase/test_log_preprocess.c`
+
+Function:
+
+This older program compares raw text TX length against a preprocessed buffer
+TX length. It uses fixed waits instead of the newer robust polling loop, so it
+is not the recommended secure-storage demo.
+
+Inputs:
+
+| Input | Address | Format |
+|---|---:|---|
+| raw input length | `0x0000_0040` | 32-bit byte count |
+| preprocessed length | `0x0000_0044` | 32-bit byte count |
+| raw input | `0x0000_0400` | byte array |
+| preprocessed input | `0x0000_2000` | byte array |
+
+Outputs:
+
+| Output | Address | Meaning |
+|---|---:|---|
+| raw TX output | `0x0000_4000` | TX output for raw input |
+| preprocessed TX output | `0x0000_6000` | TX output for preprocessed input |
+| result words | `0x0000_0000` | 16-word comparison block |
+
+Result word highlights:
+
+| Word | Field |
+|---:|---|
+| `0` | signature `0x4C505231` (`LPR1`) |
+| `1` | error mask |
+| `2` | raw input length |
+| `6` | raw ciphertext bytes |
+| `7` | preprocessed length |
+| `12` | preprocessed ciphertext bytes |
+| `15` | `raw_cipher_bytes - pre_cipher_bytes` |
+
+### `testcase/test_sensor_phi_preprocess_rv32.c`
+
+Function:
+
+This experimental program parses CSV-like sensor/PHI records on RV32I, emits a
+compact binary format, then runs TX on both raw and compact data to compare
+output sizes.
+
+Input format:
+
+```text
+delta_ms,patient_id,encounter_id,device_id,bed_id,red,ir,spo2_x10,hr,rr,alert_flags
+```
+
+Binary output format:
+
+| Offset in record | Field | Width | Encoding |
+|---:|---|---:|---|
+| `0` | `delta_ms` | 16 bit | little-endian |
+| `2` | `patient_id` | 16 bit | little-endian |
+| `4` | `encounter_id` | 32 bit | little-endian |
+| `8` | `device_id` | 8 bit | byte |
+| `9` | `bed_id` | 8 bit | byte |
+| `10` | `red` | 16 bit | little-endian |
+| `12` | `ir` | 16 bit | little-endian |
+| `14` | `spo2_x10` | 16 bit | little-endian |
+| `16` | `hr` | 8 bit | byte |
+| `17` | `rr` | 8 bit | byte |
+| `18` | `alert_flags` | 16 bit | little-endian |
+
+The compact file starts with a 16-byte header:
+
+| Header offset | Field | Width |
+|---:|---|---:|
+| `0` | magic `0x31485053` (`SPH1`) | 32 bit |
+| `4` | record count | 32 bit |
+| `8` | record size, `20` | 32 bit |
+| `12` | reserved | 32 bit |
+
+Result words:
+
+| Word | Field |
+|---:|---|
+| `0` | signature `0x53505231` (`SPR1`) |
+| `1` | error mask |
+| `2` | raw input length |
+| `3` | compact/preprocessed length |
+| `4` | record count |
+| `5..8` | raw TX status/bytes |
+| `9..12` | compact TX status/bytes |
+| `13` | magic `SPH1` |
+| `14` | raw TX polls |
+| `15` | compact TX polls |
+
+## 18. Recommended command map
+
+| Goal | Compile command | Run command |
+|---|---|---|
+| Secure-storage main demo | `make compile C_SRC=test_mmio_dma_storage_table.c` | `make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"` |
+| Direct TX/RX loopback | `make compile C_SRC=test_mmio_dma.c` | `make all TESTNAME=dma_compress_aes_input1 RUN_ARGS="+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"` |
+| TX-only whole-file compress-only | `make compile C_SRC=test_mmio_tx_only.c` | `make all TESTNAME=tx_compress_only_input1 RUN_ARGS="+CASE_NAME=tx_compress_only_input1 +INPUT_FILE=input1.txt"` |
+| TX block AES wrapper | `make compile C_SRC=test_mmio_tx_only_aes_block.c` | `make all TESTNAME=tx_compress_aes_block_input3 RUN_ARGS="+CASE_NAME=tx_compress_aes_block_input3 +INPUT_FILE=input3.txt"` |
+| TX block compress-only wrapper | `make compile C_SRC=test_mmio_tx_only_compress_block.c` | `make all TESTNAME=tx_compress_only_block_input3 RUN_ARGS="+CASE_NAME=tx_compress_only_block_input3 +INPUT_FILE=input3.txt"` |
+| Register-file basic | `make compile C_SRC=test_mmio_regfile_basic.c` | `make all TESTNAME=mmio_regfile_basic RUN_ARGS="+CASE_NAME=mmio_regfile_basic +INPUT_FILE=input1.txt"` |
+| Register-file negative | `make compile C_SRC=test_mmio_regfile_negative.c` | `make all TESTNAME=mmio_regfile_negative RUN_ARGS="+CASE_NAME=mmio_regfile_negative +INPUT_FILE=input1.txt"` |
+| Mode matrix | `make compile C_SRC=test_mmio_mode_matrix.c` | `make all TESTNAME=mmio_mode_matrix RUN_ARGS="+CASE_NAME=mmio_mode_matrix +INPUT_FILE=input1.txt"` |
+| RX bad length | `make compile C_SRC=test_mmio_rx_bad_length.c` | `make all TESTNAME=mmio_rx_bad_length RUN_ARGS="+CASE_NAME=mmio_rx_bad_length +INPUT_FILE=input1.txt"` |
+| CPU instruction coverage | `make compile C_SRC=test_cpu_instruction_cov.c` | `make all TESTNAME=cpu_instruction_cov RUN_ARGS="+CASE_NAME=cpu_instruction_cov +INPUT_FILE=input1.txt"` |
+| CPU memory/forwarding coverage | `make compile C_SRC=test_cpu_mem_forward_cov.c` | `make all TESTNAME=cpu_mem_forward_cov RUN_ARGS="+CASE_NAME=cpu_mem_forward_cov +INPUT_FILE=input1.txt"` |
+
+## 19. Checklist when changing a C testcase
+
+1. Compile the exact C file selected by the testcase.
+2. Confirm `sim/instruction.mem` was regenerated from the expected `.mem`.
+3. Keep result word0 as a unique signature and word1 as `error_mask`.
+4. When adding a DMA mode, update the status expectation table.
+5. When adding result words, update this document and the testbench report
+   decode.
+6. Run the focused testcase before running full coverage.
+7. Check for unrelated dirty files before committing.

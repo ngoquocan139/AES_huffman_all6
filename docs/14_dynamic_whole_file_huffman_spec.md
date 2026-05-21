@@ -15,6 +15,9 @@ Y tuong chinh:
 5. Cac compressed block sau dung lai table do.
 
 Day la dynamic Huffman theo toan file, khong phai static codebook.
+Trong firmware/report flow hien tai, day la mode chinh. Per-block dynamic mode
+van ton tai trong RTL de compatibility/coverage, nhung khong phai duong du lieu
+duoc khuyen nghi cho ket qua nen.
 
 ## 1.1 Whole-File Flow Chart
 

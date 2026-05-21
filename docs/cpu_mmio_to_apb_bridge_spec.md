@@ -26,23 +26,32 @@ flowchart LR
     BR --> DMA["dma_regfile"]
 ```
 
-## 3. Luu y ve APB protocol
+## 3. APB Protocol And Current FSM
 
 Giao thuc APB co **2 phase**:
 
-1. `SETUP`
-2. `ACCESS`
+1. `SETUP`: `PSEL=1`, `PENABLE=0`
+2. `ACCESS`: `PSEL=1`, `PENABLE=1`
 
-De thiet ke de hieu hon, `cpu_mmio_to_apb_bridge` duoc khuyen nghi viet bang FSM **3 state**:
+RTL hien tai implement bang FSM **2 state**:
 
-1. `IDLE`
-2. `SETUP`
-3. `ACCESS`
+| State | Meaning |
+|---|---|
+| `STATE_IDLE` | Cho CPU MMIO request moi |
+| `STATE_ACCESS` | Giu APB ACCESS cho toi khi `PREADY_i=1` |
 
-Nghia la:
+`SETUP` khong phai mot state rieng. No la cycle ma bridge dang `IDLE`,
+`accept_req_w=1`, va output APB duoc drive truc tiep tu request CPU:
 
-- `IDLE` la state noi bo cua bridge;
-- APB transfer van tuan thu dung 2 phase `SETUP` va `ACCESS`.
+```text
+setup_phase_w  = accept_req_w
+access_phase_w = (state_r == STATE_ACCESS)
+PSEL_o         = setup_phase_w || access_phase_w
+PENABLE_o      = access_phase_w
+```
+
+Tai canh clock sau `SETUP`, bridge latch request vao `req_*_r` va chuyen sang
+`STATE_ACCESS`.
 
 ## 4. Pham vi hien tai
 
@@ -120,7 +129,7 @@ Neu request khong hop le:
 - `mmio_error_o = 1`
 - `mmio_rdata_o = 32'b0`
 
-### 6.2 FSM de xuat
+### 6.2 FSM thuc te trong RTL
 
 #### `IDLE`
 
@@ -128,15 +137,22 @@ Neu request khong hop le:
 - `PENABLE_o = 0`
 - Cho request moi
 - Khi chap nhan request:
+  - trong cung cycle do, APB `SETUP` duoc drive voi `PSEL=1`, `PENABLE=0`
   - latch `addr`, `write`, `wdata`
-  - chuyen sang `SETUP`
+  - chuyen sang `ACCESS`
+- Neu request sai alignment hoac write strobe:
+  - khong phat APB
+  - pulse `mmio_done_o=1`
+  - pulse `mmio_error_o=1`
 
-#### `SETUP`
+#### `SETUP` phase
+
+Day la phase APB ben ngoai, khong phai state register rieng:
 
 - `PSEL_o = 1`
 - `PENABLE_o = 0`
-- `PADDR_o`, `PWRITE_o`, `PWDATA_o` giu co dinh
-- Sau dung 1 cycle, chuyen sang `ACCESS`
+- `PADDR_o`, `PWRITE_o`, `PWDATA_o` lay tu request CPU hien tai
+- request duoc latch tai canh clock de dung cho `ACCESS`
 
 #### `ACCESS`
 
@@ -150,6 +166,21 @@ Neu request khong hop le:
   - neu `PSLVERR_i = 1`: set `mmio_error_o = 1`
   - phat `mmio_done_o = 1`
   - quay ve `IDLE`
+
+### 6.3 Duplicate-request guard
+
+RTL co guard:
+
+```text
+same_as_last_req_w
+```
+
+Muc dich la tranh bridge accept lai dung cung mot MMIO request neu CPU wrapper
+con giu `mmio_req_i=1` sau khi transfer vua xong. `last_req_valid_r` chi duoc
+clear khi `mmio_req_i=0`.
+
+Dieu nay quan trong voi bug "first MMIO write": request dau tien duoc accept
+mot lan, sau do khong bi nhan lap do tin hieu request con dang high.
 
 ## 7. APB timing policy
 
@@ -193,9 +224,12 @@ Implementation hien tai **khong** ho tro:
 
 Day la diem quan trong nhat cua implementation hien tai:
 
-- bridge latch request trong `SETUP`
-- `cpu_stall_req_o` chi can assert trong `ACCESS`
-- lop SoC phia tren phai hold dung front pipeline cho toi khi `mmio_done_o = 1`
+- bridge drive `SETUP` combinational khi accept request
+- bridge latch request tai canh clock va giu no trong `ACCESS`
+- `cpu_stall_req_o` chi assert trong `ACCESS`
+- lop SoC phia tren hold pipeline khi `bridge_cpu_stall_req_w=1`
+- readback MMIO duoc route vao memory-return path bang request source da latch,
+  khong dua vao instruction hien tai o MEM stage
 
 Ngoai ra, synchronous load path phai co co che rieng de:
 
@@ -230,3 +264,4 @@ Implementation duoc coi la dat khi:
 4. Wait state dai nhieu cycle van khong lam mat request
 5. `cpu_stall_req_o` chi assert trong `ACCESS`, khong assert som ngay chu ky `SETUP`
 6. `mmio_done_o` va `mmio_error_o` la pulse 1 cycle ro rang
+7. Cung mot request khong bi accept lap lai khi `mmio_req_i` con high sau completion

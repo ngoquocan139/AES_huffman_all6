@@ -64,17 +64,22 @@ flowchart LR
 
 Module nhan:
 
-- `block_start`
-- `block_valid`
-- `block_end`
+- `start_block`
 - `byte_in[7:0]`
+- `byte_valid`
+- `byte_ready`
+- `block_start`
+- `block_end`
 
 Quy uoc:
 
-- mot block la mot tap byte lien tiep
-- block size hop le trong flow TX hien tai la `1..32`
-- `block_start` phai noi voi byte dau tien
-- `block_end` phai noi voi byte cuoi cung
+- `start_block` la pulse dieu khien bat dau mot Huffman block moi.
+- `byte_valid/byte_ready` la handshake byte stream.
+- `block_start` phai di cung byte dau tien cua block.
+- `block_end` phai di cung byte cuoi cung cua block.
+- mot block payload hop le trong flow TX hien tai la `1..32` byte.
+- trong `whole_file_enable=1`, codebook co the lay tu external/global table,
+  nhung payload van duoc feed vao encoder theo tung block toi da 32 byte.
 
 Neu input khong hop le, encoder se phat error sticky va dung transfer.
 
@@ -110,6 +115,14 @@ selected_mode = COMPRESSED = 2'b10
 Voi whole-file mode, control FSM di thang tu collect sang emit khi global table
 da valid. Voi legacy per-block simulation path, phase mode-select chi ton tai de
 giu handshake cu nhung khong scan buffer va khong tinh raw/one-symbol fallback.
+
+Implementation note:
+
+- In synthesis, `dynamic_huffman_encoder` forces its internal
+  `whole_file_mode_w = 1'b1`. This matches the FPGA/report path, where whole-file
+  dynamic Huffman is the active design point.
+- In simulation, `whole_file_enable` is still honored so coverage can exercise
+  legacy per-block compatibility modes.
 
 ### 5.4 Emit
 

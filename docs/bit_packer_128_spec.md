@@ -54,42 +54,60 @@ Module:
 
 `bit_packer_128` nhan:
 
-- `chunk_in[31:0]`
-- `chunk_valid`
-- `chunk_bits[5:0]`
-- `frame_last`
-- `ready`
+- `stream_data[31:0]`
+- `stream_len[5:0]`
+- `stream_valid`
+- `stream_last`
+- `flush_on_last`
+- `stream_ready`
 
 Y nghia:
 
-- `chunk_bits` cho biet bao nhieu bit trong `chunk_in` co y nghia
-- `frame_last = 1` nghia la doan bitstream nay la cuoi frame
+- `stream_len` cho biet bao nhieu bit trong `stream_data` co y nghia
+- `stream_last = 1` nghia la chunk nay la cuoi block/packet tu encoder
+- `flush_on_last = 1` yeu cau packer tao final transport word khi gap
+  `stream_last`
+- `stream_last = 1` nhung `flush_on_last = 0` la truong hop hop le khi TX
+  dang `continue_frame`; packer giu bit trong frame hien tai va khong tao
+  final transport word
 
 ## 5. Output Contract
 
 Module xuat:
 
-- `transport_word[127:0]`
-- `transport_valid`
-- `transport_ready`
-- `transport_bits[6:0]`
+- `transport_word_out[127:0]`
+- `transport_word_valid`
+- `transport_word_ready`
 - `busy`
 - `done`
-- `error`
+- `error_flag`
 
 Trong flow active hien tai:
 
-- `transport_bits` chi ro so bit that su co y nghia trong word 128-bit
+- so bit that su co y nghia khong di bang mot output rieng; no duoc nhung
+  truc tiep vao `transport_word_out[126:120]`
 - AES can word day de ma hoa, con bypass co the luu transport word truc tiep
+
+Transport word format:
+
+| Bits | Field | Meaning |
+|---:|---|---|
+| `127` | `frame_last` | `1` neu day la transport word cuoi frame |
+| `126:120` | `valid_bits` | So bit payload hop le trong field payload |
+| `119:0` | `payload` | 120 bit Huffman bitstream, LSB-first |
+
+`done` pulse khi final transport word (`frame_last=1`) da duoc downstream
+accept qua `transport_word_ready`.
 
 ## 6. Packing Rule
 
 Packer lam viec theo quy tac:
 
 1. load chunk bit vao buffer
-2. chen bit vao vi tri LSB-first cua buffer noi bo
-3. khi buffer >= 128 bit thi cat 128 bit ra mot word
-4. neu frame ket thuc ma buffer con bit le thi pad 0 den du 128 bit
+2. chen bit vao vi tri LSB-first cua payload buffer noi bo
+3. khi buffer du 120 bit payload thi tao transport word non-final
+4. neu frame ket thuc ma buffer con bit le thi zero-pad payload field va set
+   `frame_last=1`
 
 ## 7. Storage Semantics
 
@@ -105,12 +123,15 @@ khong con block-level mode decision.
 
 ## 8. Error Conditions
 
-Module co the bao loi neu:
+RTL hien tai chi set `error_flag` khi module accept mot chunk co length khong
+hop le:
 
-- nhan `chunk_valid` khi dang full ma khong co `ready`
-- `chunk_bits = 0` trong khi `chunk_valid = 1`
-- `chunk_bits > 32`
-- frame ket thuc sai protocol
+- `stream_len = 0` trong khi `stream_valid = 1`
+- `stream_len > 32`
+
+Cac truong hop backpressure khac duoc chan bang `stream_ready=0`, nen khong tao
+loi rieng. `stream_last` ma `flush_on_last=0` khong phai loi; day la co che
+noi nhieu Huffman block trong cung mot transport frame.
 
 ## 9. Related Specs
 

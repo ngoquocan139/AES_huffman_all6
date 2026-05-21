@@ -591,7 +591,7 @@ Chu yeu gom cac nhom sau:
 | OP | `and` | Ho tro | EX ALU `AND` |
 | Fence | `fence` | Placeholder | Decoder cho qua nhu instruction non-data; khong co memory ordering engine rieng |
 | System | `ebreak` | Used as testcase terminator | Assembly testcase dung `ebreak` de danh dau ket thuc; CPU hien tai khong co trap/interrupt handler day du |
-| System | `ecall` / CSR ops | Khong dung trong flow chinh | Decoder co nhan `SYSTEM` baseline, nhung SoC hien tai chua co CSR/trap architecture day du |
+| System | `ecall` / CSR ops | Khong dung trong flow chinh | `ecall/ebreak` khong tao trap; CSR ops khong co CSR file nen khong duoc xem la supported architectural path |
 
 ### 9.2 Ghi chu ve `SYSTEM`
 
@@ -599,6 +599,8 @@ Trong RTL hien tai:
 
 - `opcode == SYSTEM` duoc decoder nhan dien
 - nhung he thong chua co trap handler/CSR block day du
+- CSR instructions co `funct3 != 0` khong nen dung trong firmware, vi RTL
+  khong co CSR file va khong tra CSR read data dung kien truc
 - testcase dung `ebreak` nhu mot terminal marker trong assembly, khong phai
   mot trap flow hoan chinh
 

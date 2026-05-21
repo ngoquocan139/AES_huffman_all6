@@ -2,9 +2,10 @@
 
 ## 1. Purpose
 
-`huffman_block_parser` receives bit chunks from `bit_depacker_128` and separates block metadata, table entries, and payload windows for `huffman_block_decoder`.
+`huffman_block_parser` nhan bit chunks tu `bit_depacker_128`, tach thanh metadata
+block, table entry va payload window cho `huffman_block_decoder`.
 
-Parser does not decode Huffman symbols. It only parses the TX transport format.
+Parser khong tu decode Huffman symbol. No chi parse format transport cua TX.
 
 Current verification status:
 
@@ -25,12 +26,12 @@ bit_depacker_128
 
 ## 3. Supported Block Modes
 
-| Bits | Mode | Data format | Parser action |
-|---:|---|---|---|
-| `00` | `RAW_FULL` | 2-bit mode code | Set block size 32, expose raw payload |
-| `01` | `RAW_PARTIAL` | 2-bit mode code | Parse 6-bit block size, expose raw payload |
-| `10` | `COMPRESSED` | 2-bit mode code | Parse 6-bit block size, 9-bit symbol count, table entries, payload |
-| `11` | `ONE_SYMBOL` | 2-bit mode code | Parse block size and repeated symbol |
+| Bits | Mode | Parser action |
+|---:|---|---|
+| `00` | `RAW_FULL` | Set block size 32, expose raw payload |
+| `01` | `RAW_PARTIAL` | Parse 6-bit block size, expose raw payload |
+| `10` | `COMPRESSED` | Parse 6-bit block size, 9-bit symbol count, table entries, payload |
+| `11` | `ONE_SYMBOL` | Parse block size and repeated symbol |
 
 ## 4. Parser State Flow
 
@@ -48,39 +49,26 @@ flowchart LR
   ENT --> PAY
 ```
 
-### 4.1 Input From Depacker
-
-| Port | Direction | Width | Data format | Meaning |
-|---|---|---:|---|---|
-| `stream_data` | in | 32 | little-endian chunk | Input bit chunk from depacker |
-| `stream_len` | in | 6 | unsigned bit count | Number of valid bits in `stream_data` |
-| `stream_valid` | in | 1 | valid flag | Input chunk is valid |
-| `stream_last` | in | 1 | bool | Last chunk of frame |
-| `stream_ready` | out | 1 | ready flag | Parser can accept next chunk |
-
 ## 5. Outputs To Decoder
 
-| Output | Width | Data format | Meaning |
-|---|---:|---|---|
-| `block_meta_valid` | 1 | valid flag | Metadata ready for decoder |
-| `block_mode` | 2 | mode code | One of 4 block modes |
-| `block_size` | 6 | unsigned byte count | Expected plaintext bytes in this block |
-| `symbol_count` | 9 | unsigned symbol count | Number of compressed table entries; `0` means reuse previous table, `1..256` means load table |
-| `one_symbol_value` | 8 | symbol byte | Repeated byte for one-symbol mode |
-| `entry_valid` | 1 | valid flag | One `symbol + code_len` table entry valid |
-| `entry_last` | 1 | bool | Last compressed table entry |
-| `payload_window_valid` | 1 | valid flag | Payload bits available |
-| `payload_window_len` | 6 | unsigned bit count | Number of valid payload bits visible |
+| Output | Meaning |
+|---|---|
+| `block_meta_valid` | Metadata ready for decoder |
+| `block_mode` | One of 4 block modes |
+| `block_size` | Expected plaintext bytes in this block |
+| `symbol_count` | Number of compressed table entries; `0` means reuse previous table, `1..256` means load table |
+| `one_symbol_value` | Repeated byte for one-symbol mode |
+| `entry_valid` | One `symbol + code_len` table entry valid |
+| `entry_last` | Last compressed table entry |
+| `payload_window_valid` | Payload bits available |
+| `payload_window_len` | Number of valid payload bits visible |
 
 ## 6. Payload Handshake
 
 Decoder consumes payload by asserting:
 
-| Signal | Direction | Width | Data format | Meaning |
-|---|---|---:|---|---|
-| `payload_consume_valid` | out | 1 | valid flag | Consume payload bits |
-| `payload_consume_len` | out | 6 | unsigned bit count | Number of payload bits to consume |
-| `payload_block_done` | in | 1 | pulse | Decoder reports payload for current block fully consumed |
+- `payload_consume_valid`
+- `payload_consume_len`
 
 Parser then shifts the consumed bits out of its buffer. For compressed mode,
 parser lets decoder decide how many bits correspond to the matched code.
@@ -102,29 +90,7 @@ Parser validates:
 - legal compressed code length
 - table entry format
 
-## 9. Internal registers
-
-| Reg | Width | Data format | Meaning |
-|---|---:|---|---|
-| `state_r` | 3 | state code | Parser state machine |
-| `frame_active_r` | 1 | bool | Frame currently active |
-| `frame_last_seen_r` | 1 | bool | Frame-last already seen |
-| `block_mode_r` | 2 | mode code | Current block mode |
-| `block_size_r` | 6 | unsigned byte count | Current block size |
-| `symbol_count_r` | 9 | unsigned symbol count | Current symbol count |
-| `one_symbol_value_r` | 8 | symbol byte | One-symbol mode byte |
-| `raw_payload_bits_remaining_r` | 9 | unsigned bit count | Raw payload bits remaining |
-| `entry_count_remaining_r` | 9 | unsigned symbol count | Table entries remaining |
-| `block_meta_valid_r` | 1 | valid flag | Metadata valid |
-| `entry_symbol_r` | 8 | symbol byte | Current table entry symbol |
-| `entry_code_len_r` | 5 | code length | Current table entry code length |
-| `entry_valid_r` | 1 | valid flag | Current entry valid |
-| `entry_last_r` | 1 | bool | Current entry is last |
-| `block_done_r` | 1 | pulse | Block done pulse |
-| `frame_done_r` | 1 | pulse | Frame done pulse |
-| `error_r` | 1 | error flag | Parser error sticky |
-
-## 10. Related specs
+## 9. Related Specs
 
 - [RX path end-to-end](./rx_path_end_to_end_spec.md)
 - [Huffman block decoder](./huffman_block_decoder_spec.md)

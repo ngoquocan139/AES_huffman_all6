@@ -106,7 +106,7 @@ Read in this order when explaining the full system:
 | [soc_4_5_end_to_end_report.md](./soc_4_5_end_to_end_report.md) | Main SoC end-to-end evidence |
 | [paper_comparison_huffman_aes_cbc.md](./paper_comparison_huffman_aes_cbc.md) | Comparison with paper |
 | [29_defense_qa_code_focus_spec.md](./29_defense_qa_code_focus_spec.md) | Oral defense Q&A |
-| [input1_instruction_wavedrom.md](./input1_instruction_wavedrom.md) | Input1 instruction/MMIO waveform trace; currently has unresolved add/add conflict |
+| [input1_instruction_wavedrom.md](./input1_instruction_wavedrom.md) | Input1 instruction/MMIO waveform trace for the current `dma_compress_aes_input1` pass log |
 
 ## 8. FPGA And Workflow Path
 
@@ -167,6 +167,14 @@ FPGA implementation:
 cd sim
 make vivado_impl_tx
 make vivado_impl_full
+```
+
+Waveform viewer:
+
+```bash
+cd sim
+make wave
+make kill_wave
 ```
 
 ## 10. Archived Or Non-Report Branches

@@ -5,12 +5,17 @@
 `apb_huffman_aes_tx_top` la top-level module ghep noi 3 khoi chinh:
 
 1. `apb_huffman_tx_if`: APB slave de cau hinh block, nap du lieu 32-bit va phat lenh bat dau.
-2. `huffman_aes_tx_top`: chuyen word stream thanh byte stream, ma hoa Huffman dong, dong goi 128-bit va dua vao wrapper cua AES.
+2. `huffman_aes_tx_top`: chuyen word stream thanh byte stream, thuc hien whole-file/per-block dynamic Huffman, dong goi 128-bit va dua vao wrapper cua AES.
 3. TX output policy: chon giua:
    - `COMPRESS_AES`: CBC XOR transport word roi dua vao `aes128_cipher_top`
    - `COMPRESS_ONLY`: bypass AES va dua transport word thang ra output FIFO
 
-Muc tieu cua top nay la nhan tung block du lieu kich thuoc 1..32 byte qua giao tiep APB, nen moi block bang dynamic Huffman, noi tiep cac block do thanh bitstream frame neu can, dong goi thanh transport word 128-bit, sau do:
+Muc tieu cua top nay la nhan tung chunk du lieu kich thuoc 1..32 byte qua giao tiep APB. Trong mode whole-file, cac chunk nay duoc dung cho 2 pass:
+
+- pass 1 dem tan suat toan file;
+- pass 2 emit bitstream Huffman dung global codebook.
+
+Sau khi dong goi thanh transport word 128-bit, top:
 
 - hoac dua vao CBC + AES core de ma hoa
 - hoac bypass AES de tang space saving
@@ -93,10 +98,11 @@ Top nay khong tu giai ma du lieu. O cau hinh hien tai:
 | `VALID_BITS_WIDTH` | `7` | So bit can de ma hoa so bit hop le trong payload 120-bit. |
 | `AES_KEY_FIXED` | `128'h00112233445566778899AABBCCDDEEFF` | Key AES co dinh cua wrapper mac dinh. |
 
-Ghi chu: per-block path van dung `MAX_SYMBOLS_PER_BLOCK=32` va
-`MAX_TREE_NODES=63`. Whole-file path trong `huffman_aes_tx_top` override builder
-bang `FILE_MAX_SYMBOLS=256` va `FILE_MAX_TREE_NODES=511`, vi vay codebook
-whole-file hien ho tro full byte alphabet.
+Ghi chu: per-block path van dung `COUNT_WIDTH=6`, `MAX_SYMBOLS_PER_BLOCK=32`
+va `MAX_TREE_NODES=63`. Whole-file path trong `huffman_aes_tx_top` override
+builder bang `FILE_COUNT_WIDTH=16`, `FILE_MAX_SYMBOLS=256` va
+`FILE_MAX_TREE_NODES=511`, vi vay codebook whole-file hien ho tro full byte
+alphabet va dem tan suat tren ca file.
 
 ## 5. Cong top-level
 
@@ -174,6 +180,8 @@ Khoi nay cung cap memory map APB de:
 - ghi `block_size`;
 - ghi cac word du lieu 32-bit vao FIFO;
 - phat pulse `start_block_o` va thong tin `continue_frame_o`;
+- chon `compress_only`, `whole_file_enable`, `whole_file_count_mode`;
+- phat `global_clear_o` va `global_build_start_o` cho whole-file dynamic Huffman;
 - xuat stream `word_in_o/word_valid_o`;
 - nhan `word_ready_i`, `tx_busy_i`, `tx_done_i`, `tx_error_i` tu pipeline phia sau;
 - giu cac sticky bit `done_sticky_r` va `error_sticky_r`.
@@ -269,12 +277,12 @@ con la ECB-style independent block encryption.
 | `0x0000_0004` | `BLOCK_SIZE` | R/W | Kich thuoc block tinh theo byte, hop le trong khoang 1..32. |
 | `0x0000_0008` | `WORD_IN` | W | Nap du lieu 32-bit vao FIFO. |
 | `0x0000_000C` | `STATUS` | R | Trang thai cau hinh, input va tien trinh block. |
-| `0x0000_0010` | `CONTROL` | R/W | Soft reset va xoa sticky flags. |
+| `0x0000_0010` | `CONTROL` | R/W | Soft reset, clear sticky flags, whole-file clear/build pulses. |
 | `0x0000_0014` | `DEBUG` | R | Thong tin FIFO va con tro noi bo. |
-| `0x0000_0018` | `TX_POLICY` | R/W | Bit0=`compress_only` |
+| `0x0000_0018` | `TX_POLICY` | R/W | Bit0=`compress_only`, bit1=`whole_file_enable`, bit2=`whole_file_count_mode` |
 | `0x0000_0020` | `AES_OUT_DATA` | R | 32-bit word tu output FIFO |
 | `0x0000_0024` | `AES_OUT_META` | R | Bit0=`last_word`, bit1=`compress_only` |
-| `0x0000_0028` | `AES_OUT_STATUS` | R | Output FIFO status va `compress_only` mirror |
+| `0x0000_0028` | `AES_OUT_STATUS` | R | Output FIFO status, output error, policy mirrors |
 | `0x0000_002C` | `AES_OUT_DEBUG` | R | Debug output FIFO |
 
 ### 8.1 TX APB Register Function Summary
@@ -285,9 +293,9 @@ con la ECB-style independent block encryption.
 | `BLOCK_SIZE` | Declare current plaintext block size | `dma_tx_engine` | Valid `1..32`; must be written before `WORD_IN`/`START_BLOCK` sequence |
 | `WORD_IN` | Push 32-bit plaintext word into input FIFO | `dma_tx_engine` | APB can stall if FIFO cannot accept more data |
 | `STATUS` | Poll input/output progress | `dma_tx_engine` | `can_start`, `done_sticky`, `error_sticky`, FIFO status live here |
-| `CONTROL` | Soft reset or clear sticky flags | `dma_tx_engine`/debug software | Clears wrapper state without changing SoC-level DMA registers |
+| `CONTROL` | Soft reset, clear sticky flags, whole-file global clear/build | `dma_tx_engine`/debug software | Clears wrapper state or starts global table actions without changing SoC-level DMA registers |
 | `DEBUG` | Inspect input FIFO and wrapper pointers | Debug only | Not part of normal software contract |
-| `TX_POLICY` | Select `COMPRESS_AES` or `COMPRESS_ONLY` | `dma_tx_engine` | Bit0 bypasses AES when set |
+| `TX_POLICY` | Select `COMPRESS_AES`/`COMPRESS_ONLY` and whole-file count/emit phase | `dma_tx_engine` | Bit0 bypasses AES, bit1 enables whole-file table, bit2 selects count pass |
 | `AES_OUT_DATA` | Read 32-bit TX output word | `dma_tx_engine` | Consumed together with output meta/status to write TX result into DMEM |
 | `AES_OUT_META` | Read output word metadata | `dma_tx_engine` | Carries last-word and compress-only information for output draining |
 | `AES_OUT_STATUS` | Poll TX output FIFO | `dma_tx_engine` | Indicates nonempty/error and mirrors active output policy |
@@ -305,13 +313,21 @@ con la ECB-style independent block encryption.
 | 5 | `error_sticky` | Da co loi APB/TX. |
 | 6 | `fifo_nonempty` | FIFO dang co du lieu. |
 | 7 | `can_start` | Da nap du word can thiet, pipeline dang ranh va co the ghi `START_BLOCK`. |
+| 8 | `global_table_valid` | Whole-file global codebook da valid. |
+| 9 | `global_build_busy` | Global Huffman builder dang chay. |
+| 10 | `global_build_done` | Global Huffman builder da xong. |
+| 11 | `global_build_error` | Loi khi build global Huffman table. |
+| 12 | `whole_file_enable` | Mirror cua `TX_POLICY[1]`. |
+| 13 | `whole_file_count_mode` | Mirror cua `TX_POLICY[2]`. |
 
 ### 8.3 `TX_POLICY` register
 
 | Bit | Ten | Y nghia |
 |---:|---|---|
 | 0 | `compress_only` | `1`: bypass AES, `0`: di qua AES |
-| 31:1 | reserved | Ghi `1` se bao `PSLVERR` |
+| 1 | `whole_file_enable` | `1`: dung global whole-file codebook path |
+| 2 | `whole_file_count_mode` | `1`: pass dem tan suat, `0`: pass emit payload |
+| 31:3 | reserved | Ghi `1` se bao `PSLVERR` |
 
 ### 8.4 `CONTROL` register
 
@@ -320,6 +336,9 @@ con la ECB-style independent block encryption.
 | 0 | `soft_reset` | Xoa FIFO, cau hinh, sticky flags va huy block dang pending trong APB wrapper. |
 | 1 | `clear_done` | Xoa `done_sticky`. |
 | 2 | `clear_error` | Xoa `error_sticky`. |
+| 3 | `global_clear` | Clear global whole-file frequency/codebook state. |
+| 4 | `global_build_start` | Bat dau build global Huffman table tu frequency table da dem. |
+| 31:5 | reserved | Ghi `1` se bao `PSLVERR`. |
 
 ### 8.5 `DEBUG` register
 
@@ -333,6 +352,21 @@ con la ECB-style independent block encryption.
 | `[19:17]` | `wr_ptr` | Con tro ghi FIFO. |
 | `[22:20]` | `rd_ptr` | Con tro doc FIFO. |
 | `[23]` | `compress_only` | Mirror cua policy hien tai. |
+| `[24]` | `whole_file_enable` | Mirror cua whole-file policy. |
+| `[25]` | `whole_file_count_mode` | Mirror count/emit phase. |
+
+### 8.6 `AES_OUT_STATUS` register
+
+| Bit | Ten | Y nghia |
+|---:|---|---|
+| 0 | `out_fifo_nonempty` | Co output word de doc. |
+| 1 | `out_fifo_full` | Output FIFO day. |
+| 2 | `out_fifo_can_accept` | Output FIFO co the nhan word moi. |
+| 7:3 | `out_fifo_count` | So word trong output FIFO. |
+| 8 | `head_last_word` | Word dau FIFO la word cuoi frame neu FIFO nonempty. |
+| 9 | `aes_out_error_sticky` | Loi output/AES sticky. |
+| 10 | `compress_only` | Mirror cua policy hien tai. |
+| 11 | `whole_file_enable` | Mirror cua policy whole-file. |
 
 ## 9. Giao thuc su dung APB
 
@@ -352,6 +386,17 @@ Luu y giao thuc:
 - Neu chua nap du `words_expected`, `START_BLOCK` se bi stall bang `PREADY = 0`.
 - Neu FIFO day khi ghi `WORD_IN`, giao dich co the bi stall bang `PREADY = 0`.
 - Neu truy cap sai dia chi, `PSLVERR = 1`.
+
+Whole-file dynamic sequence do `dma_tx_engine` dung:
+
+1. `CONTROL.soft_reset = 1`.
+2. `CONTROL.global_clear = 1`.
+3. `TX_POLICY = 0x6` de bat `whole_file_enable` va `whole_file_count_mode`.
+4. Feed tat ca chunk 1..32 byte cua file bang `BLOCK_SIZE/WORD_IN/START_BLOCK`.
+5. `CONTROL.global_build_start = 1`.
+6. Poll `STATUS[8]` hoac `STATUS[10]`; neu `STATUS[11]` thi abort.
+7. `TX_POLICY = 0x2 | compress_only` de chuyen sang emit pass.
+8. Feed lai toan bo file va drain `AES_OUT_STATUS/META/DATA`.
 
 ## 10. Thu tu byte cua du lieu vao
 

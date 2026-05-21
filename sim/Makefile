@@ -148,7 +148,8 @@ gen_html:
 
 wave:
 	@test -f sim.wlf || (echo "[FAIL] sim.wlf not found. Run 'make all' or 'make all TESTNAME=...' first."; exit 1)
-	vsim -i -view sim.wlf -do "view wave; delete wave *; \
+	@echo "[INFO] Opening sim.wlf in Questa GUI waveform viewer"
+	vsim -gui -view sim.wlf -do "view wave; delete wave *; \
 	add wave /test_bench/clk; \
 	add wave /test_bench/rst; \
 	add wave /test_bench/wf_if_pc; \

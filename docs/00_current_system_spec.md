@@ -107,14 +107,17 @@ Design split:
 |---|---|
 | `rv32_soc_top` | Simulation/integration SoC top |
 | `rv32_soc_fpga_demo_top` | FPGA wrapper with UART loader and LEDs |
+| `uart_dmem_loader` | FPGA runtime input loader, writes source bytes and input length into DMEM before CPU release |
 | `top_rv32_sync` | RV32I control CPU |
 | `imem_sync` / `IMEM_ip` | Instruction memory |
 | `dmem_ip_wrapper` / `DMEM_ip` | Shared data memory |
-| `cpu_mmio_to_apb_bridge` | CPU MMIO load/store to APB |
+| `cpu_mmio_to_apb_bridge` | CPU MMIO load/store to APB; setup phase on accept, `ACCESS` state holds CPU |
 | `dma_regfile` | CPU-visible DMA registers, status, IV registers |
 | `dma_tx_engine` | DMEM to TX accelerator to DMEM mover |
 | `dma_rx_engine` | DMEM to RX accelerator to DMEM mover |
 | `apb_huffman_aes_tx_top` | TX APB wrapper, Huffman encoder, AES-CBC or bypass |
+| `apb_huffman_tx_if` | TX private APB register interface, input/output FIFOs, whole-file control pulses |
+| `huffman_aes_tx_top` | TX adapter, whole-file frequency/build path, dynamic encoder and packer input |
 | `dynamic_huffman_encoder` | Whole-file dynamic canonical Huffman encoder |
 | `bit_packer_128` | Pack Huffman transport into 128-bit words |
 | `apb_huffman_aes_rx_top` | RX wrapper, AES-CBC decrypt, depack, parse, decode |
@@ -300,6 +303,10 @@ Current generation in `secure_prepare_record()`:
 
 ```c
 counter = SECURE_IV_COUNTER_WORD + 1;
+if (counter == 0)
+    counter = SECURE_IV_SEED + 1;
+SECURE_IV_COUNTER_WORD = counter;
+
 mix = plain_len ^ plain_addr ^ cipher_addr ^ file_id ^ counter ^ 0x43424331u;
 mix = mix ^ (mix << 13);
 mix = mix ^ (mix >> 17);

@@ -112,9 +112,9 @@ CPU muon chay TX:
 - `SRC_ADDR = plaintext`
 - `DST_ADDR = ciphertext buffer`
 - `LEN_BYTES = plaintext length`
-- `MODE = 0x1` neu muon `COMPRESS_AES`
+- `MODE = 0x9` neu muon main secure path: `COMPRESS_AES + whole_file`
 - `MODE = 0xD` neu muon default `COMPRESS_ONLY + whole_file`
-- `MODE = 0x9` neu muon `COMPRESS_AES` + whole-file dynamic Huffman, day la mode loopback chinh hien tai
+- `MODE = 0x1` chi dung cho legacy per-block `COMPRESS_AES` compatibility/coverage
 - `IV0..IV3` neu dung `COMPRESS_AES`
 
 Trong RTL hien tai, `COMPRESS_AES` la AES-CBC. CPU phai tao/ghi IV truoc
@@ -267,35 +267,37 @@ Trong vi du nay, `0x40000000` da tron 12 bit thap, nen chi can `lui`.
 
 ## 5.4 Ghi thanh ghi DMA bang `sw`
 
-Vi du TX:
+Vi du TX secure-storage pattern. Dia chi/register cu the co the khac tuy
+compiler, nhung mau instruction luon la `lui` tao base va `sw` vao offset MMIO:
 
 ```asm
-28: 40000713   li  a4,1024
-2c: 00e7a423   sw  a4,8(a5)
+    lui  a5, 0x40000      # a5 = DMA_BASE = 0x40000000
+    lui  a4, 0x2          # a4 = 0x00002000, plaintext source
+    sw   a4, 8(a5)        # DMA_SRC_ADDR
 ```
 
 Y nghia:
 
 - `a5 = DMA_BASE`
-- `a4 = 1024 = 0x00000400`
+- `a4 = 0x00002000`
 - `sw a4,8(a5)` ghi vao `DMA_SRC_ADDR`
 
 Tiep theo:
 
 ```asm
-34: 00002737   lui a4,0x2
-38: 00e7a623   sw  a4,12(a5)
+    lui  a4, 0x4          # a4 = 0x00004000, ciphertext destination
+    sw   a4, 12(a5)       # DMA_DST_ADDR
 ```
 
 Y nghia:
 
-- `a4 = 0x00002000`
+- `a4 = 0x00004000`
 - ghi vao `DMA_DST_ADDR`
 
 Tiep theo:
 
 ```asm
-40: 01e7a823   sw t5,16(a5)
+    sw   t5, 16(a5)       # DMA_LEN_BYTES = plaintext length
 ```
 
 Y nghia:
@@ -305,19 +307,21 @@ Y nghia:
 Tiep theo:
 
 ```asm
-48: 00100713   li a4,1
-4c: 00e7aa23   sw a4,20(a5)
+    li   a4, 0x9          # TX whole-file COMPRESS_AES
+    sw   a4, 20(a5)       # DMA_MODE
 ```
 
 Y nghia:
 
-- `MODE = 0x1` (`TX COMPRESS_AES`) hoac `MODE = 0xD` (`TX COMPRESS_ONLY + whole_file`)
+- `MODE = 0x9` (`TX COMPRESS_AES + whole_file`)
+- neu chi benchmark compression khong AES, firmware dung `MODE = 0xD`
+- `MODE = 0x1` chi la compatibility/coverage per-block path
 
 Tiep theo:
 
 ```asm
-54: 02000693   li a3,32
-58: 00d7ac23   sw a3,24(a5)
+    li   a3, 32
+    sw   a3, 24(a5)       # DMA_BLOCK_CFG
 ```
 
 Y nghia:
@@ -381,29 +385,28 @@ Day la luc DMA thuc su bat dau chay.
 
 ## 5.7 Polling `STATUS`
 
-Doan loop polling hien tai trong disassembly co dang:
+Doan loop polling hien tai co dang pattern sau. Compiler co the chon register
+khac, nhung cac instruction can co van la `lw`, `andi`, va branch:
 
 ```asm
-274: 00052683   lw   a3,0(a0)
-278: 0016f793   andi a5,a3,1
-27c: fc079ee3   bnez a5,258
-280: 0046f793   andi a5,a3,4
-284: ea0792e3   bnez a5,128
-288: fe0302e3   beqz t1,26c
-28c: fd5ff06f   j    260
+poll:
+    lw   a3, 4(a5)        # DMA_STATUS
+    andi a4, a3, 4        # error_sticky?
+    bnez a4, dma_error
+    andi a4, a3, 2        # done_sticky?
+    bnez a4, dma_done
+    j    poll
 ```
 
 Y nghia:
 
 - `lw`:
   - doc `STATUS`
-- `andi a5,a3,1`
-  - test bit `busy`
-- `bnez`
-  - neu `busy=1` thi nhay
-- `andi a5,a3,4`
+- `andi a4,a3,4`
   - test bit `error`
-- `beqz`, `j`
+- `andi a4,a3,2`
+  - test bit `done`
+- branch va `j`
   - lap lai vong polling
 
 Instruction dung trong polling:
@@ -426,11 +429,9 @@ Cuoi chuong trinh, CPU dung:
 Vi du:
 
 ```asm
-214: 00f02023   sw a5,0(zero)
-218: 01102223   sw a7,4(zero)
-...
-24c: 03d02c23   sw t4,56(zero)
-250: 02802e23   sw s0,60(zero)
+    sw a5, 0(zero)        # RESULT_WORD0: signature
+    sw a7, 4(zero)        # RESULT_WORD1: error mask
+    sw t0, 8(zero)        # RESULT_WORD2: status/debug word
 ```
 
 Y nghia:
@@ -442,7 +443,8 @@ Y nghia:
 
 ### 6.1 Macro MMIO trong C
 
-Trong `test_mmio_dma.c`, DMA duoc dung theo kieu:
+Trong firmware hien tai (`secure_storage_fw.h`) va cac testcase direct-loopback,
+DMA duoc dung theo kieu:
 
 ```c
 #define DMA_BASE_ADDR 0x40000000u
@@ -596,7 +598,7 @@ Khi viet chuong trinh moi, can check:
 1. co `_start` dat `sp`
 2. co `volatile` cho tat ca MMIO register
 3. `SRC_ADDR` va `DST_ADDR` canh `4-byte`
-4. `MODE = 0x1` cho `TX COMPRESS_AES`, `MODE = 0xD` cho TX whole-file `COMPRESS_ONLY`, `MODE = 0x9` cho TX whole-file COMPRESS_AES, `MODE = 0x2` cho RX
+4. `MODE = 0x9` cho TX whole-file `COMPRESS_AES`, `MODE = 0xD` cho TX whole-file `COMPRESS_ONLY`, `MODE = 0x2` cho RX; `MODE = 0x1/0x5` chi la legacy per-block compatibility/coverage
 5. neu dung AES-CBC, ghi `IV0..IV3` truoc `CONTROL.start`
 6. `RX LEN_BYTES = CIPHERTEXT_BYTES_PRODUCED`, khong dung plaintext length
 7. RX phai dung cung IV voi TX

@@ -251,8 +251,10 @@ RV32I firmware metadata policy, not inside the Huffman block datapath.
 
 - Valid range is `1..32`.
 - Current firmware writes `32`.
-- Whole-file TX still requires a valid value for config validity, even though
-  the file is not cut into legacy blocks by this field.
+- Whole-file TX still requires a valid value for config validity.
+- In whole-file mode, this field is the payload chunk size used by the DMA/TX
+  adapter. It does not mean a separate Huffman codebook is rebuilt for every
+  chunk; the codebook is still built from the whole input file.
 
 ### 7.7 BYTES_DONE
 

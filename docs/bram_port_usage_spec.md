@@ -25,6 +25,8 @@ Spec nay ap dung cho cac module sau:
 - `dmem_ip_wrapper`
 - `DMEM_ip`
 - `rv32_soc_top`
+- `rv32_soc_fpga_demo_top`
+- `uart_dmem_loader`
 
 Tai lieu nay khong mo ta chi tiet protocol APB cua DMA/TX/RX. No chi chot phan bo nho va ownership cua cac port BRAM.
 
@@ -171,7 +173,7 @@ DMEM la bo nho data chinh cua he thong:
 - CPU doc/ghi data binh thuong
 - DMA doc source buffer
 - DMA ghi destination buffer
-- ve sau co the cho UART loader hoac PS/Zynq dung port phu
+- UART loader/testbench co the nap input qua port phu khi DMA idle hoac truoc khi CPU release reset
 
 ### 6.3 Cau hinh logic can chot
 
@@ -313,7 +315,11 @@ Trong bring-up hoac debug, `aux_*` co the do:
 - UART loader
 - PS/Zynq
 
-nam giu tam thoi. Khi DMA duoc tich hop that, owner mac dinh cua `aux_*` phai la DMA.
+nam giu tam thoi. Trong RTL hien tai, `rv32_soc_top` mux Port B nhu sau:
+
+- neu `tx_dma_busy_w=1`, TX DMA owns Port B;
+- neu `rx_dma_busy_w=1`, RX DMA owns Port B;
+- neu ca hai DMA idle, external `aux_*` owner nhu testbench/UART loader duoc dung Port B.
 
 ## 8. Quy tac implementation can giu
 
@@ -370,4 +376,6 @@ He thong can chot theo huong sau:
 - `DMEM`: true dual-port sync, Port A cho CPU, Port B cho DMA
 - `dmem_sync_wrab`: chi la flow cu de smoke test, khong phai DMEM cuoi
 
-Neu giu dung quy tac nay, buoc tiep theo la them DMA vao `aux_*` cua `rv32_soc_top` ma khong can thay doi kien truc bo nho nua.
+DMA da duoc noi vao Port B mux trong `rv32_soc_top`. Quy tac can giu tiep theo
+la khong cho UART/testbench/host loader truy cap Port B dong thoi voi TX/RX DMA
+neu chua them arbiter.
