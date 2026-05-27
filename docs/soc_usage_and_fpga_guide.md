@@ -72,6 +72,7 @@ make license
 | TX-only saving benchmark | `test_mmio_tx_only.c` | `tx_compress_only_input1` | `input1.txt` | TX `0xD` |
 | TX-only log-like benchmark | `test_mmio_tx_only.c` | `tx_compress_only_input4_cov` | `input4_cov.txt` | TX `0xD` |
 | TX 256-symbol stress | `test_mmio_tx_only.c` | `tx_compress_only_ascii_sweep_cov` | `input_cov_ascii_sweep.txt` | TX `0xD`, expected expansion |
+| DMEM load/readback smoke | any compiled C image | `dmem_load_readback_smoke` | not used | aux Port B write/read contract used by UART loader |
 | MIT-BIH paper comparison | `test_mmio_dma.c` | `dma_mitdb_100_delta2_var_e2e` | `mitdb_100_mlii_10s_delta2_var.bin` | TX `0x9`, RX `0x2`, `+INPUT_BINARY` |
 | MMIO regfile basic | `test_mmio_regfile_basic.c` | `mmio_regfile_basic` | optional | no DMA start |
 | Multi-record storage demo | `test_mmio_dma_storage_table.c` + `secure_storage_fw.h` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | `secure_write` input1, `secure_write` input3, `secure_read` input1 |
@@ -188,6 +189,20 @@ make compile C_SRC=test_mmio_regfile_basic.c
 make drc
 make all TESTNAME=mmio_regfile_basic RUN_ARGS="+CASE_NAME=mmio_regfile_basic"
 ```
+
+DMEM load/readback smoke for the FPGA UART loader memory contract:
+
+```bash
+cd sim
+make compile C_SRC=test_mmio_dma.c
+make all TESTNAME=dmem_load_readback_smoke RUN_ARGS="+CASE_NAME=dmem_load_readback_smoke"
+```
+
+This testcase stays inside the standard `make all` simulation system. It does
+not instantiate the FPGA wrapper UART serial parser. It verifies the shared
+contract behind that parser: data written through the SoC auxiliary DMEM Port B
+is packed little-endian, byte enables work for a partial final word, and
+`INPUT_LEN_ADDR = 0x00000040` can be read back correctly.
 
 Multi-record storage demo command is the same current secure-storage API demo:
 
@@ -330,19 +345,56 @@ xoa `instruction.mem`.
 
 ## 11. FPGA Build Flow
 
-Huong FPGA hien tai co ba muc:
+Huong FPGA hien tai mac dinh target ZCU102, co ba muc:
 
-- `rv32_soc_fpga_demo_top`: board/demo wrapper co UART loader, dung cho TX-only,
-  RX-only va full TX+RX khi muc tieu la chay tren FPGA board.
+- `rv32_soc_fpga_zcu102_top`: ZCU102 board/demo wrapper co UART loader. Top
+  nay nhan USER_SI570 differential 300 MHz, chia noi bo xuong 50 MHz cho SoC
+  va UART loader.
+- `rv32_soc_fpga_demo_top`: legacy ZedBoard wrapper, van co the override lai
+  bang Makefile variables neu can.
 - `rv32_soc_top`: raw SoC integration top, van co the override bang bien
   `VIVADO_TOP` neu can phan tich noi bo khong can UART wrapper.
+
+Default ZCU102 variables:
+
+```text
+VIVADO_FPGA_TOP=rv32_soc_fpga_zcu102_top
+VIVADO_BOARD_XDC=vivado/constraints/zcu102_demo.xdc
+VIVADO_PART=xczu9eg-ffvb1156-2-e
+VIVADO_BOARD_PART=xilinx.com:zcu102:part0:3.3
+VIVADO_CLOCK_MHZ=300
+VIVADO_CLOCK_PORT=clk_p_i
+VIVADO_LICENSE=H:\Academic\senior_project\DATN\work\kingofvivado.lic
+VIVADO_SYNTH_DIRECTIVE=AreaOptimized_high
+VIVADO_OPT_DIRECTIVE=Explore
+VIVADO_PLACE_DIRECTIVE=Explore
+VIVADO_PHYS_OPT_DIRECTIVE=AggressiveExplore
+VIVADO_ROUTE_DIRECTIVE=Explore
+VIVADO_POWER_OPT=1
+```
+
+ZCU102 uses the UltraScale+ device `xczu9eg-ffvb1156-2-e`, so Vivado must have
+a valid synthesis/device license for `xczu9eg`. Without that license, the flow
+can create/read the project but stops at `synth_design`.
+
+Neu can quay lai ZedBoard:
+
+```bash
+make vivado_flow_full \
+  VIVADO_FPGA_TOP=rv32_soc_fpga_demo_top \
+  VIVADO_BOARD_XDC=vivado/constraints/zedboard_demo.xdc \
+  VIVADO_PART=xc7z020clg484-1 \
+  VIVADO_BOARD_PART= \
+  VIVADO_CLOCK_MHZ=50 \
+  VIVADO_CLOCK_PORT=clk_i
+```
 
 | Build | Command | Purpose |
 |---|---|---|
 | TX-only | `make vivado_flow_tx` | compression/encryption demo |
 | RX-only | `make vivado_flow_rx` | decrypt/decode demo |
 | TX + RX split | `make vivado_flow_split` | build ca hai bitstreams rieng |
-| Full TX+RX FPGA SoC | `make vivado_impl_full` | synth/implement full SoC chung TX, RX va UART loader |
+| Full TX+RX FPGA SoC | `make vivado_flow_full` | synth/implement/write bitstream cho full SoC chung TX, RX va UART loader |
 
 TX-only FPGA build:
 
@@ -362,12 +414,12 @@ make compile C_SRC=test_mmio_dma.c
 make vivado_flow_rx
 ```
 
-Full TX+RX FPGA SoC implementation:
+Full TX+RX FPGA SoC implementation + bitstream:
 
 ```bash
 cd sim
 make compile C_SRC=test_mmio_dma.c
-make vivado_impl_full \
+make vivado_flow_full \
   VIVADO_REUSE_SYNTH=0 \
   VIVADO_REUSE_IMPL=0 \
   VIVADO_OPT_DIRECTIVE=Explore \
@@ -390,13 +442,31 @@ Open reports:
 
 ```bash
 cd sim
-make vivado_report VIVADO_PROJECT=rv32_soc_synth_tx_opt4
-make vivado_report VIVADO_PROJECT=rv32_soc_synth_rx
-make vivado_report VIVADO_PROJECT=rv32_soc_synth_full_fpga
+make vivado_report VIVADO_PROJECT=rv32_soc_synth_tx_zcu102
+make vivado_report VIVADO_PROJECT=rv32_soc_synth_rx_zcu102
+make vivado_report VIVADO_PROJECT=rv32_soc_synth_full_zcu102
 ```
 
-Latest 50 MHz implementation result after Huffman table/control-set
-optimization:
+Latest ZCU102 full TX+RX implementation and bitstream result:
+
+| Build | WNS | WHS | LUT | FF | CLB | Control sets | BRAM | DSP | Power | Status |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| Full `rv32_soc_synth_full_zcu102` | +9.331 ns | +0.017 ns | 29542 | 18873 | 6045 | 1699 | 11 | 0 | 0.774 W | Timing pass, bitstream pass |
+
+Route status for this build is `0` failed nets, `0` unrouted nets, and `0`
+partially routed nets. Bitstream copies:
+
+```text
+sim/vivado_bitstreams/rv32_soc_synth_full_zcu102.bit
+sim/vivado_bitstreams/rv32_soc_synth_full_zcu102_rv32_soc_fpga_zcu102_top.bit
+```
+
+Power is Vivado vectorless `report_power`: `0.774 W` total, `0.125 W`
+dynamic, `0.649 W` static. Vivado warns that high-fanout reset activity can
+make vectorless power inaccurate; use SAIF/VCD switching activity for a final
+measured-style power claim.
+
+Historical routed 50 MHz implementation result before the ZCU102 board retarget:
 
 | Build | WNS | LUT | FF | Slices | Control sets | BRAM | Status |
 |---|---:|---:|---:|---:|---:|---:|---|
@@ -407,19 +477,22 @@ optimization:
 The previous full-build packing failure was fixed by moving large Huffman
 tables/FIFOs to distributed RAM, avoiding reset loops on memories, reducing
 control sets, and removing block-level `mode_decision_logic` from the active TX
-datapath. `rv32_soc_synth_full_fpga` is the current full board-oriented project;
-its post-route vectorless power estimate is `0.282 W`.
+datapath. After the ZCU102 retarget, new default project names are
+`rv32_soc_synth_tx_zcu102`, `rv32_soc_synth_rx_zcu102`, and
+`rv32_soc_synth_full_zcu102`.
 
 ## 12. UART Loader Flow For FPGA
 
-`rv32_soc_fpga_demo_top` co `uart_dmem_loader`:
+`rv32_soc_fpga_zcu102_top` co `uart_dmem_loader`:
 
 ```mermaid
 flowchart LR
   PC["Host PC"] -->|"LOAD + len_le32 + payload"| UART["UART pins"]
+  PC <-->|"READ + addr + len"| UART
   UART --> LDR["uart_dmem_loader"]
   LDR -->|"write payload"| SRC["DMEM @ 0x00002000"]
   LDR -->|"write length"| LEN["DMEM @ 0x00000040"]
+  LDR -->|"read result/output"| DMEM["DMEM readback"]
   LDR -->|"release reset"| CPU["RV32I starts"]
 ```
 
@@ -427,6 +500,7 @@ Protocol:
 
 ```text
 "LOAD" + payload_len_le32 + payload_bytes
+"READ" + dmem_addr_le32 + read_len_le32
 ```
 
 Host command:
@@ -434,6 +508,8 @@ Host command:
 ```bash
 cd sim
 make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
+make uart_read UART_PORT=/dev/ttyUSB0 UART_READ_ADDR=0x0 UART_READ_LEN=64
+make uart_load_read UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt UART_READ_ADDR=0x0 UART_READ_LEN=64
 ```
 
 Mac dinh:
@@ -442,18 +518,19 @@ Mac dinh:
 - ACK `0x79`;
 - NACK/error `0x1F`;
 - script host: `tools/uart_dmem_loader.py`.
+- READ requires 4-byte aligned address/length and returns raw little-endian
+  DMEM bytes after the ACK.
 
 ## 13. What Still Needs Work Before Board Demo Is Complete
 
-Da co loader input, nhung demo board thuc dung van can:
+Da co loader input va DMEM readback, nhung demo board thuc dung van can:
 
 | Missing item | Why it matters |
 |---|---|
-| Runtime output readback | Can doc ciphertext/plaintext/saving ra ngoai board |
-| IV storage/transport policy | RX can dung lai dung IV cua TX |
+| Firmware-done handshake | Hien host phai delay/poll result words, chua co UART interrupt/ACK rieng |
+| Higher-level dump script | Can script doc metadata/cipher/plaintext va tinh saving mot cach tu dong |
+| RX-only metadata transport | Neu muon demo RX-only tu ciphertext ngoai thi can nap IV + metadata + ciphertext |
 | Board-level observation | LED chi du de heartbeat/error, chua du de xem data |
-| Final XDC confirmation | Can map dung clock/reset/UART pins theo board that |
-| Demo script | Can script host nap bitstream, load input, dump output, tinh saving |
 
 ## 14. Recommended Next Steps
 
@@ -463,9 +540,10 @@ Thu tu hop ly:
    moi nhat cho metadata/IV/readback;
 2. giu simulation regression lich su `34/34` PASS lam coverage baseline;
 3. neu can bao cao coverage cuoi cung, chay lai `./run.csh cov`;
-4. chot demo FPGA la TX-only hay RX-only;
+4. chot demo FPGA la TX-only, RX-only hay full TX+RX tren ZCU102;
 5. build lai `instruction.mem` tu dung file C;
-6. build bitstream split o 50 MHz;
+6. build bitstream ZCU102; external clock la 300 MHz, wrapper chia noi bo
+   xuong 50 MHz;
 7. nap bitstream len board;
 8. load input qua UART;
 9. bo sung UART/JTAG output dump de doc ket qua runtime.

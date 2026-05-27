@@ -252,7 +252,7 @@ make drc
 make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
 ```
 
-### 8.3 Vivado split bitstream flow
+### 8.3 Vivado bitstream flow
 
 GitHub Actions inputs:
 
@@ -261,14 +261,31 @@ GitHub Actions inputs:
 | `run_sim` | `false` |
 | `run_vivado` | `true` |
 
-Equivalent local command:
+Equivalent local full-SoC command:
 
 ```bash
 cd sim
-make vivado_flow_split VIVADO_CLOCK_MHZ=50
+make vivado_flow_full
 ```
 
-This runs:
+Equivalent local split command:
+
+```bash
+cd sim
+make vivado_flow_split
+```
+
+This uses the default ZCU102 target. The external clock constraint is
+`VIVADO_CLOCK_MHZ=300` on `clk_p_i`; the ZCU102 wrapper divides it to the
+existing 50 MHz SoC/UART clock.
+
+`make vivado_flow_full` runs:
+
+```text
+Full ZCU102 synth -> impl -> bitstream
+```
+
+`make vivado_flow_split` runs:
 
 ```text
 TX-only synth -> impl -> bitstream

@@ -328,11 +328,11 @@ Vi Huffman chi hieu qua khi phan bo ky tu lech ro. Neu input gan nhu "deu ky hie
 - `payload compression`: chi nhin phan payload nen
 - `final storage ratio`: nhin tong sau khi cong header/frame/AES/transport
 
-### Q8. Tai sao phai tach TX-only va RX-only bitstream?
+### Q8. Tai sao co luc tach TX-only va RX-only bitstream?
 
 **Tra loi ngan:**
 
-Vi full TX+RX tren Zynq-7020 bi ap luc LUT/timing. Tach ra thi moi ben de timing pass va hop ly cho demo FPGA.
+Truoc day full TX+RX tren Zynq-7020 bi ap luc LUT/timing nen tach TX/RX giup demo nhe hon. Sau khi doi sang ZCU102, full TX+RX da implement va write bitstream pass; van giu TX-only/RX-only de debug nhanh va so sanh tung chieu.
 
 ### Q9. Polling status la gi?
 

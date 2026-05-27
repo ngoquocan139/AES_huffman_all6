@@ -37,9 +37,11 @@ Policy for the current report:
 | Metadata table | DMEM records at `0x0000_0100`, 2 slots, `0x40` bytes per slot |
 | IV counter | DMEM word at `0x0000_01F0`, seed `0x31415926` |
 | MIT-BIH comparison | External preprocessed input, `32.76%` average final storage ratio |
-| FPGA strategy | Area-optimized project-mode implementation at 50 MHz |
+| FPGA strategy | Default ZCU102 project-mode implementation; USER_SI570 300 MHz divided to 50 MHz SoC/UART |
+| Latest full ZCU102 status | `rv32_soc_synth_full_zcu102`, routed + bitstream, WNS `+9.331 ns`, WHS `+0.017 ns`, timing met |
+| Latest full ZCU102 utilization/power | `29542` LUTs, `18873` regs, `6045` CLBs, `1699` control sets, `11` BRAM, vectorless power `0.774 W` |
 | TX-only FPGA status | Routed, WNS `+1.277 ns`, LUTs `11933`, regs `5469`, slices `3979`, control sets `208` |
-| Full FPGA demo SoC status | Routed, WNS `+0.811 ns`, LUTs `28379`, regs `18898`, slices `10165`, control sets `778` |
+| Historical full FPGA demo SoC status | Routed before ZCU102 retarget, WNS `+0.811 ns`, LUTs `28379`, regs `18898`, slices `10165`, control sets `778` |
 | Legacy RX-only FPGA status | Routed, WNS `+0.341 ns`, LUTs `22730`, regs `27658`, control sets `917` |
 | Historical full regression | `34/34` PASS before secure-storage API refactor |
 | Historical coverage | Raw DUT `93.52%`, closed DUT `95.90%` |
@@ -165,8 +167,9 @@ FPGA implementation:
 
 ```bash
 cd sim
-make vivado_impl_tx
-make vivado_impl_full
+make vivado_flow_tx
+make vivado_flow_rx
+make vivado_flow_full
 ```
 
 Waveform viewer:
@@ -183,7 +186,7 @@ Do not use these as the main report story:
 
 | Branch/topic | Current status |
 |---|---|
-| Full TX+RX monolithic build | Current full target is board-oriented `rv32_soc_synth_full_fpga` using `rv32_soc_fpga_demo_top` |
+| Full TX+RX monolithic build | Current full target is board-oriented `rv32_soc_synth_full_zcu102` using `rv32_soc_fpga_zcu102_top`; implementation and bitstream pass on ZCU102 |
 | Interrupt/trap DMA completion | Not implemented; polling is active |
 | Production entropy/secret IV generation | Not implemented; current IV is deterministic firmware demo IV |
 | Custom RISC-V instruction | Not implemented; current integration uses MMIO and firmware API |

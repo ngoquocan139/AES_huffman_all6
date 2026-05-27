@@ -1,14 +1,40 @@
-// FPGA demo wrapper for rv32_soc_top.
+// ZCU102 FPGA demo wrapper for rv32_soc_top.
 //
-// This wrapper keeps the simulation/integration top unchanged while providing
-// a board-friendly top level for bitstream generation. A small UART loader
-// preloads DMEM source bytes before the CPU is released from reset.
-module rv32_soc_fpga_demo_top (
-  input  wire       clk_i,
+// The ZCU102 USER_SI570 clock enters the PL as a 300 MHz differential clock.
+// This wrapper divides it by 6 so the SoC and UART loader keep the existing
+// 50 MHz timing/baud assumptions used by rv32_soc_fpga_demo_top.
+module rv32_soc_fpga_zcu102_top (
+  input  wire       clk_p_i,
+  input  wire       clk_n_i,
   input  wire       uart_rx_i,
   output wire       uart_tx_o,
   output wire [3:0] led_o
 );
+
+  wire clk_300m_w;
+  wire clk_50m_w;
+
+  IBUFDS #(
+    .DIFF_TERM    ("FALSE"),
+    .IBUF_LOW_PWR ("TRUE"),
+    .IOSTANDARD   ("DIFF_SSTL12")
+  ) u_user_si570_ibufds (
+    .I  (clk_p_i),
+    .IB (clk_n_i),
+    .O  (clk_300m_w)
+  );
+
+  BUFGCE_DIV #(
+    .BUFGCE_DIVIDE   (6),
+    .IS_CE_INVERTED  (1'b0),
+    .IS_CLR_INVERTED (1'b0),
+    .IS_I_INVERTED   (1'b0)
+  ) u_user_si570_div6 (
+    .I   (clk_300m_w),
+    .CE  (1'b1),
+    .CLR (1'b0),
+    .O   (clk_50m_w)
+  );
 
   reg [15:0] por_shift_r = 16'hffff;
   reg [25:0] heartbeat_r = 26'b0;
@@ -30,7 +56,7 @@ module rv32_soc_fpga_demo_top (
   assign por_rst_w = |por_shift_r;
   assign soc_rst_w = por_rst_w | (!loader_done_w);
 
-  always @(posedge clk_i) begin
+  always @(posedge clk_50m_w) begin
     if (por_rst_w) begin
       por_shift_r <= {por_shift_r[14:0], 1'b0};
       heartbeat_r <= 26'b0;
@@ -53,7 +79,7 @@ module rv32_soc_fpga_demo_top (
     .MAX_INPUT_BYTES (7168),
     .MAX_READ_BYTES  (32768)
   ) u_uart_dmem_loader (
-    .clk_i           (clk_i),
+    .clk_i           (clk_50m_w),
     .rst_i           (por_rst_w),
     .uart_rx_i       (uart_rx_i),
     .uart_tx_o       (uart_tx_o),
@@ -69,7 +95,7 @@ module rv32_soc_fpga_demo_top (
   );
 
   (* DONT_TOUCH = "yes" *) rv32_soc_top u_soc (
-    .clk_i          (clk_i),
+    .clk_i          (clk_50m_w),
     .rst_i          (soc_rst_w),
     .aux_en_i       (loader_aux_en_w),
     .aux_we_i       (loader_aux_we_w),

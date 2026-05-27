@@ -1,6 +1,6 @@
 #!/bin/csh
 
-set cov = 0
+set cov = 1
 
 if( ($#argv > 0) && ("$1" == "cov") ) then
     set cov = 1

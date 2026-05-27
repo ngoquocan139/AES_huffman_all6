@@ -34,9 +34,9 @@ Dung bang nay de mo dau phan ket qua hien tai:
 | IV policy | Firmware-generated deterministic demo IV, counter at `0x000001F0`, seed `0x31415926` |
 | Latest focused test | `dma_storage_table_input1_then_input3`, `PASS=22`, `FAIL=0` |
 | Storage API result | Stores input1 and input3, then restores input1 by `file_id=1` |
-| FPGA claim | Area-optimized 50 MHz implementation passes for TX-only and full FPGA demo SoC |
+| FPGA claim | Default board target is ZCU102; full TX+RX implementation and bitstream pass |
 | TX FPGA | WNS `+1.277 ns`, LUT `11933`, slices `3979`, control sets `208` |
-| Full FPGA demo SoC | WNS `+0.811 ns`, LUT `28379`, slices `10165`, control sets `778`, power `0.282 W` |
+| Full ZCU102 FPGA SoC | WNS `+9.331 ns`, WHS `+0.017 ns`, LUT `29542`, CLB `6045`, control sets `1699`, power `0.774 W` |
 | Legacy RX FPGA | WNS `+0.341 ns`, LUT `22730`, control sets `917` |
 | Historical regression | `34/34` PASS, raw DUT `93.52%`, closed DUT `95.90%` |
 
@@ -62,9 +62,8 @@ Nen bao cao theo cau chuyen nay:
 5. Testbench kiem tra loopback bang cach so sanh RX output voi input goc, dong
    thoi dump source/TX/RX DMEM va tinh compression/throughput. Storage-table
    testcase kiem tra them `secure_write`/`secure_read` theo `file_id`.
-6. Sau toi uu table/control-set, TX-only va full FPGA demo SoC deu implement
-   duoc tren Zynq-7020 o 50 MHz. Split TX/RX van la tuy chon demo nhe hon,
-   khong con la cach duy nhat de tranh loi place.
+6. Sau toi uu table/control-set, full TX+RX SoC da implement va write
+   bitstream duoc tren ZCU102. Wrapper clock van giu SoC/UART chay 50 MHz.
 
 ## 3. Architecture Points To Present
 
@@ -255,7 +254,14 @@ Can noi ro:
 
 ### 5.4 Vivado implementation
 
-Ket qua implementation moi nhat o 50 MHz sau area optimization:
+Ket qua implementation moi nhat tren ZCU102:
+
+| Build | WNS | WHS | LUT | FF | CLB | Control sets | BRAM | DSP | Power | Status |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| Full `rv32_soc_synth_full_zcu102` | +9.331 ns | +0.017 ns | 29542 | 18873 | 6045 | 1699 | 11 | 0 | 0.774 W | Timing pass, bitstream pass |
+
+Ket qua implementation lich su o 50 MHz sau area optimization, truoc khi doi
+default board target sang ZCU102:
 
 | Build | WNS | LUT | FF | Slices | Control sets | BRAM | Status |
 |---|---:|---:|---:|---:|---:|---:|---|
@@ -265,17 +271,17 @@ Ket qua implementation moi nhat o 50 MHz sau area optimization:
 
 Can noi ro:
 
-- Loi cu `[Place 30-487]` khong con xuat hien; full FPGA demo SoC da qua
-  `place_design` va `route_design`.
+- Loi cu `[Place 30-487]` khong con xuat hien; full ZCU102 SoC da qua
+  `place_design`, `route_design`, va `write_bitstream`.
 - Giam area chinh den tu viec dua Huffman table/FIFO sang distributed RAM,
   bo reset loop tren memory lon va tach write-port cua `code_length_builder`.
 - RX main decode table dung BRAM `2K x 15`; RX fallback/FIFO dung distributed
   RAM. RX local sort table con la diem co the toi uu tiep, nhung full build da
   route pass.
-- Power report moi la vectorless estimate: total `0.282 W`, dynamic `0.176 W`,
-  static `0.106 W`; Vivado canh bao reset fanout/activity nen day la estimate,
+- Power report moi la vectorless estimate: total `0.774 W`, dynamic `0.125 W`,
+  static `0.649 W`; Vivado canh bao reset fanout/activity nen day la estimate,
   khong phai do board.
-- Neu can nap board thi can regenerate bitstream sau implementation.
+- Bitstream hien co tai `sim/vivado_bitstreams/rv32_soc_synth_full_zcu102.bit`.
 
 ### 5.5 Paper comparison
 
@@ -398,10 +404,10 @@ Can nam chac cac phan nay:
 
 Nen noi thang cac diem nay:
 
-- Full FPGA demo SoC da route pass o 50 MHz sau toi uu area, nhung board demo
-  wrapper van nen co split TX-only/RX-only khi can demo nhe va nhanh.
-- Board demo can output readback tot hon de doc ciphertext/plaintext/saving tu
-  board that.
+- Full TX+RX SoC da route va write bitstream pass tren ZCU102. Van nen giu
+  split TX-only/RX-only khi can demo nhe va debug nhanh.
+- Board demo da co DMEM READ qua UART; viec can lam tiep la host script cap cao
+  de tu dong dump ciphertext/plaintext/saving va poll firmware-done.
 - IV hien tai la demo IV do firmware RV32I tao va luu trong metadata; san pham
   that can nonce/TRNG/host-provided IV va authentication policy.
 - Power estimate chua dung switching activity that.

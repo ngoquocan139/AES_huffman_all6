@@ -69,9 +69,9 @@ Current implementation mapping after area optimization:
 The duplicate-symbol check is sequential (`ST_COMP_ENTRY_CHECK`) instead of a
 256-way combinational compare. This reduces LUT pressure. The remaining
 register-heavy RX working table comes from the adjacent-entry bubble sort,
-which swaps two entries. Full FPGA demo SoC still routes at 50 MHz; a later area
-optimization can replace this with one-write-port sort states or a length-bucket
-canonical builder.
+which swaps two entries. The full ZCU102 SoC still routes and writes bitstream
+at the 50 MHz internal SoC clock; a later area optimization can replace this
+with one-write-port sort states or a length-bucket canonical builder.
 
 ## 5. Parser Handshake
 

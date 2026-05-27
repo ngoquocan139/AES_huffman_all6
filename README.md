@@ -51,10 +51,14 @@ flowchart LR
 - Historical full-regression baseline: `34/34` testcase PASS
 - Raw DUT coverage: `93.52%`
 - Closed DUT coverage: `95.90%`
-- FPGA closure: TX-only and full TX+RX implementation pass at 50 MHz after
-  Huffman table/control-set area optimization
-- Full TX+RX post-impl: `28067` LUTs, `18501` registers, `9955` slices,
-  `757` control sets, WNS `+0.334 ns`
+- FPGA closure: default ZCU102 full TX+RX implementation and bitstream pass;
+  the wrapper divides USER_SI570 300 MHz to the existing 50 MHz SoC/UART clock
+- Full TX+RX ZCU102 post-impl: `29542` LUTs, `18873` registers, `6045` CLBs,
+  `1699` control sets, `11` BRAM tiles, WNS `+9.331 ns`, WHS `+0.017 ns`
+- Full TX+RX ZCU102 vectorless power estimate: `0.774 W` total, `0.125 W`
+  dynamic, `0.649 W` static
+- FPGA UART utility supports `LOAD` input frames and aligned DMEM `READ`
+  readback frames for result/debug dumps
 - TX-only post-impl: `11933` LUTs, `5469` registers, `3979` slices,
   `208` control sets, WNS `+1.277 ns`
 - MIT-BIH preprocessed comparison: `32.76%` average final storage ratio

@@ -12,6 +12,9 @@ RUN_ARGS    ?=
 VSIM_RUN_MODE ?= -batch
 VSIM_DO ?= log -r /*; run -all; quit -f
 WLF_OUT ?= $(TESTNAME).wlf
+WLF_VIEW ?= sim.wlf
+WAVE_KILL_OLD ?= 1
+WAVE_ENV = PATH="$(QUESTA_BIN):$$PATH" MGLS_LICENSE_FILE="$(QUESTA_LICENSE)" LM_LICENSE_FILE="$(QUESTA_LICENSE)" QT_X11_NO_MITSHM=1 GDK_DISABLE=shm LIBGL_ALWAYS_INDIRECT=1
 QUESTA_ROOT ?= $(abspath ../../questasim)
 QUESTA_BIN  ?= $(QUESTA_ROOT)/linux_x86_64
 QUESTA_LICENSE ?= $(QUESTA_ROOT)/license.dat
@@ -30,25 +33,33 @@ TESTCASE_DIR ?= ../testcase
 RV_GCC ?= riscv64-unknown-elf-gcc
 RV_OBJCOPY ?= riscv64-unknown-elf-objcopy
 VIVADO_BAT ?= H:\From_software\Vivado\Vivado\Vivado\2024.2\bin\vivado.bat
-VIVADO_WIN_ROOT ?= H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6
-VIVADO_FPGA_TOP ?= rv32_soc_fpga_demo_top
+VIVADO_WIN_ROOT ?= $(shell wslpath -w $(abspath ..) 2>/dev/null || printf 'H:\\Academic\\senior_project\\DATN\\work\\luc\\AES_huffman_all6')
+VIVADO_LICENSE ?= H:\Academic\senior_project\DATN\work\kingofvivado.lic
+VIVADO_ZCU102_TOP ?= rv32_soc_fpga_zcu102_top
+VIVADO_ZEDBOARD_TOP ?= rv32_soc_fpga_demo_top
+VIVADO_FPGA_TOP ?= $(VIVADO_ZCU102_TOP)
 VIVADO_RAW_TOP ?= rv32_soc_top
-VIVADO_BOARD_XDC ?= vivado/constraints/zedboard_demo.xdc
-VIVADO_TX_PROJECT ?= rv32_soc_synth_tx_opt4
-VIVADO_RX_PROJECT ?= rv32_soc_synth_rx
-VIVADO_FULL_PROJECT ?= rv32_soc_synth_full_fpga
+VIVADO_ZCU102_XDC ?= vivado/constraints/zcu102_demo.xdc
+VIVADO_ZEDBOARD_XDC ?= vivado/constraints/zedboard_demo.xdc
+VIVADO_BOARD_XDC ?= $(VIVADO_ZCU102_XDC)
+VIVADO_TX_PROJECT ?= rv32_soc_synth_tx_zcu102
+VIVADO_RX_PROJECT ?= rv32_soc_synth_rx_zcu102
+VIVADO_FULL_PROJECT ?= rv32_soc_synth_full_zcu102
 VIVADO_PROJECT ?= $(VIVADO_TX_PROJECT)
 VIVADO_BUILD ?= tx_only
 VIVADO_REUSE_SYNTH ?= 1
 VIVADO_REUSE_IMPL ?= 1
-VIVADO_BIT_REUSE_SYNTH ?= 0
-VIVADO_CLOCK_MHZ ?= 50
+VIVADO_BIT_REUSE_SYNTH ?= 1
+VIVADO_PART ?= xczu9eg-ffvb1156-2-e
+VIVADO_BOARD_PART ?= xilinx.com:zcu102:part0:3.3
+VIVADO_CLOCK_MHZ ?= 300
+VIVADO_CLOCK_PORT ?= clk_p_i
 VIVADO_SYNTH_DIRECTIVE ?= AreaOptimized_high
-VIVADO_OPT_DIRECTIVE ?=
-VIVADO_PLACE_DIRECTIVE ?=
-VIVADO_PHYS_OPT_DIRECTIVE ?=
-VIVADO_ROUTE_DIRECTIVE ?=
-VIVADO_POWER_OPT ?= 0
+VIVADO_OPT_DIRECTIVE ?= Explore
+VIVADO_PLACE_DIRECTIVE ?= Explore
+VIVADO_PHYS_OPT_DIRECTIVE ?= AggressiveExplore
+VIVADO_ROUTE_DIRECTIVE ?= Explore
+VIVADO_POWER_OPT ?= 1
 VIVADO_POWER_OPT_POST_PLACE ?= $(VIVADO_POWER_OPT)
 VIVADO_TOP ?= $(VIVADO_FPGA_TOP)
 VIVADO_XDC ?= $(VIVADO_BOARD_XDC)
@@ -72,6 +83,9 @@ UART_PORT ?= /dev/ttyUSB0
 UART_INPUT ?= input1.txt
 UART_BAUD ?= 115200
 UART_TIMEOUT ?= 5
+UART_READ_ADDR ?= 0x00000000
+UART_READ_LEN ?= 64
+UART_READ_OUT ?=
 #==============================
 all:  build run
 
@@ -147,9 +161,12 @@ gen_html:
 	vcover report -zeros -details -code bcesft -annotate -testhitdataAll -html IP.ucdb
 
 wave:
-	@test -f sim.wlf || (echo "[FAIL] sim.wlf not found. Run 'make all' or 'make all TESTNAME=...' first."; exit 1)
-	@echo "[INFO] Opening sim.wlf in Questa GUI waveform viewer"
-	vsim -gui -view sim.wlf -do "view wave; delete wave *; \
+	@test -f $(WLF_VIEW) || (echo "[FAIL] $(WLF_VIEW) not found. Run 'make all' or 'make all TESTNAME=...' first, or set WLF_VIEW=<file.wlf>."; exit 1)
+	@mkdir -p log
+	@if [ "$(WAVE_KILL_OLD)" = "1" ]; then $(MAKE) --no-print-directory kill_wave >/dev/null 2>&1 || true; fi
+	@echo "[INFO] Opening $(WLF_VIEW) in Questa GUI waveform viewer"
+	@$(WAVE_ENV) \
+	vsim -gui -view $(WLF_VIEW) -do "view wave; delete wave *; \
 	add wave /test_bench/clk; \
 	add wave /test_bench/rst; \
 	add wave /test_bench/wf_if_pc; \
@@ -186,12 +203,21 @@ wave:
 	add wave /test_bench/wf_input_len_bytes; \
 	add wave /test_bench/wf_tx_ciphertext_bytes; \
 	add wave /test_bench/wf_rx_plaintext_bytes; \
-	radix -$(RADIX)" &
+	radix -$(RADIX)"
+
+wave_bg:
+	@test -f $(WLF_VIEW) || (echo "[FAIL] $(WLF_VIEW) not found. Run 'make all' or 'make all TESTNAME=...' first, or set WLF_VIEW=<file.wlf>."; exit 1)
+	@mkdir -p log
+	@if [ "$(WAVE_KILL_OLD)" = "1" ]; then $(MAKE) --no-print-directory kill_wave >/dev/null 2>&1 || true; fi
+	@echo "[INFO] Opening $(WLF_VIEW) in detached Questa GUI waveform viewer"
+	@$(WAVE_ENV) setsid -f vsim -gui -view $(WLF_VIEW) -do "view wave; delete wave *; radix -$(RADIX)" > log/wave_gui.log 2>&1
+	@sleep 5
+	@! grep -E "Fatal|License Issue|Unable to checkout|Failure to obtain|Invalid license|Error loading design" log/wave_gui.log || (echo "[FAIL] Questa GUI startup failed. See sim/log/wave_gui.log"; tail -n 20 log/wave_gui.log; exit 1)
+	@pgrep -f '[v]ish -- -vsim .* -view .*$(notdir $(WLF_VIEW))' >/dev/null || (echo "[FAIL] Questa GUI did not stay up. See sim/log/wave_gui.log"; tail -n 20 log/wave_gui.log; exit 1)
+	@echo "[PASS] Detached Questa GUI started. Log: sim/log/wave_gui.log"
 
 kill_wave:
-	-@pids="$$(ps -eo pid=,cmd= | rg -i 'vish -- -vsim .*sim\\.wlf|/questasim/linux_x86_64/vlm|/questasim/linux_x86_64/mgls/lib/mgls_asynch' | awk '{print $$1}')" ; \
-	if [ -n "$$pids" ]; then kill $$pids || true; fi
-	-@cmd.exe /C "taskkill /F /IM msrdc.exe >NUL 2>NUL" || true
+	-@pkill -f '[v]ish -- -vsim .*\.wlf' || true
 
 clean:
 	rm -rf work
@@ -239,41 +265,50 @@ compile:
 uart_load:
 	python3 $(UART_LOADER) --port $(UART_PORT) --input $(UART_INPUT) --baud $(UART_BAUD) --timeout $(UART_TIMEOUT)
 
+uart_read:
+	python3 $(UART_LOADER) --port $(UART_PORT) --baud $(UART_BAUD) --timeout $(UART_TIMEOUT) --read $(UART_READ_ADDR) $(UART_READ_LEN) --words $(if $(UART_READ_OUT),--output $(UART_READ_OUT),)
+
+uart_load_read:
+	python3 $(UART_LOADER) --port $(UART_PORT) --input $(UART_INPUT) --baud $(UART_BAUD) --timeout $(UART_TIMEOUT) --post-load-delay 1.0 --read $(UART_READ_ADDR) $(UART_READ_LEN) --words $(if $(UART_READ_OUT),--output $(UART_READ_OUT),)
+
 vivado_synth:
 	@test -f ../vivado/synth_soc.tcl || (echo "[FAIL] missing ../vivado/synth_soc.tcl"; exit 1)
-	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=synth&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_OPT_DIRECTIVE=$(VIVADO_OPT_DIRECTIVE)&& set VIVADO_PLACE_DIRECTIVE=$(VIVADO_PLACE_DIRECTIVE)&& set VIVADO_PHYS_OPT_DIRECTIVE=$(VIVADO_PHYS_OPT_DIRECTIVE)&& set VIVADO_ROUTE_DIRECTIVE=$(VIVADO_ROUTE_DIRECTIVE)&& set VIVADO_POWER_OPT=$(VIVADO_POWER_OPT)&& set VIVADO_POWER_OPT_POST_PLACE=$(VIVADO_POWER_OPT_POST_PLACE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
+	cmd.exe /C 'cd /d "$(VIVADO_WIN_ROOT)" && set XILINXD_LICENSE_FILE=$(VIVADO_LICENSE)&& set XIL_LICENSE_FILE=$(VIVADO_LICENSE)&& set LM_LICENSE_FILE=$(VIVADO_LICENSE)&& set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=synth&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT)&& set VIVADO_PART=$(VIVADO_PART)&& set VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_OPT_DIRECTIVE=$(VIVADO_OPT_DIRECTIVE)&& set VIVADO_PLACE_DIRECTIVE=$(VIVADO_PLACE_DIRECTIVE)&& set VIVADO_PHYS_OPT_DIRECTIVE=$(VIVADO_PHYS_OPT_DIRECTIVE)&& set VIVADO_ROUTE_DIRECTIVE=$(VIVADO_ROUTE_DIRECTIVE)&& set VIVADO_POWER_OPT=$(VIVADO_POWER_OPT)&& set VIVADO_POWER_OPT_POST_PLACE=$(VIVADO_POWER_OPT_POST_PLACE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl'
 
 vivado_synth_full:
-	$(MAKE) vivado_synth VIVADO_PROJECT=$(VIVADO_FULL_PROJECT) VIVADO_BUILD=full VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
+	$(MAKE) vivado_synth VIVADO_PROJECT=$(VIVADO_FULL_PROJECT) VIVADO_BUILD=full VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT) VIVADO_PART=$(VIVADO_PART) VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)
 
 vivado_synth_tx:
-	$(MAKE) vivado_synth VIVADO_PROJECT=$(VIVADO_TX_PROJECT) VIVADO_BUILD=tx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
+	$(MAKE) vivado_synth VIVADO_PROJECT=$(VIVADO_TX_PROJECT) VIVADO_BUILD=tx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT) VIVADO_PART=$(VIVADO_PART) VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)
 
 vivado_synth_rx:
-	$(MAKE) vivado_synth VIVADO_PROJECT=$(VIVADO_RX_PROJECT) VIVADO_BUILD=rx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
+	$(MAKE) vivado_synth VIVADO_PROJECT=$(VIVADO_RX_PROJECT) VIVADO_BUILD=rx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT) VIVADO_PART=$(VIVADO_PART) VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)
 
 vivado_impl:
 	@test -f ../vivado/synth_soc.tcl || (echo "[FAIL] missing ../vivado/synth_soc.tcl"; exit 1)
-	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=impl&& set VIVADO_REUSE_SYNTH=$(VIVADO_REUSE_SYNTH)&& set VIVADO_REUSE_IMPL=$(VIVADO_REUSE_IMPL)&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_OPT_DIRECTIVE=$(VIVADO_OPT_DIRECTIVE)&& set VIVADO_PLACE_DIRECTIVE=$(VIVADO_PLACE_DIRECTIVE)&& set VIVADO_PHYS_OPT_DIRECTIVE=$(VIVADO_PHYS_OPT_DIRECTIVE)&& set VIVADO_ROUTE_DIRECTIVE=$(VIVADO_ROUTE_DIRECTIVE)&& set VIVADO_POWER_OPT=$(VIVADO_POWER_OPT)&& set VIVADO_POWER_OPT_POST_PLACE=$(VIVADO_POWER_OPT_POST_PLACE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
+	cmd.exe /C 'cd /d "$(VIVADO_WIN_ROOT)" && set XILINXD_LICENSE_FILE=$(VIVADO_LICENSE)&& set XIL_LICENSE_FILE=$(VIVADO_LICENSE)&& set LM_LICENSE_FILE=$(VIVADO_LICENSE)&& set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=impl&& set VIVADO_REUSE_SYNTH=$(VIVADO_REUSE_SYNTH)&& set VIVADO_REUSE_IMPL=$(VIVADO_REUSE_IMPL)&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT)&& set VIVADO_PART=$(VIVADO_PART)&& set VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_OPT_DIRECTIVE=$(VIVADO_OPT_DIRECTIVE)&& set VIVADO_PLACE_DIRECTIVE=$(VIVADO_PLACE_DIRECTIVE)&& set VIVADO_PHYS_OPT_DIRECTIVE=$(VIVADO_PHYS_OPT_DIRECTIVE)&& set VIVADO_ROUTE_DIRECTIVE=$(VIVADO_ROUTE_DIRECTIVE)&& set VIVADO_POWER_OPT=$(VIVADO_POWER_OPT)&& set VIVADO_POWER_OPT_POST_PLACE=$(VIVADO_POWER_OPT_POST_PLACE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl'
 
 vivado_impl_tx:
-	$(MAKE) vivado_impl VIVADO_PROJECT=$(VIVADO_TX_PROJECT) VIVADO_BUILD=tx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
+	$(MAKE) vivado_impl VIVADO_PROJECT=$(VIVADO_TX_PROJECT) VIVADO_BUILD=tx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT) VIVADO_PART=$(VIVADO_PART) VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)
 
 vivado_impl_rx:
-	$(MAKE) vivado_impl VIVADO_PROJECT=$(VIVADO_RX_PROJECT) VIVADO_BUILD=rx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
+	$(MAKE) vivado_impl VIVADO_PROJECT=$(VIVADO_RX_PROJECT) VIVADO_BUILD=rx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT) VIVADO_PART=$(VIVADO_PART) VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)
 
 vivado_impl_full:
-	$(MAKE) vivado_impl VIVADO_PROJECT=$(VIVADO_FULL_PROJECT) VIVADO_BUILD=full VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
+	$(MAKE) vivado_impl VIVADO_PROJECT=$(VIVADO_FULL_PROJECT) VIVADO_BUILD=full VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT) VIVADO_PART=$(VIVADO_PART) VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)
 
 vivado_bit:
 	@test -f ../vivado/synth_soc.tcl || (echo "[FAIL] missing ../vivado/synth_soc.tcl"; exit 1)
-	cmd.exe /C "cd /d H:\Academic\senior_project\DATN\work\luc\AES_huffman_all6 && set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=bit&& set VIVADO_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)&& set VIVADO_REUSE_IMPL=$(VIVADO_REUSE_IMPL)&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_OPT_DIRECTIVE=$(VIVADO_OPT_DIRECTIVE)&& set VIVADO_PLACE_DIRECTIVE=$(VIVADO_PLACE_DIRECTIVE)&& set VIVADO_PHYS_OPT_DIRECTIVE=$(VIVADO_PHYS_OPT_DIRECTIVE)&& set VIVADO_ROUTE_DIRECTIVE=$(VIVADO_ROUTE_DIRECTIVE)&& set VIVADO_POWER_OPT=$(VIVADO_POWER_OPT)&& set VIVADO_POWER_OPT_POST_PLACE=$(VIVADO_POWER_OPT_POST_PLACE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl"
+	cmd.exe /C 'cd /d "$(VIVADO_WIN_ROOT)" && set XILINXD_LICENSE_FILE=$(VIVADO_LICENSE)&& set XIL_LICENSE_FILE=$(VIVADO_LICENSE)&& set LM_LICENSE_FILE=$(VIVADO_LICENSE)&& set PROJECT_NAME=$(VIVADO_PROJECT)&& set TOP_NAME=$(VIVADO_TOP)&& set FPGA_BUILD=$(VIVADO_BUILD)&& set VIVADO_FLOW=bit&& set VIVADO_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)&& set VIVADO_REUSE_IMPL=$(VIVADO_REUSE_IMPL)&& set VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)&& set VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT)&& set VIVADO_PART=$(VIVADO_PART)&& set VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)&& set VIVADO_SYNTH_DIRECTIVE=$(VIVADO_SYNTH_DIRECTIVE)&& set VIVADO_OPT_DIRECTIVE=$(VIVADO_OPT_DIRECTIVE)&& set VIVADO_PLACE_DIRECTIVE=$(VIVADO_PLACE_DIRECTIVE)&& set VIVADO_PHYS_OPT_DIRECTIVE=$(VIVADO_PHYS_OPT_DIRECTIVE)&& set VIVADO_ROUTE_DIRECTIVE=$(VIVADO_ROUTE_DIRECTIVE)&& set VIVADO_POWER_OPT=$(VIVADO_POWER_OPT)&& set VIVADO_POWER_OPT_POST_PLACE=$(VIVADO_POWER_OPT_POST_PLACE)&& set VIVADO_XDC=$(VIVADO_XDC)&& $(VIVADO_BAT) -mode batch -source vivado\synth_soc.tcl'
 
 vivado_bit_tx:
-	$(MAKE) vivado_bit VIVADO_PROJECT=$(VIVADO_TX_PROJECT) VIVADO_BUILD=tx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_BIT_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)
+	$(MAKE) vivado_bit VIVADO_PROJECT=$(VIVADO_TX_PROJECT) VIVADO_BUILD=tx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT) VIVADO_PART=$(VIVADO_PART) VIVADO_BOARD_PART=$(VIVADO_BOARD_PART) VIVADO_BIT_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)
 
 vivado_bit_rx:
-	$(MAKE) vivado_bit VIVADO_PROJECT=$(VIVADO_RX_PROJECT) VIVADO_BUILD=rx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_BIT_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)
+	$(MAKE) vivado_bit VIVADO_PROJECT=$(VIVADO_RX_PROJECT) VIVADO_BUILD=rx_only VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT) VIVADO_PART=$(VIVADO_PART) VIVADO_BOARD_PART=$(VIVADO_BOARD_PART) VIVADO_BIT_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)
+
+vivado_bit_full:
+	$(MAKE) vivado_bit VIVADO_PROJECT=$(VIVADO_FULL_PROJECT) VIVADO_BUILD=full VIVADO_TOP=$(VIVADO_FPGA_TOP) VIVADO_XDC=$(VIVADO_BOARD_XDC) VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_CLOCK_PORT=$(VIVADO_CLOCK_PORT) VIVADO_PART=$(VIVADO_PART) VIVADO_BOARD_PART=$(VIVADO_BOARD_PART) VIVADO_BIT_REUSE_SYNTH=$(VIVADO_BIT_REUSE_SYNTH)
 
 vivado_flow_tx:
 	$(MAKE) vivado_synth_tx VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
@@ -288,6 +323,7 @@ vivado_flow_rx:
 vivado_flow_full:
 	$(MAKE) vivado_synth_full VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
 	$(MAKE) vivado_impl_full VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_REUSE_SYNTH=1
+	$(MAKE) vivado_bit_full VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ) VIVADO_BIT_REUSE_SYNTH=1 VIVADO_REUSE_IMPL=1
 
 vivado_flow:
 	$(MAKE) vivado_flow_full VIVADO_CLOCK_MHZ=$(VIVADO_CLOCK_MHZ)
@@ -397,22 +433,31 @@ help:
 	@echo "** make vivado_impl_tx : synthesize and implement TX-only FPGA build"
 	@echo "** make vivado_impl_rx : synthesize and implement RX-only FPGA build"
 	@echo "** make vivado_impl_full : implement full FPGA demo SoC top"
-	@echo "**    set VIVADO_POWER_OPT=1 to run pre/post-place Vivado power_opt_design"
+	@echo "**    default ZCU102 strategy: AreaOptimized_high + Explore place/route + power_opt_design"
 	@echo "** make vivado_bit_tx  : generate TX-only FPGA demo bitstream"
 	@echo "** make vivado_bit_rx  : generate RX-only FPGA demo bitstream"
+	@echo "** make vivado_bit_full: generate full TX+RX FPGA demo bitstream"
 	@echo "** make vivado_flow_tx : run TX-only synth -> impl -> bitstream"
 	@echo "** make vivado_flow_rx : run RX-only synth -> impl -> bitstream"
-	@echo "** make vivado_flow_full : run full FPGA demo SoC synth -> implementation"
+	@echo "** make vivado_flow_full : run full FPGA demo SoC synth -> impl -> bitstream"
 	@echo "** make vivado_flow : alias for vivado_flow_full"
 	@echo "** make vivado_flow_split : run TX-only flow first, then RX-only flow"
 	@echo "** make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt"
 	@echo "**    host-side command: send a text/binary file over UART into DMEM on FPGA"
+	@echo "** make uart_read UART_PORT=/dev/ttyUSB0 UART_READ_ADDR=0x0 UART_READ_LEN=64"
+	@echo "**    read back aligned DMEM bytes over UART and print 32-bit words"
+	@echo "** make uart_load_read UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt UART_READ_ADDR=0x0 UART_READ_LEN=64"
+	@echo "**    load input, wait briefly, then read back result/debug words"
 	@echo "**    not used by simulation; use only after programming the FPGA bitstream"
-	@echo "**    Vivado clock default: VIVADO_CLOCK_MHZ=50; override with VIVADO_CLOCK_MHZ=100"
-	@echo "**    TX/RX FPGA targets use VIVADO_FPGA_TOP=rv32_soc_fpga_demo_top and VIVADO_BOARD_XDC=vivado/constraints/zedboard_demo.xdc"
+	@echo "**    Vivado board default: ZCU102, VIVADO_PART=$(VIVADO_PART), VIVADO_BOARD_PART=$(VIVADO_BOARD_PART)"
+	@echo "**    Vivado clock default: external USER_SI570 VIVADO_CLOCK_MHZ=300 on VIVADO_CLOCK_PORT=clk_p_i"
+	@echo "**    Vivado license default: VIVADO_LICENSE=$(VIVADO_LICENSE)"
+	@echo "**    ZCU102 wrapper divides USER_SI570 by 6, so the SoC/UART logic still runs at 50 MHz"
+	@echo "**    TX/RX FPGA targets use VIVADO_FPGA_TOP=$(VIVADO_FPGA_TOP) and VIVADO_BOARD_XDC=$(VIVADO_BOARD_XDC)"
+	@echo "**    To return to ZedBoard, override VIVADO_FPGA_TOP=$(VIVADO_ZEDBOARD_TOP) VIVADO_BOARD_XDC=$(VIVADO_ZEDBOARD_XDC) VIVADO_PART=xc7z020clg484-1 VIVADO_BOARD_PART= VIVADO_CLOCK_MHZ=50 VIVADO_CLOCK_PORT=clk_i"
 	@echo "**    Project names: TX=$(VIVADO_TX_PROJECT), RX=$(VIVADO_RX_PROJECT), FULL=$(VIVADO_FULL_PROJECT)"
-	@echo "**    Separated bitstreams are copied to ./vivado_bitstreams/$(VIVADO_TX_PROJECT).bit and ./vivado_bitstreams/$(VIVADO_RX_PROJECT).bit"
-	@echo "**    Bitstream flow reruns needed Vivado stages by default; set VIVADO_BIT_REUSE_SYNTH=1 or VIVADO_REUSE_IMPL=1 for faster reuse"
+	@echo "**    Bitstreams are copied to ./vivado_bitstreams/<project>.bit"
+	@echo "**    Bitstream flow reuses existing post-synth/post-route checkpoints by default; set VIVADO_REUSE_IMPL=0 to rerun implementation"
 	@echo "** make vivado_gui_tx: open optimized TX-only Vivado project"
 	@echo "** make vivado_gui_rx: open Vivado GUI RX-only project"
 	@echo "** make vivado_gui_full: open optimized full TX+RX Vivado project"

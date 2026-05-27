@@ -243,6 +243,9 @@ Area-optimized implementation notes:
   one-write-port memory processes, which removes the previous LUT/FF explosion.
 - Latest TX-only implementation at 50 MHz: `11933` LUTs, `5469` FFs,
   `3979` slices, `208` control sets, WNS `+1.277 ns`.
+- Latest full ZCU102 TX+RX implementation and bitstream pass:
+  `29542` LUTs, `18873` FFs, `6045` CLBs, `1699` control sets, WNS
+  `+9.331 ns`, WHS `+0.017 ns`.
 
 ## 8. TX Software Flow
 

@@ -34,7 +34,7 @@ Important data policy:
 |---|---|
 | Simulation top | `test_bench` in `tb/tb_rv32_soc_mmio_dma.v` |
 | Main SoC top | `rv32_soc_top` |
-| FPGA demo top | `rv32_soc_fpga_demo_top` |
+| FPGA demo top | `rv32_soc_fpga_zcu102_top` by default; legacy ZedBoard top is `rv32_soc_fpga_demo_top` |
 | RV32I core | `top_rv32_sync` |
 | Secure-storage firmware API | `testcase/secure_storage_fw.h` |
 | Active secure-storage testcase | `testcase/test_mmio_dma_storage_table.c` |
@@ -48,17 +48,29 @@ Important data policy:
 | Historical full regression baseline | `34/34` PASS before the secure-storage API refactor; rerun required for updated full-regression number |
 | Historical raw DUT coverage | `93.52%` full `bcesft` |
 | Historical closed DUT coverage | `95.90%` |
-| FPGA implementation strategy | Area-optimized project-mode runs at 50 MHz; TX-only and full FPGA demo SoC route successfully |
-| TX-only implementation | `rv32_soc_synth_tx_opt4`, routed, WNS `+1.277 ns` |
+| FPGA implementation strategy | Default Vivado target is ZCU102 `xczu9eg-ffvb1156-2-e`; wrapper divides USER_SI570 300 MHz to 50 MHz SoC/UART clock |
+| Latest full ZCU102 FPGA build | `rv32_soc_synth_full_zcu102`, top `rv32_soc_fpga_zcu102_top`, implementation and bitstream pass |
+| Latest full ZCU102 timing | WNS `+9.331 ns`, WHS `+0.017 ns`, all user timing constraints met |
+| Latest full ZCU102 utilization | `29542` LUTs, `18873` registers, `6045` CLBs, `1699` control sets, `11` BRAM tiles, `0` DSP |
+| Latest full ZCU102 power | vectorless estimate `0.774 W` total, `0.125 W` dynamic, `0.649 W` static |
+| Historical TX-only implementation | `rv32_soc_synth_tx_opt4`, routed, WNS `+1.277 ns` |
 | TX-only utilization | `11933` LUTs, `5469` registers, `3979` slices, `208` unique control sets, `10` BRAM tiles |
-| Full FPGA demo SoC implementation | `rv32_soc_synth_full_fpga`, top `rv32_soc_fpga_demo_top`, routed, WNS `+0.811 ns`, WHS `+0.024 ns` |
-| Full FPGA demo SoC utilization | `28379` LUTs, `18898` registers, `10165` slices, `778` unique control sets, `11` BRAM tiles |
-| Full FPGA demo SoC power | vectorless estimate `0.282 W` total, `0.176 W` dynamic, `0.106 W` static |
+| Historical full FPGA demo implementation | `rv32_soc_synth_full_fpga`, top `rv32_soc_fpga_demo_top`, routed, WNS `+0.811 ns`, WHS `+0.024 ns` |
+| Historical full FPGA demo SoC utilization | `28379` LUTs, `18898` registers, `10165` slices, `778` unique control sets, `11` BRAM tiles |
+| Historical full FPGA demo SoC power | vectorless estimate `0.282 W` total, `0.176 W` dynamic, `0.106 W` static |
 | Legacy RX-only implementation | routed, WNS `+0.341 ns`, power `0.193 W` |
 | Legacy RX-only utilization | `22730` LUTs, `27658` registers, `917` unique control sets |
 | Paper comparison result | MIT-BIH preprocessed input: `32.76%` average final storage ratio |
 
-The latest implementation reports are under:
+Default ZCU102 implementation reports are generated under:
+
+```text
+vivado/build/rv32_soc_synth_tx_zcu102/reports/
+vivado/build/rv32_soc_synth_full_zcu102/reports/
+vivado/build/rv32_soc_synth_rx_zcu102/reports/
+```
+
+Historical pre-ZCU102 retarget reports remain under:
 
 ```text
 vivado/build/rv32_soc_synth_tx_opt4/reports/
@@ -99,15 +111,16 @@ Design split:
 | Control plane | RV32I CPU | Configure DMA registers, write IV, start TX/RX, poll status |
 | Data plane | DMA + accelerators | Move data between DMEM and Huffman/AES engines |
 | Storage plane | DMEM + firmware metadata | Hold input, ciphertext slots, restored output, metadata records |
-| Input plane | Testbench or UART loader | Preload input bytes and input lengths before releasing SoC reset |
+| Host I/O plane | Testbench or UART loader/readback | Preload input bytes, release SoC reset, and read aligned DMEM result/output data |
 
 ## 4. Active Module Map
 
 | Module | Responsibility |
 |---|---|
 | `rv32_soc_top` | Simulation/integration SoC top |
-| `rv32_soc_fpga_demo_top` | FPGA wrapper with UART loader and LEDs |
-| `uart_dmem_loader` | FPGA runtime input loader, writes source bytes and input length into DMEM before CPU release |
+| `rv32_soc_fpga_zcu102_top` | ZCU102 FPGA wrapper with USER_SI570 input, UART loader, and LEDs |
+| `rv32_soc_fpga_demo_top` | Legacy ZedBoard FPGA wrapper with UART loader and LEDs |
+| `uart_dmem_loader` | FPGA runtime input loader/readback, writes source bytes and input length before CPU release, then supports aligned DMEM READ frames |
 | `top_rv32_sync` | RV32I control CPU |
 | `imem_sync` / `IMEM_ip` | Instruction memory |
 | `dmem_ip_wrapper` / `DMEM_ip` | Shared data memory |
@@ -438,7 +451,25 @@ update if a fresh final number is required.
 
 ## 13. FPGA Status
 
-The latest area-optimized Vivado flow uses:
+The default Vivado board target is now ZCU102:
+
+```text
+VIVADO_FPGA_TOP=rv32_soc_fpga_zcu102_top
+VIVADO_BOARD_XDC=vivado/constraints/zcu102_demo.xdc
+VIVADO_PART=xczu9eg-ffvb1156-2-e
+VIVADO_BOARD_PART=xilinx.com:zcu102:part0:3.3
+VIVADO_CLOCK_MHZ=300
+VIVADO_CLOCK_PORT=clk_p_i
+```
+
+`rv32_soc_fpga_zcu102_top` divides the 300 MHz USER_SI570 differential clock by
+6, so the SoC datapath and UART loader still run at 50 MHz.
+
+This target requires a Vivado license that covers the UltraScale+ `xczu9eg`
+device. If the license is missing or expired, project creation can still
+complete but `synth_design` stops before implementation.
+
+The area-optimized Vivado flow uses:
 
 ```text
 VIVADO_SYNTH_DIRECTIVE=AreaOptimized_high
@@ -446,10 +477,29 @@ VIVADO_OPT_DIRECTIVE=Explore
 VIVADO_PLACE_DIRECTIVE=Explore
 VIVADO_PHYS_OPT_DIRECTIVE=AggressiveExplore
 VIVADO_ROUTE_DIRECTIVE=Explore
-VIVADO_CLOCK_MHZ=50
+VIVADO_POWER_OPT=1
+VIVADO_POWER_OPT_POST_PLACE=1
+VIVADO_LICENSE=H:\Academic\senior_project\DATN\work\kingofvivado.lic
 ```
 
-Implementation result:
+Latest ZCU102 full TX+RX implementation and bitstream result:
+
+| Build | Status | WNS | WHS | LUTs | Registers | CLBs | Control sets | BRAM | DSP | Power |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `rv32_soc_synth_full_zcu102` | routed + bitstream | `+9.331 ns` | `+0.017 ns` | `29542` | `18873` | `6045` | `1699` | `11` | `0` | `0.774 W` |
+
+The route status has `0` failed nets, `0` unrouted nets, and `0` partially
+routed nets. The generated bitstream is copied to:
+
+```text
+sim/vivado_bitstreams/rv32_soc_synth_full_zcu102.bit
+```
+
+The power number is Vivado vectorless `report_power`; Vivado warns that
+high-fanout reset activity can make the estimate inaccurate. Use SAIF/VCD
+switching activity for a board-accurate power claim.
+
+Historical implementation result before the ZCU102 board retarget:
 
 | Build | Status | WNS | LUTs | Registers | Slices | Control sets | BRAM |
 |---|---|---:|---:|---:|---:|---:|---:|
@@ -459,8 +509,10 @@ Implementation result:
 
 Route/timing status:
 
-- TX-only: route completed, `0` failed nets, timing met.
-- Full FPGA demo SoC: route completed, `0` failed nets, timing met, vectorless power `0.282 W`.
+- Current ZCU102 full SoC: route completed, `0` failed nets, timing met,
+  bitstream generated, vectorless power `0.774 W`.
+- Historical TX-only and ZedBoard-oriented full SoC reports remain useful as
+  pre-retarget comparison evidence.
 
 The previous `[Place 30-487]` packing failure was caused by LUT/FF/control-set
 pressure from large Huffman tables and reset-heavy arrays. The current RTL

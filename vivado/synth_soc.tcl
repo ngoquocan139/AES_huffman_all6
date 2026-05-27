@@ -2,10 +2,13 @@
 #
 # Environment variables used by sim/Makefile:
 #   PROJECT_NAME      rv32_soc_synth_tx / rv32_soc_synth_rx / ...
-#   TOP_NAME          rv32_soc_fpga_demo_top or rv32_soc_top
+#   TOP_NAME          rv32_soc_fpga_zcu102_top / rv32_soc_fpga_demo_top / rv32_soc_top
 #   FPGA_BUILD        tx_only / rx_only / full
 #   VIVADO_FLOW       synth / impl / bit
 #   VIVADO_CLOCK_MHZ  default 50
+#   VIVADO_CLOCK_PORT default clk_i
+#   VIVADO_PART       default ZCU102 XCZU9EG part
+#   VIVADO_BOARD_PART optional Vivado board_part string
 #   VIVADO_XDC        optional XDC path, relative to repo root if not absolute
 
 proc env_or_default {name default_value} {
@@ -36,11 +39,12 @@ set sim_dir    [file join $repo_root "sim"]
 set rtl_dir    [file join $repo_root "rtl"]
 
 set project_name [env_or_default PROJECT_NAME "rv32_soc_synth_tx"]
-set top_name     [env_or_default TOP_NAME "rv32_soc_fpga_demo_top"]
+set top_name     [env_or_default TOP_NAME "rv32_soc_fpga_zcu102_top"]
 set fpga_build   [env_or_default FPGA_BUILD "tx_only"]
 set flow         [env_or_default VIVADO_FLOW "synth"]
 set xdc_path     [env_or_default VIVADO_XDC ""]
-set clock_mhz    [env_or_default VIVADO_CLOCK_MHZ "50"]
+set clock_mhz    [env_or_default VIVADO_CLOCK_MHZ "300"]
+set clock_port   [env_or_default VIVADO_CLOCK_PORT "clk_p_i"]
 set synth_directive [env_or_default VIVADO_SYNTH_DIRECTIVE "RuntimeOptimized"]
 set opt_directive   [env_or_default VIVADO_OPT_DIRECTIVE ""]
 set place_directive [env_or_default VIVADO_PLACE_DIRECTIVE ""]
@@ -50,7 +54,8 @@ set power_opt     [env_or_default VIVADO_POWER_OPT "0"]
 set power_opt_post_place [env_or_default VIVADO_POWER_OPT_POST_PLACE $power_opt]
 set reuse_synth  [env_or_default VIVADO_REUSE_SYNTH "0"]
 set reuse_impl   [env_or_default VIVADO_REUSE_IMPL "0"]
-set part_name    "xc7z020clg484-1"
+set part_name    [env_or_default VIVADO_PART "xczu9eg-ffvb1156-2-e"]
+set board_part   [env_or_default VIVADO_BOARD_PART ""]
 
 set build_dir  [file join $repo_root "vivado" "build" $project_name]
 set report_dir [file join $build_dir "reports"]
@@ -73,7 +78,10 @@ puts "INFO: project_name=$project_name"
 puts "INFO: top_name=$top_name"
 puts "INFO: fpga_build=$fpga_build"
 puts "INFO: flow=$flow"
+puts "INFO: part_name=$part_name"
+puts "INFO: board_part=$board_part"
 puts "INFO: clock_mhz=$clock_mhz"
+puts "INFO: clock_port=$clock_port"
 puts "INFO: synth_directive=$synth_directive"
 puts "INFO: opt_directive=$opt_directive"
 puts "INFO: place_directive=$place_directive"
@@ -87,7 +95,7 @@ puts "INFO: reuse_impl=$reuse_impl"
 set clk_period_ns [expr {1000.0 / double($clock_mhz)}]
 set auto_clock_xdc [file join $build_dir "auto_clock.xdc"]
 set auto_fh [open $auto_clock_xdc w]
-puts $auto_fh "create_clock -name clk_i -period $clk_period_ns \[get_ports clk_i\]"
+puts $auto_fh "create_clock -name $clock_port -period $clk_period_ns \[get_ports $clock_port\]"
 close $auto_fh
 
 set can_reuse_synth [expr {($flow eq "impl" || $flow eq "bit") && $reuse_synth eq "1" && [file exists $post_synth_dcp]}]
@@ -103,6 +111,14 @@ if {$can_reuse_impl} {
   create_project -force $project_name $build_dir -part $part_name
   set_property target_language Verilog [current_project]
   set_property simulator_language Verilog [current_project]
+  if {$board_part ne ""} {
+    set matched_board_parts [get_board_parts -quiet $board_part]
+    if {[llength $matched_board_parts] > 0} {
+      set_property board_part $board_part [current_project]
+    } else {
+      puts "WARNING: VIVADO_BOARD_PART not found in this Vivado install: $board_part"
+    }
+  }
 
   set defines {}
   lappend defines SYNTHESIS
@@ -144,6 +160,7 @@ if {$can_reuse_impl} {
   append_unique rtl_files [file join $rtl_dir "uart_tx.v"]
   append_unique rtl_files [file join $rtl_dir "uart_dmem_loader.v"]
   append_unique rtl_files [file join $rtl_dir "rv32_soc_fpga_demo_top.v"]
+  append_unique rtl_files [file join $rtl_dir "rv32_soc_fpga_zcu102_top.v"]
 
   foreach src $rtl_files {
     if {![file exists $src]} {
@@ -175,7 +192,7 @@ if {$can_reuse_impl} {
   }
 
   read_xdc $auto_clock_xdc
-  puts "INFO: create_clock clk_i period=${clk_period_ns}ns"
+  puts "INFO: create_clock $clock_port period=${clk_period_ns}ns"
 
   update_compile_order -fileset sources_1
 

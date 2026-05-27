@@ -3,12 +3,14 @@ module uart_dmem_loader #(
   parameter integer BAUD_RATE       = 115200,
   parameter [31:0]  SRC_BASE_ADDR   = 32'h0000_2000,
   parameter [31:0]  INPUT_LEN_ADDR  = 32'h0000_0040,
-  parameter integer MAX_INPUT_BYTES = 7168
+  parameter integer MAX_INPUT_BYTES = 7168,
+  parameter integer MAX_READ_BYTES  = 32768
 ) (
   input  wire        clk_i,
   input  wire        rst_i,
   input  wire        uart_rx_i,
   output wire        uart_tx_o,
+  input  wire [31:0] aux_rdata_i,
   output reg         aux_en_o,
   output reg  [3:0]  aux_we_o,
   output reg  [31:0] aux_addr_o,
@@ -23,31 +25,56 @@ module uart_dmem_loader #(
   localparam [7:0] MAGIC1 = 8'h4f; // 'O'
   localparam [7:0] MAGIC2 = 8'h41; // 'A'
   localparam [7:0] MAGIC3 = 8'h44; // 'D'
+  localparam [7:0] READ0  = 8'h52; // 'R'
+  localparam [7:0] READ1  = 8'h45; // 'E'
+  localparam [7:0] READ2  = 8'h41; // 'A'
+  localparam [7:0] READ3  = 8'h44; // 'D'
   localparam [7:0] ACK_OK = 8'h79;
   localparam [7:0] ACK_ERR = 8'h1f;
 
-  localparam [3:0] ST_MAGIC0        = 4'd0;
-  localparam [3:0] ST_MAGIC1        = 4'd1;
-  localparam [3:0] ST_MAGIC2        = 4'd2;
-  localparam [3:0] ST_MAGIC3        = 4'd3;
-  localparam [3:0] ST_LEN0          = 4'd4;
-  localparam [3:0] ST_LEN1          = 4'd5;
-  localparam [3:0] ST_LEN2          = 4'd6;
-  localparam [3:0] ST_LEN3          = 4'd7;
-  localparam [3:0] ST_PAYLOAD       = 4'd8;
-  localparam [3:0] ST_WRITE_PAYLOAD = 4'd9;
-  localparam [3:0] ST_WRITE_LEN     = 4'd10;
-  localparam [3:0] ST_SEND_ACK      = 4'd11;
-  localparam [3:0] ST_SEND_ERR      = 4'd12;
-  localparam [3:0] ST_DONE          = 4'd13;
-  localparam [3:0] ST_ERROR         = 4'd14;
+  localparam [5:0] ST_MAGIC0        = 6'd0;
+  localparam [5:0] ST_MAGIC1        = 6'd1;
+  localparam [5:0] ST_MAGIC2        = 6'd2;
+  localparam [5:0] ST_MAGIC3        = 6'd3;
+  localparam [5:0] ST_LEN0          = 6'd4;
+  localparam [5:0] ST_LEN1          = 6'd5;
+  localparam [5:0] ST_LEN2          = 6'd6;
+  localparam [5:0] ST_LEN3          = 6'd7;
+  localparam [5:0] ST_PAYLOAD       = 6'd8;
+  localparam [5:0] ST_WRITE_PAYLOAD = 6'd9;
+  localparam [5:0] ST_WRITE_LEN     = 6'd10;
+  localparam [5:0] ST_SEND_ACK      = 6'd11;
+  localparam [5:0] ST_SEND_ERR      = 6'd12;
+  localparam [5:0] ST_DONE          = 6'd13;
+  localparam [5:0] ST_ERROR         = 6'd14;
+  localparam [5:0] ST_READ1         = 6'd15;
+  localparam [5:0] ST_READ2         = 6'd16;
+  localparam [5:0] ST_READ3         = 6'd17;
+  localparam [5:0] ST_READ_ADDR0    = 6'd18;
+  localparam [5:0] ST_READ_ADDR1    = 6'd19;
+  localparam [5:0] ST_READ_ADDR2    = 6'd20;
+  localparam [5:0] ST_READ_ADDR3    = 6'd21;
+  localparam [5:0] ST_READ_LEN0     = 6'd22;
+  localparam [5:0] ST_READ_LEN1     = 6'd23;
+  localparam [5:0] ST_READ_LEN2     = 6'd24;
+  localparam [5:0] ST_READ_LEN3     = 6'd25;
+  localparam [5:0] ST_READ_ACK      = 6'd26;
+  localparam [5:0] ST_READ_REQ      = 6'd27;
+  localparam [5:0] ST_READ_WAIT     = 6'd28;
+  localparam [5:0] ST_READ_SEND0    = 6'd29;
+  localparam [5:0] ST_READ_SEND1    = 6'd30;
+  localparam [5:0] ST_READ_SEND2    = 6'd31;
+  localparam [5:0] ST_READ_SEND3    = 6'd32;
+
+  localparam [31:0] MAX_READ_BYTES_W = MAX_READ_BYTES;
+  localparam [15:0] DMEM_BYTES_W     = 16'd32768;
 
   localparam integer UART_PRESCALE_INT = (CLK_HZ / BAUD_RATE);
   localparam [15:0] UART_PRESCALE_W = (UART_PRESCALE_INT <= 0) ? 16'd1 :
                                       (UART_PRESCALE_INT > 65535) ? 16'hffff :
                                       UART_PRESCALE_INT[15:0];
 
-  reg [3:0]  state_r;
+  reg [5:0]  state_r;
   reg [31:0] payload_len_r;
   reg [31:0] payload_rem_r;
   reg [31:0] bytes_loaded_r;
@@ -58,6 +85,10 @@ module uart_dmem_loader #(
   reg [31:0] pending_addr_r;
   reg [31:0] pending_data_r;
   reg [3:0]  pending_we_r;
+  reg [31:0] read_addr_r;
+  reg [31:0] read_len_r;
+  reg [31:0] read_rem_r;
+  reg [31:0] read_word_r;
   reg [7:0]  tx_byte_r;
   reg        tx_valid_r;
   reg        done_r;
@@ -66,12 +97,14 @@ module uart_dmem_loader #(
   reg [3:0]  merged_we_v;
   reg [31:0] next_rem_v;
   reg [31:0] candidate_len_v;
+  reg [15:0] read_end_v;
 
   wire [7:0] rx_byte_w;
   wire       rx_valid_w;
   wire       rx_busy_unused_w;
   wire       tx_ready_w;
   wire       tx_busy_unused_w;
+  wire       read_len_upper_unused_w;
 
   function [31:0] insert_byte32;
     input [31:0] word_i;
@@ -121,7 +154,9 @@ module uart_dmem_loader #(
     .prescale_i  (UART_PRESCALE_W)
   );
 
-  assign busy_o = (state_r != ST_MAGIC0) && (state_r != ST_DONE) && (state_r != ST_ERROR);
+  assign read_len_upper_unused_w = |read_len_r[31:24];
+  assign busy_o = ((state_r != ST_MAGIC0) && (state_r != ST_DONE) && (state_r != ST_ERROR)) ||
+                  (1'b0 & read_len_upper_unused_w);
   assign done_o = done_r;
   assign error_o = error_r;
   assign bytes_loaded_o = bytes_loaded_r;
@@ -139,6 +174,10 @@ module uart_dmem_loader #(
       pending_addr_r   <= 32'd0;
       pending_data_r   <= 32'd0;
       pending_we_r     <= 4'd0;
+      read_addr_r      <= 32'd0;
+      read_len_r       <= 32'd0;
+      read_rem_r       <= 32'd0;
+      read_word_r      <= 32'd0;
       tx_byte_r        <= 8'd0;
       tx_valid_r       <= 1'b0;
       aux_en_o         <= 1'b0;
@@ -155,10 +194,14 @@ module uart_dmem_loader #(
       aux_wdata_o <= 32'd0;
 
       case (state_r)
-        ST_MAGIC0: begin
+        ST_MAGIC0, ST_DONE: begin
           if (rx_valid_w) begin
-            if (rx_byte_w == MAGIC0)
+            if (rx_byte_w == MAGIC0) begin
               state_r <= ST_MAGIC1;
+            end else if (rx_byte_w == READ0) begin
+              state_r <= ST_READ1;
+              error_r <= 1'b0;
+            end
           end
         end
 
@@ -166,6 +209,8 @@ module uart_dmem_loader #(
           if (rx_valid_w) begin
             if (rx_byte_w == MAGIC1)
               state_r <= ST_MAGIC2;
+            else if (rx_byte_w == READ0)
+              state_r <= ST_READ1;
             else if (rx_byte_w == MAGIC0)
               state_r <= ST_MAGIC1;
             else
@@ -177,6 +222,8 @@ module uart_dmem_loader #(
           if (rx_valid_w) begin
             if (rx_byte_w == MAGIC2)
               state_r <= ST_MAGIC3;
+            else if (rx_byte_w == READ0)
+              state_r <= ST_READ1;
             else if (rx_byte_w == MAGIC0)
               state_r <= ST_MAGIC1;
             else
@@ -195,6 +242,8 @@ module uart_dmem_loader #(
               error_r        <= 1'b0;
               pack_word_r    <= 32'd0;
               pack_we_r      <= 4'd0;
+            end else if (rx_byte_w == READ0) begin
+              state_r <= ST_READ1;
             end else if (rx_byte_w == MAGIC0) begin
               state_r <= ST_MAGIC1;
             end else begin
@@ -300,11 +349,182 @@ module uart_dmem_loader #(
           if (tx_ready_w) begin
             tx_byte_r  <= ACK_ERR;
             tx_valid_r <= 1'b1;
-            state_r    <= ST_ERROR;
+            state_r    <= done_r ? ST_DONE : ST_ERROR;
           end
         end
 
-        ST_DONE: begin
+        ST_READ1: begin
+          if (rx_valid_w) begin
+            if (rx_byte_w == READ1)
+              state_r <= ST_READ2;
+            else if (rx_byte_w == READ0)
+              state_r <= ST_READ1;
+            else if (rx_byte_w == MAGIC0)
+              state_r <= ST_MAGIC1;
+            else
+              state_r <= done_r ? ST_DONE : ST_MAGIC0;
+          end
+        end
+
+        ST_READ2: begin
+          if (rx_valid_w) begin
+            if (rx_byte_w == READ2)
+              state_r <= ST_READ3;
+            else if (rx_byte_w == READ0)
+              state_r <= ST_READ1;
+            else if (rx_byte_w == MAGIC0)
+              state_r <= ST_MAGIC1;
+            else
+              state_r <= done_r ? ST_DONE : ST_MAGIC0;
+          end
+        end
+
+        ST_READ3: begin
+          if (rx_valid_w) begin
+            if (rx_byte_w == READ3) begin
+              read_addr_r <= 32'd0;
+              read_len_r  <= 32'd0;
+              read_rem_r  <= 32'd0;
+              read_word_r <= 32'd0;
+              state_r     <= ST_READ_ADDR0;
+            end else if (rx_byte_w == READ0) begin
+              state_r <= ST_READ1;
+            end else if (rx_byte_w == MAGIC0) begin
+              state_r <= ST_MAGIC1;
+            end else begin
+              state_r <= done_r ? ST_DONE : ST_MAGIC0;
+            end
+          end
+        end
+
+        ST_READ_ADDR0: begin
+          if (rx_valid_w) begin
+            read_addr_r[7:0] <= rx_byte_w;
+            state_r          <= ST_READ_ADDR1;
+          end
+        end
+
+        ST_READ_ADDR1: begin
+          if (rx_valid_w) begin
+            read_addr_r[15:8] <= rx_byte_w;
+            state_r           <= ST_READ_ADDR2;
+          end
+        end
+
+        ST_READ_ADDR2: begin
+          if (rx_valid_w) begin
+            read_addr_r[23:16] <= rx_byte_w;
+            state_r            <= ST_READ_ADDR3;
+          end
+        end
+
+        ST_READ_ADDR3: begin
+          if (rx_valid_w) begin
+            read_addr_r[31:24] <= rx_byte_w;
+            state_r            <= ST_READ_LEN0;
+          end
+        end
+
+        ST_READ_LEN0: begin
+          if (rx_valid_w) begin
+            read_len_r[7:0] <= rx_byte_w;
+            state_r         <= ST_READ_LEN1;
+          end
+        end
+
+        ST_READ_LEN1: begin
+          if (rx_valid_w) begin
+            read_len_r[15:8] <= rx_byte_w;
+            state_r          <= ST_READ_LEN2;
+          end
+        end
+
+        ST_READ_LEN2: begin
+          if (rx_valid_w) begin
+            read_len_r[23:16] <= rx_byte_w;
+            state_r           <= ST_READ_LEN3;
+          end
+        end
+
+        ST_READ_LEN3: begin
+          if (rx_valid_w) begin
+            candidate_len_v = {rx_byte_w, read_len_r[23:0]};
+            read_end_v     = {1'b0, read_addr_r[14:0]} + candidate_len_v[15:0];
+            read_len_r     <= candidate_len_v;
+            read_rem_r     <= candidate_len_v;
+            if ((candidate_len_v == 32'd0) ||
+                (candidate_len_v > MAX_READ_BYTES_W) ||
+                (|candidate_len_v[1:0]) ||
+                (|candidate_len_v[31:16]) ||
+                (|read_addr_r[1:0]) ||
+                (|read_addr_r[31:15]) ||
+                (read_end_v > DMEM_BYTES_W)) begin
+              error_r <= 1'b1;
+              state_r <= ST_SEND_ERR;
+            end else begin
+              state_r <= ST_READ_ACK;
+            end
+          end
+        end
+
+        ST_READ_ACK: begin
+          if (tx_ready_w) begin
+            tx_byte_r  <= ACK_OK;
+            tx_valid_r <= 1'b1;
+            state_r    <= ST_READ_REQ;
+          end
+        end
+
+        ST_READ_REQ: begin
+          aux_en_o    <= 1'b1;
+          aux_we_o    <= 4'b0000;
+          aux_addr_o  <= read_addr_r;
+          aux_wdata_o <= 32'd0;
+          state_r     <= ST_READ_WAIT;
+        end
+
+        ST_READ_WAIT: begin
+          read_word_r <= aux_rdata_i;
+          state_r     <= ST_READ_SEND0;
+        end
+
+        ST_READ_SEND0: begin
+          if (tx_ready_w) begin
+            tx_byte_r  <= read_word_r[7:0];
+            tx_valid_r <= 1'b1;
+            state_r    <= ST_READ_SEND1;
+          end
+        end
+
+        ST_READ_SEND1: begin
+          if (tx_ready_w) begin
+            tx_byte_r  <= read_word_r[15:8];
+            tx_valid_r <= 1'b1;
+            state_r    <= ST_READ_SEND2;
+          end
+        end
+
+        ST_READ_SEND2: begin
+          if (tx_ready_w) begin
+            tx_byte_r  <= read_word_r[23:16];
+            tx_valid_r <= 1'b1;
+            state_r    <= ST_READ_SEND3;
+          end
+        end
+
+        ST_READ_SEND3: begin
+          if (tx_ready_w) begin
+            tx_byte_r  <= read_word_r[31:24];
+            tx_valid_r <= 1'b1;
+            if (read_rem_r == 32'd4) begin
+              read_rem_r <= 32'd0;
+              state_r    <= ST_DONE;
+            end else begin
+              read_rem_r  <= read_rem_r - 32'd4;
+              read_addr_r <= read_addr_r + 32'd4;
+              state_r     <= ST_READ_REQ;
+            end
+          end
         end
 
         ST_ERROR: begin

@@ -205,8 +205,8 @@ Implementation/resource notes from the latest area run:
 - Long Huffman codes use distributed-RAM fallback tables.
 - RX APB output FIFO memories use distributed RAM.
 - The local canonical sort/build arrays remain register/mux based in the
-  current RTL, but the full FPGA demo SoC still routes at 50 MHz with WNS
-  `+0.811 ns`.
+  current RTL, but the full ZCU102 SoC routes and writes bitstream with WNS
+  `+9.331 ns` and WHS `+0.017 ns`.
 
 ### 7.6 `rx_byte_packer_32`
 

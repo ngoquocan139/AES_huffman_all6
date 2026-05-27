@@ -217,8 +217,8 @@ Gioi han con lai:
   file neu ket qua nen xau. Huong mo rong dung RV32I firmware de quyet dinh
   compressed/raw AES o cap file.
 - RX bypass AES cho `COMPRESS_ONLY` loopback chua duoc dung trong test chinh.
-- RX local canonical sort tables are still register/mux based; full FPGA demo SoC
-  implementation passes, but a future one-write-port sort or length-bucket
+- RX local canonical sort tables are still register/mux based; full ZCU102 SoC
+  implementation and bitstream pass, but a future one-write-port sort or length-bucket
   builder would reduce RX area further.
 
 ## 7. RISC-V Software Contract
@@ -285,16 +285,23 @@ Regression coverage hien tai:
 - raw DUT branch+statement: `95.27%`
 - closed DUT coverage: `95.90%`
 
-Vivado area-optimized result at 50 MHz:
+Latest ZCU102 full SoC implementation result:
+
+| Build | LUT | FF | CLB | Control sets | BRAM | DSP | WNS | WHS | Power |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Full `rv32_soc_synth_full_zcu102` | 29542 | 18873 | 6045 | 1699 | 11 | 0 | +9.331 ns | +0.017 ns | 0.774 W |
+
+Historical area-optimized result at 50 MHz before the ZCU102 board retarget:
 
 | Build | LUT | FF | Slices | Control sets | BRAM | WNS |
 |---|---:|---:|---:|---:|---:|---:|
 | TX-only `rv32_soc_synth_tx_opt4` | 11933 | 5469 | 3979 | 208 | 10 | +1.277 ns |
 | Full FPGA demo SoC `rv32_soc_synth_full_fpga` | 28379 | 18898 | 10165 | 778 | 11 | +0.811 ns |
 
-The previous full-build place packing issue is resolved in this run. Sharing or
-time-multiplexing AES cores is therefore not required for the current 50 MHz
-full SoC closure. The same run reports vectorless power `0.282 W` total.
+The previous full-build place packing issue is resolved. Sharing or
+time-multiplexing AES cores is therefore not required for the current ZCU102
+full SoC closure. The current power number is a vectorless Vivado estimate; use
+SAIF/VCD switching activity for a final board-power claim.
 
 ## 9. Tradeoff
 

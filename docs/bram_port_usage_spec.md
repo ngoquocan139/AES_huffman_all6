@@ -25,6 +25,7 @@ Spec nay ap dung cho cac module sau:
 - `dmem_ip_wrapper`
 - `DMEM_ip`
 - `rv32_soc_top`
+- `rv32_soc_fpga_zcu102_top`
 - `rv32_soc_fpga_demo_top`
 - `uart_dmem_loader`
 
@@ -334,7 +335,18 @@ nam giu tam thoi. Trong RTL hien tai, `rv32_soc_top` mux Port B nhu sau:
 Ngoai IMEM/DMEM, RTL hien tai co cac table Huffman/FIFO noi bo duoc map sang
 BRAM hoac distributed RAM trong Vivado area-optimized run.
 
-Full FPGA demo SoC `rv32_soc_synth_full_fpga` post-synthesis/post-route mapping:
+Latest full ZCU102 SoC `rv32_soc_synth_full_zcu102` post-implementation
+summary:
+
+| Resource | Used | Capacity | Utilization |
+|---|---:|---:|---:|
+| CLB LUTs | `29542` | `274080` | `10.78%` |
+| CLB registers | `18873` | `548160` | `3.44%` |
+| CLB | `6045` | `34260` | `17.64%` |
+| Block RAM Tile | `11` | `912` | `1.21%` |
+| DSP | `0` | `2520` | `0.00%` |
+
+The RAM mapping below remains the intended mapping after the ZCU102 retarget:
 
 | Storage | Vivado mapping | Purpose |
 |---|---|---|
@@ -355,8 +367,9 @@ Implementation rules that made this infer correctly:
 
 `huffman_block_decoder` still keeps `symbol_local`, `len_local`, and
 `code_local` in register/mux logic because the current canonical sort swaps
-adjacent entries. This does not block 50 MHz full FPGA demo SoC closure, but it
-is the next obvious RX area target.
+adjacent entries. This does not block the current ZCU102 full SoC closure, but
+it is the next obvious RX area target if the design is moved back to a smaller
+device.
 
 ## 10. Chot huong dung cho cac file
 
