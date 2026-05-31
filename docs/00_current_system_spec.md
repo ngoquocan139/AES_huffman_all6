@@ -48,11 +48,11 @@ Important data policy:
 | Historical full regression baseline | `34/34` PASS before the secure-storage API refactor; rerun required for updated full-regression number |
 | Historical raw DUT coverage | `93.52%` full `bcesft` |
 | Historical closed DUT coverage | `95.90%` |
-| FPGA implementation strategy | Default Vivado target is ZCU102 `xczu9eg-ffvb1156-2-e`; wrapper divides USER_SI570 300 MHz to 50 MHz SoC/UART clock |
+| FPGA implementation strategy | Default Vivado target is ZCU102 `xczu9eg-ffvb1156-2-e`; wrapper divides USER_SI570 300 MHz to 50 MHz SoC/UART clock and auto-starts RV32I after UART `LOAD` |
 | Latest full ZCU102 FPGA build | `rv32_soc_synth_full_zcu102`, top `rv32_soc_fpga_zcu102_top`, implementation and bitstream pass |
-| Latest full ZCU102 timing | WNS `+9.331 ns`, WHS `+0.017 ns`, all user timing constraints met |
-| Latest full ZCU102 utilization | `29542` LUTs, `18873` registers, `6045` CLBs, `1699` control sets, `11` BRAM tiles, `0` DSP |
-| Latest full ZCU102 power | vectorless estimate `0.774 W` total, `0.125 W` dynamic, `0.649 W` static |
+| Latest full ZCU102 timing | WNS `+9.093 ns`, WHS `+0.015 ns`, all user timing constraints met |
+| Latest full ZCU102 utilization | `36382` LUTs, `19382` registers, `7281` CLBs, `1628` control sets, `11` BRAM tiles, `0` DSP |
+| Latest full ZCU102 power | vectorless estimate `0.796 W` total, `0.146 W` dynamic, `0.649 W` static |
 | Historical TX-only implementation | `rv32_soc_synth_tx_opt4`, routed, WNS `+1.277 ns` |
 | TX-only utilization | `11933` LUTs, `5469` registers, `3979` slices, `208` unique control sets, `10` BRAM tiles |
 | Historical full FPGA demo implementation | `rv32_soc_synth_full_fpga`, top `rv32_soc_fpga_demo_top`, routed, WNS `+0.811 ns`, WHS `+0.024 ns` |
@@ -486,13 +486,20 @@ Latest ZCU102 full TX+RX implementation and bitstream result:
 
 | Build | Status | WNS | WHS | LUTs | Registers | CLBs | Control sets | BRAM | DSP | Power |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `rv32_soc_synth_full_zcu102` | routed + bitstream | `+9.331 ns` | `+0.017 ns` | `29542` | `18873` | `6045` | `1699` | `11` | `0` | `0.774 W` |
+| `rv32_soc_synth_full_zcu102` | routed + bitstream | `+9.093 ns` | `+0.015 ns` | `36382` | `19382` | `7281` | `1628` | `11` | `0` | `0.796 W` |
 
 The route status has `0` failed nets, `0` unrouted nets, and `0` partially
 routed nets. The generated bitstream is copied to:
 
 ```text
 sim/vivado_bitstreams/rv32_soc_synth_full_zcu102.bit
+sim/vivado_bitstreams/rv32_soc_synth_full_zcu102_rv32_soc_fpga_zcu102_top.bit
+```
+
+Latest bitstream SHA256:
+
+```text
+faf8d51c72f5287e9bd46063e9baf37b7aeef8317dd0cbc4b98f6e20f5a7d62e
 ```
 
 The power number is Vivado vectorless `report_power`; Vivado warns that
@@ -510,7 +517,7 @@ Historical implementation result before the ZCU102 board retarget:
 Route/timing status:
 
 - Current ZCU102 full SoC: route completed, `0` failed nets, timing met,
-  bitstream generated, vectorless power `0.774 W`.
+  bitstream generated, vectorless power `0.796 W`.
 - Historical TX-only and ZedBoard-oriented full SoC reports remain useful as
   pre-retarget comparison evidence.
 

@@ -34,9 +34,9 @@ Dung bang nay de mo dau phan ket qua hien tai:
 | IV policy | Firmware-generated deterministic demo IV, counter at `0x000001F0`, seed `0x31415926` |
 | Latest focused test | `dma_storage_table_input1_then_input3`, `PASS=22`, `FAIL=0` |
 | Storage API result | Stores input1 and input3, then restores input1 by `file_id=1` |
-| FPGA claim | Default board target is ZCU102; full TX+RX implementation and bitstream pass |
+| FPGA claim | Default board target is ZCU102; full TX+RX implementation and bitstream pass; UART `LOAD` auto-starts RV32I |
 | TX FPGA | WNS `+1.277 ns`, LUT `11933`, slices `3979`, control sets `208` |
-| Full ZCU102 FPGA SoC | WNS `+9.331 ns`, WHS `+0.017 ns`, LUT `29542`, CLB `6045`, control sets `1699`, power `0.774 W` |
+| Full ZCU102 FPGA SoC | WNS `+9.093 ns`, WHS `+0.015 ns`, LUT `36382`, CLB `7281`, control sets `1628`, power `0.796 W` |
 | Legacy RX FPGA | WNS `+0.341 ns`, LUT `22730`, control sets `917` |
 | Historical regression | `34/34` PASS, raw DUT `93.52%`, closed DUT `95.90%` |
 
@@ -258,7 +258,7 @@ Ket qua implementation moi nhat tren ZCU102:
 
 | Build | WNS | WHS | LUT | FF | CLB | Control sets | BRAM | DSP | Power | Status |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| Full `rv32_soc_synth_full_zcu102` | +9.331 ns | +0.017 ns | 29542 | 18873 | 6045 | 1699 | 11 | 0 | 0.774 W | Timing pass, bitstream pass |
+| Full `rv32_soc_synth_full_zcu102` | +9.093 ns | +0.015 ns | 36382 | 19382 | 7281 | 1628 | 11 | 0 | 0.796 W | Timing pass, bitstream pass, UART load auto-run |
 
 Ket qua implementation lich su o 50 MHz sau area optimization, truoc khi doi
 default board target sang ZCU102:
@@ -278,29 +278,48 @@ Can noi ro:
 - RX main decode table dung BRAM `2K x 15`; RX fallback/FIFO dung distributed
   RAM. RX local sort table con la diem co the toi uu tiep, nhung full build da
   route pass.
-- Power report moi la vectorless estimate: total `0.774 W`, dynamic `0.125 W`,
+- Power report moi la vectorless estimate: total `0.796 W`, dynamic `0.146 W`,
   static `0.649 W`; Vivado canh bao reset fanout/activity nen day la estimate,
   khong phai do board.
 - Bitstream hien co tai `sim/vivado_bitstreams/rv32_soc_synth_full_zcu102.bit`.
 
-### 5.5 Paper comparison
+### 5.5 Component-level comparison
 
-So voi bai bao `A lossless compression and encryption mechanism for remote
-monitoring of ECG data using Huffman coding and CBC-AES`:
+Khong can ep reference phai giong toan bo kien truc SoC. Nen tach thanh cac
+bang nho theo tung phan:
 
-| Design | Dataset / input | Compression ratio | Space saving | Security |
-|---|---|---:|---:|---|
-| Referenced paper | MIT-BIH ECG, DWT/filtering + Huffman | 35.015% | 64.985% | AES-CBC 256-bit key |
-| This SoC | `input1.txt`, dynamic whole-file Huffman 256-symbol | 40.14% final storage | 59.86% | AES-128-CBC |
-| This SoC | same MIT-BIH records, external delta2+varuint preprocessing | 32.76% average final storage | 67.24% | AES-128-CBC |
-| This SoC | `input3.txt` | 46.28% final storage | 53.72% | AES-128-CBC |
-| This SoC | `input4_cov.txt`, TX-only | 67.73% final storage | 32.27% | AES bypass benchmark |
+| Comparison item | Compare against | Metric | This design | Conclusion |
+|---|---|---|---|---|
+| Huffman compression only | C Huffman baseline `drichardson/huffman` | Payload ratio | `input1.txt` `37.50%`; MIT-BIH avg `61.13%` | C Huffman nho hon, nhung SoC co hardware transport/RX decode |
+| Secure-storage final size | ECG Huffman + CBC-AES paper | Final storage ratio | MIT-BIH avg `32.76%` vs paper `35.015%` | Tot hon `2.26` diem phan tram neu noi ro preprocessing nam ngoai SoC |
+| AES/RISC-V software | `aadomn/aes` RISC-V AES | cycles/byte | SoC TX `17.83` cycles/byte on `input1.txt` vs AES software `78.9` cycles/byte | Chung minh gia tri offload, khong phai benchmark CPU-to-CPU tuyet doi |
+| Software/firmware contract | Current C files vs RTL | Responsibility split | Software quan ly metadata/IV/file_id; RTL xu ly Huffman/AES/DMA | RV32I la control plane, accelerator la data plane |
 
-Ket luan nen noi: voi huong so sanh chinh, du lieu MIT-BIH duoc preprocess ben
-ngoai thanh byte stream delta2+varuint roi moi dua vao SoC. Tren cung nam ban
-ghi MIT-BIH, ket qua trung binh la `32.76%` final storage ratio, tot hon bai
-bao `35.015%` khoang `2.26` diem phan tram. Phai noi ro preprocessing nay nam
-ngoai SoC; SoC hien tai chi thuc hien secure storage cho byte stream da xu ly.
+Ket luan nen noi tren slide: phan so sanh duoc trinh bay theo tung lop. Ve
+Huffman-only, software C reference co ratio nho hon. Ve secure-storage final
+size tren nam MIT-BIH records, flow hien tai dat `32.76%`, tot hon bai bao
+`35.015%` trong dieu kien ECG preprocessing da lam ben ngoai SoC. Ve software,
+bang doi chieu phai noi ro firmware lam metadata/IV/file_id, con RTL lam DMA,
+Huffman va AES-CBC.
+
+Ket luan tong ve kien truc:
+
+| Architecture type | Better at | This SoC position |
+|---|---|---|
+| Pure software compression | Compression ratio | SoC khong thang pure ratio; SoC thang o hardware offload va verified datapath |
+| Huffman-only FPGA | Raw Huffman throughput | SoC cham hon nhung co DMA, RV32I control, RX restore va storage flow |
+| AES-only RTL | AES latency/area | SoC khong phai AES core nhanh nhat; AES la mot phan cua secure-storage path |
+| Minimal RISC-V SoC | Area/power | SoC lon hon vi co Huffman, AES, DMA, UART/FPGA demo |
+| This design | End-to-end secure storage | RV32I lam control plane; accelerator lam data plane; metadata/IV/file_id duoc firmware quan ly |
+
+Cau ket luan nen dung:
+
+```text
+Thiet ke nay khong nham toi viec la bo nen tot nhat, AES core nhanh nhat, hay
+RISC-V SoC nho nhat. Dong gop chinh la tich hop RV32I firmware, DMA, metadata,
+IV, Huffman, AES-128-CBC, RX restore va FPGA implementation thanh mot
+secure-storage SoC hoat dong duoc.
+```
 
 ## 6. Testcase Groups To Mention
 

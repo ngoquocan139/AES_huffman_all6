@@ -209,6 +209,26 @@ module test_bench;
   wire [31:0] wf_input_len_bytes;
   wire [31:0] wf_tx_ciphertext_bytes;
   wire [31:0] wf_rx_plaintext_bytes;
+  wire        soc_tx_dma_busy_o;
+  wire        soc_tx_dma_done_o;
+  wire        soc_tx_dma_error_o;
+  wire        soc_rx_dma_busy_o;
+  wire        soc_rx_dma_done_o;
+  wire        soc_rx_dma_error_o;
+  wire        soc_imem_program_seen_o;
+  wire [31:0] soc_cpu_debug_status_o;
+  wire [31:0] soc_cpu_debug_fetch_pc_o;
+  wire [31:0] soc_cpu_debug_fetch_instr_o;
+  wire [31:0] soc_cpu_debug_cycle_count_o;
+  wire [31:0] soc_cpu_debug_fetch_count_o;
+  wire [31:0] soc_cpu_debug_dmem_access_count_o;
+  wire [31:0] soc_cpu_debug_mmio_access_count_o;
+  wire [31:0] soc_cpu_debug_last_dmem_addr_o;
+  wire [31:0] soc_cpu_debug_last_dmem_wdata_o;
+  wire [31:0] soc_cpu_debug_last_dmem_ctrl_o;
+  wire [31:0] soc_cpu_debug_wb_count_o;
+  wire [31:0] soc_cpu_debug_last_wb_info_o;
+  wire [31:0] soc_cpu_debug_last_wb_data_o;
 
   function automatic [7:0] byte_from_word;
     input [31:0] word;
@@ -1904,7 +1924,27 @@ module test_bench;
     .aux_rdata_o    (aux_rdata),
     .cpu_if_flush_i (cpu_if_flush),
     .cpu_stall_i    (cpu_stall),
-    .mem_err_o      (mem_err_o)
+    .mem_err_o      (mem_err_o),
+    .tx_dma_busy_o  (soc_tx_dma_busy_o),
+    .tx_dma_done_o  (soc_tx_dma_done_o),
+    .tx_dma_error_o (soc_tx_dma_error_o),
+    .rx_dma_busy_o  (soc_rx_dma_busy_o),
+    .rx_dma_done_o  (soc_rx_dma_done_o),
+    .rx_dma_error_o (soc_rx_dma_error_o),
+    .imem_program_seen_o(soc_imem_program_seen_o),
+    .cpu_debug_status_o(soc_cpu_debug_status_o),
+    .cpu_debug_fetch_pc_o(soc_cpu_debug_fetch_pc_o),
+    .cpu_debug_fetch_instr_o(soc_cpu_debug_fetch_instr_o),
+    .cpu_debug_cycle_count_o(soc_cpu_debug_cycle_count_o),
+    .cpu_debug_fetch_count_o(soc_cpu_debug_fetch_count_o),
+    .cpu_debug_dmem_access_count_o(soc_cpu_debug_dmem_access_count_o),
+    .cpu_debug_mmio_access_count_o(soc_cpu_debug_mmio_access_count_o),
+    .cpu_debug_last_dmem_addr_o(soc_cpu_debug_last_dmem_addr_o),
+    .cpu_debug_last_dmem_wdata_o(soc_cpu_debug_last_dmem_wdata_o),
+    .cpu_debug_last_dmem_ctrl_o(soc_cpu_debug_last_dmem_ctrl_o),
+    .cpu_debug_wb_count_o(soc_cpu_debug_wb_count_o),
+    .cpu_debug_last_wb_info_o(soc_cpu_debug_last_wb_info_o),
+    .cpu_debug_last_wb_data_o(soc_cpu_debug_last_wb_data_o)
   );
 
   always #5 clk = ~clk;

@@ -47,9 +47,14 @@ Current secure-storage testcase layout:
 | `0x0000_0000` | `RESULT_BASE_ADDR` | Firmware result/debug words for the testbench |
 | `0x0000_0040` | `INPUT1_LEN_ADDR` | Primary input length written by TB/UART |
 | `0x0000_0044` | `INPUT2_LEN_ADDR` | Secondary input length written by TB/UART |
+| `0x0000_0050` | `BOARD_STATUS_ADDR` | ZCU102 pushbutton/run/debug status word written by FPGA wrapper |
+| `0x0000_0054` | `BOARD_FILE_ID_ADDR` | Selected secure-storage `file_id`; default/valid values are `1` and `3` |
+| `0x0000_0058` | `BOARD_EVENT_ADDR` | Monotonic board-control event counter |
 | `0x0000_0100` | `SECURE_META_BASE_ADDR` | Metadata table slot 0 |
 | `0x0000_0140` | metadata slot 1 | Slot 1, because record stride is `0x40` bytes |
 | `0x0000_01F0` | `SECURE_IV_COUNTER_ADDR` | Firmware IV/version counter |
+| `0x0000_0200` | `BOARD_SNAPSHOT_ADDR` | Optional FPGA-button snapshot copy of result words `0..15` |
+| `0x0000_0240` | `BOARD_SNAPSHOT_META` | Snapshot magic/count/status words |
 | `0x0000_2000` | `INPUT1_SRC_ADDR` | Primary plaintext source |
 | `0x0000_3000` | `INPUT2_SRC_ADDR` | Secondary plaintext source |
 | `0x0000_4000` | ciphertext slot 0 | Secure write destination for metadata slot 0 |
@@ -67,6 +72,30 @@ The current slot size is therefore:
 ```text
 SECURE_CIPHER_SLOT_BYTES = 0x1000
 ```
+
+## 3.1 ZCU102 Pushbutton Board-Control Contract
+
+The ZCU102 FPGA wrapper has a small board-control master sharing the DMEM
+auxiliary Port B with the UART loader. It writes these words only when the UART
+loader is idle.
+
+| Address | Field | Meaning |
+|---:|---|---|
+| `0x0000_0050` | status | bit0 `run_latched` auto-set after UART `LOAD`, bit1 board-control busy, bit2 zeroize done, bit3 snapshot valid, bits `15:8` selected file ID, bits `23:16` zeroize count, bits `31:24` snapshot count |
+| `0x0000_0054` | selected file ID | Hardware-selected `file_id`; firmware accepts `1` and `3`, otherwise defaults to `1` |
+| `0x0000_0058` | event count | Incremented when the wrapper records a board-control event |
+| `0x0000_0200..0x0000_023F` | snapshot words | Copy of `RESULT_WORD(0..15)` after the snapshot pushbutton |
+| `0x0000_0240` | snapshot magic | `0x534E4150` (`"SNAP"`) |
+| `0x0000_0244` | snapshot file ID | selected file ID at snapshot time |
+| `0x0000_0248` | snapshot count | 1-based snapshot counter |
+| `0x0000_024C` | snapshot status | board-control status word at snapshot completion |
+
+The zeroize pushbutton clears `0x0000_0100..0x0000_01FF`, which covers the
+secure metadata records and firmware IV counter. It also holds the SoC in reset
+while clearing and drops the run latch. The AES key is currently a fixed RTL
+parameter, not writable key RAM, so this operation zeroizes firmware-owned IV
+and metadata state and resets DMA IV registers through SoC reset; it does not
+erase a runtime key store because no runtime key store exists yet.
 
 ## 4. Secure Metadata Contract
 

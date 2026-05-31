@@ -24,7 +24,32 @@ module rv32_soc_top (
   input  wire        cpu_if_flush_i,
   input  wire        cpu_stall_i,
 
-  output wire [1:0]  mem_err_o
+  output wire [1:0]  mem_err_o,
+
+  // Board/debug status outputs. Done/error are one-cycle pulses from the DMA
+  // engines; board wrappers can latch them for LEDs.
+  output wire        tx_dma_busy_o,
+  output wire        tx_dma_done_o,
+  output wire        tx_dma_error_o,
+  output wire        rx_dma_busy_o,
+  output wire        rx_dma_done_o,
+  output wire        rx_dma_error_o,
+  output wire        imem_program_seen_o,
+
+  // Live CPU debug snapshot for board UART readback.
+  output wire [31:0] cpu_debug_status_o,
+  output wire [31:0] cpu_debug_fetch_pc_o,
+  output wire [31:0] cpu_debug_fetch_instr_o,
+  output wire [31:0] cpu_debug_cycle_count_o,
+  output wire [31:0] cpu_debug_fetch_count_o,
+  output wire [31:0] cpu_debug_dmem_access_count_o,
+  output wire [31:0] cpu_debug_mmio_access_count_o,
+  output wire [31:0] cpu_debug_last_dmem_addr_o,
+  output wire [31:0] cpu_debug_last_dmem_wdata_o,
+  output wire [31:0] cpu_debug_last_dmem_ctrl_o,
+  output wire [31:0] cpu_debug_wb_count_o,
+  output wire [31:0] cpu_debug_last_wb_info_o,
+  output wire [31:0] cpu_debug_last_wb_data_o
 );
 
   localparam [31:0] DMA_APB_BASE_W = 32'h4000_0000;
@@ -204,6 +229,17 @@ module rv32_soc_top (
   wire        reg_write_w;
   wire [4:0]  rd_addr_w;
   wire [31:0] rd_data_w;
+  reg         imem_program_seen_r;
+  reg [31:0] cpu_debug_cycle_count_r;
+  reg [31:0] cpu_debug_fetch_count_r;
+  reg [31:0] cpu_debug_dmem_access_count_r;
+  reg [31:0] cpu_debug_mmio_access_count_r;
+  reg [31:0] cpu_debug_last_dmem_addr_r;
+  reg [31:0] cpu_debug_last_dmem_wdata_r;
+  reg [31:0] cpu_debug_last_dmem_ctrl_r;
+  reg [31:0] cpu_debug_wb_count_r;
+  reg [31:0] cpu_debug_last_wb_info_r;
+  reg [31:0] cpu_debug_last_wb_data_r;
 
   assign cpu_mmio_sel_w = dmem_en_w &&
                           ((dmem_addr_w & DMA_APB_MASK_W) == DMA_APB_BASE_W);
@@ -221,6 +257,44 @@ module rv32_soc_top (
   assign dma_engine_bytes_done_w = (dma_active_dir_r == DMA_DIR_RX_W) ? rx_dma_bytes_done_w : tx_dma_bytes_done_w;
   assign dma_engine_last_error_w = (dma_active_dir_r == DMA_DIR_RX_W) ? rx_dma_last_error_w : tx_dma_last_error_w;
   assign dma_engine_state_w = (dma_active_dir_r == DMA_DIR_RX_W) ? rx_dma_state_w : tx_dma_state_w;
+  assign tx_dma_busy_o = tx_dma_busy_w;
+  assign tx_dma_done_o = tx_dma_done_w;
+  assign tx_dma_error_o = tx_dma_error_w;
+  assign rx_dma_busy_o = rx_dma_busy_w;
+  assign rx_dma_done_o = rx_dma_done_w;
+  assign rx_dma_error_o = rx_dma_error_w;
+  assign imem_program_seen_o = imem_program_seen_r;
+  assign cpu_debug_status_o = {
+    12'b0,
+    dmem_we_w,
+    2'b0,
+    dmem_load_resp_is_mmio_w,
+    bridge_cpu_stall_req_w,
+    rx_dma_error_w,
+    tx_dma_error_w,
+    rx_dma_done_w,
+    tx_dma_done_w,
+    rx_dma_busy_w,
+    tx_dma_busy_w,
+    cpu_mmio_sel_w,
+    dmem_en_w,
+    imem_en_w,
+    imem_program_seen_r,
+    cpu_global_hold_w,
+    rst_i
+  };
+  assign cpu_debug_fetch_pc_o = imem_addr_w;
+  assign cpu_debug_fetch_instr_o = imem_instr_w;
+  assign cpu_debug_cycle_count_o = cpu_debug_cycle_count_r;
+  assign cpu_debug_fetch_count_o = cpu_debug_fetch_count_r;
+  assign cpu_debug_dmem_access_count_o = cpu_debug_dmem_access_count_r;
+  assign cpu_debug_mmio_access_count_o = cpu_debug_mmio_access_count_r;
+  assign cpu_debug_last_dmem_addr_o = cpu_debug_last_dmem_addr_r;
+  assign cpu_debug_last_dmem_wdata_o = cpu_debug_last_dmem_wdata_r;
+  assign cpu_debug_last_dmem_ctrl_o = cpu_debug_last_dmem_ctrl_r;
+  assign cpu_debug_wb_count_o = cpu_debug_wb_count_r;
+  assign cpu_debug_last_wb_info_o = cpu_debug_last_wb_info_r;
+  assign cpu_debug_last_wb_data_o = cpu_debug_last_wb_data_r;
   assign dma_port_b_en_w = (dmem_port_b_owner_sel_w == DMA_DIR_TX_W) ? tx_dma_port_b_en_w :
                            ((dmem_port_b_owner_sel_w == DMA_DIR_RX_W) ? rx_dma_port_b_en_w : 1'b0);
   assign dma_port_b_we_w = (dmem_port_b_owner_sel_w == DMA_DIR_TX_W) ? tx_dma_port_b_we_w :
@@ -328,12 +402,49 @@ module rv32_soc_top (
                         {32{1'b0 & soc_debug_unused_w}};
 
   always @(posedge clk_i) begin
-    if (rst_i)
+    if (rst_i) begin
       dma_active_dir_r <= 2'b00;
-    else if (dma_soft_reset_pulse_w)
-      dma_active_dir_r <= 2'b00;
-    else if (dma_start_pulse_w)
-      dma_active_dir_r <= dma_direction_w;
+      imem_program_seen_r <= 1'b0;
+      cpu_debug_cycle_count_r <= 32'd0;
+      cpu_debug_fetch_count_r <= 32'd0;
+      cpu_debug_dmem_access_count_r <= 32'd0;
+      cpu_debug_mmio_access_count_r <= 32'd0;
+      cpu_debug_last_dmem_addr_r <= 32'd0;
+      cpu_debug_last_dmem_wdata_r <= 32'd0;
+      cpu_debug_last_dmem_ctrl_r <= 32'd0;
+      cpu_debug_wb_count_r <= 32'd0;
+      cpu_debug_last_wb_info_r <= 32'd0;
+      cpu_debug_last_wb_data_r <= 32'd0;
+    end else begin
+      cpu_debug_cycle_count_r <= cpu_debug_cycle_count_r + 32'd1;
+
+      if (imem_en_w)
+        cpu_debug_fetch_count_r <= cpu_debug_fetch_count_r + 32'd1;
+
+      if (imem_en_w && (imem_instr_w != 32'b0))
+        imem_program_seen_r <= 1'b1;
+
+      if (dmem_en_w) begin
+        cpu_debug_dmem_access_count_r <= cpu_debug_dmem_access_count_r + 32'd1;
+        cpu_debug_last_dmem_addr_r <= dmem_addr_w;
+        cpu_debug_last_dmem_wdata_r <= dmem_wdata_w;
+        cpu_debug_last_dmem_ctrl_r <= {27'b0, cpu_mmio_sel_w, dmem_we_w};
+      end
+
+      if (cpu_mmio_sel_w)
+        cpu_debug_mmio_access_count_r <= cpu_debug_mmio_access_count_r + 32'd1;
+
+      if (reg_write_w) begin
+        cpu_debug_wb_count_r <= cpu_debug_wb_count_r + 32'd1;
+        cpu_debug_last_wb_info_r <= {26'b0, reg_write_w, rd_addr_w};
+        cpu_debug_last_wb_data_r <= rd_data_w;
+      end
+
+      if (dma_soft_reset_pulse_w)
+        dma_active_dir_r <= 2'b00;
+      else if (dma_start_pulse_w)
+        dma_active_dir_r <= dma_direction_w;
+    end
   end
 
   top_rv32_sync u_cpu (

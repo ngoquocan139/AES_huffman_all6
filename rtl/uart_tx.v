@@ -21,7 +21,7 @@ module uart_tx #(
   localparam [7:0] FRAME_BITS_W = DATA_BITS + 1;
   wire [18:0] prescale_w = (prescale_i == 16'd0) ? 19'd1 : {3'b000, prescale_i};
 
-  assign data_ready_o = ready_r;
+  assign data_ready_o = ready_r && !data_valid_i;
   assign txd_o        = txd_r;
   assign busy_o       = busy_r;
 
@@ -46,17 +46,15 @@ module uart_tx #(
       end
     end else if (baud_cnt_r != 19'd0) begin
       baud_cnt_r <= baud_cnt_r - 19'd1;
-    end else begin
+    end else if (bit_cnt_r != 8'd0) begin
       txd_r      <= shift_r[0];
       shift_r    <= {1'b1, shift_r[DATA_BITS:1]};
       baud_cnt_r <= prescale_w - 19'd1;
-      if (bit_cnt_r == 8'd1) begin
-        bit_cnt_r <= 8'd0;
-        busy_r    <= 1'b0;
-        ready_r   <= 1'b1;
-      end else begin
-        bit_cnt_r <= bit_cnt_r - 8'd1;
-      end
+      bit_cnt_r  <= bit_cnt_r - 8'd1;
+    end else begin
+      txd_r    <= 1'b1;
+      busy_r   <= 1'b0;
+      ready_r  <= 1'b1;
     end
   end
 

@@ -10,9 +10,10 @@ The current source of truth is:
 | 2 | [memory_map_dma_software_contract.md](./memory_map_dma_software_contract.md) | CPU-visible memory map, DMA MMIO contract, metadata layout, polling rules |
 | 3 | [iv_generation_and_cbc_contract_spec.md](./iv_generation_and_cbc_contract_spec.md) | Current firmware IV generation and AES-CBC restore contract |
 | 4 | [paper_comparison_huffman_aes_cbc.md](./paper_comparison_huffman_aes_cbc.md) | MIT-BIH comparison against the referenced paper |
-| 5 | [soc_4_5_end_to_end_report.md](./soc_4_5_end_to_end_report.md) | Main SoC end-to-end testcase evidence |
-| 6 | [coverage_regression_report.md](./coverage_regression_report.md) | Historical coverage and regression result |
-| 7 | [soc_usage_and_fpga_guide.md](./soc_usage_and_fpga_guide.md) | Day-to-day commands and FPGA preparation |
+| 5 | [architecture_software_comparison_report.md](./architecture_software_comparison_report.md) | Architecture, paper, GitHub, and software comparison for report writing |
+| 6 | [soc_4_5_end_to_end_report.md](./soc_4_5_end_to_end_report.md) | Main SoC end-to-end testcase evidence |
+| 7 | [coverage_regression_report.md](./coverage_regression_report.md) | Historical coverage and regression result |
+| 8 | [soc_usage_and_fpga_guide.md](./soc_usage_and_fpga_guide.md) | Day-to-day commands and FPGA preparation |
 
 Policy for the current report:
 
@@ -21,6 +22,8 @@ Policy for the current report:
 - Present metadata and IV/nonce management as firmware responsibilities.
 - Use MIT-BIH already-preprocessed `.bin` inputs for paper comparison.
 - Present ECG preprocessing as external to the RTL.
+- Use `architecture_software_comparison_report.md` for cross-architecture,
+  GitHub, and pure-software comparison claims.
 - Treat `00_current_system_spec.md` as the top-level spec and module specs as
   technical appendices.
 
@@ -38,8 +41,8 @@ Policy for the current report:
 | IV counter | DMEM word at `0x0000_01F0`, seed `0x31415926` |
 | MIT-BIH comparison | External preprocessed input, `32.76%` average final storage ratio |
 | FPGA strategy | Default ZCU102 project-mode implementation; USER_SI570 300 MHz divided to 50 MHz SoC/UART |
-| Latest full ZCU102 status | `rv32_soc_synth_full_zcu102`, routed + bitstream, WNS `+9.331 ns`, WHS `+0.017 ns`, timing met |
-| Latest full ZCU102 utilization/power | `29542` LUTs, `18873` regs, `6045` CLBs, `1699` control sets, `11` BRAM, vectorless power `0.774 W` |
+| Latest full ZCU102 status | `rv32_soc_synth_full_zcu102`, routed + bitstream, WNS `+9.093 ns`, WHS `+0.015 ns`, timing met, auto-runs after UART `LOAD` |
+| Latest full ZCU102 utilization/power | `36382` LUTs, `19382` regs, `7281` CLBs, `1628` control sets, `11` BRAM, vectorless power `0.796 W` |
 | TX-only FPGA status | Routed, WNS `+1.277 ns`, LUTs `11933`, regs `5469`, slices `3979`, control sets `208` |
 | Historical full FPGA demo SoC status | Routed before ZCU102 retarget, WNS `+0.811 ns`, LUTs `28379`, regs `18898`, slices `10165`, control sets `778` |
 | Legacy RX-only FPGA status | Routed, WNS `+0.341 ns`, LUTs `22730`, regs `27658`, control sets `917` |

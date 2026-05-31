@@ -32,19 +32,37 @@ va ghi plaintext phuc hoi tro lai `DMEM`.
 
 ## 3. Top-Level RX Path
 
+Normal FPGA path:
+
 ```mermaid
 flowchart LR
-    CPU["RV32I CPU"] --> BR["cpu_mmio_to_apb_bridge"]
-    BR --> REG["dma_regfile"]
-    REG --> RXDMA["dma_rx_engine"]
-    REG --> IV["IV0..IV3"]
-    RXDMA --> DMEMR["DMEM Port B read"]
-    RXDMA --> RXSTRM["ciphertext 128-bit stream"]
-    RXSTRM --> RXTOP["apb_huffman_aes_rx_top"]
-    RXTOP --> RXAPB["RX APB readback path"]
-    RXAPB --> RXDMA
-    RXDMA --> DMEMW["DMEM Port B write"]
+    PC["PC UART loader/readback"] -->|"load input/ciphertext"| DMEM_IN["DMEM ciphertext buffer<br/>SRC_ADDR, LEN_BYTES"]
+    CPU["RV32I CPU"] -->|"MMIO writes"| BR["cpu_mmio_to_apb_bridge"]
+    BR -->|"APB config"| REG["dma_regfile"]
+    REG -->|"src_addr_o, dst_addr_o<br/>len_bytes_o, direction_o<br/>start_pulse_o"| RXDMA["dma_rx_engine"]
+    REG -->|"iv_o = {IV3, IV2, IV1, IV0}"| RXTOP["apb_huffman_aes_rx_top"]
+    DMEM_IN -->|"Port B read<br/>W0, W1, W2, W3"| RXDMA
+    RXDMA -->|"rx_ciphertext_word_o[127:0]<br/>rx_ciphertext_word_valid_o"| RXTOP
+    RXTOP -->|"rx_ciphertext_word_ready_i"| RXDMA
+    RXDMA -->|"private APB<br/>RX_STATUS, RX_META, RX_DATA"| RXTOP
+    RXTOP -->|"PRDATA, PREADY, PSLVERR"| RXDMA
+    RXDMA -->|"Port B write plaintext"| DMEM_OUT["DMEM plaintext buffer<br/>DST_ADDR, BYTES_DONE"]
+    DMEM_OUT -->|"UART readback/debug"| PC
+    RXDMA -->|"dma_busy_o, dma_done_o<br/>dma_error_o, bytes_done_o"| REG
 ```
+
+### 3.1 RX external I/O boundary
+
+| Boundary | Signals | Direction | Meaning |
+|---|---|---|---|
+| Clock/reset | `PCLK`, `PRESETn`, `rst_i` | SoC -> RX top | Clock and reset for the RX accelerator pipeline |
+| Ciphertext stream | `ciphertext_word_in[127:0]`, `ciphertext_word_valid`, `ciphertext_word_ready` | DMA RX <-> RX top | Primary 128-bit ciphertext input path |
+| APB slave | `PSEL`, `PENABLE`, `PWRITE`, `PADDR[31:0]`, `PWDATA[31:0]`, `PRDATA[31:0]`, `PREADY`, `PSLVERR` | DMA RX/APB master <-> RX top | Status polling, output FIFO readback, RX local control, legacy staging |
+| CBC IV | `cbc_iv_i[127:0]` | `dma_regfile` -> RX top | IV used for CBC block 0; must match TX IV |
+| Top status | `rx_busy`, `rx_done`, `rx_error`, `aes_ready_out` | RX top -> SoC/debug | Coarse RX activity, completion, error, AES ready |
+| Stage status/debug | `depacker_*`, `parser_*`, `decoder_*`, `word_packer_*`, `transport_word_dbg`, `rx_word_dbg` | RX top -> SoC/debug | Per-stage visibility for simulation, waveform, and FPGA debug |
+| DMEM master | `dmem_en_o`, `dmem_we_o[3:0]`, `dmem_addr_o[31:0]`, `dmem_wdata_o[31:0]`, `dmem_rdata_i[31:0]` | DMA RX <-> DMEM | DMA RX reads ciphertext and writes recovered plaintext |
+| DMA status | `dma_busy_o`, `dma_done_o`, `dma_error_o`, `bytes_done_o`, `last_error_code_o`, `engine_state_o` | DMA RX -> `dma_regfile`/CPU | Software-visible transfer result and debug state |
 
 ## 4. Modules And Roles
 
@@ -151,14 +169,40 @@ DMA van dung private APB de doc output RX:
 
 ```mermaid
 flowchart LR
-    STRM["ciphertext stream 128-bit"] --> AESD["aes128_cipher_inv_top"]
-    AESD --> CBC["CBC XOR chain"]
-    CBC --> DEPK["bit_depacker_128"]
-    DEPK --> PAR["huffman_block_parser"]
-    PAR --> DEC["huffman_block_decoder"]
-    DEC --> PK32["rx_byte_packer_32"]
-    PK32 --> APBIF["APB output readback"]
+    DMASTRM["DMA ciphertext stream<br/>ciphertext_word_in[127:0]<br/>valid/ready"] --> SEL["RX input select"]
+    APBCTXT["Legacy APB staging<br/>CTXT_W0..W3, CTXT_START<br/>debug/legacy only"] -.-> SEL
+    SEL --> CBUF["cipher_buf_data_r<br/>cipher_buf_valid_r"]
+    CBUF --> WRAP["wrapper_rx<br/>decipher_en, data_in<br/>round_key_10"]
+    WRAP --> AESD["aes128_cipher_inv_top<br/>AES-128 decrypt"]
+    AESD --> CBC["CBC XOR chain<br/>P0 = D(C0) XOR IV<br/>Pn = D(Cn) XOR Cn-1"]
+    CBC --> TBUF["transport_buf_data_r[127:0]<br/>transport_buf_valid_r"]
+    TBUF --> DEPK["bit_depacker_128"]
+    DEPK -->|"stream_data[31:0]<br/>stream_len[5:0]<br/>stream_valid/ready"| PAR["huffman_block_parser"]
+    PAR -->|"block_meta<br/>canonical entries<br/>payload_window"| DEC["huffman_block_decoder"]
+    DEC -->|"out_byte[7:0]<br/>out_valid/ready<br/>last flags"| PK32["rx_byte_packer_32"]
+    PK32 -->|"rx_word_data[31:0]<br/>valid_bytes[2:0]<br/>word_valid/ready"| APBIF["apb_huffman_rx_if<br/>output FIFO"]
+    APBIF -->|"RX_STATUS, RX_META, RX_DATA"| RXDMA["dma_rx_engine"]
+    RXDMA -->|"plaintext word write"| DMEM["DMEM plaintext buffer"]
+    DEPK -.-> STS["RX status/error OR<br/>busy/done/error"]
+    PAR -.-> STS
+    DEC -.-> STS
+    PK32 -.-> STS
+    STS -->|"rx_busy, rx_done, rx_error"| SOC["SoC/debug"]
 ```
+
+### 6.1 Stage boundary signals
+
+| Boundary | Main signals | Meaning |
+|---|---|---|
+| DMA RX -> RX top | `ciphertext_word_in[127:0]`, `ciphertext_word_valid`, `ciphertext_word_ready` | 128-bit AES-CBC ciphertext transport word with ready/valid backpressure |
+| APB legacy staging -> RX top | `apb_ciphertext_word_w[127:0]`, `apb_ciphertext_word_valid_w`, `apb_ciphertext_word_ready_w` | Optional debug path from `apb_huffman_rx_if`; not the normal SoC DMA path |
+| AES input wrapper -> AES core | `data_in[127:0]`, `decipher_en`, `round_key_10[127:0]`, `aes_ready` | One accepted ciphertext block launches AES inverse cipher |
+| AES/CBC -> depacker | `transport_buf_data_r[127:0]`, `transport_buf_valid_r`, `transport_word_ready_w` | Decrypted and CBC-XORed transport plaintext |
+| Depacker -> parser | `stream_data[31:0]`, `stream_len[5:0]`, `stream_valid`, `stream_last`, `stream_ready` | Bit/chunk stream reconstructed from 128-bit transport words |
+| Parser -> decoder | `block_mode`, `block_size`, `symbol_count`, `one_symbol_value`, `entry_symbol`, `entry_code_len`, `payload_window_*` | Huffman block metadata, canonical code lengths, and payload window |
+| Decoder -> packer | `out_byte[7:0]`, `out_valid`, `out_last_in_block`, `out_last_in_frame`, `out_ready` | Recovered plaintext byte stream |
+| Packer -> APB RX IF | `rx_word_data[31:0]`, `rx_word_valid_bytes[2:0]`, `rx_word_last_in_block`, `rx_word_last_in_frame`, `rx_word_valid`, `rx_word_ready` | Plaintext words and byte-valid metadata for APB/DMA drain |
+| APB RX IF -> DMA RX | `RX_STATUS`, `RX_META`, `RX_DATA` through `PRDATA[31:0]` | DMA polls FIFO state, reads valid-byte count, then reads/pops plaintext word |
 
 ## 7. Function Of Each RX Stage
 

@@ -1,4 +1,4 @@
-# Paper Comparison: Huffman + CBC-AES ECG Design
+# Paper Comparison: ECG Huffman + CBC-AES, Reframed By Component
 
 ## 1. Reference Paper
 
@@ -20,7 +20,7 @@ Reported paper result:
 | Item | Paper value |
 |---|---:|
 | Dataset | MIT-BIH ECG, five records |
-| Records used in result tables | `100`, `106`, `112`, `117`, `213` |
+| Records used | `100`, `106`, `112`, `117`, `213` |
 | Processing | ECG preprocessing + Huffman compression + CBC-AES |
 | AES key size | 256-bit key |
 | Compression ratio | `35.015%` |
@@ -30,7 +30,11 @@ Reported paper result:
 Note: one table in the PDF lists record `123`, but the experiment text and
 result tables list `213`. The comparison here uses `100/106/112/117/213`.
 
-## 2. This SoC Comparison Condition
+**Conclusion.** This paper is useful for two separate comparisons: ECG final
+storage ratio and Huffman/CBC-AES system motivation. It should not be presented
+as having the same SoC architecture as this project.
+
+## 2. Current SoC Comparison Condition
 
 The SoC does not implement ECG signal preprocessing in RTL. For paper
 comparison, the input to the SoC is an already-preprocessed byte stream:
@@ -43,16 +47,20 @@ MIT-BIH ECG record
 -> RX loopback restores the processed byte stream
 ```
 
-This is the correct scope of the comparison:
+Scope:
 
 | Item | Meaning |
 |---|---|
-| What is measured | SoC secure-storage ratio after external ECG-oriented preprocessing |
+| What is measured | SoC storage ratio after external ECG-oriented preprocessing |
 | What RTL implements | RV32I control, MMIO/APB, DMA, dynamic Huffman, AES-128-CBC TX/RX |
 | What RTL does not implement | ECG preprocessing / inverse ECG reconstruction |
 | RX correctness | RX output byte stream equals SoC input byte stream |
 
-## 3. Input Files
+**Conclusion.** The fair statement is: the SoC performs secure storage on an
+already-preprocessed ECG byte stream. It does not claim to reproduce the
+paper's full ECG signal-processing chain inside RTL.
+
+## 3. Input Files And Commands
 
 The active input files are binary streams in `sim/`:
 
@@ -64,15 +72,13 @@ The active input files are binary streams in `sim/`:
 | 117 | `mitdb_117_mlii_10s_delta2_var.bin` | 3602 |
 | 213 | `mitdb_213_mlii_10s_delta2_var.bin` | 3601 |
 
-The raw reference length is `7200` bytes per record:
+Raw reference length:
 
 ```text
 3600 samples * 2 bytes/sample = 7200 bytes
 ```
 
-## 4. Command Pattern
-
-Example for record `100`:
+Example command for record `100`:
 
 ```bash
 cd sim
@@ -81,12 +87,36 @@ make all TESTNAME=dma_mitdb_100_delta2_var_e2e \
   RUN_ARGS="+CASE_NAME=dma_mitdb_100_delta2_var_e2e +INPUT_FILE=mitdb_100_mlii_10s_delta2_var.bin +INPUT_BINARY"
 ```
 
-Change the record number in both `TESTNAME` and `INPUT_FILE` to run
-`106`, `112`, `117`, or `213`.
+**Conclusion.** The comparison input set is explicit and repeatable: five
+MIT-BIH records, fixed raw byte reference, and one `make all` command pattern.
 
-## 5. Results
+## 4. Huffman-Only Compression Comparison
 
-| Record | Raw bytes reference | SoC input bytes | SoC TX bytes | Final ratio vs raw | Final saving vs raw | Loopback |
+This comparison ignores AES-CBC and only compares compressed payload size.
+For the SoC, the relevant field is `PAYLOAD compressed_bytes_ceil`, not final
+AES-aligned `tx_cipher_bytes`.
+
+| Record | SoC input bytes | SoC Huffman payload bytes | SoC Huffman ratio | C Huffman bytes | C Huffman ratio |
+|---:|---:|---:|---:|---:|---:|
+| 100 | 3601 | 2156 | 59.87% | 2080 | 57.76% |
+| 106 | 3614 | 2432 | 67.29% | 2403 | 66.49% |
+| 112 | 3601 | 1975 | 54.84% | 1821 | 50.57% |
+| 117 | 3602 | 2138 | 59.36% | 2007 | 55.72% |
+| 213 | 3601 | 2314 | 64.26% | 2236 | 62.09% |
+| Average | 18019 total | 11015 total | 61.13% | 10547 total | 58.53% |
+
+The C Huffman baseline is `drichardson/huffman`, built and checked locally.
+
+**Conclusion.** On Huffman-only payload size, the software Huffman baseline is
+smaller by about `2.60` percentage points on the five ECG streams. The SoC's
+value is hardware offload plus a hardware-decodable transport format.
+
+## 5. Final Secure-Storage Ratio Comparison
+
+This comparison includes final stored TX bytes after transport and AES-CBC
+alignment.
+
+| Record | Raw bytes reference | SoC input bytes | SoC final TX bytes | Final ratio vs raw | Final saving vs raw | Loopback |
 |---:|---:|---:|---:|---:|---:|---|
 | 100 | 7200 | 3601 | 2304 | 32.00% | 68.00% | PASS |
 | 106 | 7200 | 3614 | 2608 | 36.22% | 63.78% | PASS |
@@ -95,69 +125,58 @@ Change the record number in both `TESTNAME` and `INPUT_FILE` to run
 | 213 | 7200 | 3601 | 2480 | 34.44% | 65.56% | PASS |
 | Average | 7200 | 3603.8 | 2358.4 | 32.76% | 67.24% | PASS |
 
-Comparison:
-
 | Design | Condition | Final storage ratio | Space saving |
 |---|---|---:|---:|
 | Referenced paper | MIT-BIH ECG, paper processing chain | 35.015% | 64.985% |
-| This SoC | Same records, externally preprocessed input, SoC Huffman + AES-128-CBC | 32.76% | 67.24% |
+| This SoC | Same records, external preprocessing, SoC Huffman + AES-128-CBC | 32.76% | 67.24% |
 | Difference | Lower ratio is better | -2.26 percentage points | +2.26 percentage points |
 
-## 6. Interpretation
+**Conclusion.** On the final stored-size view, the current flow is better than
+the paper by `2.26` percentage points. This conclusion is valid only when the
+external preprocessing condition is stated.
 
-Main conclusion:
+## 6. Software Versus Hardware Design Responsibility
 
-```text
-With externally preprocessed MIT-BIH input, the SoC secure-storage path reaches
-32.76% average final storage ratio, better than the paper's 35.015%.
-```
+| Layer | Software responsibility | Hardware responsibility | Proof |
+|---|---|---|---|
+| File selection | Choose `file_id`, locate metadata record | Hardware does not know file names or file IDs | `dma_storage_table_input1_then_input3` |
+| IV management | Generate/store/write `IV0..IV3` | TX/RX consume `cbc_iv_i` for CBC chain | `dma_compress_aes_input1` |
+| TX start | Program `SRC/DST/LEN/MODE`, assert start | DMA TX reads DMEM, runs Huffman/AES, writes TX buffer | `dma_compress_aes_input1`, `tx_compress_only_input1` |
+| RX start | Use `CIPHERTEXT_BYTES_PRODUCED` as RX length | DMA RX feeds AES decrypt/Huffman decode and writes plaintext | `dma_compress_aes_input1` |
+| Error handling | Poll status and read error/debug registers | DMA/RX reject bad alignment and internal errors | `mmio_rx_bad_length` |
 
-Important limitation:
-
-```text
-The current RTL does not implement ECG preprocessing. It stores and restores
-the already-preprocessed byte stream. If raw ECG reconstruction is required,
-the inverse preprocessing step must exist outside the current SoC or be added
-as future RTL/software work.
-```
+**Conclusion.** The software is not just a driver. It is the secure-storage
+policy layer. The hardware is the deterministic acceleration layer.
 
 ## 7. Suggested Thesis Wording
 
 Use this wording:
 
 ```text
-The referenced paper reports a 35.015% compression ratio for MIT-BIH ECG data
-using Huffman coding and CBC-AES. In my evaluation, the same record set
-100/106/112/117/213 is first transformed outside the SoC into a delta2,
-ZigZag, variable-length byte stream. The RV32I SoC then performs dynamic
-Huffman compression and AES-128-CBC secure storage. Under this input condition,
-the average final storage ratio is 32.76%, which is 2.26 percentage points
-better than the paper's reported ratio.
+The referenced ECG paper reports a 35.015% final compression ratio using
+Huffman coding and CBC-AES. My comparison separates the result into two
+levels. At the Huffman-only level, the SoC payload ratio on the same five
+preprocessed ECG byte streams is 61.13%, while a C Huffman reference reaches
+58.53%. At the secure-storage level, after external ECG preprocessing and SoC
+Huffman + AES-128-CBC storage, the final average ratio is 32.76% versus the
+paper's 35.015%. Therefore, the SoC demonstrates a verified hardware
+secure-storage datapath, while ECG-specific preprocessing remains outside the
+current RTL scope.
 ```
 
-If asked whether this is a fair comparison:
+If asked whether this is fair:
 
 ```text
-It is fair only under the stated input condition: both designs are evaluated
-on the same MIT-BIH records, but my SoC receives an already-preprocessed byte
-stream. I do not claim that the RTL performs ECG preprocessing. The hardware
-contribution is the verified RV32I-controlled Huffman + AES-CBC secure-storage
-SoC.
+It is fair as a scoped comparison, not as a claim of identical architecture.
+The paper is used for ECG final-ratio comparison; C Huffman is used for
+Huffman-only comparison; AES software/RTL references are used for AES cost and
+offload motivation.
 ```
 
-## 8. Architecture Comparison
+**Conclusion.** The report should explicitly say "component-level comparison."
+That wording avoids overclaiming while still showing the project result clearly.
 
-| Axis | Paper | This SoC |
-|---|---|---|
-| Main goal | ECG compression/encryption algorithm | Hardware SoC for secure storage |
-| Input domain | MIT-BIH ECG signal | Already-preprocessed byte stream in DMEM |
-| Compression | Huffman after ECG-oriented processing | Dynamic whole-file canonical Huffman over 256 byte symbols |
-| Encryption | CBC-AES, 256-bit key | AES-128-CBC |
-| Control | Algorithm/software experiment | RV32I software controls DMA through MMIO/APB |
-| Hardware status | Not the main contribution | RTL implemented, verified, synthesized, implemented |
-| Verification | Compression metrics and PRD | RTL loopback, pass/fail, coverage, Vivado reports |
-
-## 9. Future Work
+## 8. Future Work
 
 If the project needs to own the complete ECG compression chain, add one of:
 
@@ -167,3 +186,7 @@ If the project needs to own the complete ECG compression chain, add one of:
 | RV32I preprocessing software | Keeps hardware smaller | Slower, CPU does more data work |
 | Beat/template ECG coding | Better ECG-specific compression | More algorithm and metadata complexity |
 | DWT/quantization | Can approach ECG paper methods | May become lossy and arithmetic-heavy |
+
+**Conclusion.** The most realistic next step is RV32I-side or lightweight RTL
+preprocessing. That would make the ECG comparison more direct without changing
+the verified Huffman/AES storage core.

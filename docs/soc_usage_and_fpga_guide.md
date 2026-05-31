@@ -349,7 +349,9 @@ Huong FPGA hien tai mac dinh target ZCU102, co ba muc:
 
 - `rv32_soc_fpga_zcu102_top`: ZCU102 board/demo wrapper co UART loader. Top
   nay nhan USER_SI570 differential 300 MHz, chia noi bo xuong 50 MHz cho SoC
-  va UART loader.
+  va UART loader. Sau khi UART `LOAD` xong, wrapper tu release SoC reset de
+  RV32I chay ngay. Pushbutton van dung cho reset, manual run/resume debug,
+  zeroize, select `file_id`, va snapshot ket qua.
 - `rv32_soc_fpga_demo_top`: legacy ZedBoard wrapper, van co the override lai
   bang Makefile variables neu can.
 - `rv32_soc_top`: raw SoC integration top, van co the override bang bien
@@ -365,7 +367,7 @@ VIVADO_BOARD_PART=xilinx.com:zcu102:part0:3.3
 VIVADO_CLOCK_MHZ=300
 VIVADO_CLOCK_PORT=clk_p_i
 VIVADO_LICENSE=H:\Academic\senior_project\DATN\work\kingofvivado.lic
-VIVADO_SYNTH_DIRECTIVE=AreaOptimized_high
+VIVADO_SYNTH_DIRECTIVE=RuntimeOptimized
 VIVADO_OPT_DIRECTIVE=Explore
 VIVADO_PLACE_DIRECTIVE=Explore
 VIVADO_PHYS_OPT_DIRECTIVE=AggressiveExplore
@@ -447,11 +449,12 @@ make vivado_report VIVADO_PROJECT=rv32_soc_synth_rx_zcu102
 make vivado_report VIVADO_PROJECT=rv32_soc_synth_full_zcu102
 ```
 
-Latest ZCU102 full TX+RX implementation and bitstream result:
+Latest ZCU102 full TX+RX implementation and bitstream result after adding
+pushbutton board-control and UART-load auto-run:
 
 | Build | WNS | WHS | LUT | FF | CLB | Control sets | BRAM | DSP | Power | Status |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| Full `rv32_soc_synth_full_zcu102` | +9.331 ns | +0.017 ns | 29542 | 18873 | 6045 | 1699 | 11 | 0 | 0.774 W | Timing pass, bitstream pass |
+| Full `rv32_soc_synth_full_zcu102` | +9.093 ns | +0.015 ns | 36382 | 19382 | 7281 | 1628 | 11 | 0 | 0.796 W | Timing pass, bitstream pass |
 
 Route status for this build is `0` failed nets, `0` unrouted nets, and `0`
 partially routed nets. Bitstream copies:
@@ -461,7 +464,20 @@ sim/vivado_bitstreams/rv32_soc_synth_full_zcu102.bit
 sim/vivado_bitstreams/rv32_soc_synth_full_zcu102_rv32_soc_fpga_zcu102_top.bit
 ```
 
-Power is Vivado vectorless `report_power`: `0.774 W` total, `0.125 W`
+Both files currently have SHA256:
+
+```text
+faf8d51c72f5287e9bd46063e9baf37b7aeef8317dd0cbc4b98f6e20f5a7d62e
+```
+
+This bitstream was built with the default `RuntimeOptimized` synthesis directive
+and the default implementation directives. Override
+`VIVADO_SYNTH_DIRECTIVE=AreaOptimized_high` only when a slower area-focused build
+is acceptable. Post-implementation DRC has one non-fatal
+`RTSTAT-10` warning for unused high address bits on the UART loader auxiliary
+address bus.
+
+Power is Vivado vectorless `report_power`: `0.796 W` total, `0.146 W`
 dynamic, `0.649 W` static. Vivado warns that high-fanout reset activity can
 make vectorless power inaccurate; use SAIF/VCD switching activity for a final
 measured-style power claim.
@@ -489,11 +505,14 @@ datapath. After the ZCU102 retarget, new default project names are
 flowchart LR
   PC["Host PC"] -->|"LOAD + len_le32 + payload"| UART["UART pins"]
   PC <-->|"READ + addr + len"| UART
+  BTN["ZCU102 pushbuttons"] --> CTRL["board-control aux master"]
   UART --> LDR["uart_dmem_loader"]
   LDR -->|"write payload"| SRC["DMEM @ 0x00002000"]
   LDR -->|"write length"| LEN["DMEM @ 0x00000040"]
   LDR -->|"read result/output"| DMEM["DMEM readback"]
-  LDR -->|"release reset"| CPU["RV32I starts"]
+  CTRL -->|"file_id/status/snapshot/zeroize"| DMEM
+  LDR -->|"LOAD done"| CTRL["board-control aux master"]
+  CTRL -->|"auto run latch / reset hold"| CPU["RV32I starts"]
 ```
 
 Protocol:
@@ -510,6 +529,7 @@ cd sim
 make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
 make uart_read UART_PORT=/dev/ttyUSB0 UART_READ_ADDR=0x0 UART_READ_LEN=64
 make uart_load_read UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt UART_READ_ADDR=0x0 UART_READ_LEN=64
+python3 ../tools/uart_dmem_loader.py --port /dev/ttyUSB0 --cpu-info
 ```
 
 Mac dinh:
@@ -520,6 +540,57 @@ Mac dinh:
 - script host: `tools/uart_dmem_loader.py`.
 - READ requires 4-byte aligned address/length and returns raw little-endian
   DMEM bytes after the ACK.
+- When READ covers `0x0..0x3f`, the host script auto-decodes result words and
+  prints CPU/firmware information: signature, error mask, boot convention,
+  CPU polling-loop counts, DMA jobs, input lengths, board status, and the live
+  CPU debug window at `0x7f80..0x7fbf`.
+
+Live CPU debug over UART:
+
+| Address | Meaning |
+|---:|---|
+| `0x0000_7F80` | `"CPU1"` signature |
+| `0x0000_7F84` | CPU status bits: reset/hold, IMEM seen, bus activity, TX/RX done/error |
+| `0x0000_7F88` | current fetch PC |
+| `0x0000_7F8C` | current IMEM instruction word |
+| `0x0000_7F90` | cycle counter since SoC reset release |
+| `0x0000_7F94` | IMEM fetch count |
+| `0x0000_7F98` | DMEM access count |
+| `0x0000_7F9C` | MMIO access count |
+| `0x0000_7FA0..0x0000_7FB4` | last DMEM/MMIO and writeback snapshot |
+| `0x0000_7FB8` | UART loader bytes loaded |
+| `0x0000_7FBC` | debug version |
+
+ZCU102 button map:
+
+| Button | Function |
+|---|---|
+| CPU_RESET / SW20 | reset loader + SoC logic, then host must send UART `LOAD` again; this is not a DMEM erase |
+| Center / SW15 | optional manual run/resume latch; normal flow auto-runs after UART `LOAD` completes |
+| North / SW18 | zeroize secure metadata/IV region `0x100..0x1FF`, reset/hold SoC, clear run latch |
+| East / SW17 | select next demo `file_id`, toggles between `1` and `3` |
+| West / SW14 | select previous demo `file_id`, toggles between `1` and `3` |
+| South / SW16 | snapshot result words from `0x00..0x3C` into `0x200..0x23F` |
+
+ZCU102 LED map:
+
+| LED | Function |
+|---|---|
+| LD0 | heartbeat; proves the programmed PL clock/reset path is alive |
+| LD1 | IMEM program seen; CPU fetched a nonzero instruction from built-in `instruction.mem` |
+| LD2 | UART loader: blink while loading, solid after input load done |
+| LD3 | TX DMA: blink while active, solid after TX done |
+| LD4 | RX DMA: blink while active, solid after RX done |
+| LD5 | sticky error: loader, DMA, or DMEM memory error |
+| LD6 | selected secure-storage `file_id`: off = `file_id=1`, on = `file_id=3` |
+| LD7 | board-control function: blink while zeroize/snapshot/file-select logic is busy, solid after zeroize or snapshot done |
+
+Useful readback commands after pressing buttons:
+
+```bash
+make uart_read UART_PORT=/dev/ttyUSB0 UART_READ_ADDR=0x50 UART_READ_LEN=16
+make uart_read UART_PORT=/dev/ttyUSB0 UART_READ_ADDR=0x200 UART_READ_LEN=80
+```
 
 ## 13. What Still Needs Work Before Board Demo Is Complete
 
@@ -530,7 +601,7 @@ Da co loader input va DMEM readback, nhung demo board thuc dung van can:
 | Firmware-done handshake | Hien host phai delay/poll result words, chua co UART interrupt/ACK rieng |
 | Higher-level dump script | Can script doc metadata/cipher/plaintext va tinh saving mot cach tu dong |
 | RX-only metadata transport | Neu muon demo RX-only tu ciphertext ngoai thi can nap IV + metadata + ciphertext |
-| Board-level observation | LED chi du de heartbeat/error, chua du de xem data |
+| Board-level observation | LED now shows heartbeat, IMEM program fetch, loader, TX, RX, and sticky error; UART readback is still needed for detailed bytes/benchmark |
 
 ## 14. Recommended Next Steps
 

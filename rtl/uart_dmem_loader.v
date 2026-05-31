@@ -3,6 +3,7 @@ module uart_dmem_loader #(
   parameter integer BAUD_RATE       = 115200,
   parameter [31:0]  SRC_BASE_ADDR   = 32'h0000_2000,
   parameter [31:0]  INPUT_LEN_ADDR  = 32'h0000_0040,
+  parameter [31:0]  CPU_DEBUG_BASE_ADDR = 32'h0000_7f80,
   parameter integer MAX_INPUT_BYTES = 7168,
   parameter integer MAX_READ_BYTES  = 32768
 ) (
@@ -18,7 +19,20 @@ module uart_dmem_loader #(
   output wire        busy_o,
   output wire        done_o,
   output wire        error_o,
-  output wire [31:0] bytes_loaded_o
+  output wire [31:0] bytes_loaded_o,
+  input  wire [31:0] cpu_debug_status_i,
+  input  wire [31:0] cpu_debug_fetch_pc_i,
+  input  wire [31:0] cpu_debug_fetch_instr_i,
+  input  wire [31:0] cpu_debug_cycle_count_i,
+  input  wire [31:0] cpu_debug_fetch_count_i,
+  input  wire [31:0] cpu_debug_dmem_access_count_i,
+  input  wire [31:0] cpu_debug_mmio_access_count_i,
+  input  wire [31:0] cpu_debug_last_dmem_addr_i,
+  input  wire [31:0] cpu_debug_last_dmem_wdata_i,
+  input  wire [31:0] cpu_debug_last_dmem_ctrl_i,
+  input  wire [31:0] cpu_debug_wb_count_i,
+  input  wire [31:0] cpu_debug_last_wb_info_i,
+  input  wire [31:0] cpu_debug_last_wb_data_i
 );
 
   localparam [7:0] MAGIC0 = 8'h4c; // 'L'
@@ -61,13 +75,16 @@ module uart_dmem_loader #(
   localparam [5:0] ST_READ_ACK      = 6'd26;
   localparam [5:0] ST_READ_REQ      = 6'd27;
   localparam [5:0] ST_READ_WAIT     = 6'd28;
-  localparam [5:0] ST_READ_SEND0    = 6'd29;
-  localparam [5:0] ST_READ_SEND1    = 6'd30;
-  localparam [5:0] ST_READ_SEND2    = 6'd31;
-  localparam [5:0] ST_READ_SEND3    = 6'd32;
+  localparam [5:0] ST_READ_CAPTURE  = 6'd29;
+  localparam [5:0] ST_READ_SEND0    = 6'd30;
+  localparam [5:0] ST_READ_SEND1    = 6'd31;
+  localparam [5:0] ST_READ_SEND2    = 6'd32;
+  localparam [5:0] ST_READ_SEND3    = 6'd33;
 
   localparam [31:0] MAX_READ_BYTES_W = MAX_READ_BYTES;
   localparam [15:0] DMEM_BYTES_W     = 16'd32768;
+  localparam [31:0] CPU_DEBUG_SIGNATURE_W = 32'h3155_5043; // "CPU1"
+  localparam [31:0] CPU_DEBUG_VERSION_W   = 32'h0001_0000;
 
   localparam integer UART_PRESCALE_INT = (CLK_HZ / BAUD_RATE);
   localparam [15:0] UART_PRESCALE_W = (UART_PRESCALE_INT <= 0) ? 16'd1 :
@@ -105,6 +122,10 @@ module uart_dmem_loader #(
   wire       tx_ready_w;
   wire       tx_busy_unused_w;
   wire       read_len_upper_unused_w;
+  wire       read_cpu_debug_w;
+
+  assign read_cpu_debug_w = (read_addr_r >= CPU_DEBUG_BASE_ADDR) &&
+                            (read_addr_r < (CPU_DEBUG_BASE_ADDR + 32'd64));
 
   function [31:0] insert_byte32;
     input [31:0] word_i;
@@ -129,6 +150,31 @@ module uart_dmem_loader #(
         2'd1: lane_mask = 4'b0010;
         2'd2: lane_mask = 4'b0100;
         default: lane_mask = 4'b1000;
+      endcase
+    end
+  endfunction
+
+  function [31:0] cpu_debug_word;
+    input [31:0] addr_i;
+    begin
+      case ((addr_i - CPU_DEBUG_BASE_ADDR) >> 2)
+        32'd0:  cpu_debug_word = CPU_DEBUG_SIGNATURE_W;
+        32'd1:  cpu_debug_word = cpu_debug_status_i;
+        32'd2:  cpu_debug_word = cpu_debug_fetch_pc_i;
+        32'd3:  cpu_debug_word = cpu_debug_fetch_instr_i;
+        32'd4:  cpu_debug_word = cpu_debug_cycle_count_i;
+        32'd5:  cpu_debug_word = cpu_debug_fetch_count_i;
+        32'd6:  cpu_debug_word = cpu_debug_dmem_access_count_i;
+        32'd7:  cpu_debug_word = cpu_debug_mmio_access_count_i;
+        32'd8:  cpu_debug_word = cpu_debug_last_dmem_addr_i;
+        32'd9:  cpu_debug_word = cpu_debug_last_dmem_wdata_i;
+        32'd10: cpu_debug_word = cpu_debug_last_dmem_ctrl_i;
+        32'd11: cpu_debug_word = cpu_debug_wb_count_i;
+        32'd12: cpu_debug_word = cpu_debug_last_wb_info_i;
+        32'd13: cpu_debug_word = cpu_debug_last_wb_data_i;
+        32'd14: cpu_debug_word = bytes_loaded_r;
+        32'd15: cpu_debug_word = CPU_DEBUG_VERSION_W;
+        default: cpu_debug_word = 32'd0;
       endcase
     end
   endfunction
@@ -476,7 +522,7 @@ module uart_dmem_loader #(
         end
 
         ST_READ_REQ: begin
-          aux_en_o    <= 1'b1;
+          aux_en_o    <= !read_cpu_debug_w;
           aux_we_o    <= 4'b0000;
           aux_addr_o  <= read_addr_r;
           aux_wdata_o <= 32'd0;
@@ -484,7 +530,11 @@ module uart_dmem_loader #(
         end
 
         ST_READ_WAIT: begin
-          read_word_r <= aux_rdata_i;
+          state_r     <= ST_READ_CAPTURE;
+        end
+
+        ST_READ_CAPTURE: begin
+          read_word_r <= read_cpu_debug_w ? cpu_debug_word(read_addr_r) : aux_rdata_i;
           state_r     <= ST_READ_SEND0;
         end
 

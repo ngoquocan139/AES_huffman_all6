@@ -34,13 +34,18 @@ dma_rx_engine
 
 ```mermaid
 flowchart LR
-  IN["ciphertext_word_in"] --> AES["aes128_cipher_inv_top"]
-  AES --> CBC["CBC XOR chain"]
+  DMAIN["DMA ciphertext stream<br/>ciphertext_word_in[127:0]<br/>valid/ready"] --> SEL["stream source select"]
+  APBIN["APB legacy staging<br/>CTXT_W0..W3<br/>debug path"] -.-> SEL
+  SEL --> CBUF["cipher_buf"]
+  CBUF --> WRAP["wrapper_rx"]
+  WRAP --> AES["aes128_cipher_inv_top"]
+  AES --> CBC["CBC XOR chain<br/>cbc_iv_i or previous ciphertext"]
   CBC --> DEP["bit_depacker_128"]
   DEP --> PAR["huffman_block_parser"]
   PAR --> DEC["huffman_block_decoder"]
   DEC --> PK["rx_byte_packer_32"]
-  PK --> APB["apb_huffman_rx_if"]
+  PK --> APB["apb_huffman_rx_if<br/>RX output FIFO"]
+  APB --> DMAOUT["DMA APB readback<br/>RX_STATUS/META/DATA"]
 ```
 
 ## 4. Main Interfaces
@@ -52,6 +57,42 @@ flowchart LR
 | `PSEL/PENABLE/PWRITE/PADDR/PWDATA/PRDATA/PREADY/PSLVERR` | APB | Output/status readback and legacy ciphertext staging |
 | `cbc_iv_i[127:0]` | input | CBC IV from `dma_regfile.iv_o` |
 | `rx_busy/rx_done/rx_error` | status | Top-level status to SoC |
+
+### 4.1 Full top-level port groups
+
+| Group | Port(s) | Dir | Width | Meaning |
+|---|---|---|---:|---|
+| Clock/reset | `PCLK` | in | 1 | RX pipeline/APB clock |
+| Clock/reset | `PRESETn` | in | 1 | Active-low reset used by APB-style stages and AES wrapper |
+| Clock/reset | `rst_i` | in | 1 | Active-high reset used by parser/decoder and local RX state |
+| Ciphertext stream | `ciphertext_word_in` | in | 128 | Primary ciphertext transport word from `dma_rx_engine` |
+| Ciphertext stream | `ciphertext_word_valid` | in | 1 | Valid qualifier for `ciphertext_word_in` |
+| Ciphertext stream | `ciphertext_word_ready` | out | 1 | RX top can accept the current ciphertext word |
+| APB slave | `PSEL`, `PENABLE`, `PWRITE` | in | 1 each | APB transaction controls |
+| APB slave | `PADDR`, `PWDATA` | in | 32 each | APB local register address and write data |
+| APB slave | `PRDATA` | out | 32 | APB read data for `RX_STATUS`, `RX_META`, `RX_DATA`, debug/staging registers |
+| APB slave | `PREADY`, `PSLVERR` | out | 1 each | APB completion and error response |
+| CBC IV | `cbc_iv_i` | in | 128 | IV for first CBC block, normally `dma_regfile.iv_o` |
+| Top status | `rx_busy` | out | 1 | Any RX stage or input/output buffer is active |
+| Top status | `rx_done` | out | 1 | Frame done from `rx_byte_packer_32` |
+| Top status | `rx_error` | out | 1 | OR of AES path, depacker, parser, decoder, and packer errors |
+| Top status | `aes_ready_out` | out | 1 | Raw AES inverse core ready indication |
+| Depacker debug | `depacker_busy`, `depacker_done`, `depacker_error` | out | 1 each | `bit_depacker_128` status |
+| Parser debug | `parser_busy`, `parser_block_done`, `parser_frame_done`, `parser_error` | out | 1 each | `huffman_block_parser` status |
+| Decoder debug | `decoder_busy`, `decoder_block_done`, `decoder_frame_done`, `decoder_error` | out | 1 each | `huffman_block_decoder` status |
+| Word-packer debug | `word_packer_busy`, `word_packer_block_done`, `word_packer_frame_done`, `word_packer_error` | out | 1 each | `rx_byte_packer_32` status |
+| Transport debug | `transport_word_dbg`, `transport_word_valid_dbg` | out | 128, 1 | CBC plaintext transport buffer visibility |
+| Output debug | `rx_word_dbg`, `rx_word_valid_bytes_dbg`, `rx_word_last_in_block_dbg`, `rx_word_last_in_frame_dbg`, `rx_word_valid_dbg` | out | 32, 3, 1, 1, 1 | Plaintext output word and metadata before APB FIFO |
+
+### 4.2 Data/control/status split
+
+| Plane | Signals | Primary owner |
+|---|---|---|
+| Data input | `ciphertext_word_in`, `ciphertext_word_valid`, `ciphertext_word_ready` | `dma_rx_engine` feeds RX top |
+| Control/readback | APB slave signals | `dma_rx_engine` polls and drains RX; CPU/debug can also access through the APB fabric |
+| Crypto context | `cbc_iv_i` | `dma_regfile` stores IV selected by firmware |
+| Data output | `RX_STATUS`, `RX_META`, `RX_DATA` returned on `PRDATA` | `apb_huffman_rx_if` exposes packed plaintext words |
+| Debug/status | `rx_*`, stage `*_busy/*_done/*_error`, debug words | Waveform, FPGA debug, and software-visible observability |
 
 ## 5. AES-CBC Behavior
 

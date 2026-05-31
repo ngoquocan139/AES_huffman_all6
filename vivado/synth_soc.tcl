@@ -159,6 +159,8 @@ if {$can_reuse_impl} {
   append_unique rtl_files [file join $rtl_dir "uart_rx.v"]
   append_unique rtl_files [file join $rtl_dir "uart_tx.v"]
   append_unique rtl_files [file join $rtl_dir "uart_dmem_loader.v"]
+  append_unique rtl_files [file join $rtl_dir "fpga_button_sync_pulse.v"]
+  append_unique rtl_files [file join $rtl_dir "fpga_button_board_ctrl.v"]
   append_unique rtl_files [file join $rtl_dir "rv32_soc_fpga_demo_top.v"]
   append_unique rtl_files [file join $rtl_dir "rv32_soc_fpga_zcu102_top.v"]
 

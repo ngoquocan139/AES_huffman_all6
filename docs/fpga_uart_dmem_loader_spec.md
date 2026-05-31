@@ -30,6 +30,7 @@ Current integration status:
 | Default baud | `115200` |
 | Demo clock | ZCU102 USER_SI570 300 MHz input, divided to 50 MHz inside the wrapper |
 | Build style | TX-only, RX-only, or full FPGA demo bitstreams using `rv32_soc_fpga_zcu102_top` |
+| Board controls | ZCU102 pushbuttons for full reset, optional manual run/resume, zeroize, file-id select, snapshot |
 | Remaining gap | higher-level host dump script and firmware-done handshake |
 
 ## 1.1 Loader Flow Chart
@@ -91,7 +92,7 @@ uart_rx_i
 
 uart_dmem_loader.done
 -> rv32_soc_fpga_zcu102_top soc_rst release
--> RV32I CPU starts only after payload is loaded
+-> RV32I CPU starts automatically after payload is loaded
 ```
 
 ### 3.3 Reset policy
@@ -103,13 +104,15 @@ uart_dmem_loader.done
    - resets the UART loader itself
 
 2. `soc_rst_w`
-   - `por_rst_w | !loader_done`
+   - `por_rst_w | !loader_done | !run_latched | button_soc_hold`
    - keeps `rv32_soc_top` in reset until the loader completes
+   - `run_latched` is set automatically on the `loader_done` pulse
 
 This means:
 
 - DMEM can be written through Port B before CPU execution starts
 - the CPU sees a fully populated source buffer and a valid `INPUT_LEN_ADDR`
+- the user no longer needs to press Center/SW15 for a normal run
 
 ## 4. UART Electrical/Timing Contract
 
@@ -135,6 +138,12 @@ Current ZCU102 demo constraints:
 | `clk_n_i` | USER_SI570_N | `AL7` | 300 MHz differential clock N |
 | `uart_rx_i` | UART2_TXD_O_FPGA_RXD | `E13` | USB-UART bridge TX -> FPGA RX |
 | `uart_tx_o` | UART2_RXD_I_FPGA_TXD | `F13` | FPGA TX -> USB-UART bridge RX |
+| `btn_reset_i` | CPU_RESET | `AM13` | full loader/SoC reset |
+| `btn_run_i` | GPIO_SW_C | `AG13` | optional manual run/resume latch; normal flow auto-runs after UART load |
+| `btn_zeroize_i` | GPIO_SW_N | `AG15` | clear secure metadata/IV region and hold SoC reset |
+| `btn_file_next_i` | GPIO_SW_E | `AE14` | select next demo `file_id` |
+| `btn_file_prev_i` | GPIO_SW_W | `AF15` | select previous demo `file_id` |
+| `btn_snapshot_i` | GPIO_SW_S | `AE15` | copy result words into snapshot DMEM region |
 
 The default XDC is:
 
@@ -142,7 +151,7 @@ The default XDC is:
 vivado/constraints/zcu102_demo.xdc
 ```
 
-The clock ports use `DIFF_SSTL12`; UART and LEDs use `LVCMOS33`.
+The clock ports use `DIFF_SSTL12`; UART, LEDs, and pushbuttons use `LVCMOS33`.
 
 ## 5. Loader Data Contract
 
@@ -243,6 +252,33 @@ gives Port B to DMA and the auxiliary readback path returns zero. In practice,
 the host should wait long enough after LOAD or poll result words until firmware
 has finished.
 
+The address range `0x0000_7F80..0x0000_7FBF` is a read-only UART debug window,
+not normal DMEM. A READ from that window returns live CPU/SoC signals captured
+inside the FPGA wrapper:
+
+| Address | Meaning |
+|---:|---|
+| `0x0000_7F80` | signature `"CPU1"` as word `0x31555043` |
+| `0x0000_7F84` | CPU status bits: reset, hold, IMEM seen, IMEM/DMEM/MMIO active, TX/RX done/error |
+| `0x0000_7F88` | current fetch PC from the IMEM address bus |
+| `0x0000_7F8C` | current IMEM instruction data word |
+| `0x0000_7F90` | cycle counter since SoC reset release |
+| `0x0000_7F94` | IMEM fetch count |
+| `0x0000_7F98` | CPU DMEM access count |
+| `0x0000_7F9C` | CPU MMIO access count |
+| `0x0000_7FA0` | last CPU DMEM/MMIO address |
+| `0x0000_7FA4` | last CPU DMEM/MMIO write data |
+| `0x0000_7FA8` | last CPU DMEM control word: byte-enable and MMIO flag |
+| `0x0000_7FAC` | writeback count |
+| `0x0000_7FB0` | last writeback info: valid bit and destination register |
+| `0x0000_7FB4` | last writeback data |
+| `0x0000_7FB8` | UART loader bytes loaded |
+| `0x0000_7FBC` | CPU debug version |
+
+This lets the host confirm that the CPU is out of reset, fetching IMEM, issuing
+DMEM/MMIO accesses, and reaching DMA done/error states without adding a new
+UART command.
+
 ## 6. ACK / Error Contract
 
 The loader returns one UART byte to the host:
@@ -279,15 +315,64 @@ Current `rv32_soc_fpga_zcu102_top` LEDs:
 
 | LED | Meaning |
 |---|---|
-| `led_o[0]` | heartbeat |
-| `led_o[1]` | loader busy |
-| `led_o[2]` | loader done |
-| `led_o[3]` | loader error OR memory error |
+| `led_o[0]` | heartbeat from the divided 50 MHz PL clock |
+| `led_o[1]` | IMEM program seen: CPU fetched a nonzero instruction from `instruction.mem` |
+| `led_o[2]` | UART loader: blink while loading, solid when input load is done |
+| `led_o[3]` | TX DMA: blink during/stretched after TX busy, solid after TX done |
+| `led_o[4]` | RX DMA: blink during/stretched after RX busy, solid after RX done |
+| `led_o[5]` | sticky error: loader, TX/RX DMA, or DMEM memory error |
+| `led_o[6]` | selected secure-storage `file_id`: off means `file_id=1`, on means `file_id=3` |
+| `led_o[7]` | board-control function: blink while zeroize/snapshot/file-select logic is busy, solid after zeroize or snapshot completes |
+
+The current Vivado flow does not consume a standalone `.coe` file. `make
+compile` creates `sim/instruction.mem`, and `vivado/synth_soc.tcl` copies that
+file into the Vivado project so `rtl/imem_sync.v` can initialize IMEM with
+`$readmemh("instruction.mem", ...)`. Therefore `led_o[1]` is the board-level
+runtime proof that the program image was built into the FPGA and the CPU has
+started fetching it.
 
 Practical interpretation:
 
-- `LD2 = 1` and `LD3 = 0`: input load finished, CPU released
-- `LD3 = 1`: loader error or memory error
+- `LD0` blinking: bitstream clock/reset path is alive.
+- `LD1 = 1`: firmware image in IMEM has been fetched by the CPU.
+- `LD2 = 1`, `LD5 = 0`: UART input load finished without loader/memory error.
+- `LD3 = 1`: TX path reached done.
+- `LD4 = 1`: RX path reached done.
+- `LD5 = 1`: stop and inspect UART readback/logs because an error latched.
+- `LD6 = 0/1`: selected secure-storage file is `file_id=1` / `file_id=3`.
+- `LD7` blinking/solid: board-control action is active / last zeroize or snapshot finished.
+
+### 7.1 Pushbutton Contract
+
+| Button | RTL port | Function |
+|---|---|---|
+| CPU_RESET / SW20 | `btn_reset_i` | Reset UART loader, board-control latch state, and SoC logic. Host must send `LOAD` again. This is not a DMEM erase. |
+| Center / SW15 | `btn_run_i` | Optional manual set of `run_latched`; normal flow sets it automatically when UART `LOAD` completes. |
+| North / SW18 | `btn_zeroize_i` | Clear secure metadata/IV DMEM region `0x100..0x1FF`, reset/hold SoC during clearing, clear run latch. |
+| East / SW17 | `btn_file_next_i` | Toggle selected secure-storage `file_id` between `1` and `3`; value is written to `0x54`. |
+| West / SW14 | `btn_file_prev_i` | Toggle selected secure-storage `file_id` between `1` and `3`; value is written to `0x54`. |
+| South / SW16 | `btn_snapshot_i` | Copy result words `0x00..0x3C` to snapshot region `0x200..0x23F`. |
+
+Board-control DMEM words:
+
+| Address | Meaning |
+|---:|---|
+| `0x0000_0050` | status word |
+| `0x0000_0054` | selected file ID, default `1` |
+| `0x0000_0058` | event counter |
+| `0x0000_0200..0x0000_023F` | snapshot copy of `RESULT_WORD(0..15)` |
+| `0x0000_0240..0x0000_024C` | snapshot magic, file ID, count, status |
+
+UART-only virtual debug words:
+
+| Address | Meaning |
+|---:|---|
+| `0x0000_7F80..0x0000_7FBF` | live CPU debug window; readable over UART, not written into DMEM |
+
+The AES key is currently a fixed RTL parameter, not runtime key RAM. Therefore
+the zeroize button clears firmware-owned IV/metadata state and resets DMA IV
+registers through SoC reset. A future runtime key register file would need a
+dedicated clear path to make the key itself zeroizable.
 
 ## 8. Software/Bitstream Contract
 
@@ -304,7 +389,7 @@ Current practical FPGA demo flow:
 2. build a ZCU102 bitstream with `make vivado_flow_tx` for a TX smoke test or
    `make vivado_flow_full` for the full TX+RX SoC
 3. program the board
-4. use the UART loader to push `input.txt`
+4. use the UART loader to push `input1.txt`
 5. CPU reads `INPUT_LEN_ADDR`
 6. CPU configures DMA mode from the compiled firmware
 7. accelerator output is written back to the firmware-selected DMEM buffer
@@ -328,6 +413,7 @@ cd sim
 make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
 make uart_read UART_PORT=/dev/ttyUSB0 UART_READ_ADDR=0x0 UART_READ_LEN=64
 make uart_load_read UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt UART_READ_ADDR=0x0 UART_READ_LEN=64
+python3 ../tools/uart_dmem_loader.py --port /dev/ttyUSB0 --cpu-info
 ```
 
 The script:
@@ -337,6 +423,23 @@ The script:
 3. optionally sends `"READ" + addr + len`
 4. waits for `0x79` or `0x1F`
 5. prints READ data as 32-bit words when `--words` is used
+
+When the READ covers `0x00000000..0x0000003f`, the script also decodes the
+firmware result block and then reads the live CPU debug window. It now prints a
+`CPU / firmware` section with:
+
+- firmware signature and PASS/FAIL error mask
+- reset PC and `_start` boot convention (`sp=0x00007f00`, then `main`)
+- input length words from `0x40/0x44`
+- CPU polling-loop counts recorded by the firmware
+- DMA jobs launched by the CPU-visible software flow
+- board-control status from `0x50..0x58` when the extra READ succeeds
+- live CPU status from `0x7f80..0x7fbf`: fetch PC, instruction word, cycle
+  count, fetch count, DMEM/MMIO access count, last writeback, and loader bytes
+
+The result section is CPU/firmware-published state in DMEM. The `CPU live debug`
+section is FPGA-side observation of live CPU buses. It is still not a full
+register-file trace; it reports only the last writeback destination/data.
 
 `make uart_load` is not a simulation command.
 It is a host-side command for the FPGA demo flow:
@@ -354,6 +457,7 @@ The current loader does not yet provide:
 2. RX-only metadata loading such as IV + ciphertext contract
 3. a hardware "firmware finished" interrupt/ACK over UART
 4. protection against reading while DMA is actively using DMEM Port B
+5. full CPU register-file dump or instruction trace
 
 So this is now a practical input plus DMEM-readback transport, but not a full
 debug monitor or filesystem protocol.

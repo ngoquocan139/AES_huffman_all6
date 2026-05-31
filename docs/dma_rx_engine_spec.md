@@ -57,6 +57,18 @@ flowchart TD
   Q -->|"yes"| R["Pulse dma_done_o"]
 ```
 
+## 1.2 FPGA Normal I/O View
+
+```mermaid
+flowchart LR
+  REG["dma_regfile<br/>src/dst/len/mode/start"] -->|"control inputs"| RXDMA["dma_rx_engine"]
+  DMEMIN["DMEM ciphertext<br/>SRC_ADDR"] -->|"dmem_rdata_i[31:0]<br/>4 reads per block"| RXDMA
+  RXDMA -->|"rx_ciphertext_word_o[127:0]<br/>valid/ready"| RXTOP["apb_huffman_aes_rx_top"]
+  RXTOP -->|"RX_STATUS/RX_META/RX_DATA<br/>PRDATA[31:0]"| RXDMA
+  RXDMA -->|"dmem_wdata_o[31:0]<br/>dmem_we_o=4'b1111"| DMEMOUT["DMEM plaintext<br/>DST_ADDR"]
+  RXDMA -->|"dma_done_o/dma_error_o<br/>bytes_done_o/last_error_code_o"| REG
+```
+
 ## 2. Current RX Input Path
 
 Code hien tai dung stream input 128-bit, khong dung APB staging ciphertext cu.
@@ -114,7 +126,15 @@ If config is invalid, engine raises `dma_error_o` and sets `last_error_code_o = 
 | `dmem_wdata_o` | out | 32 | Plaintext word written to DMEM |
 | `dmem_rdata_i` | in | 32 | Ciphertext word read from DMEM |
 
-### 4.3 Private APB Master To RX
+### 4.3 RX Ciphertext Stream To RX Top
+
+| Port | Dir | Width | Meaning |
+|---|---|---:|---|
+| `rx_ciphertext_word_o` | out | 128 | Packed ciphertext transport word `{ctxt_w3_r, ctxt_w2_r, ctxt_w1_r, ctxt_w0_r}` |
+| `rx_ciphertext_word_valid_o` | out | 1 | Asserted while a packed word is pending in `STATE_STREAM_WAIT` |
+| `rx_ciphertext_word_ready_i` | in | 1 | RX top accepted/can accept the pending transport word |
+
+### 4.4 Private APB Master To RX
 
 | Port | Dir | Width | Meaning |
 |---|---|---:|---|
@@ -127,7 +147,7 @@ If config is invalid, engine raises `dma_error_o` and sets `last_error_code_o = 
 | `rx_pready_i` | in | 1 | APB ready |
 | `rx_pslverr_i` | in | 1 | APB error |
 
-### 4.4 Status Outputs
+### 4.5 Status Outputs
 
 | Port | Dir | Width | Meaning |
 |---|---|---:|---|

@@ -248,7 +248,7 @@ Phai noi duoc 4 y:
 
 Phai noi duoc 5 y:
 
-1. TB load `input.txt` vao DMEM.
+1. TB load `input1.txt` vao DMEM.
 2. TB chay chuong trinh RV32I de CPU tu cau hinh DMA bang MMIO that.
 3. TB dump 3 vung: source DMEM, TX region, RX region.
 4. TB tinh benchmark: cycles, throughput, compression ratio, storage ratio.
