@@ -11,9 +11,10 @@ The current source of truth is:
 | 3 | [iv_generation_and_cbc_contract_spec.md](./iv_generation_and_cbc_contract_spec.md) | Current firmware IV generation and AES-CBC restore contract |
 | 4 | [paper_comparison_huffman_aes_cbc.md](./paper_comparison_huffman_aes_cbc.md) | MIT-BIH comparison against the referenced paper |
 | 5 | [architecture_software_comparison_report.md](./architecture_software_comparison_report.md) | Architecture, paper, GitHub, and software comparison for report writing |
-| 6 | [soc_4_5_end_to_end_report.md](./soc_4_5_end_to_end_report.md) | Main SoC end-to-end testcase evidence |
-| 7 | [coverage_regression_report.md](./coverage_regression_report.md) | Historical coverage and regression result |
-| 8 | [soc_usage_and_fpga_guide.md](./soc_usage_and_fpga_guide.md) | Day-to-day commands and FPGA preparation |
+| 6 | [module_level_speed_area_comparison_report.md](./module_level_speed_area_comparison_report.md) | Per-module speed, cycle, LUT/FF/BRAM, paper/software/hardware comparison |
+| 7 | [soc_4_5_end_to_end_report.md](./soc_4_5_end_to_end_report.md) | Main SoC end-to-end testcase evidence |
+| 8 | [coverage_regression_report.md](./coverage_regression_report.md) | Historical coverage and regression result |
+| 9 | [soc_usage_and_fpga_guide.md](./soc_usage_and_fpga_guide.md) | Day-to-day commands and FPGA preparation |
 
 Policy for the current report:
 
@@ -39,10 +40,10 @@ Policy for the current report:
 | Main RX mode | `MODE=0x2`, AES-CBC decrypt + Huffman decode |
 | Metadata table | DMEM records at `0x0000_0100`, 2 slots, `0x40` bytes per slot |
 | IV counter | DMEM word at `0x0000_01F0`, seed `0x31415926` |
-| MIT-BIH comparison | External preprocessed input, `32.76%` average final storage ratio |
+| MIT-BIH comparison | External preprocessed input, `29.87%` average final storage ratio |
 | FPGA strategy | Default ZCU102 project-mode implementation; USER_SI570 300 MHz divided to 50 MHz SoC/UART |
-| Latest full ZCU102 status | `rv32_soc_synth_full_zcu102`, routed + bitstream, WNS `+9.093 ns`, WHS `+0.015 ns`, timing met, auto-runs after UART `LOAD` |
-| Latest full ZCU102 utilization/power | `36382` LUTs, `19382` regs, `7281` CLBs, `1628` control sets, `11` BRAM, vectorless power `0.796 W` |
+| Latest full ZCU102 status | `rv32_soc_synth_full_zcu102`, routed + bitstream, WNS `+7.871 ns`, WHS `+0.015 ns`, timing met, auto-runs after UART `LOAD` |
+| Latest full ZCU102 utilization/power | `37069` LUTs, `19794` regs, `7360` CLBs, `1794` control sets, `11` BRAM, vectorless power `0.793 W` |
 | TX-only FPGA status | Routed, WNS `+1.277 ns`, LUTs `11933`, regs `5469`, slices `3979`, control sets `208` |
 | Historical full FPGA demo SoC status | Routed before ZCU102 retarget, WNS `+0.811 ns`, LUTs `28379`, regs `18898`, slices `10165`, control sets `778` |
 | Legacy RX-only FPGA status | Routed, WNS `+0.341 ns`, LUTs `22730`, regs `27658`, control sets `917` |
@@ -110,6 +111,7 @@ Read in this order when explaining the full system:
 | [coverage_regression_report.md](./coverage_regression_report.md) | Historical coverage result |
 | [soc_4_5_end_to_end_report.md](./soc_4_5_end_to_end_report.md) | Main SoC end-to-end evidence |
 | [paper_comparison_huffman_aes_cbc.md](./paper_comparison_huffman_aes_cbc.md) | Comparison with paper |
+| [module_level_speed_area_comparison_report.md](./module_level_speed_area_comparison_report.md) | Module-level cycle/resource comparison |
 | [29_defense_qa_code_focus_spec.md](./29_defense_qa_code_focus_spec.md) | Oral defense Q&A |
 | [input1_instruction_wavedrom.md](./input1_instruction_wavedrom.md) | Input1 instruction/MMIO waveform trace for the current `dma_compress_aes_input1` pass log |
 
@@ -137,7 +139,7 @@ cd sim
 make compile C_SRC=test_mmio_dma_storage_table.c
 make all TESTNAME=dma_storage_table_input1_then_input3 \
   TB_NAME=test_bench \
-  RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+  RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt"
 ```
 
 Legacy normal SoC loopback:

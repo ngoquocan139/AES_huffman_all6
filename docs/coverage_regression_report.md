@@ -191,10 +191,10 @@ Module target sau lan chay nay:
 
 | Testcase | Input length | Mode | Payload ratio | Payload saving | Storage ratio | Storage saving |
 |---|---:|---|---:|---:|---:|---:|
-| `dma_compress_aes_input1` | 2551 bytes | `COMPRESS_AES` | 37.50% | 62.50% | 40.14% | 59.86% |
+| `dma_compress_aes_input1` | 2551 bytes | `COMPRESS_AES` | 32.11% | 67.89% | 34.50% | 65.50% |
 | `dma_compress_aes_input3` | 242 bytes | `COMPRESS_AES` | 42.05% | 57.95% | 46.28% | 53.72% |
 | `dma_compress_aes_alnum63_cov` | 504 bytes | `COMPRESS_AES` | 101.86% | -1.86% | 111.11% | -11.11% |
-| `tx_compress_only_input1` | 2551 bytes | `COMPRESS_ONLY + whole_file` | 37.50% | 62.50% | 40.14% | 59.86% |
+| `tx_compress_only_input1` | 2551 bytes | `COMPRESS_ONLY + whole_file` | 32.11% | 67.89% | 34.50% | 65.50% |
 | `tx_compress_only_input4_cov` | 6000 bytes | `COMPRESS_ONLY + whole_file` | 63.40% | 36.60% | 67.73% | 32.27% |
 | `tx_compress_only_alnum63_cov` | 504 bytes | `COMPRESS_ONLY + whole_file` | 101.86% | -1.86% | 111.11% | -11.11% |
 | `tx_compress_aes_block_input3` | 242 bytes | `COMPRESS_AES + block_32B` | 29.65% | 70.35% | 33.06% | 66.94% |

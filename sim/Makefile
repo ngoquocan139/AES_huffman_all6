@@ -139,6 +139,7 @@ archive_case_outputs:
 	@if [ -f dmem_dump/tb_rv32_soc_mmio_dma_src.txt ]; then cp dmem_dump/tb_rv32_soc_mmio_dma_src.txt dmem_dump/$(TESTNAME)_src.txt; fi
 	@if [ -f dmem_dump/tb_rv32_soc_mmio_dma_tx.txt ]; then cp dmem_dump/tb_rv32_soc_mmio_dma_tx.txt dmem_dump/$(TESTNAME)_tx.txt; fi
 	@if [ -f dmem_dump/tb_rv32_soc_mmio_dma_rx.txt ]; then cp dmem_dump/tb_rv32_soc_mmio_dma_rx.txt dmem_dump/$(TESTNAME)_rx.txt; fi
+	@if [ "$(TESTNAME)" = "aes_core_benchmark" ] && [ -f loopback/aes_core_benchmark_aes_summary.txt ]; then cp loopback/aes_core_benchmark_aes_summary.txt loopback/$(TESTNAME)_aes_core_summary.txt; fi
 
 view_cov:
 	vsim -gui -viewcov IP.ucdb &

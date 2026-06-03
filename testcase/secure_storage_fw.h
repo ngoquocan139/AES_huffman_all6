@@ -28,7 +28,7 @@ typedef unsigned int uint32_t;
 
 #define SECURE_META_BASE_ADDR        0x00000100u
 #define SECURE_META_RECORD_SHIFT     6u
-#define SECURE_META_RECORD_COUNT     2u
+#define SECURE_META_RECORD_COUNT     3u
 #define SECURE_META_RECORD_WORDS     16u
 #define SECURE_META_WORD(slot, idx) \
     (*(volatile uint32_t *)(SECURE_META_BASE_ADDR + ((slot) << SECURE_META_RECORD_SHIFT) + ((idx) << 2u)))
@@ -52,8 +52,7 @@ typedef unsigned int uint32_t;
 #define SECURE_IV_SEED               0x31415926u
 
 #define SECURE_CIPHER_BASE_ADDR      0x00004000u
-#define SECURE_CIPHER_SLOT_SHIFT     12u
-#define SECURE_CIPHER_SLOT_BYTES     (1u << SECURE_CIPHER_SLOT_SHIFT)
+#define SECURE_CIPHER_SLOT_BYTES     0x00000a00u
 
 #define SECURE_OK                    0u
 #define SECURE_ERR_BAD_ARG           1u
@@ -83,6 +82,54 @@ static SECURE_INLINE void secure_load_delay(void)
     __asm__ volatile("nop\nnop\n" ::: "memory");
 }
 
+/* The RV32I bring-up core is sensitive to load-use on store addresses. Use
+ * immediate-address MMIO helpers for DMA registers instead of compiler-spilled
+ * volatile pointers. */
+#define SECURE_DEFINE_MMIO_WRITE(name, offset) \
+static SECURE_INLINE void name(uint32_t value) \
+{ \
+    __asm__ volatile( \
+        "lui t0, 0x40000\n" \
+        "sw %0, " #offset "(t0)\n" \
+        "nop\nnop\n" \
+        :: "r"(value) : "t0", "memory"); \
+}
+
+#define SECURE_DEFINE_MMIO_READ(name, offset) \
+static SECURE_INLINE uint32_t name(void) \
+{ \
+    uint32_t value; \
+    __asm__ volatile( \
+        "lui t0, 0x40000\n" \
+        "lw %0, " #offset "(t0)\n" \
+        "nop\nnop\n" \
+        : "=r"(value) :: "t0", "memory"); \
+    return value; \
+}
+
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_control, 0)
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_src_addr, 8)
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_dst_addr, 12)
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_len_bytes, 16)
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_mode, 20)
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_block_cfg, 24)
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_iv0, 40)
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_iv1, 44)
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_iv2, 48)
+SECURE_DEFINE_MMIO_WRITE(secure_dma_write_iv3, 52)
+
+SECURE_DEFINE_MMIO_READ(secure_dma_read_status, 4)
+SECURE_DEFINE_MMIO_READ(secure_dma_read_bytes_done, 28)
+SECURE_DEFINE_MMIO_READ(secure_dma_read_debug, 32)
+SECURE_DEFINE_MMIO_READ(secure_dma_read_ciphertext_bytes, 36)
+
+static SECURE_INLINE void secure_mmio_barrier(void)
+{
+    __asm__ volatile(
+        "nop\nnop\nnop\nnop\n"
+        "nop\nnop\nnop\nnop\n" ::: "memory");
+}
+
 static SECURE_INLINE uint32_t secure_metadata_read(uint32_t slot, uint32_t idx)
 {
     uint32_t value;
@@ -105,7 +152,7 @@ static SECURE_INLINE void secure_dma_result_clear(secure_dma_result_t *result)
 
 static SECURE_INLINE uint32_t secure_cipher_addr_for_slot(uint32_t slot)
 {
-    return SECURE_CIPHER_BASE_ADDR + (slot << SECURE_CIPHER_SLOT_SHIFT);
+    return SECURE_CIPHER_BASE_ADDR + (slot << 11u) + (slot << 9u);
 }
 
 static SECURE_INLINE void secure_metadata_clear_slot(uint32_t slot)
@@ -204,10 +251,10 @@ static SECURE_INLINE uint32_t secure_prepare_record(uint32_t slot,
     iv2 = secure_rotl32(iv1 ^ 0x9e3779b9u, 7u);
     iv3 = secure_rotl32(iv2 + 0x3c6ef372u, 17u);
 
-    DMA_IV0 = iv0;
-    DMA_IV1 = iv1;
-    DMA_IV2 = iv2;
-    DMA_IV3 = iv3;
+    secure_dma_write_iv0(iv0);
+    secure_dma_write_iv1(iv1);
+    secure_dma_write_iv2(iv2);
+    secure_dma_write_iv3(iv3);
 
     SECURE_META_WORD(slot, SECURE_META_VALID)       = 0u;
     SECURE_META_WORD(slot, SECURE_META_FILE_ID)     = file_id;
@@ -238,10 +285,10 @@ static SECURE_INLINE void secure_restore_iv_from_record(uint32_t slot)
     iv2 = secure_metadata_read(slot, SECURE_META_IV2);
     iv3 = secure_metadata_read(slot, SECURE_META_IV3);
 
-    DMA_IV0 = iv0;
-    DMA_IV1 = iv1;
-    DMA_IV2 = iv2;
-    DMA_IV3 = iv3;
+    secure_dma_write_iv0(iv0);
+    secure_dma_write_iv1(iv1);
+    secure_dma_write_iv2(iv2);
+    secure_dma_write_iv3(iv3);
 }
 
 static SECURE_INLINE uint32_t secure_run_dma(uint32_t src,
@@ -252,6 +299,7 @@ static SECURE_INLINE uint32_t secure_run_dma(uint32_t src,
 {
     uint32_t saw_busy = 0u;
     uint32_t completion_progress = 0u;
+    volatile uint32_t cfg_wait;
     uint32_t status_before;
     uint32_t status_after;
     uint32_t bytes_done;
@@ -260,20 +308,27 @@ static SECURE_INLINE uint32_t secure_run_dma(uint32_t src,
 
     secure_dma_result_clear(result);
 
-    DMA_CONTROL = 0x0000000cu;
-    DMA_SRC_ADDR  = src;
-    DMA_DST_ADDR  = dst;
-    DMA_LEN_BYTES = len;
-    DMA_MODE      = mode;
-    DMA_BLOCK_CFG = SECURE_BLOCK_SIZE;
+    secure_dma_write_control(0x0000000cu);
+    secure_dma_write_src_addr(src);
+    secure_dma_write_dst_addr(dst);
+    secure_dma_write_len_bytes(len);
+    secure_dma_write_mode(mode);
+    secure_dma_write_block_cfg(SECURE_BLOCK_SIZE);
 
-    status_before = DMA_STATUS;
-    secure_load_delay();
+    status_before = 0u;
+    for (cfg_wait = 0u; cfg_wait < 64u; cfg_wait++) {
+        status_before = secure_dma_read_status();
+        secure_load_delay();
+        if (((status_before & (1u << 3)) != 0u) &&
+            ((status_before & (1u << 2)) == 0u) &&
+            ((status_before & 1u) == 0u))
+            break;
+    }
     result->status_before = status_before;
-    DMA_CONTROL = 0x00000001u;
+    secure_dma_write_control(0x00000001u);
 
     while (1) {
-        status_after = DMA_STATUS;
+        status_after = secure_dma_read_status();
         secure_load_delay();
         result->status_after = status_after;
 
@@ -288,9 +343,9 @@ static SECURE_INLINE uint32_t secure_run_dma(uint32_t src,
         if (((status_after & 1u) == 0u) &&
             ((status_after & (1u << 1)) != 0u)) {
             if ((mode & 0x3u) == 0x1u)
-                completion_progress = DMA_CIPHERTEXT_BYTES_PRODUCED;
+                completion_progress = secure_dma_read_ciphertext_bytes();
             else
-                completion_progress = DMA_BYTES_DONE;
+                completion_progress = secure_dma_read_bytes_done();
 
             if ((saw_busy != 0u) || (completion_progress != 0u))
                 break;
@@ -301,9 +356,9 @@ static SECURE_INLINE uint32_t secure_run_dma(uint32_t src,
             break;
     }
 
-    bytes_done = DMA_BYTES_DONE;
-    ciphertext_bytes = DMA_CIPHERTEXT_BYTES_PRODUCED;
-    debug_after = DMA_DEBUG;
+    bytes_done = secure_dma_read_bytes_done();
+    ciphertext_bytes = secure_dma_read_ciphertext_bytes();
+    debug_after = secure_dma_read_debug();
     secure_load_delay();
     result->bytes_done = bytes_done;
     result->ciphertext_bytes = ciphertext_bytes;
@@ -352,7 +407,8 @@ static SECURE_INLINE uint32_t secure_write(uint32_t file_id,
         return rc;
 
     if ((result->ciphertext_bytes == 0u) ||
-        ((result->ciphertext_bytes & 0x0fu) != 0u))
+        ((result->ciphertext_bytes & 0x0fu) != 0u) ||
+        (result->ciphertext_bytes > SECURE_CIPHER_SLOT_BYTES))
         return SECURE_ERR_CIPHER_LEN;
 
     secure_commit_record(slot, result->ciphertext_bytes);

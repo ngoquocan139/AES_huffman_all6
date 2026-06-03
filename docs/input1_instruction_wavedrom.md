@@ -21,7 +21,7 @@ Source data from `sim/log/dma_compress_aes_input1.log`:
 | Input length | `2551` bytes, `0x000009f7` |
 | TX mode | `0x9`, whole-file Huffman + AES-128-CBC |
 | RX mode | `0x2`, AES-CBC decrypt + Huffman decode |
-| TX output bytes | `1024` bytes, `0x00000400` |
+| TX output bytes | `880` bytes, `0x00000370` |
 | RX restored bytes | `2551` bytes, `0x000009f7` |
 | Result signature | `0x44525831` |
 | Error mask | `0x00000000` |

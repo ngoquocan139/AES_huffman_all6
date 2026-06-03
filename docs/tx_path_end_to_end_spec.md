@@ -153,18 +153,184 @@ TX top la APB slave tra:
 
 ## 6. Internal TX Structure
 
+So do duoi day bam theo dung instance trong RTL:
+
+- [rtl/apb_huffman_aes_tx_top.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/apb_huffman_aes_tx_top.v)
+- [rtl/huffman_aes_tx_top.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/huffman_aes_tx_top.v)
+- [rtl/dynamic_huffman_encoder.v](/mnt/h/Academic/senior_project/DATN/work/luc/AES_huffman_all6/rtl/dynamic_huffman_encoder.v)
+
+### 6.1 Top-level TX RTL wiring
+
 ```mermaid
 flowchart LR
-    APB["apb_huffman_tx_if"] --> ADP["input adapter"]
-    ADP --> HUF["dynamic_huffman_encoder"]
-    HUF --> PK["bit_packer_128"]
-    PK --> SEL["policy select"]
-    SEL --> CBC["CBC XOR chain"]
-    CBC --> AES["aes128_cipher_top"]
-    SEL --> BYP["bypass path"]
-    AES --> FIFO["output FIFO"]
-    BYP --> FIFO
+    DMA["dma_tx_engine
+    APB master"] --> APBIF["u_apb_huffman_tx_if
+    apb_huffman_tx_if"]
+
+    APBIF -->|"start_block_o, continue_frame_o,
+    block_size_o, word_in_o,
+    word_valid_o"| TXCORE["u_huffman_aes_tx_top
+    huffman_aes_tx_top"]
+
+    TXCORE -->|"word_ready"| APBIF
+
+    TXCORE -->|"cipher_en, data_in,
+    key, mode, init_vector,
+    segment_len"| POLICY{"compress_only?"}
+
+    POLICY -->|"0: COMPRESS_AES"| CBC["CBC XOR in
+    apb_huffman_aes_tx_top
+    tx_aes_plain_w = data_in_w XOR prev"]
+    CBC --> AES["u_AES_top_tx
+    aes128_cipher_top"]
+    AES -->|"aes_data_out,
+    aes_ready_core_w"| EMIT["AES/output capture
+    aes_emit_block_r"]
+
+    POLICY -->|"1: COMPRESS_ONLY"| BYPASS["bypass capture
+    emit_capture_data_w = data_in_w"]
+    BYPASS --> EMIT
+
+    EMIT -->|"aes_out_word_w,
+    aes_out_word_valid_w,
+    aes_out_word_last_w"| APBIF
+    APBIF -->|"PRDATA/PREADY readback"| DMA
 ```
+
+Trong `apb_huffman_aes_tx_top`, `u_apb_huffman_tx_if` la cua vao/ra APB.
+`u_huffman_aes_tx_top` tao transport word 128-bit va phat `cipher_en`.
+Neu `compress_only = 0`, parent top tu XOR CBC voi `cbc_iv_i`/ciphertext truoc
+roi dua vao `u_AES_top_tx`. Neu `compress_only = 1`, parent top bo qua AES va
+serialize transport word truc tiep ve APB output FIFO.
+
+### 6.2 `huffman_aes_tx_top` RTL wiring
+
+```mermaid
+flowchart LR
+    APBWORDS["APB 32-bit words
+    word_in/word_valid"] --> ADAPTER["input adapter
+    inside huffman_aes_tx_top
+    word -> byte"]
+
+    ADAPTER -->|"count_byte_fire_w,
+    current_byte_w"| GCOUNT["u_file_frequency_counter
+    frequency_counter"]
+    GCOUNT -->|"file_freq_read_count_w"| GBUILD["u_file_huffman_builder
+    huffman_builder"]
+    GBUILD -->|"symbol/code length/code tables"| EXTBOOK["external codebook wires
+    file_symbol_*, file_code_len_*,
+    file_code_*"]
+
+    ADAPTER -->|"enc_start_block_w,
+    enc_byte_in_w,
+    enc_byte_valid_w,
+    enc_block_start_w,
+    enc_block_end_w"| ENC["u_dynamic_huffman_encoder
+    dynamic_huffman_encoder"]
+
+    EXTBOOK -->|"external_symbol_*,
+    external_code_len_*,
+    external_code_*"| ENC
+
+    ENC -->|"encoder_stream_data,
+    encoder_stream_len,
+    encoder_stream_valid,
+    encoder_stream_last"| PACK["u_bit_packer_128
+    bit_packer_128"]
+    PACK -->|"encoder_stream_ready"| ENC
+
+    PACK -->|"packer_transport_word,
+    packer_transport_valid"| WRAP["u_aes_input_wrapper
+    wrapper"]
+    WRAP -->|"block_accept"| PACK
+
+    WRAP -->|"cipher_en, data_in,
+    key, mode, init_vector,
+    segment_len"| PARENT["parent:
+    apb_huffman_aes_tx_top
+    CBC/AES/bypass"]
+```
+
+Duong whole-file Huffman co 2 pha:
+
+1. Count/build phase:
+   `input adapter -> u_file_frequency_counter -> u_file_huffman_builder`.
+   Firmware/DMA nap toan file de dem tan suat, sau do pulse `global_build_start`.
+2. Emit phase:
+   `input adapter -> u_dynamic_huffman_encoder`, trong do encoder doc codebook
+   tu `u_file_huffman_builder` qua cac port `external_*`, roi emit bitstream
+   sang `u_bit_packer_128`.
+
+Trong synthesis, `dynamic_huffman_encoder` ep `whole_file_mode_w = 1'b1`, nen
+codebook active la codebook whole-file tu `u_file_huffman_builder` ben ngoai.
+Nhanh `huffman_builder` noi bo trong `dynamic_huffman_encoder` chi con dung cho
+mo phong/per-block legacy khi khong define `SYNTHESIS`.
+
+### 6.3 `dynamic_huffman_encoder` RTL wiring
+
+```mermaid
+flowchart LR
+    FSM["u_control_fsm
+    control_fsm"] -->|"start_collect"| ICU["u_input_collect_unit
+    input_collect_unit"]
+    ICU -->|"collect_done/error"| FSM
+
+    BYTE["byte_in/byte_valid
+    from huffman_aes_tx_top adapter"] --> ICU
+
+    ICU --> BUF["u_block_buffer
+    inside input_collect_unit"]
+    ICU --> LFREQ["u_frequency_counter
+    inside input_collect_unit"]
+
+    FSM -->|"start_emit"| EMIT["u_emit_backend
+    emit_backend"]
+    BUF -->|"buffer_read_data"| EMIT
+
+    EXT["external whole-file codebook
+    from u_file_huffman_builder"] -->|"symbol/code tables"| EMIT
+
+    EMIT --> HDR["u_header_formatter
+    header_formatter"]
+    EMIT --> PAY["u_payload_emitter
+    payload_emitter"]
+    HDR --> STREAM["u_stream_output_interface
+    stream_output_interface"]
+    PAY --> STREAM
+
+    STREAM -->|"stream_data,
+    stream_len,
+    stream_valid,
+    stream_last"| PACKER["u_bit_packer_128"]
+```
+
+`u_input_collect_unit` giu lai byte cua block trong `u_block_buffer`. Khi emit,
+`u_emit_backend` doc:
+
+- payload byte tu `u_block_buffer`;
+- symbol/code length/code tu codebook whole-file ben ngoai;
+- header chunk tu `u_header_formatter`;
+- payload chunk tu `u_payload_emitter`.
+
+`u_stream_output_interface` hop nhat header va payload thanh stream chung
+`stream_data/stream_len/stream_valid/stream_last` de dua sang `u_bit_packer_128`.
+
+### 6.4 TX module connection table
+
+| From | To | Main signals | Meaning |
+|---|---|---|---|
+| `dma_tx_engine` | `u_apb_huffman_tx_if` | APB `PSEL/PENABLE/PWRITE/PADDR/PWDATA` | DMA ghi control va input words vao TX |
+| `u_apb_huffman_tx_if` | `u_huffman_aes_tx_top` | `start_block_o`, `continue_frame_o`, `block_size_o`, `word_in_o`, `word_valid_o` | Bat dau block va dua word 32-bit vao TX core |
+| `u_huffman_aes_tx_top` | `u_apb_huffman_tx_if` | `word_ready`, `tx_busy`, `tx_done`, `tx_error`, global build status | Backpressure va status |
+| Input adapter | `u_file_frequency_counter` | `count_byte_fire_w`, `current_byte_w` | Dem tan suat whole-file |
+| `u_file_frequency_counter` | `u_file_huffman_builder` | `file_freq_read_index_w`, `file_freq_read_count_w` | Builder doc bang tan suat |
+| `u_file_huffman_builder` | `u_dynamic_huffman_encoder` | `external_symbol_*`, `external_code_len_*`, `external_code_*` | Cap codebook canonical whole-file |
+| Input adapter | `u_dynamic_huffman_encoder` | `enc_byte_in_w`, `enc_byte_valid_w`, `enc_block_start_w`, `enc_block_end_w` | Dua byte payload vao encoder |
+| `u_dynamic_huffman_encoder` | `u_bit_packer_128` | `encoder_stream_*` | Stream bit Huffman dang chunk 32-bit |
+| `u_bit_packer_128` | `u_aes_input_wrapper` | `packer_transport_word`, `packer_transport_valid`, `block_accept` | Gom thanh transport word 128-bit |
+| `u_aes_input_wrapper` | parent top | `cipher_en_w`, `data_in_w`, `key_w` | Yeu cau encrypt/bypass 1 transport block |
+| parent CBC logic | `u_AES_top_tx` | `tx_aes_plain_w`, `cipher_en_w`, `key_w` | AES-CBC encrypt |
+| parent output serializer | `u_apb_huffman_tx_if` | `aes_out_word_w`, `aes_out_word_valid_w`, `aes_out_word_last_w` | Cat 128-bit output thanh 4 word 32-bit cho DMA doc |
 
 ## 7. Function Of Each TX Stage
 
@@ -188,14 +354,15 @@ Chuyen tung word 32-bit thanh byte stream theo thu tu byte noi bo cua TX.
 Chuc nang:
 
 - collect byte cua block
-- dung codebook per-block legacy hoac global whole-file
+- dung codebook global whole-file trong synthesis
+- codebook per-block chi la nhanh legacy/mo phong khi khong define `SYNTHESIS`
 - active TX hien emit mode `COMPRESSED` co dinh
 - emit header + payload bitstream
 
-TX hien tai co 2 kieu dung:
+TX RTL giu 2 kha nang, nhung flow FPGA/synthesis hien tai dung whole-file:
 
-- per-block dynamic Huffman
-- whole-file dynamic Huffman
+- whole-file dynamic Huffman: datapath active tren FPGA;
+- per-block dynamic Huffman: nhanh legacy/mo phong, khong phai flow bao cao chinh.
 
 Trong `whole_file` mode, "whole-file" nghia la codebook/frequency table duoc
 tinh tren toan input. Du lieu van duoc DMA feed vao TX theo cac block payload

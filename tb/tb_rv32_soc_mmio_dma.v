@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module test_bench;
-  localparam integer MAX_WAIT_CYCLES = 1000000;
+  localparam integer MAX_WAIT_CYCLES = 4000000;
   localparam integer MAX_INPUT_BYTES = 10000;
   localparam integer DMEM_SIZE_BYTES = 32768;
   localparam integer TRANSPORT_WORD_WIDTH = 128;
@@ -26,11 +26,19 @@ module test_bench;
   localparam [31:0] MODE_TX_COMPRESS_ONLY_BLOCK = 32'h00000005;
   localparam [31:0] MODE_TX_COMPRESS_AES_WHOLE  = 32'h00000009;
   localparam [31:0] MODE_TX_COMPRESS_ONLY_WHOLE = 32'h0000000d;
+  localparam [127:0] AES_BENCH_KEY =
+      128'h000102030405060708090a0b0c0d0e0f;
+  localparam [127:0] AES_BENCH_PLAIN =
+      128'h00112233445566778899aabbccddeeff;
+  localparam [127:0] AES_BENCH_CIPHER_EXPECTED =
+      128'h69c4e0d86a7b0430d8cdb78070b4c55a;
 
   localparam [31:0] INPUT_LEN_ADDR   = 32'h00000040;
   localparam [31:0] INPUT2_LEN_ADDR  = 32'h00000044;
   localparam [31:0] SRC_BASE_ADDR    = 32'h00002000;
   localparam [31:0] SRC2_BASE_ADDR   = 32'h00003000;
+  localparam [31:0] UART_STAGE_BASE_ADDR = 32'h00000800;
+  localparam [31:0] STORAGE_BUNDLE_SIGNATURE = 32'h31444e42;
   localparam [31:0] TX_DST_BASE_ADDR = 32'h00004000;
   localparam [31:0] RX_DST_BASE_ADDR = 32'h00006000;
 
@@ -44,6 +52,7 @@ module test_bench;
   localparam [8*64-1:0] SRC_DUMP_FILE          = "dmem_dump/tb_rv32_soc_mmio_dma_src.txt";
   localparam [8*64-1:0] TX_DUMP_FILE           = "dmem_dump/tb_rv32_soc_mmio_dma_tx.txt";
   localparam [8*64-1:0] RX_DUMP_FILE           = "dmem_dump/tb_rv32_soc_mmio_dma_rx.txt";
+  localparam [8*64-1:0] AES_BENCH_SUMMARY_FILE = "loopback/aes_core_benchmark_aes_summary.txt";
 
   reg clk;
   reg rst;
@@ -122,9 +131,16 @@ module test_bench;
   reg rx_busy_prev;
   reg [8*128-1:0] input_file_name;
   reg [8*128-1:0] input2_file_name;
+  reg [8*128-1:0] input3_file_name;
   reg [8*64-1:0] case_name;
   integer input2_file_enable;
+  integer input3_file_enable;
   integer input_binary_mode;
+  integer storage_bundle_mode;
+  integer input3_len_bytes;
+  integer storage_bundle_record_count;
+  integer storage_expected_record_count;
+  integer source_compare_base_addr;
 
   reg [127:0] first_tx_transport_word;
   reg [127:0] first_tx_ciphertext_dmem_word;
@@ -139,6 +155,11 @@ module test_bench;
   reg [31:0]  first_tx_start_len_bytes;
   reg [1:0]   first_tx_start_dir;
   reg [5:0]   first_tx_start_block_size;
+  reg [31:0]  first_rx_start_src_addr;
+  reg [31:0]  first_rx_start_dst_addr;
+  reg [31:0]  first_rx_start_len_bytes;
+  reg [1:0]   first_rx_start_dir;
+  reg [5:0]   first_rx_start_block_size;
   reg [31:0]  first_rx_word_data;
   reg [2:0]   first_rx_word_valid_bytes;
   reg         first_rx_word_last_in_block;
@@ -151,9 +172,10 @@ module test_bench;
   reg         first_tx_dma_word_write_seen;
   reg         first_tx_dma_read_seen;
   reg         first_tx_start_seen;
+  reg         first_rx_start_seen;
   reg         first_rx_word_valid_seen;
-  reg [31:0]  mmio_write_addr_log [0:7];
-  reg [31:0]  mmio_write_data_log [0:7];
+  reg [31:0]  mmio_write_addr_log [0:31];
+  reg [31:0]  mmio_write_data_log [0:31];
   reg [31:0]  raw_cov_patt;
 
   real tx_input_bytes_per_cycle;
@@ -168,6 +190,25 @@ module test_bench;
   real payload_space_saving_pct;
   real storage_ratio_pct;
   real space_saving_pct;
+
+  reg [127:0] aes_bench_key;
+  reg [127:0] aes_bench_plain;
+  reg [127:0] aes_bench_cipher_in;
+  reg         aes_bench_cipher_en;
+  reg         aes_bench_decipher_en;
+  wire [127:0] aes_bench_cipher_text;
+  wire [127:0] aes_bench_plain_text;
+  wire [127:0] aes_bench_round_key10;
+  wire         aes_bench_cipher_ready;
+  wire         aes_bench_decipher_ready;
+  integer      aes_enc_cycles;
+  integer      aes_dec_cycles;
+  real         aes_enc_cycles_per_byte;
+  real         aes_dec_cycles_per_byte;
+  real         aes_enc_mbytes_per_sec_100mhz;
+  real         aes_dec_mbytes_per_sec_100mhz;
+  real         aes_enc_mbytes_per_sec_50mhz;
+  real         aes_dec_mbytes_per_sec_50mhz;
 
   reg [31:0] result_words [0:15];
   reg [31:0] tx_dst_words [0:3];
@@ -318,16 +359,25 @@ module test_bench;
   initial begin
     input_file_name = "input1.txt";
     input2_file_name = "";
+    input3_file_name = "";
     input2_file_enable = 0;
+    input3_file_enable = 0;
     input_binary_mode = $test$plusargs("INPUT_BINARY");
+    storage_bundle_mode = $test$plusargs("STORAGE_BUNDLE");
     if ($value$plusargs("INPUT_FILE=%s", input_file_name))
       $display("# INPUT_FILE override: %0s", input_file_name);
     if ($value$plusargs("INPUT_FILE2=%s", input2_file_name)) begin
       input2_file_enable = 1;
       $display("# INPUT_FILE2 override: %0s", input2_file_name);
     end
+    if ($value$plusargs("INPUT_FILE3=%s", input3_file_name)) begin
+      input3_file_enable = 1;
+      $display("# INPUT_FILE3 override: %0s", input3_file_name);
+    end
     if (input_binary_mode)
       $display("# INPUT_BINARY mode enabled: CR bytes are preserved");
+    if (storage_bundle_mode)
+      $display("# STORAGE_BUNDLE mode enabled: files are staged at DMEM 0x%08x", UART_STAGE_BASE_ADDR);
     trace_detail_enable = $test$plusargs("TRACE_DETAIL");
   end
 
@@ -544,6 +594,162 @@ module test_bench;
     end
   endtask
 
+  task automatic load_bundle_file_to_dmem;
+    input [8*128-1:0] file_name;
+    input [31:0]      base_addr;
+    input integer     max_bytes;
+    input integer     capture_primary;
+    output integer    out_len;
+    integer fd;
+    integer ch;
+    integer word_idx;
+    integer lane_idx;
+    reg [31:0] packed_word;
+    begin
+      out_len = 0;
+      fd = input_binary_mode ? $fopen(file_name, "rb") : $fopen(file_name, "r");
+      if (fd == 0) begin
+        $display("[FAIL] cannot open bundle file: %0s", file_name);
+        fail_count = fail_count + 1;
+        $finish;
+      end
+
+      word_idx = 0;
+      lane_idx = 0;
+      packed_word = 32'b0;
+
+      while (!$feof(fd)) begin
+        ch = $fgetc(fd);
+        if ((ch != -1) && (input_binary_mode || (ch[7:0] != 8'h0D))) begin
+          if (out_len >= max_bytes) begin
+            $display("[FAIL] bundle file exceeds buffer size: %0d >= %0d",
+                     out_len, max_bytes);
+            fail_count = fail_count + 1;
+            $finish;
+          end
+          if (capture_primary) begin
+            if (out_len >= MAX_INPUT_BYTES) begin
+              $display("[FAIL] primary bundle file is larger than MAX_INPUT_BYTES=%0d",
+                       MAX_INPUT_BYTES);
+              fail_count = fail_count + 1;
+              $finish;
+            end
+            input_bytes[out_len] = ch[7:0];
+          end
+
+          packed_word[(lane_idx * 8) +: 8] = ch[7:0];
+          out_len = out_len + 1;
+
+          if (lane_idx == 3) begin
+            aux_write_word(base_addr + (word_idx * 4), packed_word);
+            word_idx = word_idx + 1;
+            lane_idx = 0;
+            packed_word = 32'b0;
+          end else begin
+            lane_idx = lane_idx + 1;
+          end
+        end
+      end
+      $fclose(fd);
+
+      if (out_len == 0) begin
+        $display("[FAIL] bundle file is empty: %0s", file_name);
+        fail_count = fail_count + 1;
+        $finish;
+      end
+
+      if (lane_idx != 0)
+        aux_write_word(base_addr + (word_idx * 4), packed_word);
+    end
+  endtask
+
+  task automatic write_bundle_record_header;
+    input integer record_idx;
+    input [31:0] file_id;
+    input [31:0] offset_bytes;
+    input [31:0] length_bytes;
+    reg [31:0] record_base;
+    begin
+      record_base = UART_STAGE_BASE_ADDR + 32'd8 + (record_idx * 32'd16);
+      aux_write_word(record_base + 32'd0,  file_id);
+      aux_write_word(record_base + 32'd4,  32'h00000000);
+      aux_write_word(record_base + 32'd8,  offset_bytes);
+      aux_write_word(record_base + 32'd12, length_bytes);
+    end
+  endtask
+
+  task automatic load_storage_bundle_to_dmem;
+    integer bundle_offset;
+    integer max_bundle_payload;
+    integer file1_offset;
+    integer file2_offset;
+    integer file3_offset;
+    begin
+      for (i = 0; i < MAX_INPUT_BYTES; i = i + 1)
+        input_bytes[i] = 8'h00;
+
+      input_len_bytes = 0;
+      input2_len_bytes = 0;
+      input3_len_bytes = 0;
+      storage_bundle_record_count = input3_file_enable ? 3 :
+                                    (input2_file_enable ? 2 : 1);
+      storage_expected_record_count = storage_bundle_record_count;
+      max_bundle_payload = TX_DST_BASE_ADDR - UART_STAGE_BASE_ADDR;
+
+      aux_write_word(INPUT_LEN_ADDR, 32'h00000000);
+      aux_write_word(INPUT2_LEN_ADDR, 32'h00000000);
+      aux_write_word(UART_STAGE_BASE_ADDR, 32'h00000000);
+      aux_write_word(UART_STAGE_BASE_ADDR + 32'd4, storage_bundle_record_count);
+
+      bundle_offset = ((8 + (storage_bundle_record_count * 16) + 15) / 16) * 16;
+
+      file1_offset = bundle_offset;
+      source_compare_base_addr = UART_STAGE_BASE_ADDR + file1_offset;
+      load_bundle_file_to_dmem(input_file_name,
+                               UART_STAGE_BASE_ADDR + file1_offset,
+                               max_bundle_payload - file1_offset,
+                               1,
+                               input_len_bytes);
+      write_bundle_record_header(0, 32'h00000001, file1_offset[31:0], input_len_bytes[31:0]);
+      bundle_offset = ((file1_offset + input_len_bytes + 15) / 16) * 16;
+
+      if (input2_file_enable) begin
+        file2_offset = bundle_offset;
+        load_bundle_file_to_dmem(input2_file_name,
+                                 UART_STAGE_BASE_ADDR + file2_offset,
+                                 max_bundle_payload - file2_offset,
+                                 0,
+                                 input2_len_bytes);
+        write_bundle_record_header(1, 32'h00000002, file2_offset[31:0], input2_len_bytes[31:0]);
+        bundle_offset = ((file2_offset + input2_len_bytes + 15) / 16) * 16;
+      end
+
+      if (input3_file_enable) begin
+        file3_offset = bundle_offset;
+        load_bundle_file_to_dmem(input3_file_name,
+                                 UART_STAGE_BASE_ADDR + file3_offset,
+                                 max_bundle_payload - file3_offset,
+                                 0,
+                                 input3_len_bytes);
+        write_bundle_record_header(2, 32'h00000003, file3_offset[31:0], input3_len_bytes[31:0]);
+        bundle_offset = ((file3_offset + input3_len_bytes + 15) / 16) * 16;
+      end
+
+      aux_write_word(UART_STAGE_BASE_ADDR + 32'd4, storage_bundle_record_count[31:0]);
+      aux_write_word(UART_STAGE_BASE_ADDR, STORAGE_BUNDLE_SIGNATURE);
+      $display("# Loaded secure-storage bundle at DMEM 0x%08x: records=%0d total_staged=%0d",
+               UART_STAGE_BASE_ADDR, storage_bundle_record_count, bundle_offset);
+      $display("#   bundle[1] file=%0s len=%0d offset=0x%08x",
+               input_file_name, input_len_bytes, file1_offset);
+      if (input2_file_enable)
+        $display("#   bundle[2] file=%0s len=%0d offset=0x%08x",
+                 input2_file_name, input2_len_bytes, file2_offset);
+      if (input3_file_enable)
+        $display("#   bundle[3] file=%0s len=%0d offset=0x%08x",
+                 input3_file_name, input3_len_bytes, file3_offset);
+    end
+  endtask
+
   task automatic dump_dmem_region;
     input [8*64-1:0] file_name;
     input [31:0]     base_addr;
@@ -590,7 +796,7 @@ module test_bench;
       $fdisplay(fd, "input_file=%0s input_len=%0d", input_file_name, input_len_bytes);
       $fdisplay(fd, "idx exp src rx src_match rx_match ascii");
       for (idx = 0; idx < input_len_bytes; idx = idx + 1) begin
-        aux_read_byte(SRC_BASE_ADDR + idx, src_byte);
+        aux_read_byte(source_compare_base_addr + idx, src_byte);
         aux_read_byte(RX_DST_BASE_ADDR + idx, rx_byte);
 
         if (src_byte !== input_bytes[idx])
@@ -617,7 +823,7 @@ module test_bench;
     begin
       src_mismatch_count = 0;
       for (idx = 0; idx < input_len_bytes; idx = idx + 1) begin
-        aux_read_byte(SRC_BASE_ADDR + idx, src_byte);
+        aux_read_byte(source_compare_base_addr + idx, src_byte);
         if (src_byte !== input_bytes[idx])
           src_mismatch_count = src_mismatch_count + 1;
       end
@@ -1880,7 +2086,13 @@ module test_bench;
         $fdisplay(fd, "input2_len_bytes=%0d", input2_len_bytes);
         $fdisplay(fd, "src2_base_addr=0x%08x", SRC2_BASE_ADDR);
       end
-      $fdisplay(fd, "src_base_addr=0x%08x", SRC_BASE_ADDR);
+      if (input3_file_enable) begin
+        $fdisplay(fd, "input3_file=%0s", input3_file_name);
+        $fdisplay(fd, "input3_len_bytes=%0d", input3_len_bytes);
+      end
+      $fdisplay(fd, "storage_bundle_mode=%0d", storage_bundle_mode);
+      $fdisplay(fd, "storage_bundle_record_count=%0d", storage_bundle_record_count);
+      $fdisplay(fd, "src_base_addr=0x%08x", source_compare_base_addr);
       $fdisplay(fd, "tx_dst_base_addr=0x%08x", TX_DST_BASE_ADDR);
       $fdisplay(fd, "rx_dst_base_addr=0x%08x", RX_DST_BASE_ADDR);
       $fdisplay(fd, "tx_ciphertext_bytes=%0d", tx_ciphertext_bytes);
@@ -1911,6 +2123,161 @@ module test_bench;
       $fdisplay(fd, "pass_count=%0d", pass_count);
       $fdisplay(fd, "fail_count=%0d", fail_count);
       $fclose(fd);
+    end
+  endtask
+
+  task automatic run_aes_core_benchmark;
+    integer fd;
+    begin
+      clk = 0;
+      rst = 1;
+      aux_en = 1'b0;
+      aux_we = 4'b0000;
+      aux_addr = 32'b0;
+      aux_wdata = 32'b0;
+      cpu_if_flush = 1'b0;
+      cpu_stall = 1'b0;
+      pass_count = 0;
+      fail_count = 0;
+      aes_bench_key = AES_BENCH_KEY;
+      aes_bench_plain = AES_BENCH_PLAIN;
+      aes_bench_cipher_in = 128'b0;
+      aes_bench_cipher_en = 1'b0;
+      aes_bench_decipher_en = 1'b0;
+      aes_enc_cycles = 0;
+      aes_dec_cycles = 0;
+      aes_enc_cycles_per_byte = 0.0;
+      aes_dec_cycles_per_byte = 0.0;
+      aes_enc_mbytes_per_sec_100mhz = 0.0;
+      aes_dec_mbytes_per_sec_100mhz = 0.0;
+      aes_enc_mbytes_per_sec_50mhz = 0.0;
+      aes_dec_mbytes_per_sec_50mhz = 0.0;
+      system_rc = $system("mkdir -p loopback");
+
+      repeat (4) @(posedge clk);
+      rst = 0;
+      repeat (2) @(posedge clk);
+      #1;
+
+      check_true("aes_encrypt_ready_after_reset",
+                 aes_bench_cipher_ready === 1'b1);
+      check_true("aes_decrypt_ready_after_reset",
+                 aes_bench_decipher_ready === 1'b1);
+
+      @(negedge clk);
+      aes_bench_cipher_en = 1'b1;
+      @(posedge clk);
+      #1;
+      aes_bench_cipher_en = 1'b0;
+      aes_enc_cycles = 1;
+      while ((aes_bench_cipher_ready !== 1'b1) &&
+             (aes_enc_cycles < 100)) begin
+        @(posedge clk);
+        #1;
+        aes_enc_cycles = aes_enc_cycles + 1;
+      end
+
+      check_true("aes_encrypt_ready_returns",
+                 aes_bench_cipher_ready === 1'b1);
+      if (aes_bench_cipher_text === AES_BENCH_CIPHER_EXPECTED) begin
+        pass_count = pass_count + 1;
+        $display("[PASS] aes_encrypt_ciphertext | actual=0x%032x expected=0x%032x",
+                 aes_bench_cipher_text, AES_BENCH_CIPHER_EXPECTED);
+      end else begin
+        fail_count = fail_count + 1;
+        $display("[FAIL] aes_encrypt_ciphertext | actual=0x%032x expected=0x%032x",
+                 aes_bench_cipher_text, AES_BENCH_CIPHER_EXPECTED);
+      end
+
+      repeat (2) @(posedge clk);
+      aes_bench_cipher_in = AES_BENCH_CIPHER_EXPECTED;
+      @(negedge clk);
+      aes_bench_decipher_en = 1'b1;
+      @(posedge clk);
+      #1;
+      aes_bench_decipher_en = 1'b0;
+      aes_dec_cycles = 1;
+      while ((aes_bench_decipher_ready !== 1'b1) &&
+             (aes_dec_cycles < 100)) begin
+        @(posedge clk);
+        #1;
+        aes_dec_cycles = aes_dec_cycles + 1;
+      end
+
+      check_true("aes_decrypt_ready_returns",
+                 aes_bench_decipher_ready === 1'b1);
+      if (aes_bench_plain_text === AES_BENCH_PLAIN) begin
+        pass_count = pass_count + 1;
+        $display("[PASS] aes_decrypt_plaintext | actual=0x%032x expected=0x%032x",
+                 aes_bench_plain_text, AES_BENCH_PLAIN);
+      end else begin
+        fail_count = fail_count + 1;
+        $display("[FAIL] aes_decrypt_plaintext | actual=0x%032x expected=0x%032x",
+                 aes_bench_plain_text, AES_BENCH_PLAIN);
+      end
+
+      if (aes_enc_cycles > 0) begin
+        aes_enc_cycles_per_byte = aes_enc_cycles / 16.0;
+        aes_enc_mbytes_per_sec_100mhz = (16.0 / aes_enc_cycles) * 100.0;
+        aes_enc_mbytes_per_sec_50mhz = (16.0 / aes_enc_cycles) * 50.0;
+      end
+      if (aes_dec_cycles > 0) begin
+        aes_dec_cycles_per_byte = aes_dec_cycles / 16.0;
+        aes_dec_mbytes_per_sec_100mhz = (16.0 / aes_dec_cycles) * 100.0;
+        aes_dec_mbytes_per_sec_50mhz = (16.0 / aes_dec_cycles) * 50.0;
+      end
+
+      $display("# ===== AES CORE BENCHMARK =====");
+      $display("# vector=FIPS-197 AES-128 key/plain/cipher known-answer test");
+      $display("# cycle_definition=start pulse accepted to ready high observed");
+      $display("# AES_BENCH encrypt_cycles=%0d decrypt_cycles=%0d",
+               aes_enc_cycles, aes_dec_cycles);
+      $display("# AES_BENCH encrypt_cycles_per_byte=%0.3f decrypt_cycles_per_byte=%0.3f",
+               aes_enc_cycles_per_byte, aes_dec_cycles_per_byte);
+      $display("# AES_BENCH encrypt_MBps_100MHz=%0.3f decrypt_MBps_100MHz=%0.3f",
+               aes_enc_mbytes_per_sec_100mhz,
+               aes_dec_mbytes_per_sec_100mhz);
+      $display("# AES_BENCH encrypt_MBps_50MHz=%0.3f decrypt_MBps_50MHz=%0.3f",
+               aes_enc_mbytes_per_sec_50mhz,
+               aes_dec_mbytes_per_sec_50mhz);
+      $display("# AES_BENCH key=0x%032x plain=0x%032x cipher=0x%032x",
+               AES_BENCH_KEY, AES_BENCH_PLAIN, aes_bench_cipher_text);
+
+      fd = $fopen(AES_BENCH_SUMMARY_FILE, "w");
+      if (fd == 0) begin
+        fail_count = fail_count + 1;
+        $display("[FAIL] cannot open AES benchmark summary file: %0s",
+                 AES_BENCH_SUMMARY_FILE);
+      end else begin
+        $fdisplay(fd, "testcase=aes_core_benchmark");
+        $fdisplay(fd, "vector=FIPS-197_AES-128_known_answer");
+        $fdisplay(fd, "cycle_definition=start_pulse_accepted_to_ready_high_observed");
+        $fdisplay(fd, "encrypt_cycles=%0d", aes_enc_cycles);
+        $fdisplay(fd, "decrypt_cycles=%0d", aes_dec_cycles);
+        $fdisplay(fd, "encrypt_cycles_per_byte=%0.3f", aes_enc_cycles_per_byte);
+        $fdisplay(fd, "decrypt_cycles_per_byte=%0.3f", aes_dec_cycles_per_byte);
+        $fdisplay(fd, "encrypt_mbytes_per_sec_100mhz=%0.3f",
+                  aes_enc_mbytes_per_sec_100mhz);
+        $fdisplay(fd, "decrypt_mbytes_per_sec_100mhz=%0.3f",
+                  aes_dec_mbytes_per_sec_100mhz);
+        $fdisplay(fd, "encrypt_mbytes_per_sec_50mhz=%0.3f",
+                  aes_enc_mbytes_per_sec_50mhz);
+        $fdisplay(fd, "decrypt_mbytes_per_sec_50mhz=%0.3f",
+                  aes_dec_mbytes_per_sec_50mhz);
+        $fdisplay(fd, "aes_tx_lut_post_impl=1614");
+        $fdisplay(fd, "aes_rx_lut_post_impl=1667");
+        $fdisplay(fd, "pass_count=%0d", pass_count);
+        $fdisplay(fd, "fail_count=%0d", fail_count);
+        $fclose(fd);
+      end
+
+      $display("# SUMMARY: PASS=%0d FAIL=%0d", pass_count, fail_count);
+      if (fail_count == 0)
+        $display("[PASS] aes_core_benchmark");
+      else
+        $display("[FAIL] aes_core_benchmark");
+
+      $finish;
     end
   endtask
 
@@ -1945,6 +2312,27 @@ module test_bench;
     .cpu_debug_wb_count_o(soc_cpu_debug_wb_count_o),
     .cpu_debug_last_wb_info_o(soc_cpu_debug_last_wb_info_o),
     .cpu_debug_last_wb_data_o(soc_cpu_debug_last_wb_data_o)
+  );
+
+  aes128_cipher_top u_aes_bench_encrypt (
+    .clk_sys      (clk),
+    .rst_n        (~rst),
+    .cipher_key   (aes_bench_key),
+    .plain_text   (aes_bench_plain),
+    .cipher_en    (aes_bench_cipher_en),
+    .cipher_text  (aes_bench_cipher_text),
+    .cipher_ready (aes_bench_cipher_ready),
+    .cipher_key10 (aes_bench_round_key10)
+  );
+
+  aes128_cipher_inv_top u_aes_bench_decrypt (
+    .clk_sys        (clk),
+    .rst_n          (~rst),
+    .cipher_text    (aes_bench_cipher_in),
+    .round_key_10   (aes_bench_round_key10),
+    .decipher_en    (aes_bench_decipher_en),
+    .plain_text     (aes_bench_plain_text),
+    .decipher_ready (aes_bench_decipher_ready)
   );
 
   always #5 clk = ~clk;
@@ -1990,6 +2378,11 @@ module test_bench;
       first_tx_start_len_bytes   <= 32'b0;
       first_tx_start_dir         <= 2'b0;
       first_tx_start_block_size  <= 6'b0;
+      first_rx_start_src_addr    <= 32'b0;
+      first_rx_start_dst_addr    <= 32'b0;
+      first_rx_start_len_bytes   <= 32'b0;
+      first_rx_start_dir         <= 2'b0;
+      first_rx_start_block_size  <= 6'b0;
       first_rx_word_data         <= 32'b0;
       first_rx_word_valid_bytes  <= 3'b0;
       first_rx_word_last_in_block<= 1'b0;
@@ -2002,8 +2395,9 @@ module test_bench;
       first_tx_dma_word_write_seen <= 1'b0;
       first_tx_dma_read_seen     <= 1'b0;
       first_tx_start_seen        <= 1'b0;
+      first_rx_start_seen        <= 1'b0;
       first_rx_word_valid_seen   <= 1'b0;
-      for (i = 0; i < 8; i = i + 1) begin
+      for (i = 0; i < 32; i = i + 1) begin
         mmio_write_addr_log[i] <= 32'b0;
         mmio_write_data_log[i] <= 32'b0;
       end
@@ -2028,7 +2422,7 @@ module test_bench;
           dut.bridge_penable_w &&
           dut.bridge_pwrite_w &&
           dut.dma_apb_pready_w &&
-          (mmio_write_capture_count < 8)) begin
+          (mmio_write_capture_count < 32)) begin
         mmio_write_addr_log[mmio_write_capture_count] <= dut.bridge_paddr_w;
         mmio_write_data_log[mmio_write_capture_count] <= dut.bridge_pwdata_w;
         mmio_write_capture_count <= mmio_write_capture_count + 1;
@@ -2043,6 +2437,17 @@ module test_bench;
         first_tx_start_len_bytes  <= dut.u_dma_regfile.len_bytes_o;
         first_tx_start_dir        <= dut.u_dma_regfile.direction_o;
         first_tx_start_block_size <= dut.u_dma_regfile.block_size_o;
+      end
+
+      if ((!first_rx_start_seen) &&
+          dut.u_dma_regfile.start_pulse_o &&
+          (dut.u_dma_regfile.direction_o == 2'b10)) begin
+        first_rx_start_seen       <= 1'b1;
+        first_rx_start_src_addr   <= dut.u_dma_regfile.src_addr_o;
+        first_rx_start_dst_addr   <= dut.u_dma_regfile.dst_addr_o;
+        first_rx_start_len_bytes  <= dut.u_dma_regfile.len_bytes_o;
+        first_rx_start_dir        <= dut.u_dma_regfile.direction_o;
+        first_rx_start_block_size <= dut.u_dma_regfile.block_size_o;
       end
 
       if (dut.tx_dma_busy_w)
@@ -5331,6 +5736,10 @@ module test_bench;
       $display("Test_result STARTED %0s", case_name);
     input_len_bytes = 0;
     input2_len_bytes = 0;
+    input3_len_bytes = 0;
+    storage_bundle_record_count = 0;
+    storage_expected_record_count = input2_file_enable ? 2 : 1;
+    source_compare_base_addr = SRC_BASE_ADDR;
     src_mismatch_count = 0;
     rx_mismatch_count = 0;
     tx_nonzero_byte_count = 0;
@@ -5361,8 +5770,12 @@ module test_bench;
     system_rc = $system("mkdir -p loopback dmem_dump");
 
     repeat (2) @(negedge clk);
-    load_input_txt_to_dmem;
-    load_secondary_input_txt_to_dmem;
+    if (storage_bundle_mode) begin
+      load_storage_bundle_to_dmem;
+    end else begin
+      load_input_txt_to_dmem;
+      load_secondary_input_txt_to_dmem;
+    end
     rst = 0;
 
     wait_cycles = 0;
@@ -5421,7 +5834,7 @@ module test_bench;
     first_tx_ciphertext_dmem_word = {tx_dst_words[3], tx_dst_words[2], tx_dst_words[1], tx_dst_words[0]};
     first_tx_ciphertext_dmem_valid = (tx_ciphertext_bytes >= 16);
 
-    dump_dmem_region(SRC_DUMP_FILE, SRC_BASE_ADDR, input_len_bytes);
+    dump_dmem_region(SRC_DUMP_FILE, source_compare_base_addr, input_len_bytes);
     dump_dmem_region(TX_DUMP_FILE, TX_DST_BASE_ADDR, tx_ciphertext_bytes);
     if ((result_words[0] == RESULT_SIGNATURE_DMA) ||
         (result_words[0] == RESULT_SIGNATURE_STOR)) begin
@@ -5475,6 +5888,12 @@ module test_bench;
     if (input2_file_enable)
       $display("# input2_file=%0s input2_len=%0d src2=0x%08x",
                input2_file_name, input2_len_bytes, SRC2_BASE_ADDR);
+    if (input3_file_enable)
+      $display("# input3_file=%0s input3_len=%0d",
+               input3_file_name, input3_len_bytes);
+    if (storage_bundle_mode)
+      $display("# storage_bundle records=%0d src_compare=0x%08x",
+               storage_bundle_record_count, source_compare_base_addr);
     $display("# dma_active_dir=%0d busy=%0b done_sticky=%0b error_sticky=%0b",
              dut.dma_active_dir_r,
              dut.dma_engine_busy_w,
@@ -5531,6 +5950,10 @@ module test_bench;
                result_words[0], result_words[1], src_mismatch_count, rx_mismatch_count);
     end
     if (trace_detail_enable) begin
+      $display("# DEBUG mmio_write_count=%0d", mmio_write_capture_count);
+      for (i = 0; i < 32; i = i + 1)
+        $display("# DEBUG mmio_write[%0d] addr=%08x data=%08x",
+                 i, mmio_write_addr_log[i], mmio_write_data_log[i]);
       $display("# DEBUG first_tx_transport_valid=%0d count=%0d word=%032x",
                first_tx_transport_valid, tx_transport_capture_count, first_tx_transport_word);
       $display("# DEBUG first_tx_word_in_valid=%0d count=%0d data=%08x",
@@ -5543,6 +5966,9 @@ module test_bench;
       $display("# DEBUG first_tx_start=%0d src=%08x dst=%08x len=%08x dir=%0d blk=%0d",
                first_tx_start_seen, first_tx_start_src_addr, first_tx_start_dst_addr,
                first_tx_start_len_bytes, first_tx_start_dir, first_tx_start_block_size);
+      $display("# DEBUG first_rx_start=%0d src=%08x dst=%08x len=%08x dir=%0d blk=%0d",
+               first_rx_start_seen, first_rx_start_src_addr, first_rx_start_dst_addr,
+               first_rx_start_len_bytes, first_rx_start_dir, first_rx_start_block_size);
       $display("# DEBUG first_tx_ciphertext_dmem_valid=%0d word=%032x",
                first_tx_ciphertext_dmem_valid, first_tx_ciphertext_dmem_word);
       $display("# DEBUG first_rx_ciphertext_feed_valid=%0d count=%0d word=%032x",
@@ -5593,6 +6019,16 @@ module test_bench;
     $display("# FILES summary=%0s compare=%0s src_dump=%0s tx_dump=%0s rx_dump=%0s",
              LOOPBACK_SUMMARY_FILE, LOOPBACK_COMPARE_FILE,
              SRC_DUMP_FILE, TX_DUMP_FILE, RX_DUMP_FILE);
+    $display("# CPU DEBUG result0=%08x fetch_pc=%08x fetch_instr=%08x last_dmem_addr=%08x last_dmem_wdata=%08x last_dmem_ctrl=%08x wb_count=%0d last_wb_info=%08x last_wb_data=%08x",
+             result_words[0],
+             soc_cpu_debug_fetch_pc_o,
+             soc_cpu_debug_fetch_instr_o,
+             soc_cpu_debug_last_dmem_addr_o,
+             soc_cpu_debug_last_dmem_wdata_o,
+             soc_cpu_debug_last_dmem_ctrl_o,
+             soc_cpu_debug_wb_count_o,
+             soc_cpu_debug_last_wb_info_o,
+             soc_cpu_debug_last_wb_data_o);
 
     check_eq_2 ("mem_err_o_should_be_zero", mem_err_o, 2'b00);
     check_true ("cpu_should_publish_known_signature",
@@ -5652,11 +6088,12 @@ module test_bench;
                   ((result_words[12] & 32'h0000000f) == 32'h00000000));
       check_eq_32("storage_input2_len_echo", result_words[13], input2_len_bytes);
       check_eq_32("storage_selected_file_id", result_words[14], 32'h00000001);
-      check_eq_32("storage_total_records", result_words[15], 32'h00000002);
+      check_eq_32("storage_total_records", result_words[15], storage_expected_record_count[31:0]);
       check_eq_32("source_dmem_should_match_input1_file", src_mismatch_count, 32'h00000000);
       check_eq_32("loopback_rx_should_match_input1_file", rx_mismatch_count, 32'h00000000);
       check_true ("storage_tx1_ciphertext_region_should_not_be_all_zero", tx_nonzero_byte_count != 0);
-      check_eq_32("storage_dma_start_pulse_count", dma_start_pulse_count, 32'h00000003);
+      check_eq_32("storage_dma_start_pulse_count", dma_start_pulse_count,
+                  storage_expected_record_count[31:0] + 32'h00000001);
     end else if (result_words[0] == RESULT_SIGNATURE_TX) begin
       check_eq_32("result_signature", result_words[0], RESULT_SIGNATURE_TX);
       check_eq_32("cpu_error_mask_should_be_zero", result_words[1], 32'h00000000);

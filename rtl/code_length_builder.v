@@ -121,6 +121,7 @@ module code_length_builder #(
     wire [SYMBOL_WIDTH-1:0]        scan_symbol_w;
     wire [NODE_INDEX_WIDTH-1:0]    scan_order_w;
     wire [NODE_INDEX_WIDTH-1:0]    depth_parent_w;
+    wire [NODE_INDEX_WIDTH-1:0]    find_scan_last_idx_w;
     reg                            code_len_we;
     reg [SYMBOL_INDEX_WIDTH-1:0]   code_len_wr_addr;
     reg [CODE_LEN_WIDTH-1:0]       code_len_wr_data;
@@ -167,6 +168,8 @@ module code_length_builder #(
     assign scan_symbol_w  = scan_is_leaf_w ? symbol_read_data : {SYMBOL_WIDTH{1'b0}};
     assign scan_order_w   = scan_is_leaf_w ? scan_node_idx : node_order[scan_node_idx];
     assign depth_parent_w = node_parent[depth_node_idx_r];
+    assign find_scan_last_idx_w =
+        next_free_index - {{(NODE_INDEX_WIDTH-1){1'b0}}, 1'b1};
 
     function better_node;
         input [COUNT_WIDTH-1:0]      aw;
@@ -379,7 +382,7 @@ module code_length_builder #(
             end
 
             ST_FIND_SCAN: begin
-                if (scan_node_idx == (MAX_TREE_NODES-1))
+                if (scan_node_idx == find_scan_last_idx_w)
                     next_state = ST_BUILD_MERGE;
             end
 
@@ -652,7 +655,7 @@ module code_length_builder #(
                         end
                     end
 
-                    if (scan_node_idx != (MAX_TREE_NODES-1))
+                    if (scan_node_idx != find_scan_last_idx_w)
                         scan_node_idx <= scan_node_idx +
                                          {{(NODE_INDEX_WIDTH-1){1'b0}},1'b1};
                 end

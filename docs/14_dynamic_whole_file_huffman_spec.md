@@ -48,12 +48,12 @@ Format cu:
 MODE_COMPRESSED:
   2 bit mode
   6 bit block_size
-  6 bit symbol_count
+  9 bit symbol_count
   symbol_count * 13 bit table entry
   payload bits
 ```
 
-Voi block 32 byte, moi block deu tra `14 + 13*K` bit header/table. Neu file co
+Voi block 32 byte, moi block deu tra `17 + 13*K` bit header/table. Neu file co
 nhieu block, overhead table bi lap lai qua nhieu lan va lam storage saving giam.
 
 Format moi giu nguyen 2-bit mode cu de RX khong phai co mot frame parser hoan
@@ -82,21 +82,25 @@ Y nghia:
 ### 3.2 Table-reuse compressed block
 
 ```text
-mode         = 2'b10
-block_size   = 1..32
-symbol_count = 0
-entries      = none
-payload      = Huffman coded bytes using previous compressed table
+mode              = 2'b10
+reuse_size_present= 0 -> implicit block_size = 32
+reuse_size_present= 1 -> next 6 bits carry block_size = 1..31/32
+symbol_count      = implicit 0
+entries           = none
+payload           = Huffman coded bytes using previous compressed table
 ```
 
 Y nghia:
 
-- `symbol_count=0` khong con la loi format.
+- `symbol_count=0` khong con la loi format; trong compact reuse header truong
+  nay la implicit, khong truyen 9 bit nua.
 - RX khong doc entry nao.
 - RX dung lai canonical decode table gan nhat trong cung stream/frame.
 - Neu chua co table hop le ma gap `symbol_count=0`, RX phai bao error.
 
-Day la primitive can co de TX co the gui table mot lan cho toan file.
+Day la primitive can co de TX co the gui table mot lan cho toan file. Header
+reuse cu 17 bit duoc rut xuong con 3 bit cho block 32 byte, hoac 9 bit cho
+block cuoi/khac 32 byte.
 
 ## 4. TX Whole-File Flow Implemented
 
@@ -256,9 +260,9 @@ make all
 Ket qua loopback whole-file AES voi `sim/input1.txt`:
 
 - input length: `2551` byte
-- payload ratio: `37.50%`
+- payload ratio: `32.11%`
 - payload space saving: `62.50%`
-- final storage ratio: `40.14%`
+- final storage ratio: `34.50%`
 - final storage saving: `59.86%`
 - RX mismatch: `0`
 

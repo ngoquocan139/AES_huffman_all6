@@ -607,7 +607,7 @@ Secure-storage main demo:
 ```bash
 cd sim
 make compile C_SRC=test_mmio_dma_storage_table.c
-make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt"
 ```
 
 Direct TX/RX loopback:

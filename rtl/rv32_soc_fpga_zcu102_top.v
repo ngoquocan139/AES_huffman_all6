@@ -49,11 +49,13 @@ module rv32_soc_fpga_zcu102_top (
   reg [24:0] loader_activity_cnt_r = 25'b0;
   reg [24:0] tx_activity_cnt_r = 25'b0;
   reg [24:0] rx_activity_cnt_r = 25'b0;
+  reg [19:0] soc_release_delay_r = 20'd0;
   reg        tx_done_latched_r = 1'b0;
   reg        rx_done_latched_r = 1'b0;
   reg        error_latched_r = 1'b0;
 
   localparam [24:0] ACTIVITY_STRETCH_CYCLES = 25'd25000000;
+  localparam [19:0] SOC_RELEASE_DELAY_CYCLES = 20'd1000000;
 
   wire [31:0] aux_rdata_w;
   wire [1:0]  mem_err_w;
@@ -95,8 +97,9 @@ module rv32_soc_fpga_zcu102_top (
   wire        loader_activity_w;
   wire        tx_activity_w;
   wire        rx_activity_w;
-  wire        file_id_led_w;
-  wire        board_event_led_w;
+  wire        file_id_bit0_led_w;
+  wire        file_id_bit1_led_w;
+  wire        soc_release_delay_active_w;
   wire        unused_loader_status_w;
   wire [31:0] cpu_debug_status_w;
   wire [31:0] cpu_debug_fetch_pc_w;
@@ -114,7 +117,9 @@ module rv32_soc_fpga_zcu102_top (
 
   assign por_rst_w = |por_shift_r;
   assign fpga_rst_w = por_rst_w | btn_reset_sync_r;
-  assign soc_rst_w = fpga_rst_w | (!loader_done_w) | (!run_latched_w) | button_soc_hold_w;
+  assign soc_release_delay_active_w = (soc_release_delay_r != 20'd0);
+  assign soc_rst_w = fpga_rst_w | (!loader_done_w) | soc_release_delay_active_w |
+                     (!run_latched_w) | button_soc_hold_w;
   assign use_loader_aux_w = loader_busy_w | loader_aux_en_w;
   assign soc_aux_en_w = use_loader_aux_w ? loader_aux_en_w : button_aux_en_w;
   assign soc_aux_we_w = use_loader_aux_w ? loader_aux_we_w : button_aux_we_w;
@@ -131,6 +136,7 @@ module rv32_soc_fpga_zcu102_top (
       loader_activity_cnt_r <= 25'b0;
       tx_activity_cnt_r <= 25'b0;
       rx_activity_cnt_r <= 25'b0;
+      soc_release_delay_r <= SOC_RELEASE_DELAY_CYCLES;
       tx_done_latched_r <= 1'b0;
       rx_done_latched_r <= 1'b0;
       error_latched_r <= 1'b0;
@@ -140,11 +146,17 @@ module rv32_soc_fpga_zcu102_top (
       loader_activity_cnt_r <= 25'b0;
       tx_activity_cnt_r <= 25'b0;
       rx_activity_cnt_r <= 25'b0;
+      soc_release_delay_r <= SOC_RELEASE_DELAY_CYCLES;
       tx_done_latched_r <= 1'b0;
       rx_done_latched_r <= 1'b0;
       error_latched_r <= 1'b0;
     end else begin
       heartbeat_r <= heartbeat_r + 26'd1;
+
+      if (!loader_done_w)
+        soc_release_delay_r <= SOC_RELEASE_DELAY_CYCLES;
+      else if (soc_release_delay_r != 20'd0)
+        soc_release_delay_r <= soc_release_delay_r - 20'd1;
 
       if (loader_busy_w)
         loader_activity_cnt_r <= ACTIVITY_STRETCH_CYCLES;
@@ -175,9 +187,8 @@ module rv32_soc_fpga_zcu102_top (
   assign loader_activity_w = (loader_activity_cnt_r != 25'b0);
   assign tx_activity_w = (tx_activity_cnt_r != 25'b0);
   assign rx_activity_w = (rx_activity_cnt_r != 25'b0);
-  assign file_id_led_w = (selected_file_id_w == 32'd3);
-  assign board_event_led_w = button_busy_w ? led_blink_w :
-                              (zeroize_done_w | snapshot_valid_w);
+  assign file_id_bit0_led_w = selected_file_id_w[0];
+  assign file_id_bit1_led_w = selected_file_id_w[1];
 
   assign led_o[0] = heartbeat_led_w;
   assign led_o[1] = imem_program_seen_w;
@@ -185,17 +196,18 @@ module rv32_soc_fpga_zcu102_top (
   assign led_o[3] = tx_activity_w ? led_blink_w : tx_done_latched_r;
   assign led_o[4] = rx_activity_w ? led_blink_w : rx_done_latched_r;
   assign led_o[5] = error_latched_r;
-  assign led_o[6] = file_id_led_w;
-  assign led_o[7] = board_event_led_w;
+  assign led_o[6] = file_id_bit0_led_w;
+  assign led_o[7] = file_id_bit1_led_w;
   assign unused_loader_status_w = (|loader_bytes_loaded_w) | (^aux_rdata_w) |
-                                  run_latched_w;
+                                  run_latched_w | button_busy_w |
+                                  zeroize_done_w | snapshot_valid_w;
 
   uart_dmem_loader #(
     .CLK_HZ          (50000000),
     .BAUD_RATE       (115200),
-    .SRC_BASE_ADDR   (32'h0000_2000),
+    .SRC_BASE_ADDR   (32'h0000_0800),
     .INPUT_LEN_ADDR  (32'h0000_0040),
-    .MAX_INPUT_BYTES (7168),
+    .MAX_INPUT_BYTES (12288),
     .MAX_READ_BYTES  (32768)
   ) u_uart_dmem_loader (
     .clk_i           (clk_50m_w),
@@ -238,7 +250,8 @@ module rv32_soc_fpga_zcu102_top (
     .ZEROIZE_BASE_ADDR  (32'h0000_0100),
     .ZEROIZE_WORDS      (64),
     .FILE_ID_A          (32'd1),
-    .FILE_ID_B          (32'd3)
+    .FILE_ID_B          (32'd2),
+    .FILE_ID_C          (32'd3)
   ) u_fpga_button_board_ctrl (
     .clk_i             (clk_50m_w),
     .rst_i             (fpga_rst_w),

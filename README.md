@@ -54,15 +54,15 @@ flowchart LR
 - FPGA closure: default ZCU102 full TX+RX implementation and bitstream pass;
   the wrapper divides USER_SI570 300 MHz to the existing 50 MHz SoC/UART clock
   and auto-starts RV32I after UART `LOAD`
-- Full TX+RX ZCU102 post-impl: `36382` LUTs, `19382` registers, `7281` CLBs,
-  `1628` control sets, `11` BRAM tiles, WNS `+9.093 ns`, WHS `+0.015 ns`
-- Full TX+RX ZCU102 vectorless power estimate: `0.796 W` total, `0.146 W`
+- Full TX+RX ZCU102 post-impl: `37069` LUTs, `19794` registers, `7360` CLBs,
+  `1794` control sets, `11` BRAM tiles, WNS `+7.871 ns`, WHS `+0.015 ns`
+- Full TX+RX ZCU102 vectorless power estimate: `0.793 W` total, `0.144 W`
   dynamic, `0.649 W` static
 - FPGA UART utility supports `LOAD` input frames and aligned DMEM `READ`
   readback frames for result/debug dumps
 - TX-only post-impl: `11933` LUTs, `5469` registers, `3979` slices,
   `208` control sets, WNS `+1.277 ns`
-- MIT-BIH preprocessed comparison: `32.76%` average final storage ratio
+- MIT-BIH preprocessed comparison: `29.87%` average final storage ratio
 
 ## Core Docs
 

@@ -10,7 +10,8 @@ module fpga_button_board_ctrl #(
   parameter [31:0]  ZEROIZE_BASE_ADDR     = 32'h0000_0100,
   parameter integer ZEROIZE_WORDS         = 64,
   parameter [31:0]  FILE_ID_A             = 32'd1,
-  parameter [31:0]  FILE_ID_B             = 32'd3
+  parameter [31:0]  FILE_ID_B             = 32'd2,
+  parameter [31:0]  FILE_ID_C             = 32'd3
 ) (
   input  wire        clk_i,
   input  wire        rst_i,
@@ -220,14 +221,24 @@ module fpga_button_board_ctrl #(
       end
 
       if (file_next_pulse_w) begin
-        selected_file_id_r <= (selected_file_id_r == FILE_ID_A) ? FILE_ID_B : FILE_ID_A;
+        if (selected_file_id_r == FILE_ID_A)
+          selected_file_id_r <= FILE_ID_B;
+        else if (selected_file_id_r == FILE_ID_B)
+          selected_file_id_r <= FILE_ID_C;
+        else
+          selected_file_id_r <= FILE_ID_A;
         pending_file_r     <= 1'b1;
         pending_event_r    <= 1'b1;
         pending_status_r   <= 1'b1;
       end
 
       if (file_prev_pulse_w) begin
-        selected_file_id_r <= (selected_file_id_r == FILE_ID_B) ? FILE_ID_A : FILE_ID_B;
+        if (selected_file_id_r == FILE_ID_A)
+          selected_file_id_r <= FILE_ID_C;
+        else if (selected_file_id_r == FILE_ID_C)
+          selected_file_id_r <= FILE_ID_B;
+        else
+          selected_file_id_r <= FILE_ID_A;
         pending_file_r     <= 1'b1;
         pending_event_r    <= 1'b1;
         pending_status_r   <= 1'b1;

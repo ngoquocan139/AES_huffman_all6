@@ -294,14 +294,14 @@ cd sim
 make compile C_SRC=test_mmio_dma_storage_table.c
 make all TESTNAME=dma_storage_table_input1_then_input3 \
   TB_NAME=test_bench \
-  RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+  RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt"
 ```
 
 Observed behavior:
 
-- Two secure records are written with different file IDs.
+- Two secure records are written with different file IDs in the simulation flow.
 - Slot 0 uses ciphertext address `0x0000_4000`.
-- Slot 1 uses ciphertext address `0x0000_5000`.
+- Slot 1 uses ciphertext address `0x0000_4A00`.
 - IV words for the two slots are checked to be different.
 - `secure_read(1, 0x0000_6000, ...)` restores the selected record.
 - Simulation reports `PASS=22`, `FAIL=0`.

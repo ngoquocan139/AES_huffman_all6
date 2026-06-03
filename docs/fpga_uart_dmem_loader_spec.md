@@ -215,27 +215,27 @@ So the payload layout inside DMEM is consistent with:
 
 ### 5.3 Size limit
 
-The loader currently accepts at most:
+The ZCU102 storage-demo loader currently accepts at most:
 
-- `7168` bytes
+- `12288` bytes
 
-This is the RTL parameter `MAX_INPUT_BYTES=7168` in `uart_dmem_loader.v`,
-`rv32_soc_fpga_zcu102_top.v`, and the legacy `rv32_soc_fpga_demo_top.v`. The
-physical source buffer window is larger:
+This is the RTL parameter `MAX_INPUT_BYTES=12288` in
+`rv32_soc_fpga_zcu102_top.v`. The current ZCU102 full-SoC bitstream stages UART
+payloads at `0x00000800` so the secure-storage firmware can accept one bundle
+containing multiple demo files:
 
 ```text
-SRC_BASE_ADDR    = 0x00002000
-TX_DST_BASE_ADDR = 0x00004000
-source bytes     = 0x2000 = 8192
+UART_STAGE_BASE_ADDR = 0x00000800
+MAX_INPUT_BYTES      = 0x3000 = 12288
+ciphertext base      = 0x00004000
 ```
 
-The loader intentionally caps runtime UART input at `7168` bytes to leave
-bring-up margin below the `0x2000` source window. This is not a dynamic value:
-changing the FPGA-side limit requires changing the `MAX_INPUT_BYTES` parameter
-and rebuilding the bitstream.
+The older ZedBoard demo wrapper still uses the legacy `0x2000` source base and
+smaller input limit. The storage-demo ZCU102 bitstream must be rebuilt if this
+FPGA-side limit or source base changes.
 
-If `payload_len == 0` or `payload_len > 7168`, the loader enters the error path
-and does not release the SoC reset.
+If `payload_len == 0` or `payload_len > 12288`, the loader enters the error
+path and does not release the SoC reset.
 
 ### 5.4 READ behavior
 
@@ -321,8 +321,8 @@ Current `rv32_soc_fpga_zcu102_top` LEDs:
 | `led_o[3]` | TX DMA: blink during/stretched after TX busy, solid after TX done |
 | `led_o[4]` | RX DMA: blink during/stretched after RX busy, solid after RX done |
 | `led_o[5]` | sticky error: loader, TX/RX DMA, or DMEM memory error |
-| `led_o[6]` | selected secure-storage `file_id`: off means `file_id=1`, on means `file_id=3` |
-| `led_o[7]` | board-control function: blink while zeroize/snapshot/file-select logic is busy, solid after zeroize or snapshot completes |
+| `led_o[6]` | selected secure-storage `file_id` bit 0 |
+| `led_o[7]` | selected secure-storage `file_id` bit 1 |
 
 The current Vivado flow does not consume a standalone `.coe` file. `make
 compile` creates `sim/instruction.mem`, and `vivado/synth_soc.tcl` copies that
@@ -339,8 +339,9 @@ Practical interpretation:
 - `LD3 = 1`: TX path reached done.
 - `LD4 = 1`: RX path reached done.
 - `LD5 = 1`: stop and inspect UART readback/logs because an error latched.
-- `LD6 = 0/1`: selected secure-storage file is `file_id=1` / `file_id=3`.
-- `LD7` blinking/solid: board-control action is active / last zeroize or snapshot finished.
+- `LD6/LD7 = 01`: selected secure-storage file is `file_id=1` (`SpO2/HR`).
+- `LD6/LD7 = 10`: selected secure-storage file is `file_id=2` (sensor log).
+- `LD6/LD7 = 11`: selected secure-storage file is `file_id=3` (ECG waveform).
 
 ### 7.1 Pushbutton Contract
 
@@ -349,8 +350,8 @@ Practical interpretation:
 | CPU_RESET / SW20 | `btn_reset_i` | Reset UART loader, board-control latch state, and SoC logic. Host must send `LOAD` again. This is not a DMEM erase. |
 | Center / SW15 | `btn_run_i` | Optional manual set of `run_latched`; normal flow sets it automatically when UART `LOAD` completes. |
 | North / SW18 | `btn_zeroize_i` | Clear secure metadata/IV DMEM region `0x100..0x1FF`, reset/hold SoC during clearing, clear run latch. |
-| East / SW17 | `btn_file_next_i` | Toggle selected secure-storage `file_id` between `1` and `3`; value is written to `0x54`. |
-| West / SW14 | `btn_file_prev_i` | Toggle selected secure-storage `file_id` between `1` and `3`; value is written to `0x54`. |
+| East / SW17 | `btn_file_next_i` | Select next secure-storage `file_id`: `1 -> 2 -> 3 -> 1`; value is written to `0x54`. |
+| West / SW14 | `btn_file_prev_i` | Select previous secure-storage `file_id`: `1 -> 3 -> 2 -> 1`; value is written to `0x54`. |
 | South / SW16 | `btn_snapshot_i` | Copy result words `0x00..0x3C` to snapshot region `0x200..0x23F`. |
 
 Board-control DMEM words:
@@ -389,8 +390,8 @@ Current practical FPGA demo flow:
 2. build a ZCU102 bitstream with `make vivado_flow_tx` for a TX smoke test or
    `make vivado_flow_full` for the full TX+RX SoC
 3. program the board
-4. use the UART loader to push `input1.txt`
-5. CPU reads `INPUT_LEN_ADDR`
+4. use the UART loader to push either one input or a secure-storage bundle
+5. CPU reads `INPUT_LEN_ADDR` or parses the bundle header at `0x00000800`
 6. CPU configures DMA mode from the compiled firmware
 7. accelerator output is written back to the firmware-selected DMEM buffer
 
@@ -414,6 +415,9 @@ make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
 make uart_read UART_PORT=/dev/ttyUSB0 UART_READ_ADDR=0x0 UART_READ_LEN=64
 make uart_load_read UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt UART_READ_ADDR=0x0 UART_READ_LEN=64
 python3 ../tools/uart_dmem_loader.py --port /dev/ttyUSB0 --cpu-info
+python3 ../tools/uart_dmem_loader.py --port /dev/ttyUSB0 \
+  --bundle input1.txt input2.txt mitdb_112_mlii_10s_delta2_var.bin \
+  --post-load-delay 3 --read 0x0 64 --words --decode-result
 ```
 
 The script:
@@ -423,6 +427,8 @@ The script:
 3. optionally sends `"READ" + addr + len`
 4. waits for `0x79` or `0x1F`
 5. prints READ data as 32-bit words when `--words` is used
+6. for `--bundle`, creates a secure-storage package where file order maps to
+   `file_id=1`, `file_id=2`, and `file_id=3`
 
 When the READ covers `0x00000000..0x0000003f`, the script also decodes the
 firmware result block and then reads the live CPU debug window. It now prints a
@@ -433,6 +439,9 @@ firmware result block and then reads the live CPU debug window. It now prints a
 - input length words from `0x40/0x44`
 - CPU polling-loop counts recorded by the firmware
 - DMA jobs launched by the CPU-visible software flow
+- secure-storage record table: per-file plaintext bytes, ciphertext bytes,
+  storage ratio, space saving, selected readback length check, and aggregate
+  ratio for report comparison
 - board-control status from `0x50..0x58` when the extra READ succeeds
 - live CPU status from `0x7f80..0x7fbf`: fetch PC, instruction word, cycle
   count, fetch count, DMEM/MMIO access count, last writeback, and loader bytes

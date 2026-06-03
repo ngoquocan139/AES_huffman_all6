@@ -48,13 +48,15 @@ module huffman_block_parser #(
     output wire                           error_flag
 );
 
-    localparam [2:0] ST_PARSE_MODE        = 3'd0;
-    localparam [2:0] ST_PARSE_RAW_PARTIAL = 3'd1;
-    localparam [2:0] ST_PARSE_ONE_SYMBOL  = 3'd2;
-    localparam [2:0] ST_PARSE_COMP_FIXED  = 3'd3;
-    localparam [2:0] ST_META              = 3'd4;
-    localparam [2:0] ST_ENTRY             = 3'd5;
-    localparam [2:0] ST_PAYLOAD           = 3'd6;
+    localparam [3:0] ST_PARSE_MODE            = 4'd0;
+    localparam [3:0] ST_PARSE_RAW_PARTIAL     = 4'd1;
+    localparam [3:0] ST_PARSE_ONE_SYMBOL      = 4'd2;
+    localparam [3:0] ST_PARSE_COMP_FIXED      = 4'd3;
+    localparam [3:0] ST_META                  = 4'd4;
+    localparam [3:0] ST_ENTRY                 = 4'd5;
+    localparam [3:0] ST_PAYLOAD               = 4'd6;
+    localparam [3:0] ST_PARSE_COMP_REUSE_FLAG = 4'd7;
+    localparam [3:0] ST_PARSE_COMP_REUSE_SIZE = 4'd8;
 
     localparam [1:0] MODE_RAW_FULL        = 2'b00;
     localparam [1:0] MODE_RAW_PARTIAL     = 2'b01;
@@ -73,15 +75,19 @@ module huffman_block_parser #(
     localparam [BIT_COUNT_WIDTH-1:0] ONE_SYMBOL_BITS_LEN  = 9'd14;
     localparam [BIT_COUNT_WIDTH-1:0] COMP_FIXED_BITS_LEN  =
         (BLOCK_SIZE_WIDTH + SYMBOL_COUNT_WIDTH);
+    localparam [BIT_COUNT_WIDTH-1:0] COMP_REUSE_FLAG_BITS_LEN = 9'd1;
+    localparam [BIT_COUNT_WIDTH-1:0] COMP_REUSE_SIZE_BITS_LEN =
+        BLOCK_SIZE_WIDTH[BIT_COUNT_WIDTH-1:0];
     localparam [BIT_COUNT_WIDTH-1:0] COMP_ENTRY_BITS_LEN  = 9'd13;
     localparam [BIT_COUNT_WIDTH-1:0] RAW_FULL_PAYLOAD_BITS = 9'd256;
     localparam [BLOCK_SIZE_WIDTH-1:0] FULL_BLOCK_SIZE      = 6'd32;
 
     reg  [BIT_BUFFER_WIDTH-1:0]           bit_buffer_r, bit_buffer_n;
     reg  [BIT_COUNT_WIDTH-1:0]            bit_count_r, bit_count_n;
-    reg  [2:0]                            state_r, state_n;
+    reg  [3:0]                            state_r, state_n;
     reg                                   frame_active_r, frame_active_n;
     reg                                   frame_last_seen_r, frame_last_seen_n;
+    reg                                   compressed_table_seen_r, compressed_table_seen_n;
 
     reg  [1:0]                            block_mode_r, block_mode_n;
     reg  [BLOCK_SIZE_WIDTH-1:0]           block_size_r, block_size_n;
@@ -107,6 +113,7 @@ module huffman_block_parser #(
     reg  [SYMBOL_COUNT_WIDTH-1:0]         symbol_count_tmp;
     reg  [SYMBOL_WIDTH-1:0]               symbol_value_tmp;
     reg  [CODE_LEN_WIDTH-1:0]             code_len_tmp;
+    reg                                   reuse_size_present_tmp;
     reg                                   parser_step_blocked;
 
     integer                               visible_bits_int;
@@ -205,6 +212,7 @@ module huffman_block_parser #(
         state_n                      = state_r;
         frame_active_n               = frame_active_r;
         frame_last_seen_n            = frame_last_seen_r;
+        compressed_table_seen_n      = compressed_table_seen_r;
 
         block_mode_n                 = block_mode_r;
         block_size_n                 = block_size_r;
@@ -228,6 +236,7 @@ module huffman_block_parser #(
         symbol_count_tmp             = {SYMBOL_COUNT_WIDTH{1'b0}};
         symbol_value_tmp             = {SYMBOL_WIDTH{1'b0}};
         code_len_tmp                 = {CODE_LEN_WIDTH{1'b0}};
+        reuse_size_present_tmp       = 1'b0;
         parser_step_blocked          = 1'b0;
 
         visible_bits_int             = 0;
@@ -434,7 +443,10 @@ module huffman_block_parser #(
                         end
                         else begin
                             block_mode_n = MODE_COMPRESSED;
-                            state_n      = ST_PARSE_COMP_FIXED;
+                            if (compressed_table_seen_n)
+                                state_n  = ST_PARSE_COMP_REUSE_FLAG;
+                            else
+                                state_n  = ST_PARSE_COMP_FIXED;
                         end
                     end
                 end
@@ -508,6 +520,54 @@ module huffman_block_parser #(
                             entry_count_remaining_n      = symbol_count_tmp;
                             block_meta_valid_n           = 1'b1;
                             state_n                      = ST_META;
+
+                            if (symbol_count_tmp != {SYMBOL_COUNT_WIDTH{1'b0}})
+                                compressed_table_seen_n = 1'b1;
+                        end
+                    end
+                end
+
+                ST_PARSE_COMP_REUSE_FLAG: begin
+                    if (bit_count_n >= COMP_REUSE_FLAG_BITS_LEN) begin
+                        parser_step_blocked    = 1'b1;
+                        reuse_size_present_tmp = bit_buffer_n[0];
+
+                        bit_buffer_n = shift_buffer(bit_buffer_n, COMP_REUSE_FLAG_BITS_LEN);
+                        bit_count_n  = bit_count_n - COMP_REUSE_FLAG_BITS_LEN;
+
+                        if (reuse_size_present_tmp) begin
+                            state_n = ST_PARSE_COMP_REUSE_SIZE;
+                        end
+                        else begin
+                            block_size_n                 = FULL_BLOCK_SIZE;
+                            symbol_count_n               = {SYMBOL_COUNT_WIDTH{1'b0}};
+                            raw_payload_bits_remaining_n = {BIT_COUNT_WIDTH{1'b0}};
+                            entry_count_remaining_n      = {SYMBOL_COUNT_WIDTH{1'b0}};
+                            block_meta_valid_n           = 1'b1;
+                            state_n                      = ST_META;
+                        end
+                    end
+                end
+
+                ST_PARSE_COMP_REUSE_SIZE: begin
+                    if (bit_count_n >= COMP_REUSE_SIZE_BITS_LEN) begin
+                        parser_step_blocked = 1'b1;
+                        block_size_tmp      = bit_buffer_n[BLOCK_SIZE_WIDTH-1:0];
+                        block_size_n        = block_size_tmp;
+                        symbol_count_n      = {SYMBOL_COUNT_WIDTH{1'b0}};
+
+                        bit_buffer_n = shift_buffer(bit_buffer_n, COMP_REUSE_SIZE_BITS_LEN);
+                        bit_count_n  = bit_count_n - COMP_REUSE_SIZE_BITS_LEN;
+
+                        if ((block_size_tmp == {BLOCK_SIZE_WIDTH{1'b0}}) ||
+                            (block_size_tmp > FULL_BLOCK_SIZE)) begin
+                            error_n = 1'b1;
+                        end
+                        else begin
+                            raw_payload_bits_remaining_n = {BIT_COUNT_WIDTH{1'b0}};
+                            entry_count_remaining_n      = {SYMBOL_COUNT_WIDTH{1'b0}};
+                            block_meta_valid_n           = 1'b1;
+                            state_n                      = ST_META;
                         end
                     end
                 end
@@ -570,6 +630,16 @@ module huffman_block_parser #(
                         error_n = 1'b1;
                 end
 
+                ST_PARSE_COMP_REUSE_FLAG: begin
+                    if (bit_count_n < COMP_REUSE_FLAG_BITS_LEN)
+                        error_n = 1'b1;
+                end
+
+                ST_PARSE_COMP_REUSE_SIZE: begin
+                    if (bit_count_n < COMP_REUSE_SIZE_BITS_LEN)
+                        error_n = 1'b1;
+                end
+
                 ST_ENTRY: begin
                     if ((entry_count_remaining_n != {SYMBOL_COUNT_WIDTH{1'b0}}) &&
                         (bit_count_n < COMP_ENTRY_BITS_LEN))
@@ -597,6 +667,8 @@ module huffman_block_parser #(
         // Error is sticky. Partial state is cleared from registered error_r on
         // the next cycle so the long error-detect path does not drive valid
         // or reset fan-in directly.
+        if (frame_done_n)
+            compressed_table_seen_n = 1'b0;
     end
 
     always @(posedge clk) begin
@@ -606,6 +678,7 @@ module huffman_block_parser #(
             state_r                      <= ST_PARSE_MODE;
             frame_active_r               <= 1'b0;
             frame_last_seen_r            <= 1'b0;
+            compressed_table_seen_r      <= 1'b0;
 
             block_mode_r                 <= MODE_RAW_FULL;
             block_size_r                 <= {BLOCK_SIZE_WIDTH{1'b0}};
@@ -630,6 +703,7 @@ module huffman_block_parser #(
             state_r                      <= ST_PARSE_MODE;
             frame_active_r               <= 1'b0;
             frame_last_seen_r            <= 1'b0;
+            compressed_table_seen_r      <= 1'b0;
 
             block_mode_r                 <= MODE_RAW_FULL;
             block_size_r                 <= {BLOCK_SIZE_WIDTH{1'b0}};
@@ -654,6 +728,7 @@ module huffman_block_parser #(
             state_r                      <= state_n;
             frame_active_r               <= frame_active_n;
             frame_last_seen_r            <= frame_last_seen_n;
+            compressed_table_seen_r      <= compressed_table_seen_n;
 
             block_mode_r                 <= block_mode_n;
             block_size_r                 <= block_size_n;

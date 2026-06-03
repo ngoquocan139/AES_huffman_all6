@@ -65,7 +65,7 @@ make license
 
 | Goal | C file | TESTNAME | INPUT_FILE | Mode |
 |---|---|---|---|---|
-| Current secure-storage API demo | `test_mmio_dma_storage_table.c` + `secure_storage_fw.h` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | `secure_write`, `secure_write`, `secure_read` |
+| Current secure-storage API demo | `test_mmio_dma_storage_table.c` + `secure_storage_fw.h` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input2.txt` | `secure_write`, `secure_write`, `secure_read` |
 | Legacy direct TX->RX loopback | `test_mmio_dma.c` | `dma_compress_aes_input1` | `input1.txt` | TX `0x9`, RX `0x2` |
 | Small TX->RX loopback | `test_mmio_dma.c` | `dma_compress_aes_input3` | `input3.txt` | TX `0x9`, RX `0x2` |
 | Alnum63 stress loopback | `test_mmio_dma.c` | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | TX `0x9`, RX `0x2` |
@@ -75,7 +75,7 @@ make license
 | DMEM load/readback smoke | any compiled C image | `dmem_load_readback_smoke` | not used | aux Port B write/read contract used by UART loader |
 | MIT-BIH paper comparison | `test_mmio_dma.c` | `dma_mitdb_100_delta2_var_e2e` | `mitdb_100_mlii_10s_delta2_var.bin` | TX `0x9`, RX `0x2`, `+INPUT_BINARY` |
 | MMIO regfile basic | `test_mmio_regfile_basic.c` | `mmio_regfile_basic` | optional | no DMA start |
-| Multi-record storage demo | `test_mmio_dma_storage_table.c` + `secure_storage_fw.h` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | `secure_write` input1, `secure_write` input3, `secure_read` input1 |
+| Multi-record storage demo | `test_mmio_dma_storage_table.c` + `secure_storage_fw.h` | `dma_storage_table_input1_then_input3` | `input1.txt` + `input2.txt` | `secure_write` input1, `secure_write` input2, `secure_read` selected file |
 | Full coverage regression | selected by `run.csh` | from `pat.list` | from `run.csh` | all active cases |
 
 Known debug-only entries are commented in `sim/pat.list`; do not use them as
@@ -102,9 +102,10 @@ Practical limits:
 |---|---:|
 | DMEM total | 32 KiB |
 | Testbench loader max | 10000 bytes |
-| FPGA UART loader max | 7168 bytes |
-| Main source buffer | 8192 bytes: `0x00002000..0x00003FFF` |
-| TX output region | 8192 bytes: `0x00004000..0x00005FFF` |
+| FPGA UART loader max | 12288 bytes on ZCU102 storage-demo top |
+| UART staging buffer | 12288 bytes: `0x00000800..0x000037FF` on ZCU102 storage-demo top |
+| Legacy simulation source buffers | `0x00002000..0x00003FFF` and `0x00003000..0x00003FFF` |
+| Secure-storage ciphertext slots | 3 slots from `0x00004000`, stride `0x0A00` |
 | RX output region | 8192 bytes: `0x00006000..0x00007FFF` |
 
 MIT-BIH comparison inputs:
@@ -146,7 +147,7 @@ Current secure-storage API demo:
 cd sim
 make compile C_SRC=test_mmio_dma_storage_table.c
 make drc
-make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt"
 ```
 
 This case proves that RV32I firmware can store metadata for two encrypted
@@ -210,7 +211,7 @@ Multi-record storage demo command is the same current secure-storage API demo:
 cd sim
 make compile C_SRC=test_mmio_dma_storage_table.c
 make drc
-make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt"
 ```
 
 The storage metadata and IV policy are implemented in `secure_storage_fw.h`.
@@ -454,7 +455,7 @@ pushbutton board-control and UART-load auto-run:
 
 | Build | WNS | WHS | LUT | FF | CLB | Control sets | BRAM | DSP | Power | Status |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| Full `rv32_soc_synth_full_zcu102` | +9.093 ns | +0.015 ns | 36382 | 19382 | 7281 | 1628 | 11 | 0 | 0.796 W | Timing pass, bitstream pass |
+| Full `rv32_soc_synth_full_zcu102` | +7.871 ns | +0.015 ns | 37069 | 19794 | 7360 | 1794 | 11 | 0 | 0.793 W | Timing pass, bitstream pass |
 
 Route status for this build is `0` failed nets, `0` unrouted nets, and `0`
 partially routed nets. Bitstream copies:
@@ -467,7 +468,7 @@ sim/vivado_bitstreams/rv32_soc_synth_full_zcu102_rv32_soc_fpga_zcu102_top.bit
 Both files currently have SHA256:
 
 ```text
-faf8d51c72f5287e9bd46063e9baf37b7aeef8317dd0cbc4b98f6e20f5a7d62e
+dffe8c8bd8fabb99dcf3e5be27ce7f7a5ac58095a48267f110dee35a795390c7
 ```
 
 This bitstream was built with the default `RuntimeOptimized` synthesis directive
@@ -477,7 +478,7 @@ is acceptable. Post-implementation DRC has one non-fatal
 `RTSTAT-10` warning for unused high address bits on the UART loader auxiliary
 address bus.
 
-Power is Vivado vectorless `report_power`: `0.796 W` total, `0.146 W`
+Power is Vivado vectorless `report_power`: `0.793 W` total, `0.144 W`
 dynamic, `0.649 W` static. Vivado warns that high-fanout reset activity can
 make vectorless power inaccurate; use SAIF/VCD switching activity for a final
 measured-style power claim.
@@ -529,6 +530,9 @@ cd sim
 make uart_load UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt
 make uart_read UART_PORT=/dev/ttyUSB0 UART_READ_ADDR=0x0 UART_READ_LEN=64
 make uart_load_read UART_PORT=/dev/ttyUSB0 UART_INPUT=input1.txt UART_READ_ADDR=0x0 UART_READ_LEN=64
+python3 ../tools/uart_dmem_loader.py --port /dev/ttyUSB0 \
+  --bundle input1.txt input2.txt mitdb_112_mlii_10s_delta2_var.bin \
+  --post-load-delay 3 --read 0x0 64 --words --decode-result
 python3 ../tools/uart_dmem_loader.py --port /dev/ttyUSB0 --cpu-info
 ```
 
@@ -568,8 +572,8 @@ ZCU102 button map:
 | CPU_RESET / SW20 | reset loader + SoC logic, then host must send UART `LOAD` again; this is not a DMEM erase |
 | Center / SW15 | optional manual run/resume latch; normal flow auto-runs after UART `LOAD` completes |
 | North / SW18 | zeroize secure metadata/IV region `0x100..0x1FF`, reset/hold SoC, clear run latch |
-| East / SW17 | select next demo `file_id`, toggles between `1` and `3` |
-| West / SW14 | select previous demo `file_id`, toggles between `1` and `3` |
+| East / SW17 | select next demo `file_id`: `1 -> 2 -> 3 -> 1` |
+| West / SW14 | select previous demo `file_id`: `1 -> 3 -> 2 -> 1` |
 | South / SW16 | snapshot result words from `0x00..0x3C` into `0x200..0x23F` |
 
 ZCU102 LED map:
@@ -582,8 +586,8 @@ ZCU102 LED map:
 | LD3 | TX DMA: blink while active, solid after TX done |
 | LD4 | RX DMA: blink while active, solid after RX done |
 | LD5 | sticky error: loader, DMA, or DMEM memory error |
-| LD6 | selected secure-storage `file_id`: off = `file_id=1`, on = `file_id=3` |
-| LD7 | board-control function: blink while zeroize/snapshot/file-select logic is busy, solid after zeroize or snapshot done |
+| LD6 | selected secure-storage `file_id` bit 0 |
+| LD7 | selected secure-storage `file_id` bit 1; `01=file_id1`, `10=file_id2`, `11=file_id3` |
 
 Useful readback commands after pressing buttons:
 

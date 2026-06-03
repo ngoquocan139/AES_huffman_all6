@@ -240,8 +240,14 @@ module payload_emitter #(
                     current_byte_valid_r  <= current_byte_valid_w;
                     last_byte_r           <= last_byte_w;
 
-                    if (mode_is_raw_full_w || mode_is_raw_partial_w)
-                        state <= ST_PREP;
+                    if (mode_is_raw_full_w || mode_is_raw_partial_w) begin
+                        payload_data       <= {CHUNK_DATA_WIDTH{1'b0}};
+                        payload_data[7:0]  <= buffer_read_data;
+                        payload_len        <= 6'd8;
+                        payload_valid      <= 1'b1;
+                        payload_last_chunk <= last_byte_w;
+                        state              <= ST_SEND;
+                    end
                     else if (mode_is_compressed_w)
                         state <= ST_READ_CODE;
                     else begin
@@ -253,7 +259,31 @@ module payload_emitter #(
                 ST_READ_CODE: begin
                     current_code_len_r <= code_len_read_data;
                     current_code_r     <= code_read_data;
-                    state              <= ST_PREP;
+
+                    payload_data       <= {CHUNK_DATA_WIDTH{1'b0}};
+                    payload_len        <= {CHUNK_LEN_WIDTH{1'b0}};
+                    payload_valid      <= 1'b0;
+                    payload_last_chunk <= 1'b0;
+
+                    if (!current_byte_valid_r) begin
+                        error_flag <= 1'b1;
+                        state      <= ST_DONE;
+                    end
+                    else if (code_len_read_data == {CODE_LEN_WIDTH{1'b0}}) begin
+                        error_flag <= 1'b1;
+                        state      <= ST_DONE;
+                    end
+                    else if (code_len_read_data > CODE_WIDTH_LIMIT) begin
+                        error_flag <= 1'b1;
+                        state      <= ST_DONE;
+                    end
+                    else begin
+                        payload_data       <= reverse_code_bits(code_read_data, code_len_read_data);
+                        payload_len        <= {{(CHUNK_LEN_WIDTH-CODE_LEN_WIDTH){1'b0}}, code_len_read_data};
+                        payload_valid      <= 1'b1;
+                        payload_last_chunk <= last_byte_r;
+                        state              <= ST_SEND;
+                    end
                 end
 
                 ST_PREP: begin

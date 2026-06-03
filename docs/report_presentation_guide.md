@@ -30,13 +30,13 @@ Dung bang nay de mo dau phan ket qua hien tai:
 |---|---|
 | Main claim | RV32I secure-storage SoC with Huffman + AES-128-CBC accelerators |
 | Firmware API | `secure_storage_fw.h`: `secure_write`, `secure_read`, `secure_delete` |
-| Metadata | DMEM table at `0x00000100`, 2 records, `0x40` bytes/record |
+| Metadata | DMEM table at `0x00000100`, 3 records, `0x40` bytes/record |
 | IV policy | Firmware-generated deterministic demo IV, counter at `0x000001F0`, seed `0x31415926` |
 | Latest focused test | `dma_storage_table_input1_then_input3`, `PASS=22`, `FAIL=0` |
-| Storage API result | Stores input1 and input3, then restores input1 by `file_id=1` |
+| Storage API result | Stores input1 and input2 in simulation; FPGA bundle stores file_id 1/2/3 and restores selected file |
 | FPGA claim | Default board target is ZCU102; full TX+RX implementation and bitstream pass; UART `LOAD` auto-starts RV32I |
 | TX FPGA | WNS `+1.277 ns`, LUT `11933`, slices `3979`, control sets `208` |
-| Full ZCU102 FPGA SoC | WNS `+9.093 ns`, WHS `+0.015 ns`, LUT `36382`, CLB `7281`, control sets `1628`, power `0.796 W` |
+| Full ZCU102 FPGA SoC | WNS `+7.871 ns`, WHS `+0.015 ns`, LUT `37069`, CLB `7360`, control sets `1794`, power `0.793 W` |
 | Legacy RX FPGA | WNS `+0.341 ns`, LUT `22730`, control sets `917` |
 | Historical regression | `34/34` PASS, raw DUT `93.52%`, closed DUT `95.90%` |
 
@@ -207,8 +207,8 @@ Day la nhom testcase chinh nen dua vao bao cao:
 
 | Testcase | Input | Result | Storage saving | Note |
 |---|---|---:|---:|---|
-| `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | PASS | 59.86% for selected input1 | Current secure-storage API: 2 metadata records, readback by `file_id` |
-| `dma_compress_aes_input1` | `input1.txt`, 2551 bytes | PASS | 59.86% | Legacy direct TX/RX loopback |
+| `dma_storage_table_input1_then_input3` | `input1.txt` + `input2.txt` | PASS | selected-file saving printed by UART report | Current secure-storage API: metadata records and readback by selected `file_id` |
+| `dma_compress_aes_input1` | `input1.txt`, 2551 bytes | PASS | 65.50% | Legacy direct TX/RX loopback; Huffman payload `819 B / 32.11%` |
 | `dma_compress_aes_input3` | `input3.txt`, 242 bytes | PASS | 53.72% | Small/repeated input |
 | `dma_compress_aes_alnum63_cov` | 63-symbol stress, 504 bytes | PASS | -11.11% | Functional stress, not compression-optimized |
 
@@ -226,7 +226,7 @@ Theo simulation TB 100 MHz:
 
 | Testcase | TX input throughput | RX output throughput |
 |---|---:|---:|
-| `dma_compress_aes_input1` | 5.614 MB/s | 17.085 MB/s |
+| `dma_compress_aes_input1` | 7.817 MB/s | 16.858 MB/s |
 | `dma_compress_aes_input3` | 2.240 MB/s | 4.648 MB/s |
 | `dma_compress_aes_alnum63_cov` | 1.134 MB/s | 5.936 MB/s |
 
@@ -258,7 +258,7 @@ Ket qua implementation moi nhat tren ZCU102:
 
 | Build | WNS | WHS | LUT | FF | CLB | Control sets | BRAM | DSP | Power | Status |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| Full `rv32_soc_synth_full_zcu102` | +9.093 ns | +0.015 ns | 36382 | 19382 | 7281 | 1628 | 11 | 0 | 0.796 W | Timing pass, bitstream pass, UART load auto-run |
+| Full `rv32_soc_synth_full_zcu102` | +7.871 ns | +0.015 ns | 37069 | 19794 | 7360 | 1794 | 11 | 0 | 0.793 W | Timing pass, bitstream pass, UART load auto-run |
 
 Ket qua implementation lich su o 50 MHz sau area optimization, truoc khi doi
 default board target sang ZCU102:
@@ -278,7 +278,7 @@ Can noi ro:
 - RX main decode table dung BRAM `2K x 15`; RX fallback/FIFO dung distributed
   RAM. RX local sort table con la diem co the toi uu tiep, nhung full build da
   route pass.
-- Power report moi la vectorless estimate: total `0.796 W`, dynamic `0.146 W`,
+- Power report moi la vectorless estimate: total `0.793 W`, dynamic `0.144 W`,
   static `0.649 W`; Vivado canh bao reset fanout/activity nen day la estimate,
   khong phai do board.
 - Bitstream hien co tai `sim/vivado_bitstreams/rv32_soc_synth_full_zcu102.bit`.
@@ -290,15 +290,17 @@ bang nho theo tung phan:
 
 | Comparison item | Compare against | Metric | This design | Conclusion |
 |---|---|---|---|---|
-| Huffman compression only | C Huffman baseline `drichardson/huffman` | Payload ratio | `input1.txt` `37.50%`; MIT-BIH avg `61.13%` | C Huffman nho hon, nhung SoC co hardware transport/RX decode |
-| Secure-storage final size | ECG Huffman + CBC-AES paper | Final storage ratio | MIT-BIH avg `32.76%` vs paper `35.015%` | Tot hon `2.26` diem phan tram neu noi ro preprocessing nam ngoai SoC |
-| AES/RISC-V software | `aadomn/aes` RISC-V AES | cycles/byte | SoC TX `17.83` cycles/byte on `input1.txt` vs AES software `78.9` cycles/byte | Chung minh gia tri offload, khong phai benchmark CPU-to-CPU tuyet doi |
+| Huffman compression only | C Huffman baseline `drichardson/huffman` | Payload ratio | `input1.txt` `32.11%`; MIT-BIH avg `55.72%` | SoC nho hon baseline C Huffman tren cac input bao cao nho compact table-reuse header |
+| Secure-storage final size | ECG Huffman + CBC-AES paper | Final storage ratio | MIT-BIH avg `29.87%` vs paper `35.015%` | Tot hon `5.15` diem phan tram neu noi ro preprocessing nam ngoai SoC |
+| AES/RISC-V software | `aadomn/aes` RISC-V AES | cycles/byte | AES-only RTL `0.688` cycles/byte; SoC TX `12.79` cycles/byte on `input1.txt` sau toi uu Huffman build/header; AES software `78.9` cycles/byte | Chung minh gia tri offload, khong phai benchmark CPU-to-CPU tuyet doi |
+| AES-only RTL | `secworks/aes` | cycles/block va LUT | SoC AES `11` cycles/block; TX AES `1614` LUT, RX AES `1667` LUT; `secworks/aes` `46` cycles/block, `3020` LUT | SoC thang latency hep; `secworks` thang reusable/configurable IP scope |
 | Software/firmware contract | Current C files vs RTL | Responsibility split | Software quan ly metadata/IV/file_id; RTL xu ly Huffman/AES/DMA | RV32I la control plane, accelerator la data plane |
 
 Ket luan nen noi tren slide: phan so sanh duoc trinh bay theo tung lop. Ve
-Huffman-only, software C reference co ratio nho hon. Ve secure-storage final
-size tren nam MIT-BIH records, flow hien tai dat `32.76%`, tot hon bai bao
-`35.015%` trong dieu kien ECG preprocessing da lam ben ngoai SoC. Ve software,
+Huffman-only, SoC compact-reuse Huffman da nho hon C Huffman baseline tren cac
+input bao cao. Ve secure-storage final size tren nam MIT-BIH records, flow hien
+tai dat `29.87%`, tot hon bai bao `35.015%` trong dieu kien ECG preprocessing
+da lam ben ngoai SoC. Ve software,
 bang doi chieu phai noi ro firmware lam metadata/IV/file_id, con RTL lam DMA,
 Huffman va AES-CBC.
 
@@ -306,19 +308,19 @@ Ket luan tong ve kien truc:
 
 | Architecture type | Better at | This SoC position |
 |---|---|---|
-| Pure software compression | Compression ratio | SoC khong thang pure ratio; SoC thang o hardware offload va verified datapath |
+| Pure software compression | Compression ratio | SoC thang baseline pure Huffman da chon; khong claim thang moi compressor nhu `zlib/lzma/bz2` |
 | Huffman-only FPGA | Raw Huffman throughput | SoC cham hon nhung co DMA, RV32I control, RX restore va storage flow |
-| AES-only RTL | AES latency/area | SoC khong phai AES core nhanh nhat; AES la mot phan cua secure-storage path |
+| AES-only RTL | AES reusable IP scope | SoC AES direct testcase nhanh hon ve latency `11` cycles/block, nhung AES van chi la mot phan cua secure-storage path |
 | Minimal RISC-V SoC | Area/power | SoC lon hon vi co Huffman, AES, DMA, UART/FPGA demo |
 | This design | End-to-end secure storage | RV32I lam control plane; accelerator lam data plane; metadata/IV/file_id duoc firmware quan ly |
 
 Cau ket luan nen dung:
 
 ```text
-Thiet ke nay khong nham toi viec la bo nen tot nhat, AES core nhanh nhat, hay
-RISC-V SoC nho nhat. Dong gop chinh la tich hop RV32I firmware, DMA, metadata,
-IV, Huffman, AES-128-CBC, RX restore va FPGA implementation thanh mot
-secure-storage SoC hoat dong duoc.
+Thiet ke nay khong nham toi viec la bo nen tot nhat hay RISC-V SoC nho nhat.
+AES-only testcase cho thay core hien tai nhanh ve latency, nhung dong gop chinh
+van la tich hop RV32I firmware, DMA, metadata, IV, Huffman, AES-128-CBC, RX
+restore va FPGA implementation thanh mot secure-storage SoC hoat dong duoc.
 ```
 
 ## 6. Testcase Groups To Mention

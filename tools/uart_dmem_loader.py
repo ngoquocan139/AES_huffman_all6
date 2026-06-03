@@ -22,6 +22,13 @@ CPU_DEBUG_LEN = 64
 CPU_DEBUG_SIGNATURE = 0x31555043
 CPU_RESET_PC = 0x00000000
 CPU_STACK_POINTER_INIT = 0x00007F00
+STORAGE_REPORT_BASE_ADDR = 0x00000280
+STORAGE_REPORT_LEN = 160
+STORAGE_REPORT_SIGNATURE = 0x31545052
+STORAGE_BUNDLE_BASE_ADDR = 0x00000800
+STORAGE_BUNDLE_HEADER_LEN = 64
+STORAGE_BUNDLE_SIGNATURE = 0x31444E42
+STORAGE_BUNDLE_MAX_BYTES = 12288
 
 
 def parse_int(value: str) -> int:
@@ -125,6 +132,69 @@ def pct(numer: int, denom: int) -> str:
     if denom == 0:
         return "n/a"
     return f"{(100.0 * numer / denom):.2f}%"
+
+
+def align_up(value: int, alignment: int) -> int:
+    return (value + alignment - 1) & ~(alignment - 1)
+
+
+def storage_label(file_id: int) -> str:
+    labels = {
+        1: "SpO2/HR",
+        2: "secure sensor log",
+        3: "ECG waveform",
+    }
+    return labels.get(file_id, f"file_id={file_id}")
+
+
+def build_storage_bundle(paths: list[str]) -> tuple[bytes, list[dict[str, int | str]]]:
+    if not paths:
+        raise ValueError("--bundle requires at least one input file")
+    if len(paths) > 3:
+        raise ValueError("secure-storage bundle supports at most 3 files")
+
+    payloads = []
+    for idx, item in enumerate(paths):
+        data = Path(item).read_bytes()
+        if not data:
+            raise ValueError(f"bundle input is empty: {item}")
+        payloads.append((idx + 1, item, data))
+
+    header_len = align_up(8 + (len(payloads) * 16), 16)
+    bundle = bytearray(header_len)
+    bundle[0:4] = STORAGE_BUNDLE_SIGNATURE.to_bytes(4, "little")
+    bundle[4:8] = len(payloads).to_bytes(4, "little")
+
+    info: list[dict[str, int | str]] = []
+    offset = header_len
+    for idx, (file_id, item, data) in enumerate(payloads):
+        offset = align_up(offset, 16)
+        if len(bundle) < offset:
+            bundle.extend(b"\x00" * (offset - len(bundle)))
+        bundle.extend(data)
+
+        rec_base = 8 + (idx * 16)
+        bundle[rec_base + 0 : rec_base + 4] = file_id.to_bytes(4, "little")
+        bundle[rec_base + 4 : rec_base + 8] = (0).to_bytes(4, "little")
+        bundle[rec_base + 8 : rec_base + 12] = offset.to_bytes(4, "little")
+        bundle[rec_base + 12 : rec_base + 16] = len(data).to_bytes(4, "little")
+        info.append(
+            {
+                "file_id": file_id,
+                "path": item,
+                "offset": offset,
+                "length": len(data),
+            }
+        )
+        offset = offset + len(data)
+
+    if len(bundle) > STORAGE_BUNDLE_MAX_BYTES:
+        raise ValueError(
+            f"bundle is {len(bundle)} bytes, exceeds FPGA UART staging limit "
+            f"{STORAGE_BUNDLE_MAX_BYTES} bytes"
+        )
+
+    return bytes(bundle), info
 
 
 def status_text(status: int) -> str:
@@ -282,9 +352,11 @@ def print_cpu_info(word_map: dict[int, int], words: list[int], input_len: int | 
         print(f"  dma_mode       : {mode_text(words[8])}")
         print(f"  dma_bytes      : TX={words[4]}, ciphertext={words[5]}")
     elif signature == SIG_STORAGE:
-        print("  firmware_flow  : secure_write(file_id=1), secure_write(file_id=3), secure_read(selected file)")
-        print("  dma_jobs       : 3 (TX file1, TX file3, RX selected file)")
-        print(f"  cpu_poll_loops : TX1={words[6]}, RX_selected={words[11]}, visible_total={words[6] + words[11]}")
+        total_records = word_at(word_map, STORAGE_REPORT_BASE_ADDR + 12) or words[15]
+        tx_total_polls = word_at(word_map, STORAGE_REPORT_BASE_ADDR + 40) or words[6]
+        print("  firmware_flow  : secure_write(file_id=1..N), secure_read(selected file_id), then watch button file_id changes")
+        print(f"  dma_jobs       : {total_records} TX job(s) + RX selected-file job")
+        print(f"  cpu_poll_loops : TX_total={tx_total_polls}, RX_selected={words[11]}, visible_total={tx_total_polls + words[11]}")
         print(f"  storage_state  : selected_file_id={words[14]}, total_records={words[15]}")
         print(f"  dma_bytes      : TX1={words[4]}, CTX1={words[5]}, CTX2={words[12]}, RX_plain={words[9]}")
 
@@ -305,6 +377,97 @@ def print_cpu_info(word_map: dict[int, int], words: list[int], input_len: int | 
 def first_16_bytes(words: list[int]) -> str:
     data = b"".join(word.to_bytes(4, "little") for word in words)
     return " ".join(f"{byte:02x}" for byte in data[:16])
+
+
+def report_word(word_map: dict[int, int], index: int) -> int | None:
+    return word_at(word_map, STORAGE_REPORT_BASE_ADDR + (index * 4))
+
+
+def print_storage_report(word_map: dict[int, int], legacy_words: list[int]) -> None:
+    if report_word(word_map, 0) != STORAGE_REPORT_SIGNATURE:
+        input1_len = word_at(word_map, 0x40)
+        tx1_cipher_bytes = legacy_words[5]
+        rx_plain_bytes = legacy_words[9]
+        print("firmware        : test_mmio_dma_storage_table.c, secure storage API")
+        print(f"input1_len      : {input1_len if input1_len is not None else 'unknown'} bytes")
+        print("")
+        print("Storage metadata")
+        print(f"  tx1_ciphertext: {tx1_cipher_bytes} bytes")
+        print(f"  tx2_ciphertext: {legacy_words[12]} bytes")
+        print(f"  selected_file : {legacy_words[14]}")
+        print(f"  total_records : {legacy_words[15]}")
+        if input1_len is not None:
+            print(f"  storage_ratio : {pct(tx1_cipher_bytes, input1_len)}")
+            print(f"  space_saving  : {pct(input1_len - tx1_cipher_bytes, input1_len)}")
+            print(f"  rx_len_match  : {'YES' if rx_plain_bytes == input1_len else 'NO'}")
+        print("note            : rebuild/program a newer bitstream for the extended storage report.")
+        return
+
+    bundle_mode = report_word(word_map, 2) or 0
+    bundle_signature = word_at(word_map, STORAGE_BUNDLE_BASE_ADDR)
+    bundle_count = word_at(word_map, STORAGE_BUNDLE_BASE_ADDR + 4)
+    total_records = report_word(word_map, 3) or 0
+    selected_file_id = report_word(word_map, 4) or legacy_words[14]
+    selected_slot = report_word(word_map, 5)
+    selected_plain_len = report_word(word_map, 6) or 0
+    selected_cipher_len = report_word(word_map, 7) or 0
+    rx_plain_bytes = report_word(word_map, 8) or legacy_words[9]
+    rx_polls = report_word(word_map, 9) or legacy_words[11]
+    tx_total_polls = report_word(word_map, 10) or legacy_words[6]
+    total_plain = report_word(word_map, 11) or 0
+    total_cipher = report_word(word_map, 12) or 0
+    rx_status_before = report_word(word_map, 13) or legacy_words[7]
+    rx_status_after = report_word(word_map, 14) or legacy_words[8]
+    rx_debug = report_word(word_map, 15) or legacy_words[10]
+
+    print("firmware        : test_mmio_dma_storage_table.c, secure storage API")
+    print(f"load_mode       : {'UART bundle' if bundle_mode else 'legacy/direct input'}")
+    if bundle_signature is not None:
+        print(
+            "bundle_header   : "
+            f"0x{bundle_signature:08x}, count={bundle_count if bundle_count is not None else 'unknown'}"
+        )
+        if (bundle_signature == STORAGE_BUNDLE_SIGNATURE) and not bundle_mode:
+            print("diagnostic      : bundle is in DMEM but firmware did not consume it; rebuild/reload the fixed bitstream.")
+    print(f"total_records   : {total_records}")
+    print("")
+    print("Secure storage records")
+    print("  id  label              plaintext  ciphertext  storage_ratio  space_saving")
+    for idx in range(3):
+        base = 16 + (idx * 8)
+        valid = report_word(word_map, base + 0) or 0
+        file_id = report_word(word_map, base + 1) or 0
+        plain_len = report_word(word_map, base + 4) or 0
+        cipher_len = report_word(word_map, base + 5) or 0
+        if not valid:
+            continue
+        print(
+            f"  {file_id:<3} {storage_label(file_id):<18} "
+            f"{plain_len:>9}  {cipher_len:>10}  "
+            f"{pct(cipher_len, plain_len):>13}  {pct(plain_len - cipher_len, plain_len):>12}"
+        )
+
+    print("")
+    print("Selected readback")
+    print(f"  selected_file : {selected_file_id} ({storage_label(selected_file_id)})")
+    print(f"  selected_slot : {selected_slot if selected_slot is not None else 'unknown'}")
+    print(f"  plaintext_exp : {selected_plain_len} bytes")
+    print(f"  ciphertext    : {selected_cipher_len} bytes")
+    print(f"  rx_plaintext  : {rx_plain_bytes} bytes")
+    print(f"  rx_len_match  : {'YES' if rx_plain_bytes == selected_plain_len else 'NO'}")
+    print(f"  rx_status_bef : {status_text(rx_status_before)}")
+    print(f"  rx_status_aft : {status_text(rx_status_after)}")
+    print(f"  rx_debug      : 0x{rx_debug:08x}")
+    print(f"  rx_poll_count : {rx_polls} CPU polling loops")
+
+    print("")
+    print("Report metrics")
+    print(f"  total_plain   : {total_plain} bytes")
+    print(f"  total_cipher  : {total_cipher} bytes")
+    print(f"  aggregate_ratio: {pct(total_cipher, total_plain)}")
+    print(f"  aggregate_save : {pct(total_plain - total_cipher, total_plain)}")
+    print(f"  tx_poll_total : {tx_total_polls} CPU polling loops")
+    print("note            : storage_ratio uses ciphertext bytes / plaintext bytes; AES-CBC padding and framing are included.")
 
 
 def print_result_decode(word_map: dict[int, int]) -> None:
@@ -373,36 +536,21 @@ def print_result_decode(word_map: dict[int, int]) -> None:
         print(f"tx_first_16B    : {first_16_bytes(words[10:14])}")
         print("note            : poll_count is firmware polling loops, not true hardware cycles.")
     elif signature == SIG_STORAGE:
-        input1_len = input_len
-        tx1_cipher_bytes = words[5]
-        rx_plain_bytes = words[9]
-        print("firmware        : test_mmio_dma_storage_table.c, secure storage API")
-        print(f"input1_len      : {input1_len if input1_len is not None else 'unknown'} bytes")
-        print(f"input2_len      : {input2_len if input2_len is not None else words[13]} bytes")
+        print_storage_report(word_map, words)
         print("")
-        print("TX record 1")
+        print("TX record 1 raw")
         print(f"  status_before : {status_text(words[2])}")
         print(f"  status_after  : {status_text(words[3])}")
         print(f"  tx_bytes_done : {words[4]} bytes")
-        print(f"  ciphertext    : {tx1_cipher_bytes} bytes")
+        print(f"  ciphertext    : {words[5]} bytes")
         print(f"  poll_count    : {words[6]} CPU polling loops")
         print("")
-        print("RX selected record")
+        print("RX selected raw")
         print(f"  status_before : {status_text(words[7])}")
         print(f"  status_after  : {status_text(words[8])}")
-        print(f"  plaintext     : {rx_plain_bytes} bytes")
+        print(f"  plaintext     : {words[9]} bytes")
         print(f"  debug         : 0x{words[10]:08x}")
         print(f"  poll_count    : {words[11]} CPU polling loops")
-        print("")
-        print("Storage metadata")
-        print(f"  tx2_ciphertext: {words[12]} bytes")
-        print(f"  selected_file : {words[14]}")
-        print(f"  total_records : {words[15]}")
-        if input1_len is not None:
-            print(f"  storage_ratio : {pct(tx1_cipher_bytes, input1_len)}")
-            print(f"  space_saving  : {pct(input1_len - tx1_cipher_bytes, input1_len)}")
-            print(f"  rx_len_match  : {'YES' if rx_plain_bytes == input1_len else 'NO'}")
-        print("note            : poll_count is firmware polling loops, not true hardware cycles.")
     else:
         print("firmware        : unknown result signature")
         for idx, word in enumerate(words):
@@ -423,6 +571,12 @@ def main() -> int:
     parser.add_argument("--baud", type=int, default=115200)
     parser.add_argument("--timeout", type=float, default=5.0)
     parser.add_argument("--input", help="Payload file to send with LOAD")
+    parser.add_argument(
+        "--bundle",
+        nargs="+",
+        metavar="FILE",
+        help="Build and LOAD a secure-storage bundle. Files become file_id 1, 2, and 3 in order.",
+    )
     parser.add_argument(
         "--read",
         nargs=2,
@@ -460,8 +614,10 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    if not args.input and not args.read and not args.cpu_info:
-        parser.error("nothing to do: pass --input, --read ADDR LEN, and/or --cpu-info")
+    if args.input and args.bundle:
+        parser.error("--input and --bundle are mutually exclusive")
+    if not args.input and not args.bundle and not args.read and not args.cpu_info:
+        parser.error("nothing to do: pass --input, --bundle, --read ADDR LEN, and/or --cpu-info")
 
     serial = require_pyserial()
 
@@ -470,10 +626,25 @@ def main() -> int:
         port.reset_input_buffer()
         port.reset_output_buffer()
 
-        if args.input:
-            payload = Path(args.input).read_bytes()
+        if args.input or args.bundle:
+            bundle_info = None
+            if args.bundle:
+                payload, bundle_info = build_storage_bundle(args.bundle)
+            else:
+                payload = Path(args.input).read_bytes()
             send_load(port, payload, args.resync_ack, args.ack_scan_bytes)
-            log(f"[PASS] loaded {len(payload)} bytes from {args.input}")
+            if bundle_info is None:
+                log(f"[PASS] loaded {len(payload)} bytes from {args.input}")
+            else:
+                log(f"[PASS] loaded secure-storage bundle ({len(payload)} bytes)")
+                for item in bundle_info:
+                    log(
+                        "[INFO] bundle "
+                        f"file_id={item['file_id']} "
+                        f"label={storage_label(int(item['file_id']))} "
+                        f"len={item['length']} offset=0x{int(item['offset']):x} "
+                        f"path={item['path']}"
+                    )
             if args.post_load_delay > 0.0:
                 time.sleep(args.post_load_delay)
 
@@ -513,6 +684,19 @@ def main() -> int:
                         word_map.update(words_from_data(extra, 0x40))
                     except Exception as exc:  # Keep the requested READ result usable.
                         log(f"[WARN] could not read CPU/board info words for decode: {exc}")
+                if STORAGE_REPORT_BASE_ADDR not in word_map:
+                    try:
+                        report = send_read(
+                            port,
+                            STORAGE_REPORT_BASE_ADDR,
+                            STORAGE_REPORT_LEN,
+                            False,
+                            args.resync_ack,
+                            args.ack_scan_bytes,
+                        )
+                        word_map.update(words_from_data(report, STORAGE_REPORT_BASE_ADDR))
+                    except Exception as exc:
+                        log(f"[WARN] could not read secure-storage report window: {exc}")
                 if CPU_DEBUG_BASE_ADDR not in word_map:
                     try:
                         debug = send_read(
@@ -526,6 +710,19 @@ def main() -> int:
                         word_map.update(words_from_data(debug, CPU_DEBUG_BASE_ADDR))
                     except Exception as exc:
                         log(f"[WARN] could not read live CPU debug window: {exc}")
+                if STORAGE_BUNDLE_BASE_ADDR not in word_map:
+                    try:
+                        bundle_header = send_read(
+                            port,
+                            STORAGE_BUNDLE_BASE_ADDR,
+                            STORAGE_BUNDLE_HEADER_LEN,
+                            False,
+                            args.resync_ack,
+                            args.ack_scan_bytes,
+                        )
+                        word_map.update(words_from_data(bundle_header, STORAGE_BUNDLE_BASE_ADDR))
+                    except Exception as exc:
+                        log(f"[WARN] could not read secure-storage bundle header: {exc}")
 
             if args.words:
                 print_words(data, addr)

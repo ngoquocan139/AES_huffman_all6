@@ -241,7 +241,7 @@ GitHub Actions inputs:
 | `run_vivado` | `false` |
 | `c_src` | `test_mmio_dma_storage_table.c` |
 | `testname` | `dma_storage_table_input1_then_input3` |
-| `run_args` | `+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt` |
+| `run_args` | `+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt` |
 
 Equivalent local command:
 
@@ -249,7 +249,7 @@ Equivalent local command:
 cd sim
 make compile C_SRC=test_mmio_dma_storage_table.c
 make drc
-make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt"
 ```
 
 ### 8.3 Vivado bitstream flow

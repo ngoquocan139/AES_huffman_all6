@@ -5,7 +5,7 @@
 `apb_huffman_aes_tx_top` la top-level module ghep noi 3 khoi chinh:
 
 1. `apb_huffman_tx_if`: APB slave de cau hinh block, nap du lieu 32-bit va phat lenh bat dau.
-2. `huffman_aes_tx_top`: chuyen word stream thanh byte stream, thuc hien whole-file/per-block dynamic Huffman, dong goi 128-bit va dua vao wrapper cua AES.
+2. `huffman_aes_tx_top`: chuyen word stream thanh byte stream, thuc hien whole-file dynamic Huffman trong flow synthesis hien tai, dong goi 128-bit va dua vao wrapper cua AES.
 3. TX output policy: chon giua:
    - `COMPRESS_AES`: CBC XOR transport word roi dua vao `aes128_cipher_top`
    - `COMPRESS_ONLY`: bypass AES va dua transport word thang ra output FIFO
@@ -36,28 +36,47 @@ Current verification status:
 
 ```mermaid
 flowchart LR
-    APB["APB Master"] --> IF["apb_huffman_tx_if
-    config + FIFO 8x32"]
-    IF --> TX["huffman_aes_tx_top
-    adapter + dynamic Huffman + bit packer + AES input wrapper"]
-    TX --> SEL["policy mux"]
-    SEL --> CBC["CBC XOR chain"]
-    CBC --> AES["aes128_cipher_top"]
-    SEL --> OUT["output FIFO serializer"]
+    APB["APB master
+    dma_tx_engine"] --> IF["u_apb_huffman_tx_if
+    apb_huffman_tx_if"]
+    IF -->|"start_block_o,
+    block_size_o,
+    word_in_o,
+    word_valid_o"| TX["u_huffman_aes_tx_top
+    huffman_aes_tx_top"]
+    TX -->|"word_ready,
+    tx_busy/done/error"| IF
+    TX -->|"cipher_en_w,
+    data_in_w,
+    key_w"| POL{"compress_only?"}
+    POL -->|"0"| CBC["CBC XOR logic
+    in parent top"]
+    CBC --> AES["u_AES_top_tx
+    aes128_cipher_top"]
+    POL -->|"1"| BYP["bypass capture"]
+    AES --> OUT["output serializer
+    aes_emit_block_r"]
+    BYP --> OUT
+    OUT -->|"aes_out_word_*"| IF
 ```
 
 Chi tiet du lieu ben trong `huffman_aes_tx_top`:
 
 ```mermaid
 flowchart LR
-    A["32-bit APB word stream"] --> B["Input adapter
+    A["32-bit APB word stream"] --> B["input adapter
     word -> byte"]
-    B --> C["dynamic_huffman_encoder"]
-    C --> D["bit_packer_128"]
-    D --> E["wrapper"]
-    E --> F["policy mux"]
-    F --> G["aes128_cipher_top or bypass"]
+    B -->|"count pass"| FC["u_file_frequency_counter"]
+    FC --> HB["u_file_huffman_builder"]
+    HB -->|"external codebook"| C["u_dynamic_huffman_encoder"]
+    B -->|"emit pass"| C
+    C --> D["u_bit_packer_128"]
+    D --> E["u_aes_input_wrapper"]
+    E --> F["parent CBC/AES or bypass"]
 ```
+
+So do chi tiet hon nam trong
+[TX end-to-end spec](./tx_path_end_to_end_spec.md#6-internal-tx-structure).
 
 ## 3. Pham vi chuc nang
 
@@ -190,16 +209,19 @@ FIFO ben trong co do sau 8 word, vua du cho 32 byte toi da.
 
 ### 6.2 `huffman_aes_tx_top`
 
-Khoi nay gom 4 lop chuc nang:
+Khoi nay gom cac lop chuc nang sau:
 
 1. Input adapter:
    chuyen `word_in[31:0]` thanh tung byte theo thu tu `word_in[7:0]`, `word_in[15:8]`, `word_in[23:16]`, `word_in[31:24]`.
-2. `dynamic_huffman_encoder`:
-   nen block theo cac pha `collect -> build/fixed-mode-select -> emit`; khong
-   con instantiate `mode_decision_logic.v`.
-3. `bit_packer_128`:
+2. Whole-file table builder:
+   `u_file_frequency_counter` dem tan suat toan file, sau do
+   `u_file_huffman_builder` tao symbol list, code length va canonical code.
+3. `dynamic_huffman_encoder`:
+   nhan byte payload va doc codebook whole-file qua cac port `external_*`; khong
+   con dung `mode_decision_logic.v` trong datapath active.
+4. `bit_packer_128`:
    gop stream bit thanh `transport_word`; neu `continue_frame = 1` thi giu lai bit du de noi sang block sau, chi flush o block cuoi frame.
-4. `wrapper`:
+5. `wrapper`:
    chi day word vao AES khi `aes_ready` = 1.
 
 ### 6.3 AES-CBC encrypt core hien tai

@@ -30,7 +30,8 @@ bit_depacker_128
 |---:|---|---|
 | `00` | `RAW_FULL` | Set block size 32, expose raw payload |
 | `01` | `RAW_PARTIAL` | Parse 6-bit block size, expose raw payload |
-| `10` | `COMPRESSED` | Parse 6-bit block size, 9-bit symbol count, table entries, payload |
+| `10` | `COMPRESSED` first table block | Parse 6-bit block size, 9-bit symbol count, table entries, payload |
+| `10` | `COMPRESSED` table-reuse block | After a table has been seen in the frame, parse compact reuse header: 1-bit size-present flag; if `0`, block size is implicit 32; if `1`, parse a 6-bit block size |
 | `11` | `ONE_SYMBOL` | Parse block size and repeated symbol |
 
 ## 4. Parser State Flow
@@ -40,6 +41,10 @@ flowchart LR
   M["ST_PARSE_MODE"] --> RP["RAW_PARTIAL"]
   M --> OS["ONE_SYMBOL"]
   M --> CF["COMP_FIXED"]
+  M --> CRF["COMP_REUSE_FLAG"]
+  CRF --> CRS["COMP_REUSE_SIZE"]
+  CRF --> META
+  CRS --> META
   M --> META["ST_META"]
   RP --> META
   OS --> META
@@ -56,7 +61,7 @@ flowchart LR
 | `block_meta_valid` | Metadata ready for decoder |
 | `block_mode` | One of 4 block modes |
 | `block_size` | Expected plaintext bytes in this block |
-| `symbol_count` | Number of compressed table entries; `0` means reuse previous table, `1..256` means load table |
+| `symbol_count` | Number of compressed table entries; `0` means reuse previous table, `1..256` means load table. In compact reuse format, parser emits `symbol_count=0` to decoder. |
 | `one_symbol_value` | Repeated byte for one-symbol mode |
 | `entry_valid` | One `symbol + code_len` table entry valid |
 | `entry_last` | Last compressed table entry |

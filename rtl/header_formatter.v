@@ -63,8 +63,12 @@ module header_formatter #(
     localparam [HEADER_BITS_WIDTH-1:0] RAW_PARTIAL_HEADER_BITS = 8;
     localparam [HEADER_BITS_WIDTH-1:0] COMP_BASE_BITS          =
         (2 + BLOCK_SIZE_WIDTH + SYMBOL_COUNT_WIDTH);
+    localparam [HEADER_BITS_WIDTH-1:0] COMP_REUSE_FULL_BITS    = 3;
+    localparam [HEADER_BITS_WIDTH-1:0] COMP_REUSE_SIZED_BITS   =
+        (3 + BLOCK_SIZE_WIDTH);
     localparam [HEADER_BITS_WIDTH-1:0] ONE_SYMBOL_HEADER_BITS  =
         (2 + BLOCK_SIZE_WIDTH + SYMBOL_WIDTH);
+    localparam [BLOCK_SIZE_WIDTH-1:0] FULL_BLOCK_SIZE          = 6'd32;
 
     localparam AFTER_DONE      = 2'd0;
     localparam AFTER_COMP_BASE = 2'd1;
@@ -243,13 +247,13 @@ module header_formatter #(
                     else if (block_size != {BLOCK_SIZE_WIDTH{1'b0}})
                         payload_required <= 1'b1;
 
-                    if (block_size > 6'd32)
+                    if (block_size > FULL_BLOCK_SIZE)
                         error_flag <= 1'b1;
 
-                    if (mode_is_raw_full_w && (block_size != 6'd32))
+                    if (mode_is_raw_full_w && (block_size != FULL_BLOCK_SIZE))
                         error_flag <= 1'b1;
 
-                    if (mode_is_raw_partial_w && (block_size == 6'd32))
+                    if (mode_is_raw_partial_w && (block_size == FULL_BLOCK_SIZE))
                         error_flag <= 1'b1;
 
                     if (mode_is_compressed_w &&
@@ -280,6 +284,21 @@ module header_formatter #(
                     else if (mode_is_one_symbol_w) begin
                         header_total_bits <= ONE_SYMBOL_HEADER_BITS;
                         state             <= ST_READ_ONE;
+                    end
+                    else if (safe_symbol_count_w == {SYMBOL_COUNT_WIDTH{1'b0}}) begin
+                        if (block_size == FULL_BLOCK_SIZE) begin
+                            field_data_r      <= {29'b0, 1'b0, MODE_COMPRESSED};
+                            field_len_r       <= COMP_REUSE_FULL_BITS[4:0];
+                            header_total_bits <= COMP_REUSE_FULL_BITS;
+                        end
+                        else begin
+                            field_data_r      <= {23'b0, block_size, 1'b1, MODE_COMPRESSED};
+                            field_len_r       <= COMP_REUSE_SIZED_BITS[4:0];
+                            header_total_bits <= COMP_REUSE_SIZED_BITS;
+                        end
+                        field_pos_r       <= 5'd0;
+                        after_field_r     <= AFTER_DONE;
+                        state             <= ST_EMIT_FIELD;
                     end
                     else begin
                         field_data_r      <= {15'b0, safe_symbol_count_w, block_size, MODE_COMPRESSED};

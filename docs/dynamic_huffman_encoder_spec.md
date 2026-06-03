@@ -189,6 +189,16 @@ symbol/code_len table
 payload Huffman code bits
 ```
 
+For whole-file table reuse after the first compressed block, `symbol_count` is
+implicit zero and the header is compact:
+
+```text
+mode[1:0] = 10
+size_present[0] = 0 -> implicit block_size = 32
+size_present[0] = 1 -> next 6 bits carry block_size
+payload Huffman code bits using previous table
+```
+
 Each table entry is:
 
 ```text
@@ -209,7 +219,9 @@ one_symbol_value[7:0]
 - so symbol toi da trong 1 block: phu thuoc block va normalize rule
 - alphabet active hien tai: full byte alphabet `0x00..0xFF`
 - `huffman_symbol_map.vh` dang map identity, nen input byte nao cung la symbol hop le
-- whole-file mode co the emit codebook toi da 256 symbol; `symbol_count=0` nghia la reuse table
+- whole-file mode co the emit codebook toi da 256 symbol; `symbol_count=0`
+  nghia la reuse table, va duoc encode bang compact reuse header de giam
+  overhead tren file nhieu block.
 - TX FPGA demo hien dung `CODE_WIDTH=13`; neu input pathological can code dai hon thi can tang `CODE_WIDTH` hoac them long-code fallback
 
 ## 10. Current Design Notes

@@ -43,7 +43,7 @@ make all
 make all TESTNAME=dma_compress_aes_input3 RUN_ARGS="+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
 make all TESTNAME=dma_compress_aes_alnum63_cov RUN_ARGS="+CASE_NAME=dma_compress_aes_alnum63_cov +INPUT_FILE=input_cov_alnum63.txt"
 make compile C_SRC=test_mmio_dma_storage_table.c
-make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+make all TESTNAME=dma_storage_table_input1_then_input3 RUN_ARGS="+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt"
 ./report.csh
 ```
 
@@ -54,7 +54,7 @@ Date: 2026-05-18
 Testcase: dma_storage_table_input1_then_input3
 Clock used by TB benchmark: 10 ns period, 100 MHz
 Result: PASS=22, FAIL=0
-Storage ratio: 40.14%
+Storage ratio: 34.50%
 RX restored: 2551 bytes
 ```
 
@@ -117,10 +117,10 @@ Moi SOC testcase pass khi:
 
 | Testname | PASS/FAIL | Input bytes | TX bytes | RX bytes | Payload ratio | Payload saving | Storage ratio | Storage saving |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `dma_compress_aes_input1` | PASS | 2551 | 1024 | 2551 | 37.50% | 62.50% | 40.14% | 59.86% |
+| `dma_compress_aes_input1` | PASS | 2551 | 880 | 2551 | 32.11% | 67.89% | 34.50% | 65.50% |
 | `dma_compress_aes_input3` | PASS | 242 | 112 | 242 | 42.05% | 57.95% | 46.28% | 53.72% |
 | `dma_compress_aes_alnum63_cov` | PASS | 504 | 560 | 504 | 101.86% | -1.86% | 111.11% | -11.11% |
-| `dma_storage_table_input1_then_input3` | PASS | 2551 + 242 | TX1 1024 | RX1 2551 | 41.48% | 58.52% | 40.14% | 59.86% |
+| `dma_storage_table_bundle3` | PASS | input1 + input2 + ECG 112 | TX1 880 | RX selected 2551 | 32.11% for file_id=1 | 67.89% | 34.50% | 65.50% |
 
 Interpretation:
 
