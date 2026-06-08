@@ -16,7 +16,7 @@ Current verification status:
 | Item | Status |
 |---|---|
 | Main RX mode | `MODE=0x2`, AES-CBC decrypt + Huffman decode |
-| Active RX testcase examples | `dma_compress_aes_input1`, `dma_compress_aes_input3`, `dma_compress_aes_alnum63_cov` |
+| Active RX testcase examples | `dma_compress_aes_input1`, `dma_compress_aes_input2`, `dma_compress_aes_alnum63_cov`, secure-storage selected-file readback |
 | Error/backpressure cases | `mmio_rx_bad_length`, `rx_backpressure_cov` |
 | Coverage hooks | `rx_if_direct_cov`, `rx_parser_decoder_cov`, `rx_decoder_direct_cov`, `rx_depacker_packer_direct_cov`, `rx_parser_decoder_error_direct_cov` |
 | Historical full regression | included in `34/34` PASS coverage baseline before secure-storage API refactor |
@@ -51,6 +51,18 @@ flowchart LR
     RXDMA -->|"dma_busy_o, dma_done_o<br/>dma_error_o, bytes_done_o"| REG
 ```
 
+Short version:
+
+```text
+PC/UART loads ciphertext or secure-storage bundle into DMEM
+-> RV32I firmware configures DMA RX
+-> dma_rx_engine reads DMEM as 128-bit ciphertext words
+-> apb_huffman_aes_rx_top decrypts AES-CBC and decodes Huffman
+-> dma_rx_engine drains plaintext words from RX APB FIFO
+-> DMEM stores recovered plaintext
+-> PC/UART reads result and metrics back
+```
+
 ### 3.1 RX external I/O boundary
 
 | Boundary | Signals | Direction | Meaning |
@@ -63,6 +75,129 @@ flowchart LR
 | Stage status/debug | `depacker_*`, `parser_*`, `decoder_*`, `word_packer_*`, `transport_word_dbg`, `rx_word_dbg` | RX top -> SoC/debug | Per-stage visibility for simulation, waveform, and FPGA debug |
 | DMEM master | `dmem_en_o`, `dmem_we_o[3:0]`, `dmem_addr_o[31:0]`, `dmem_wdata_o[31:0]`, `dmem_rdata_i[31:0]` | DMA RX <-> DMEM | DMA RX reads ciphertext and writes recovered plaintext |
 | DMA status | `dma_busy_o`, `dma_done_o`, `dma_error_o`, `bytes_done_o`, `last_error_code_o`, `engine_state_o` | DMA RX -> `dma_regfile`/CPU | Software-visible transfer result and debug state |
+
+### 3.2 RTL-level I/O diagram
+
+This diagram shows the real RTL ports used by the active full SoC build.
+
+```mermaid
+flowchart LR
+    CPU["RV32I CPU<br/>MMIO load/store"] -->|"mmio_req_i/write_i/addr/wdata"| BRIDGE["cpu_mmio_to_apb_bridge"]
+    BRIDGE -->|"PSEL/PENABLE/PWRITE<br/>PADDR/PWDATA"| REGFILE["dma_regfile"]
+    REGFILE -->|"src_addr_o<br/>dst_addr_o<br/>len_bytes_o<br/>direction_o=2'b10<br/>start_pulse_o"| DMARX["dma_rx_engine"]
+    REGFILE -->|"iv_o[127:0]"| RXTOP["apb_huffman_aes_rx_top"]
+
+    DMEM["DMEM Port B<br/>dmem_ip_wrapper"] <-->|"dmem_en_o<br/>dmem_we_o[3:0]<br/>dmem_addr_o[31:0]<br/>dmem_wdata_o[31:0]<br/>dmem_rdata_i[31:0]"| DMARX
+
+    DMARX -->|"rx_ciphertext_word_o[127:0]"| RXTOP
+    DMARX -->|"rx_ciphertext_word_valid_o"| RXTOP
+    RXTOP -->|"rx_ciphertext_word_ready_i"| DMARX
+
+    DMARX -->|"rx_psel_o/rx_penable_o/rx_pwrite_o<br/>rx_paddr_o/rx_pwdata_o"| RXTOP
+    RXTOP -->|"rx_prdata_i/rx_pready_i/rx_pslverr_i"| DMARX
+
+    RXTOP -->|"rx_busy/rx_done/rx_error<br/>stage debug signals"| SOCDBG["SoC debug<br/>UART metric window"]
+    DMARX -->|"dma_busy_o/dma_done_o/dma_error_o<br/>bytes_done_o/last_error_code_o<br/>engine_state_o"| REGFILE
+```
+
+Important implementation detail: `dma_rx_engine` is not only a stream
+producer. It also acts as a private APB master for RX output readback. The
+RX accelerator emits plaintext into `apb_huffman_rx_if`; DMA RX repeatedly
+reads `RX_STATUS`, `RX_META`, and `RX_DATA`, then writes recovered words into
+DMEM.
+
+### 3.3 `apb_huffman_aes_rx_top` detailed I/O
+
+```mermaid
+flowchart TB
+    subgraph RXTOP["apb_huffman_aes_rx_top"]
+        AES["AES-CBC decrypt front-end"]
+        DEPK["bit_depacker_128"]
+        PAR["huffman_block_parser"]
+        DEC["huffman_block_decoder"]
+        PKR["rx_byte_packer_32"]
+        APBIF["apb_huffman_rx_if<br/>RX_STATUS/RX_META/RX_DATA"]
+        AES --> DEPK --> PAR --> DEC --> PKR --> APBIF
+    end
+
+    CLK["Clock/reset<br/>PCLK, PRESETn, rst_i"] --> RXTOP
+    DMAIN["DMA RX stream<br/>ciphertext_word_in[127:0]<br/>ciphertext_word_valid"] --> AES
+    AES -->|"ciphertext_word_ready"| DMAIN
+    IV["dma_regfile<br/>cbc_iv_i[127:0]"] --> AES
+    APBM["dma_rx_engine APB master<br/>PSEL/PENABLE/PWRITE<br/>PADDR/PWDATA"] --> APBIF
+    APBIF -->|"PRDATA/PREADY/PSLVERR"| APBM
+    RXTOP --> STS["Status/debug outputs<br/>rx_busy/rx_done/rx_error<br/>stage busy/done/error<br/>transport_word_dbg/rx_word_dbg"]
+```
+
+| Group | RX top input ports | RX top output ports | Meaning |
+|---|---|---|---|
+| Clock/reset | `PCLK`, `PRESETn`, `rst_i` | - | `PCLK` is the SoC clock. `PRESETn` is active-low APB reset. `rst_i` is active-high local reset. |
+| Ciphertext stream | `ciphertext_word_in[127:0]`, `ciphertext_word_valid` | `ciphertext_word_ready` | Main 128-bit transport-word input from `dma_rx_engine`. This is the normal FPGA data path. |
+| APB slave | `PSEL`, `PENABLE`, `PWRITE`, `PADDR[31:0]`, `PWDATA[31:0]` | `PRDATA[31:0]`, `PREADY`, `PSLVERR` | Private RX APB window used by DMA RX to reset RX, poll status, read metadata, and pop plaintext words. |
+| CBC IV | `cbc_iv_i[127:0]` | - | Initial CBC chain value. Firmware must use the same IV as the TX frame. |
+| Top status | - | `rx_busy`, `rx_done`, `rx_error`, `aes_ready_out` | Coarse pipeline state for SoC debug and performance counters. |
+| Depacker status | - | `depacker_busy`, `depacker_done`, `depacker_error` | `bit_depacker_128` activity/error. |
+| Parser status | - | `parser_busy`, `parser_block_done`, `parser_frame_done`, `parser_error` | Huffman header/payload parser activity/error. |
+| Decoder status | - | `decoder_busy`, `decoder_block_done`, `decoder_frame_done`, `decoder_error` | Huffman decoder activity/error. |
+| Word packer status | - | `word_packer_busy`, `word_packer_block_done`, `word_packer_frame_done`, `word_packer_error` | Byte-to-word packer activity/error. |
+| Debug words | - | `transport_word_dbg[127:0]`, `transport_word_valid_dbg`, `rx_word_dbg[31:0]`, `rx_word_valid_bytes_dbg[2:0]`, `rx_word_last_in_block_dbg`, `rx_word_last_in_frame_dbg`, `rx_word_valid_dbg` | Waveform/UART debug visibility into decrypted transport words and output plaintext words. |
+
+### 3.4 `dma_rx_engine` detailed I/O
+
+```mermaid
+flowchart TB
+    subgraph DMARX["dma_rx_engine"]
+        CFG["Config latch<br/>src/dst/len/direction"]
+        FETCH["DMEM fetch<br/>W0 W1 W2 W3"]
+        STREAM["128-bit stream output<br/>{W3,W2,W1,W0}"]
+        POLL["APB poll/read<br/>RX_STATUS -> RX_META -> RX_DATA"]
+        WRITE["DMEM plaintext write"]
+        CFG --> FETCH --> STREAM --> POLL --> WRITE --> POLL
+    end
+
+    REG["dma_regfile<br/>start_i, soft_reset_i<br/>src_addr_i, dst_addr_i<br/>len_bytes_i, direction_i"] --> CFG
+    FETCH <-->|"dmem_* ports"| DMEM["DMEM Port B"]
+    STREAM -->|"rx_ciphertext_word_o[127:0]<br/>rx_ciphertext_word_valid_o"| RXTOP2["apb_huffman_aes_rx_top"]
+    RXTOP2 -->|"rx_ciphertext_word_ready_i"| STREAM
+    POLL -->|"rx_psel_o/rx_penable_o/rx_pwrite_o<br/>rx_paddr_o/rx_pwdata_o"| RXTOP2
+    RXTOP2 -->|"rx_prdata_i/rx_pready_i/rx_pslverr_i"| POLL
+    WRITE -->|"dmem_we_o=4'b1111<br/>dmem_wdata_o=plaintext word"| DMEM
+    DMARX -->|"dma_busy_o/dma_done_o/dma_error_o<br/>bytes_done_o/last_error_code_o<br/>engine_state_o"| REG
+```
+
+| Group | DMA RX input ports | DMA RX output ports | Meaning |
+|---|---|---|---|
+| Control | `clk_i`, `rst_i`, `start_i`, `soft_reset_i`, `clear_done_i`, `clear_error_i` | - | Start/reset/clear from `dma_regfile`. |
+| Config | `src_addr_i[31:0]`, `dst_addr_i[31:0]`, `len_bytes_i[31:0]`, `direction_i[1:0]`, `block_size_i[5:0]` | - | RX job descriptor. `direction_i` must be `2'b10`. `len_bytes_i` must be nonzero and 16-byte aligned. |
+| DMEM Port B | `dmem_rdata_i[31:0]` | `dmem_en_o`, `dmem_we_o[3:0]`, `dmem_addr_o[31:0]`, `dmem_wdata_o[31:0]` | Reads ciphertext from `src_addr_i`; writes plaintext to `dst_addr_i`. |
+| RX stream | `rx_ciphertext_word_ready_i` | `rx_ciphertext_word_o[127:0]`, `rx_ciphertext_word_valid_o` | Sends one AES transport word at a time. Word order is `{W3,W2,W1,W0}` after four DMEM 32-bit reads. |
+| RX APB master | `rx_prdata_i[31:0]`, `rx_pready_i`, `rx_pslverr_i` | `rx_psel_o`, `rx_penable_o`, `rx_pwrite_o`, `rx_paddr_o[31:0]`, `rx_pwdata_o[31:0]` | Resets RX interface and drains output FIFO through APB reads. |
+| DMA status | - | `dma_busy_o`, `dma_done_o`, `dma_error_o`, `bytes_done_o[31:0]`, `last_error_code_o[7:0]`, `engine_state_o[3:0]` | CPU-visible completion, error, recovered plaintext byte count, and debug state. |
+
+### 3.5 RX APB local address use
+
+`dma_rx_engine` currently uses this private RX APB map:
+
+| Address | Name | Access by DMA RX | Meaning |
+|---|---|---|---|
+| `0x0000_000C` | `RX_ADDR_CONTROL` | write `0x1` before transfer | Soft-reset/clear RX APB front-end before a new RX job. |
+| `0x0000_0008` | `RX_ADDR_STATUS` | repeated read | Bit 0 means plaintext word available, bit 4 means frame done, bit 5 means RX error. |
+| `0x0000_0004` | `RX_ADDR_META` | read before each data pop | Low 3 bits give valid plaintext bytes in the next `RX_DATA` word. Valid range is `1..4`. |
+| `0x0000_0000` | `RX_ADDR_DATA` | read/pop plaintext word | 32-bit plaintext word from `apb_huffman_rx_if` output FIFO. |
+
+### 3.6 RX performance/debug counter visibility
+
+The full FPGA top exports RX counters into the UART CPU debug window. The
+UART decode script prints them when `debug_version` is `0x00020000` and the
+performance signature is `PRF1`.
+
+| Metric | RTL source | Meaning |
+|---|---|---|
+| `rx_dma_cycles` | `rx_dma_busy_w` in `rv32_soc_top` | Total cycles spent by `dma_rx_engine` for selected RX job. |
+| `rx_huffman_cycles` | RX depacker/parser/decoder/packer active OR | Cycles where Huffman-side RX stages are active. |
+| `rx_aes_cycles` | ciphertext valid or AES not ready while RX DMA busy | Cycles attributed to AES decrypt path during RX. |
+| `cpu_cycles_live` | CPU debug counter | Total CPU cycles since SoC reset release. |
+| `cpu_dmem_access`, `cpu_mmio_access` | CPU debug counters | Memory/MMIO traffic while firmware manages secure storage. |
 
 ## 4. Modules And Roles
 
@@ -250,7 +385,7 @@ Implementation/resource notes from the latest area run:
 - RX APB output FIFO memories use distributed RAM.
 - The local canonical sort/build arrays remain register/mux based in the
   current RTL, but the full ZCU102 SoC routes and writes bitstream with WNS
-  `+9.331 ns` and WHS `+0.017 ns`.
+  `+10.383 ns` and WHS `+0.008 ns`.
 
 ### 7.6 `rx_byte_packer_32`
 
