@@ -56,6 +56,12 @@ module rv32_soc_fpga_demo_top (
   wire [31:0] cpu_debug_wb_count_w;
   wire [31:0] cpu_debug_last_wb_info_w;
   wire [31:0] cpu_debug_last_wb_data_w;
+  wire [31:0] perf_tx_dma_cycles_w;
+  wire [31:0] perf_rx_dma_cycles_w;
+  wire [31:0] perf_tx_huffman_cycles_w;
+  wire [31:0] perf_tx_aes_cycles_w;
+  wire [31:0] perf_rx_huffman_cycles_w;
+  wire [31:0] perf_rx_aes_cycles_w;
 
   assign por_rst_w = |por_shift_r;
   assign soc_rst_w = por_rst_w | (!loader_done_w);
@@ -133,7 +139,13 @@ module rv32_soc_fpga_demo_top (
     .cpu_debug_last_dmem_ctrl_i(cpu_debug_last_dmem_ctrl_w),
     .cpu_debug_wb_count_i(cpu_debug_wb_count_w),
     .cpu_debug_last_wb_info_i(cpu_debug_last_wb_info_w),
-    .cpu_debug_last_wb_data_i(cpu_debug_last_wb_data_w)
+    .cpu_debug_last_wb_data_i(cpu_debug_last_wb_data_w),
+    .perf_tx_dma_cycles_i(perf_tx_dma_cycles_w),
+    .perf_rx_dma_cycles_i(perf_rx_dma_cycles_w),
+    .perf_tx_huffman_cycles_i(perf_tx_huffman_cycles_w),
+    .perf_tx_aes_cycles_i(perf_tx_aes_cycles_w),
+    .perf_rx_huffman_cycles_i(perf_rx_huffman_cycles_w),
+    .perf_rx_aes_cycles_i(perf_rx_aes_cycles_w)
   );
 
   (* DONT_TOUCH = "yes" *) rv32_soc_top u_soc (
@@ -166,7 +178,13 @@ module rv32_soc_fpga_demo_top (
     .cpu_debug_last_dmem_ctrl_o(cpu_debug_last_dmem_ctrl_w),
     .cpu_debug_wb_count_o(cpu_debug_wb_count_w),
     .cpu_debug_last_wb_info_o(cpu_debug_last_wb_info_w),
-    .cpu_debug_last_wb_data_o(cpu_debug_last_wb_data_w)
+    .cpu_debug_last_wb_data_o(cpu_debug_last_wb_data_w),
+    .perf_tx_dma_cycles_o(perf_tx_dma_cycles_w),
+    .perf_rx_dma_cycles_o(perf_rx_dma_cycles_w),
+    .perf_tx_huffman_cycles_o(perf_tx_huffman_cycles_w),
+    .perf_tx_aes_cycles_o(perf_tx_aes_cycles_w),
+    .perf_rx_huffman_cycles_o(perf_rx_huffman_cycles_w),
+    .perf_rx_aes_cycles_o(perf_rx_aes_cycles_w)
   );
 
 endmodule

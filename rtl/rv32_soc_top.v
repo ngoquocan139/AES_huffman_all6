@@ -49,7 +49,13 @@ module rv32_soc_top (
   output wire [31:0] cpu_debug_last_dmem_ctrl_o,
   output wire [31:0] cpu_debug_wb_count_o,
   output wire [31:0] cpu_debug_last_wb_info_o,
-  output wire [31:0] cpu_debug_last_wb_data_o
+  output wire [31:0] cpu_debug_last_wb_data_o,
+  output wire [31:0] perf_tx_dma_cycles_o,
+  output wire [31:0] perf_rx_dma_cycles_o,
+  output wire [31:0] perf_tx_huffman_cycles_o,
+  output wire [31:0] perf_tx_aes_cycles_o,
+  output wire [31:0] perf_rx_huffman_cycles_o,
+  output wire [31:0] perf_rx_aes_cycles_o
 );
 
   localparam [31:0] DMA_APB_BASE_W = 32'h4000_0000;
@@ -80,6 +86,10 @@ module rv32_soc_top (
   wire        cpu_dmem_sel_w;
   wire        cpu_mmio_write_w;
   wire        cpu_global_hold_w;
+  wire        tx_huffman_active_w;
+  wire        tx_aes_active_w;
+  wire        rx_huffman_active_w;
+  wire        rx_aes_active_w;
   wire [31:0] bridge_mmio_rdata_w;
   wire        bridge_mmio_done_w;
   wire        bridge_mmio_error_w;
@@ -240,12 +250,36 @@ module rv32_soc_top (
   reg [31:0] cpu_debug_wb_count_r;
   reg [31:0] cpu_debug_last_wb_info_r;
   reg [31:0] cpu_debug_last_wb_data_r;
+  reg [31:0] perf_tx_dma_cycles_r;
+  reg [31:0] perf_rx_dma_cycles_r;
+  reg [31:0] perf_tx_huffman_cycles_r;
+  reg [31:0] perf_tx_aes_cycles_r;
+  reg [31:0] perf_rx_huffman_cycles_r;
+  reg [31:0] perf_rx_aes_cycles_r;
 
   assign cpu_mmio_sel_w = dmem_en_w &&
                           ((dmem_addr_w & DMA_APB_MASK_W) == DMA_APB_BASE_W);
   assign cpu_dmem_sel_w = dmem_en_w && (!cpu_mmio_sel_w);
   assign cpu_mmio_write_w = |dmem_we_w;
   assign cpu_global_hold_w = cpu_stall_i | bridge_cpu_stall_req_w;
+  assign tx_huffman_active_w = tx_dma_busy_w &&
+                               (tx_busy_dbg_w ||
+                                tx_encoder_busy_w ||
+                                tx_packer_busy_w ||
+                                tx_apb_word_valid_dbg_w ||
+                                tx_transport_word_valid_dbg_w);
+  assign tx_aes_active_w = tx_dma_busy_w &&
+                           (!dma_compress_only_w) &&
+                           (tx_cipher_en_dbg_w || (!tx_aes_ready_out_w));
+  assign rx_huffman_active_w = rx_dma_busy_w &&
+                               (rx_depacker_busy_w ||
+                                rx_parser_busy_w ||
+                                rx_decoder_busy_w ||
+                                rx_word_packer_busy_w ||
+                                rx_transport_word_valid_dbg_w ||
+                                rx_word_valid_dbg_w);
+  assign rx_aes_active_w = rx_dma_busy_w &&
+                           (rx_ciphertext_word_valid_w || (!rx_aes_ready_out_w));
   assign dma_engine_busy_w = tx_dma_busy_w | rx_dma_busy_w;
   assign dmem_port_b_owner_sel_w = tx_dma_busy_w ? DMA_DIR_TX_W :
                                    (rx_dma_busy_w ? DMA_DIR_RX_W : 2'b00);
@@ -295,6 +329,12 @@ module rv32_soc_top (
   assign cpu_debug_wb_count_o = cpu_debug_wb_count_r;
   assign cpu_debug_last_wb_info_o = cpu_debug_last_wb_info_r;
   assign cpu_debug_last_wb_data_o = cpu_debug_last_wb_data_r;
+  assign perf_tx_dma_cycles_o = perf_tx_dma_cycles_r;
+  assign perf_rx_dma_cycles_o = perf_rx_dma_cycles_r;
+  assign perf_tx_huffman_cycles_o = perf_tx_huffman_cycles_r;
+  assign perf_tx_aes_cycles_o = perf_tx_aes_cycles_r;
+  assign perf_rx_huffman_cycles_o = perf_rx_huffman_cycles_r;
+  assign perf_rx_aes_cycles_o = perf_rx_aes_cycles_r;
   assign dma_port_b_en_w = (dmem_port_b_owner_sel_w == DMA_DIR_TX_W) ? tx_dma_port_b_en_w :
                            ((dmem_port_b_owner_sel_w == DMA_DIR_RX_W) ? rx_dma_port_b_en_w : 1'b0);
   assign dma_port_b_we_w = (dmem_port_b_owner_sel_w == DMA_DIR_TX_W) ? tx_dma_port_b_we_w :
@@ -415,8 +455,32 @@ module rv32_soc_top (
       cpu_debug_wb_count_r <= 32'd0;
       cpu_debug_last_wb_info_r <= 32'd0;
       cpu_debug_last_wb_data_r <= 32'd0;
+      perf_tx_dma_cycles_r <= 32'd0;
+      perf_rx_dma_cycles_r <= 32'd0;
+      perf_tx_huffman_cycles_r <= 32'd0;
+      perf_tx_aes_cycles_r <= 32'd0;
+      perf_rx_huffman_cycles_r <= 32'd0;
+      perf_rx_aes_cycles_r <= 32'd0;
     end else begin
       cpu_debug_cycle_count_r <= cpu_debug_cycle_count_r + 32'd1;
+
+      if (tx_dma_busy_w)
+        perf_tx_dma_cycles_r <= perf_tx_dma_cycles_r + 32'd1;
+
+      if (rx_dma_busy_w)
+        perf_rx_dma_cycles_r <= perf_rx_dma_cycles_r + 32'd1;
+
+      if (tx_huffman_active_w)
+        perf_tx_huffman_cycles_r <= perf_tx_huffman_cycles_r + 32'd1;
+
+      if (tx_aes_active_w)
+        perf_tx_aes_cycles_r <= perf_tx_aes_cycles_r + 32'd1;
+
+      if (rx_huffman_active_w)
+        perf_rx_huffman_cycles_r <= perf_rx_huffman_cycles_r + 32'd1;
+
+      if (rx_aes_active_w)
+        perf_rx_aes_cycles_r <= perf_rx_aes_cycles_r + 32'd1;
 
       if (imem_en_w)
         cpu_debug_fetch_count_r <= cpu_debug_fetch_count_r + 32'd1;

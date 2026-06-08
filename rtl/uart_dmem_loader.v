@@ -32,7 +32,13 @@ module uart_dmem_loader #(
   input  wire [31:0] cpu_debug_last_dmem_ctrl_i,
   input  wire [31:0] cpu_debug_wb_count_i,
   input  wire [31:0] cpu_debug_last_wb_info_i,
-  input  wire [31:0] cpu_debug_last_wb_data_i
+  input  wire [31:0] cpu_debug_last_wb_data_i,
+  input  wire [31:0] perf_tx_dma_cycles_i,
+  input  wire [31:0] perf_rx_dma_cycles_i,
+  input  wire [31:0] perf_tx_huffman_cycles_i,
+  input  wire [31:0] perf_tx_aes_cycles_i,
+  input  wire [31:0] perf_rx_huffman_cycles_i,
+  input  wire [31:0] perf_rx_aes_cycles_i
 );
 
   localparam [7:0] MAGIC0 = 8'h4c; // 'L'
@@ -84,7 +90,8 @@ module uart_dmem_loader #(
   localparam [31:0] MAX_READ_BYTES_W = MAX_READ_BYTES;
   localparam [15:0] DMEM_BYTES_W     = 16'd32768;
   localparam [31:0] CPU_DEBUG_SIGNATURE_W = 32'h3155_5043; // "CPU1"
-  localparam [31:0] CPU_DEBUG_VERSION_W   = 32'h0001_0000;
+  localparam [31:0] CPU_DEBUG_VERSION_W   = 32'h0002_0000;
+  localparam [31:0] PERF_DEBUG_SIGNATURE_W = 32'h3146_5250; // "PRF1"
 
   localparam integer UART_PRESCALE_INT = (CLK_HZ / BAUD_RATE);
   localparam [15:0] UART_PRESCALE_W = (UART_PRESCALE_INT <= 0) ? 16'd1 :
@@ -125,7 +132,7 @@ module uart_dmem_loader #(
   wire       read_cpu_debug_w;
 
   assign read_cpu_debug_w = (read_addr_r >= CPU_DEBUG_BASE_ADDR) &&
-                            (read_addr_r < (CPU_DEBUG_BASE_ADDR + 32'd64));
+                            (read_addr_r < (CPU_DEBUG_BASE_ADDR + 32'd96));
 
   function [31:0] insert_byte32;
     input [31:0] word_i;
@@ -174,6 +181,14 @@ module uart_dmem_loader #(
         32'd13: cpu_debug_word = cpu_debug_last_wb_data_i;
         32'd14: cpu_debug_word = bytes_loaded_r;
         32'd15: cpu_debug_word = CPU_DEBUG_VERSION_W;
+        32'd16: cpu_debug_word = PERF_DEBUG_SIGNATURE_W;
+        32'd17: cpu_debug_word = perf_tx_dma_cycles_i;
+        32'd18: cpu_debug_word = perf_rx_dma_cycles_i;
+        32'd19: cpu_debug_word = perf_tx_huffman_cycles_i;
+        32'd20: cpu_debug_word = perf_tx_aes_cycles_i;
+        32'd21: cpu_debug_word = perf_rx_huffman_cycles_i;
+        32'd22: cpu_debug_word = perf_rx_aes_cycles_i;
+        32'd23: cpu_debug_word = CPU_DEBUG_VERSION_W;
         default: cpu_debug_word = 32'd0;
       endcase
     end

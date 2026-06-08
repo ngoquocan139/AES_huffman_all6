@@ -270,6 +270,12 @@ module test_bench;
   wire [31:0] soc_cpu_debug_wb_count_o;
   wire [31:0] soc_cpu_debug_last_wb_info_o;
   wire [31:0] soc_cpu_debug_last_wb_data_o;
+  wire [31:0] soc_perf_tx_dma_cycles_o;
+  wire [31:0] soc_perf_rx_dma_cycles_o;
+  wire [31:0] soc_perf_tx_huffman_cycles_o;
+  wire [31:0] soc_perf_tx_aes_cycles_o;
+  wire [31:0] soc_perf_rx_huffman_cycles_o;
+  wire [31:0] soc_perf_rx_aes_cycles_o;
 
   function automatic [7:0] byte_from_word;
     input [31:0] word;
@@ -2311,7 +2317,13 @@ module test_bench;
     .cpu_debug_last_dmem_ctrl_o(soc_cpu_debug_last_dmem_ctrl_o),
     .cpu_debug_wb_count_o(soc_cpu_debug_wb_count_o),
     .cpu_debug_last_wb_info_o(soc_cpu_debug_last_wb_info_o),
-    .cpu_debug_last_wb_data_o(soc_cpu_debug_last_wb_data_o)
+    .cpu_debug_last_wb_data_o(soc_cpu_debug_last_wb_data_o),
+    .perf_tx_dma_cycles_o(soc_perf_tx_dma_cycles_o),
+    .perf_rx_dma_cycles_o(soc_perf_rx_dma_cycles_o),
+    .perf_tx_huffman_cycles_o(soc_perf_tx_huffman_cycles_o),
+    .perf_tx_aes_cycles_o(soc_perf_tx_aes_cycles_o),
+    .perf_rx_huffman_cycles_o(soc_perf_rx_huffman_cycles_o),
+    .perf_rx_aes_cycles_o(soc_perf_rx_aes_cycles_o)
   );
 
   aes128_cipher_top u_aes_bench_encrypt (
@@ -6019,18 +6031,25 @@ module test_bench;
     $display("# FILES summary=%0s compare=%0s src_dump=%0s tx_dump=%0s rx_dump=%0s",
              LOOPBACK_SUMMARY_FILE, LOOPBACK_COMPARE_FILE,
              SRC_DUMP_FILE, TX_DUMP_FILE, RX_DUMP_FILE);
-    $display("# CPU DEBUG result0=%08x fetch_pc=%08x fetch_instr=%08x last_dmem_addr=%08x last_dmem_wdata=%08x last_dmem_ctrl=%08x wb_count=%0d last_wb_info=%08x last_wb_data=%08x",
-             result_words[0],
-             soc_cpu_debug_fetch_pc_o,
-             soc_cpu_debug_fetch_instr_o,
-             soc_cpu_debug_last_dmem_addr_o,
-             soc_cpu_debug_last_dmem_wdata_o,
-             soc_cpu_debug_last_dmem_ctrl_o,
-             soc_cpu_debug_wb_count_o,
-             soc_cpu_debug_last_wb_info_o,
-             soc_cpu_debug_last_wb_data_o);
+	    $display("# CPU DEBUG result0=%08x fetch_pc=%08x fetch_instr=%08x last_dmem_addr=%08x last_dmem_wdata=%08x last_dmem_ctrl=%08x wb_count=%0d last_wb_info=%08x last_wb_data=%08x",
+	             result_words[0],
+	             soc_cpu_debug_fetch_pc_o,
+	             soc_cpu_debug_fetch_instr_o,
+	             soc_cpu_debug_last_dmem_addr_o,
+	             soc_cpu_debug_last_dmem_wdata_o,
+	             soc_cpu_debug_last_dmem_ctrl_o,
+	             soc_cpu_debug_wb_count_o,
+	             soc_cpu_debug_last_wb_info_o,
+	             soc_cpu_debug_last_wb_data_o);
+	    $display("# PERF_COUNTERS tx_dma_cycles=%0d rx_dma_cycles=%0d tx_huffman_cycles=%0d tx_aes_cycles=%0d rx_huffman_cycles=%0d rx_aes_cycles=%0d",
+	             soc_perf_tx_dma_cycles_o,
+	             soc_perf_rx_dma_cycles_o,
+	             soc_perf_tx_huffman_cycles_o,
+	             soc_perf_tx_aes_cycles_o,
+	             soc_perf_rx_huffman_cycles_o,
+	             soc_perf_rx_aes_cycles_o);
 
-    check_eq_2 ("mem_err_o_should_be_zero", mem_err_o, 2'b00);
+	    check_eq_2 ("mem_err_o_should_be_zero", mem_err_o, 2'b00);
     check_true ("cpu_should_publish_known_signature",
                 (result_words[0] == RESULT_SIGNATURE_DMA)  ||
                 (result_words[0] == RESULT_SIGNATURE_TX)   ||

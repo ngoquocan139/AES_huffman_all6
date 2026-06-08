@@ -18,17 +18,34 @@ BOARD_STATUS_ADDR = 0x50
 BOARD_FILE_ID_ADDR = 0x54
 BOARD_EVENT_ADDR = 0x58
 CPU_DEBUG_BASE_ADDR = 0x7F80
-CPU_DEBUG_LEN = 64
+CPU_DEBUG_LEN = 96
 CPU_DEBUG_SIGNATURE = 0x31555043
+CPU_PERF_SIGNATURE = 0x31465250
 CPU_RESET_PC = 0x00000000
 CPU_STACK_POINTER_INIT = 0x00007F00
 STORAGE_REPORT_BASE_ADDR = 0x00000280
 STORAGE_REPORT_LEN = 160
 STORAGE_REPORT_SIGNATURE = 0x31545052
+STORAGE_META_BASE_ADDR = 0x00000100
+STORAGE_META_RECORD_COUNT = 3
+STORAGE_META_RECORD_WORDS = 16
+STORAGE_META_RECORD_SHIFT = 6
+STORAGE_META_LEN = STORAGE_META_RECORD_COUNT * (1 << STORAGE_META_RECORD_SHIFT)
+STORAGE_META_VALID = 0
+STORAGE_META_FILE_ID = 1
+STORAGE_META_PLAIN_ADDR = 2
+STORAGE_META_CIPHER_ADDR = 3
+STORAGE_META_PLAIN_LEN = 4
+STORAGE_META_CIPHER_LEN = 5
+STORAGE_META_MODE = 6
+STORAGE_META_IV0 = 7
+STORAGE_META_VERSION = 11
+STORAGE_META_FLAGS = 12
 STORAGE_BUNDLE_BASE_ADDR = 0x00000800
 STORAGE_BUNDLE_HEADER_LEN = 64
 STORAGE_BUNDLE_SIGNATURE = 0x31444E42
 STORAGE_BUNDLE_MAX_BYTES = 12288
+AES_CORE_CYCLES_PER_BLOCK = 11
 
 
 def parse_int(value: str) -> int:
@@ -129,6 +146,12 @@ def word_at(word_map: dict[int, int], addr: int) -> int | None:
 
 
 def pct(numer: int, denom: int) -> str:
+    if denom == 0:
+        return "n/a"
+    return f"{(100.0 * numer / denom):.2f}%"
+
+
+def signed_saving(numer: int, denom: int) -> str:
     if denom == 0:
         return "n/a"
     return f"{(100.0 * numer / denom):.2f}%"
@@ -281,6 +304,13 @@ def print_live_cpu_debug(word_map: dict[int, int], force: bool = False) -> None:
     last_wb_data = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x34) or 0
     loader_bytes = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x38) or 0
     debug_version = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x3C) or 0
+    perf_signature = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x40)
+    perf_tx_dma = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x44)
+    perf_rx_dma = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x48)
+    perf_tx_huffman = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x4C)
+    perf_tx_aes = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x50)
+    perf_rx_huffman = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x54)
+    perf_rx_aes = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x58)
     status_fields = cpu_debug_status_fields(status)
     last_wb_rd = last_wb_info & 0x1F
     last_wb_valid = (last_wb_info >> 5) & 0x1
@@ -318,6 +348,15 @@ def print_live_cpu_debug(word_map: dict[int, int], force: bool = False) -> None:
     )
     print(f"  loader_bytes   : {loader_bytes}")
     print(f"  debug_version  : 0x{debug_version:08x}")
+    if perf_signature == CPU_PERF_SIGNATURE:
+        print("")
+        print("RTL performance counters")
+        print(f"  tx_dma_cycles      : {perf_tx_dma}")
+        print(f"  rx_dma_cycles      : {perf_rx_dma}")
+        print(f"  tx_huffman_cycles  : {perf_tx_huffman}")
+        print(f"  tx_aes_cycles      : {perf_tx_aes}")
+        print(f"  rx_huffman_cycles  : {perf_rx_huffman}")
+        print(f"  rx_aes_cycles      : {perf_rx_aes}")
 
 
 def print_cpu_info(word_map: dict[int, int], words: list[int], input_len: int | None, input2_len: int | None) -> None:
@@ -383,24 +422,195 @@ def report_word(word_map: dict[int, int], index: int) -> int | None:
     return word_at(word_map, STORAGE_REPORT_BASE_ADDR + (index * 4))
 
 
+def metadata_word(word_map: dict[int, int], slot: int, index: int) -> int | None:
+    addr = STORAGE_META_BASE_ADDR + (slot << STORAGE_META_RECORD_SHIFT) + (index * 4)
+    return word_at(word_map, addr)
+
+
+def metadata_records(word_map: dict[int, int]) -> list[dict[str, int]]:
+    records = []
+    for slot in range(STORAGE_META_RECORD_COUNT):
+        valid = metadata_word(word_map, slot, STORAGE_META_VALID) or 0
+        file_id = metadata_word(word_map, slot, STORAGE_META_FILE_ID) or 0
+        plain_addr = metadata_word(word_map, slot, STORAGE_META_PLAIN_ADDR) or 0
+        cipher_addr = metadata_word(word_map, slot, STORAGE_META_CIPHER_ADDR) or 0
+        plain_len = metadata_word(word_map, slot, STORAGE_META_PLAIN_LEN) or 0
+        cipher_len = metadata_word(word_map, slot, STORAGE_META_CIPHER_LEN) or 0
+        mode = metadata_word(word_map, slot, STORAGE_META_MODE) or 0
+        iv0 = metadata_word(word_map, slot, STORAGE_META_IV0) or 0
+        version = metadata_word(word_map, slot, STORAGE_META_VERSION) or 0
+        flags = metadata_word(word_map, slot, STORAGE_META_FLAGS) or 0
+        if valid:
+            records.append(
+                {
+                    "slot": slot,
+                    "file_id": file_id,
+                    "plain_addr": plain_addr,
+                    "cipher_addr": cipher_addr,
+                    "plain_len": plain_len,
+                    "cipher_len": cipher_len,
+                    "mode": mode,
+                    "iv0": iv0,
+                    "version": version,
+                    "flags": flags,
+                }
+            )
+    return records
+
+
+def aes_blocks(byte_count: int) -> int:
+    if byte_count <= 0:
+        return 0
+    return (byte_count + 15) // 16
+
+
+def aes_cycles(byte_count: int) -> int:
+    return aes_blocks(byte_count) * AES_CORE_CYCLES_PER_BLOCK
+
+
+def print_record_table(records: list[dict[str, int]]) -> None:
+    print("Secure storage records")
+    print(
+        "  id  label              plaintext  ciphertext  storage_ratio  "
+        "space_saving  mode"
+    )
+    for rec in records:
+        file_id = rec["file_id"]
+        plain_len = rec["plain_len"]
+        cipher_len = rec["cipher_len"]
+        saving = plain_len - cipher_len
+        print(
+            f"  {file_id:<3} {storage_label(file_id):<18} "
+            f"{plain_len:>9}  {cipher_len:>10}  "
+            f"{pct(cipher_len, plain_len):>13}  "
+            f"{signed_saving(saving, plain_len):>12}  "
+            f"{mode_text(rec['mode'])}"
+        )
+
+
+def print_metric_summary(
+    records: list[dict[str, int]],
+    selected_file_id: int,
+    selected_plain_len: int,
+    selected_cipher_len: int,
+    rx_plain_bytes: int,
+    rx_polls: int,
+    tx_total_polls: int,
+    word_map: dict[int, int],
+) -> None:
+    total_plain = sum(rec["plain_len"] for rec in records)
+    total_cipher = sum(rec["cipher_len"] for rec in records)
+    cpu_cycles = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x10)
+    cpu_fetches = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x14)
+    cpu_dmem = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x18)
+    cpu_mmio = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x1C)
+    perf_signature = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x40)
+    perf_tx_dma = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x44)
+    perf_rx_dma = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x48)
+    perf_tx_huffman = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x4C)
+    perf_tx_aes = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x50)
+    perf_rx_huffman = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x54)
+    perf_rx_aes = word_at(word_map, CPU_DEBUG_BASE_ADDR + 0x58)
+
+    print("")
+    print("Per-file report metrics")
+    print(f"  total_plain    : {total_plain} bytes")
+    print(f"  total_cipher   : {total_cipher} bytes")
+    print(f"  aggregate_ratio: {pct(total_cipher, total_plain)}")
+    print(f"  aggregate_save : {signed_saving(total_plain - total_cipher, total_plain)}")
+
+    print("")
+    print("Selected readback")
+    print(f"  selected_file  : {selected_file_id} ({storage_label(selected_file_id)})")
+    print(f"  plaintext_exp  : {selected_plain_len} bytes")
+    print(f"  ciphertext     : {selected_cipher_len} bytes")
+    print(f"  rx_plaintext   : {rx_plain_bytes} bytes")
+    print(f"  rx_len_match   : {'YES' if rx_plain_bytes == selected_plain_len else 'NO'}")
+    print(f"  selected_ratio : {pct(selected_cipher_len, selected_plain_len)}")
+    print(f"  selected_save  : {signed_saving(selected_plain_len - selected_cipher_len, selected_plain_len)}")
+
+    print("")
+    print("Cycle / counter metrics")
+    print(f"  tx_poll_loops  : {tx_total_polls} CPU firmware polling loops")
+    print(f"  rx_poll_loops  : {rx_polls} CPU firmware polling loops")
+    if cpu_cycles is not None:
+        print(f"  cpu_cycles_live: {cpu_cycles} cycles since SoC reset release")
+    if cpu_fetches is not None:
+        print(f"  cpu_imem_fetch : {cpu_fetches}")
+    if cpu_dmem is not None:
+        print(f"  cpu_dmem_access: {cpu_dmem}")
+    if cpu_mmio is not None:
+        print(f"  cpu_mmio_access: {cpu_mmio}")
+    if perf_signature == CPU_PERF_SIGNATURE:
+        print(f"  tx_dma_cycles  : {perf_tx_dma} RTL cycles")
+        print(f"  rx_dma_cycles  : {perf_rx_dma} RTL cycles")
+        print(f"  tx_huffman_cyc : {perf_tx_huffman} RTL cycles")
+        print(f"  tx_aes_cyc     : {perf_tx_aes} RTL cycles")
+        print(f"  rx_huffman_cyc : {perf_rx_huffman} RTL cycles")
+        print(f"  rx_aes_cyc     : {perf_rx_aes} RTL cycles")
+
+    print("")
+    print("AES core cycles")
+    print("  id  aes_blocks_tx  aes_cycles_tx")
+    for rec in records:
+        print(
+            f"  {rec['file_id']:<3} {aes_blocks(rec['cipher_len']):>13}  "
+            f"{aes_cycles(rec['cipher_len']):>13}"
+        )
+    print(
+        f"  RX selected    {aes_blocks(selected_cipher_len):>5} blocks, "
+        f"{aes_cycles(selected_cipher_len)} AES-core cycles"
+    )
+    if perf_signature != CPU_PERF_SIGNATURE:
+        print(
+            "  Huffman cycles : current bitstream does not expose a separate "
+            "Huffman-stage cycle counter; rebuild/program the counter bitstream."
+        )
+
+
 def print_storage_report(word_map: dict[int, int], legacy_words: list[int]) -> None:
+    records_from_meta = metadata_records(word_map)
     if report_word(word_map, 0) != STORAGE_REPORT_SIGNATURE:
         input1_len = word_at(word_map, 0x40)
         tx1_cipher_bytes = legacy_words[5]
         rx_plain_bytes = legacy_words[9]
+        selected_file_id = legacy_words[14]
+        selected_plain_len = 0
+        selected_cipher_len = 0
+        tx_total_polls = report_word(word_map, 10) or legacy_words[6]
+        selected = None
+        for rec in records_from_meta:
+            if rec["file_id"] == selected_file_id:
+                selected = rec
+                selected_plain_len = rec["plain_len"]
+                selected_cipher_len = rec["cipher_len"]
+                break
+
         print("firmware        : test_mmio_dma_storage_table.c, secure storage API")
-        print(f"input1_len      : {input1_len if input1_len is not None else 'unknown'} bytes")
+        print(f"input_len       : {input1_len if input1_len is not None else 'unknown'} bytes")
         print("")
         print("Storage metadata")
-        print(f"  tx1_ciphertext: {tx1_cipher_bytes} bytes")
-        print(f"  tx2_ciphertext: {legacy_words[12]} bytes")
-        print(f"  selected_file : {legacy_words[14]}")
-        print(f"  total_records : {legacy_words[15]}")
-        if input1_len is not None:
-            print(f"  storage_ratio : {pct(tx1_cipher_bytes, input1_len)}")
-            print(f"  space_saving  : {pct(input1_len - tx1_cipher_bytes, input1_len)}")
-            print(f"  rx_len_match  : {'YES' if rx_plain_bytes == input1_len else 'NO'}")
-        print("note            : rebuild/program a newer bitstream for the extended storage report.")
+        if records_from_meta:
+            print_record_table(records_from_meta)
+            print_metric_summary(
+                records_from_meta,
+                selected_file_id,
+                selected_plain_len,
+                selected_cipher_len,
+                rx_plain_bytes,
+                legacy_words[11],
+                tx_total_polls,
+                word_map,
+            )
+        else:
+            print(f"  tx1_ciphertext: {tx1_cipher_bytes} bytes")
+            print(f"  tx2_ciphertext: {legacy_words[12]} bytes")
+            print(f"  selected_file : {selected_file_id}")
+            print(f"  total_records : {legacy_words[15]}")
+            if input1_len is not None:
+                print(f"  storage_ratio : {pct(tx1_cipher_bytes, input1_len)}")
+                print(f"  space_saving  : {signed_saving(input1_len - tx1_cipher_bytes, input1_len)}")
+                print(f"  rx_len_match  : {'YES' if rx_plain_bytes == input1_len else 'NO'}")
         return
 
     bundle_mode = report_word(word_map, 2) or 0
@@ -431,43 +641,64 @@ def print_storage_report(word_map: dict[int, int], legacy_words: list[int]) -> N
             print("diagnostic      : bundle is in DMEM but firmware did not consume it; rebuild/reload the fixed bitstream.")
     print(f"total_records   : {total_records}")
     print("")
-    print("Secure storage records")
-    print("  id  label              plaintext  ciphertext  storage_ratio  space_saving")
+    records = []
     for idx in range(3):
         base = 16 + (idx * 8)
         valid = report_word(word_map, base + 0) or 0
         file_id = report_word(word_map, base + 1) or 0
+        plain_addr = report_word(word_map, base + 2) or 0
+        cipher_addr = report_word(word_map, base + 3) or 0
         plain_len = report_word(word_map, base + 4) or 0
         cipher_len = report_word(word_map, base + 5) or 0
+        iv0 = report_word(word_map, base + 6) or 0
+        version = report_word(word_map, base + 7) or 0
         if not valid:
             continue
-        print(
-            f"  {file_id:<3} {storage_label(file_id):<18} "
-            f"{plain_len:>9}  {cipher_len:>10}  "
-            f"{pct(cipher_len, plain_len):>13}  {pct(plain_len - cipher_len, plain_len):>12}"
+        records.append(
+            {
+                "slot": idx,
+                "file_id": file_id,
+                "plain_addr": plain_addr,
+                "cipher_addr": cipher_addr,
+                "plain_len": plain_len,
+                "cipher_len": cipher_len,
+                "mode": metadata_word(word_map, idx, STORAGE_META_MODE) or 0x00000009,
+                "iv0": iv0,
+                "version": version,
+                "flags": 0,
+            }
         )
 
+    if not records and records_from_meta:
+        records = records_from_meta
+    print_record_table(records)
     print("")
-    print("Selected readback")
-    print(f"  selected_file : {selected_file_id} ({storage_label(selected_file_id)})")
+    print("Selected debug")
     print(f"  selected_slot : {selected_slot if selected_slot is not None else 'unknown'}")
-    print(f"  plaintext_exp : {selected_plain_len} bytes")
-    print(f"  ciphertext    : {selected_cipher_len} bytes")
-    print(f"  rx_plaintext  : {rx_plain_bytes} bytes")
-    print(f"  rx_len_match  : {'YES' if rx_plain_bytes == selected_plain_len else 'NO'}")
     print(f"  rx_status_bef : {status_text(rx_status_before)}")
     print(f"  rx_status_aft : {status_text(rx_status_after)}")
     print(f"  rx_debug      : 0x{rx_debug:08x}")
-    print(f"  rx_poll_count : {rx_polls} CPU polling loops")
-
-    print("")
-    print("Report metrics")
-    print(f"  total_plain   : {total_plain} bytes")
-    print(f"  total_cipher  : {total_cipher} bytes")
-    print(f"  aggregate_ratio: {pct(total_cipher, total_plain)}")
-    print(f"  aggregate_save : {pct(total_plain - total_cipher, total_plain)}")
-    print(f"  tx_poll_total : {tx_total_polls} CPU polling loops")
-    print("note            : storage_ratio uses ciphertext bytes / plaintext bytes; AES-CBC padding and framing are included.")
+    if records:
+        if selected_plain_len == 0 or selected_cipher_len == 0:
+            for rec in records:
+                if rec["file_id"] == selected_file_id:
+                    selected_plain_len = rec["plain_len"]
+                    selected_cipher_len = rec["cipher_len"]
+                    break
+        if total_plain == 0:
+            total_plain = sum(rec["plain_len"] for rec in records)
+        if total_cipher == 0:
+            total_cipher = sum(rec["cipher_len"] for rec in records)
+    print_metric_summary(
+        records,
+        selected_file_id,
+        selected_plain_len,
+        selected_cipher_len,
+        rx_plain_bytes,
+        rx_polls,
+        tx_total_polls,
+        word_map,
+    )
 
 
 def print_result_decode(word_map: dict[int, int]) -> None:
@@ -517,7 +748,6 @@ def print_result_decode(word_map: dict[int, int]) -> None:
             print(f"  space_saving  : {pct(input_len - tx_cipher_bytes, input_len)}")
             print(f"  rx_len_match  : {'YES' if rx_plain_bytes == input_len else 'NO'}")
         print(f"rx_first_16B    : {first_16_bytes(words[12:16])}")
-        print("note            : poll_count is firmware polling loops, not true hardware cycles.")
     elif signature == SIG_TX_ONLY:
         input_len = words[9] if words[9] != 0 else input_len
         tx_cipher_bytes = words[5]
@@ -534,7 +764,6 @@ def print_result_decode(word_map: dict[int, int]) -> None:
             print(f"storage_ratio   : {pct(tx_cipher_bytes, input_len)}")
             print(f"space_saving    : {pct(input_len - tx_cipher_bytes, input_len)}")
         print(f"tx_first_16B    : {first_16_bytes(words[10:14])}")
-        print("note            : poll_count is firmware polling loops, not true hardware cycles.")
     elif signature == SIG_STORAGE:
         print_storage_report(word_map, words)
         print("")
@@ -697,6 +926,19 @@ def main() -> int:
                         word_map.update(words_from_data(report, STORAGE_REPORT_BASE_ADDR))
                     except Exception as exc:
                         log(f"[WARN] could not read secure-storage report window: {exc}")
+                if STORAGE_META_BASE_ADDR not in word_map:
+                    try:
+                        meta = send_read(
+                            port,
+                            STORAGE_META_BASE_ADDR,
+                            STORAGE_META_LEN,
+                            False,
+                            args.resync_ack,
+                            args.ack_scan_bytes,
+                        )
+                        word_map.update(words_from_data(meta, STORAGE_META_BASE_ADDR))
+                    except Exception as exc:
+                        log(f"[WARN] could not read secure-storage metadata window: {exc}")
                 if CPU_DEBUG_BASE_ADDR not in word_map:
                     try:
                         debug = send_read(
