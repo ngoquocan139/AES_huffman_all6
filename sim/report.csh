@@ -62,7 +62,7 @@ printf "|-----------------------------------------------------------------------
 printf "|%-32s |%-10s | %-68s |\n" " TESTNAME" " RESULT" " KEY DETAILS" >> $log
 printf "|---------------------------------------------------------------------------------------------------------------|\n" >> $log
 
-foreach pat (dma_compress_aes_input1 dma_compress_aes_input3 dma_compress_aes_alnum63_cov)
+foreach pat (dma_compress_aes_input1 dma_compress_aes_input2 dma_compress_aes_alnum63_cov)
     set sim_log = "log/${pat}.log"
     set res = "NA"
 

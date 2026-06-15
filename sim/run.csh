@@ -19,20 +19,20 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             set c_src = "test_mmio_dma.c"
             set run_args = "+CASE_NAME=dma_compress_aes_input1 +INPUT_FILE=input1.txt"
             breaksw
-        case dma_compress_aes_input2_debug:
+        case dma_compress_aes_input2:
             set tb_name = "test_bench"
             set c_src = "test_mmio_dma.c"
-            set run_args = "+CASE_NAME=dma_compress_aes_input2_debug +INPUT_FILE=input2.txt"
+            set run_args = "+CASE_NAME=dma_compress_aes_input2 +INPUT_FILE=input2.txt"
             breaksw
         case dma_compress_aes_input3:
             set tb_name = "test_bench"
             set c_src = "test_mmio_dma.c"
             set run_args = "+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
             breaksw
-        case dma_storage_table_input1_then_input3:
+        case dma_storage_table_input1_then_input2:
             set tb_name = "test_bench"
             set c_src = "test_mmio_dma_storage_table.c"
-            set run_args = "+CASE_NAME=dma_storage_table_input1_then_input3 +INPUT_FILE=input1.txt +INPUT_FILE2=input3.txt"
+            set run_args = "+CASE_NAME=dma_storage_table_input1_then_input2 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt"
             breaksw
         case dma_compress_aes_one_symbol_cov:
             set tb_name = "test_bench"
@@ -79,15 +79,15 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             set c_src = "test_mmio_tx_only.c"
             set run_args = "+CASE_NAME=tx_compress_only_short_raw_cov +INPUT_FILE=input_cov_short_raw.txt"
             breaksw
-        case tx_compress_aes_block_input3:
+        case tx_compress_aes_block_input2:
             set tb_name = "test_bench"
             set c_src = "test_mmio_tx_only_aes_block.c"
-            set run_args = "+CASE_NAME=tx_compress_aes_block_input3 +INPUT_FILE=input3.txt"
+            set run_args = "+CASE_NAME=tx_compress_aes_block_input2 +INPUT_FILE=input2.txt"
             breaksw
-        case tx_compress_only_block_input3:
+        case tx_compress_only_block_input2:
             set tb_name = "test_bench"
             set c_src = "test_mmio_tx_only_compress_block.c"
-            set run_args = "+CASE_NAME=tx_compress_only_block_input3 +INPUT_FILE=input3.txt"
+            set run_args = "+CASE_NAME=tx_compress_only_block_input2 +INPUT_FILE=input2.txt"
             breaksw
         case mmio_regfile_basic:
             set tb_name = "test_bench"
