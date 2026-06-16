@@ -36,17 +36,17 @@ Normal FPGA path:
 
 ```mermaid
 flowchart LR
-    PC["PC UART loader/readback"] -->|"load input/ciphertext"| DMEM_IN["DMEM ciphertext buffer<br/>SRC_ADDR, LEN_BYTES"]
-    CPU["RV32I CPU"] -->|"MMIO writes"| BR["cpu_mmio_to_apb_bridge"]
-    BR -->|"APB config"| REG["dma_regfile"]
+    PC[/"PC UART loader/readback"/] -->|"load input/ciphertext"| DMEM_IN[("DMEM ciphertext buffer<br/>SRC_ADDR, LEN_BYTES")]
+    CPU["RV32I CPU"] -->|"MMIO writes"| BR[/"cpu_mmio_to_apb_bridge"/]
+    BR -->|"APB config"| REG[("dma_regfile")]
     REG -->|"src_addr_o, dst_addr_o<br/>len_bytes_o, direction_o<br/>start_pulse_o"| RXDMA["dma_rx_engine"]
-    REG -->|"iv_o = {IV3, IV2, IV1, IV0}"| RXTOP["apb_huffman_aes_rx_top"]
+    REG -->|"iv_o = {IV3, IV2, IV1, IV0}"| RXTOP[/"apb_huffman_aes_rx_top"/]
     DMEM_IN -->|"Port B read<br/>W0, W1, W2, W3"| RXDMA
     RXDMA -->|"rx_ciphertext_word_o[127:0]<br/>rx_ciphertext_word_valid_o"| RXTOP
     RXTOP -->|"rx_ciphertext_word_ready_i"| RXDMA
     RXDMA -->|"private APB<br/>RX_STATUS, RX_META, RX_DATA"| RXTOP
     RXTOP -->|"PRDATA, PREADY, PSLVERR"| RXDMA
-    RXDMA -->|"Port B write plaintext"| DMEM_OUT["DMEM plaintext buffer<br/>DST_ADDR, BYTES_DONE"]
+    RXDMA -->|"Port B write plaintext"| DMEM_OUT[("DMEM plaintext buffer<br/>DST_ADDR, BYTES_DONE")]
     DMEM_OUT -->|"UART readback/debug"| PC
     RXDMA -->|"dma_busy_o, dma_done_o<br/>dma_error_o, bytes_done_o"| REG
 ```
@@ -82,12 +82,12 @@ This diagram shows the real RTL ports used by the active full SoC build.
 
 ```mermaid
 flowchart LR
-    CPU["RV32I CPU<br/>MMIO load/store"] -->|"mmio_req_i/write_i/addr/wdata"| BRIDGE["cpu_mmio_to_apb_bridge"]
-    BRIDGE -->|"PSEL/PENABLE/PWRITE<br/>PADDR/PWDATA"| REGFILE["dma_regfile"]
+    CPU["RV32I CPU<br/>MMIO load/store"] -->|"mmio_req_i/write_i/addr/wdata"| BRIDGE[/"cpu_mmio_to_apb_bridge"/]
+    BRIDGE -->|"PSEL/PENABLE/PWRITE<br/>PADDR/PWDATA"| REGFILE[("dma_regfile")]
     REGFILE -->|"src_addr_o<br/>dst_addr_o<br/>len_bytes_o<br/>direction_o=2'b10<br/>start_pulse_o"| DMARX["dma_rx_engine"]
-    REGFILE -->|"iv_o[127:0]"| RXTOP["apb_huffman_aes_rx_top"]
+    REGFILE -->|"iv_o[127:0]"| RXTOP[/"apb_huffman_aes_rx_top"/]
 
-    DMEM["DMEM Port B<br/>dmem_ip_wrapper"] <-->|"dmem_en_o<br/>dmem_we_o[3:0]<br/>dmem_addr_o[31:0]<br/>dmem_wdata_o[31:0]<br/>dmem_rdata_i[31:0]"| DMARX
+    DMEM[("DMEM Port B<br/>dmem_ip_wrapper")] <-->|"dmem_en_o<br/>dmem_we_o[3:0]<br/>dmem_addr_o[31:0]<br/>dmem_wdata_o[31:0]<br/>dmem_rdata_i[31:0]"| DMARX
 
     DMARX -->|"rx_ciphertext_word_o[127:0]"| RXTOP
     DMARX -->|"rx_ciphertext_word_valid_o"| RXTOP
@@ -96,7 +96,7 @@ flowchart LR
     DMARX -->|"rx_psel_o/rx_penable_o/rx_pwrite_o<br/>rx_paddr_o/rx_pwdata_o"| RXTOP
     RXTOP -->|"rx_prdata_i/rx_pready_i/rx_pslverr_i"| DMARX
 
-    RXTOP -->|"rx_busy/rx_done/rx_error<br/>stage debug signals"| SOCDBG["SoC debug<br/>UART metric window"]
+    RXTOP -->|"rx_busy/rx_done/rx_error<br/>stage debug signals"| SOCDBG[("SoC debug<br/>UART metric window")]
     DMARX -->|"dma_busy_o/dma_done_o/dma_error_o<br/>bytes_done_o/last_error_code_o<br/>engine_state_o"| REGFILE
 ```
 
@@ -116,17 +116,17 @@ flowchart TB
         PAR["huffman_block_parser"]
         DEC["huffman_block_decoder"]
         PKR["rx_byte_packer_32"]
-        APBIF["apb_huffman_rx_if<br/>RX_STATUS/RX_META/RX_DATA"]
+        APBIF[("apb_huffman_rx_if<br/>RX_STATUS/RX_META/RX_DATA")]
         AES --> DEPK --> PAR --> DEC --> PKR --> APBIF
     end
 
-    CLK["Clock/reset<br/>PCLK, PRESETn, rst_i"] --> RXTOP
-    DMAIN["DMA RX stream<br/>ciphertext_word_in[127:0]<br/>ciphertext_word_valid"] --> AES
+    CLK[/"Clock/reset<br/>PCLK, PRESETn, rst_i"/] --> RXTOP
+    DMAIN[/"DMA RX stream<br/>ciphertext_word_in[127:0]<br/>ciphertext_word_valid"/] --> AES
     AES -->|"ciphertext_word_ready"| DMAIN
-    IV["dma_regfile<br/>cbc_iv_i[127:0]"] --> AES
-    APBM["dma_rx_engine APB master<br/>PSEL/PENABLE/PWRITE<br/>PADDR/PWDATA"] --> APBIF
+    IV[("dma_regfile<br/>cbc_iv_i[127:0]")] --> AES
+    APBM[/"dma_rx_engine APB master<br/>PSEL/PENABLE/PWRITE<br/>PADDR/PWDATA"/] --> APBIF
     APBIF -->|"PRDATA/PREADY/PSLVERR"| APBM
-    RXTOP --> STS["Status/debug outputs<br/>rx_busy/rx_done/rx_error<br/>stage busy/done/error<br/>transport_word_dbg/rx_word_dbg"]
+    RXTOP --> STS[("Status/debug outputs<br/>rx_busy/rx_done/rx_error<br/>stage busy/done/error<br/>transport_word_dbg/rx_word_dbg")]
 ```
 
 | Group | RX top input ports | RX top output ports | Meaning |
@@ -148,15 +148,15 @@ flowchart TB
 flowchart TB
     subgraph DMARX["dma_rx_engine"]
         CFG["Config latch<br/>src/dst/len/direction"]
-        FETCH["DMEM fetch<br/>W0 W1 W2 W3"]
-        STREAM["128-bit stream output<br/>{W3,W2,W1,W0}"]
-        POLL["APB poll/read<br/>RX_STATUS -> RX_META -> RX_DATA"]
-        WRITE["DMEM plaintext write"]
+        FETCH[/"DMEM fetch<br/>W0 W1 W2 W3"/]
+        STREAM[/"128-bit stream output<br/>{W3,W2,W1,W0}"/]
+        POLL[/"APB poll/read<br/>RX_STATUS -> RX_META -> RX_DATA"/]
+        WRITE[/"DMEM plaintext write"/]
         CFG --> FETCH --> STREAM --> POLL --> WRITE --> POLL
     end
 
-    REG["dma_regfile<br/>start_i, soft_reset_i<br/>src_addr_i, dst_addr_i<br/>len_bytes_i, direction_i"] --> CFG
-    FETCH <-->|"dmem_* ports"| DMEM["DMEM Port B"]
+    REG[("dma_regfile<br/>start_i, soft_reset_i<br/>src_addr_i, dst_addr_i<br/>len_bytes_i, direction_i")] --> CFG
+    FETCH <-->|"dmem_* ports"| DMEM[("DMEM Port B")]
     STREAM -->|"rx_ciphertext_word_o[127:0]<br/>rx_ciphertext_word_valid_o"| RXTOP2["apb_huffman_aes_rx_top"]
     RXTOP2 -->|"rx_ciphertext_word_ready_i"| STREAM
     POLL -->|"rx_psel_o/rx_penable_o/rx_pwrite_o<br/>rx_paddr_o/rx_pwdata_o"| RXTOP2
@@ -304,25 +304,25 @@ DMA van dung private APB de doc output RX:
 
 ```mermaid
 flowchart LR
-    DMASTRM["DMA ciphertext stream<br/>ciphertext_word_in[127:0]<br/>valid/ready"] --> SEL["RX input select"]
-    APBCTXT["Legacy APB staging<br/>CTXT_W0..W3, CTXT_START<br/>debug/legacy only"] -.-> SEL
-    SEL --> CBUF["cipher_buf_data_r<br/>cipher_buf_valid_r"]
+    DMASTRM[/"DMA ciphertext stream<br/>ciphertext_word_in[127:0]<br/>valid/ready"/] --> SEL["RX input select"]
+    APBCTXT[/"Legacy APB staging<br/>CTXT_W0..W3, CTXT_START<br/>debug/legacy only"/] -.-> SEL
+    SEL --> CBUF[("cipher_buf_data_r<br/>cipher_buf_valid_r")]
     CBUF --> WRAP["wrapper_rx<br/>decipher_en, data_in<br/>round_key_10"]
     WRAP --> AESD["aes128_cipher_inv_top<br/>AES-128 decrypt"]
     AESD --> CBC["CBC XOR chain<br/>P0 = D(C0) XOR IV<br/>Pn = D(Cn) XOR Cn-1"]
-    CBC --> TBUF["transport_buf_data_r[127:0]<br/>transport_buf_valid_r"]
+    CBC --> TBUF[("transport_buf_data_r[127:0]<br/>transport_buf_valid_r")]
     TBUF --> DEPK["bit_depacker_128"]
     DEPK -->|"stream_data[31:0]<br/>stream_len[5:0]<br/>stream_valid/ready"| PAR["huffman_block_parser"]
     PAR -->|"block_meta<br/>canonical entries<br/>payload_window"| DEC["huffman_block_decoder"]
     DEC -->|"out_byte[7:0]<br/>out_valid/ready<br/>last flags"| PK32["rx_byte_packer_32"]
-    PK32 -->|"rx_word_data[31:0]<br/>valid_bytes[2:0]<br/>word_valid/ready"| APBIF["apb_huffman_rx_if<br/>output FIFO"]
-    APBIF -->|"RX_STATUS, RX_META, RX_DATA"| RXDMA["dma_rx_engine"]
-    RXDMA -->|"plaintext word write"| DMEM["DMEM plaintext buffer"]
-    DEPK -.-> STS["RX status/error OR<br/>busy/done/error"]
+    PK32 -->|"rx_word_data[31:0]<br/>valid_bytes[2:0]<br/>word_valid/ready"| APBIF[("apb_huffman_rx_if<br/>output FIFO")]
+    APBIF -->|"RX_STATUS, RX_META, RX_DATA"| RXDMA[/"dma_rx_engine"/]
+    RXDMA -->|"plaintext word write"| DMEM[("DMEM plaintext buffer")]
+    DEPK -.-> STS[("RX status/error OR<br/>busy/done/error")]
     PAR -.-> STS
     DEC -.-> STS
     PK32 -.-> STS
-    STS -->|"rx_busy, rx_done, rx_error"| SOC["SoC/debug"]
+    STS -->|"rx_busy, rx_done, rx_error"| SOC[("SoC/debug")]
 ```
 
 ### 6.1 Stage boundary signals

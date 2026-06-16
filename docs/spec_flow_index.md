@@ -32,6 +32,11 @@ Policy for the current report:
   GitHub, and pure-software comparison claims.
 - Treat `00_current_system_spec.md` as the top-level spec and module specs as
   technical appendices.
+- For Mermaid and thesis flowcharts, use the symbol convention defined in
+  `huffman_aes_riscv_flowchart_spec.md`, Section 3. Use I/O shapes for MMIO,
+  DMA, and memory transfers; process shapes for internal transforms; stored-data
+  shapes for buffers/tables/register repositories; and diamonds only for real
+  control decisions.
 
 ## 2. Current Baseline
 

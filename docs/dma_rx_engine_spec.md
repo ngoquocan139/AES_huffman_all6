@@ -33,39 +33,39 @@ Current verification status:
 
 ```mermaid
 flowchart TD
-  A["start_i"] --> B{"direction_i == RX\nLEN multiple of 16\naddresses aligned?"}
-  B -->|"no"| ERR["STATE_ERROR"]
+  A(["start_i"]) --> B{"direction_i == RX\nLEN multiple of 16\naddresses aligned?"}
+  B -->|"no"| ERR(["STATE_ERROR"])
   B -->|"yes"| C["Snapshot config"]
-  C --> D["APB write RX_CONTROL soft reset"]
-  D --> E["Read W0 from DMEM"]
-  E --> F["Read W1 from DMEM"]
-  F --> G["Read W2 from DMEM"]
-  G --> H["Read W3 from DMEM"]
+  C --> D[/"APB write RX_CONTROL soft reset"/]
+  D --> E[/"Read W0 from DMEM"/]
+  E --> F[/"Read W1 from DMEM"/]
+  F --> G[/"Read W2 from DMEM"/]
+  G --> H[/"Read W3 from DMEM"/]
   H --> I["Pack ciphertext {W3,W2,W1,W0}"]
   I --> J{"RX stream ready?"}
   J -->|"no"| J
-  J -->|"yes"| K["Feed 128-bit ciphertext word"]
-  K --> L["Poll RX_STATUS"]
+  J -->|"yes"| K[/"Feed 128-bit ciphertext word"/]
+  K --> L[/"Poll RX_STATUS"/]
   L --> M{"Output FIFO nonempty?"}
-  M -->|"yes"| N["Read RX_META and RX_DATA"]
-  N --> O["Write plaintext word to DMEM"]
+  M -->|"yes"| N[/"Read RX_META and RX_DATA"/]
+  N --> O[/"Write plaintext word to DMEM"/]
   O --> L
   M -->|"no"| P{"More ciphertext?"}
   P -->|"yes"| E
   P -->|"no"| Q{"frame_done_sticky?"}
   Q -->|"no"| L
-  Q -->|"yes"| R["Pulse dma_done_o"]
+  Q -->|"yes"| R(["Pulse dma_done_o"])
 ```
 
 ## 1.2 FPGA Normal I/O View
 
 ```mermaid
 flowchart LR
-  REG["dma_regfile<br/>src/dst/len/mode/start"] -->|"control inputs"| RXDMA["dma_rx_engine"]
-  DMEMIN["DMEM ciphertext<br/>SRC_ADDR"] -->|"dmem_rdata_i[31:0]<br/>4 reads per block"| RXDMA
-  RXDMA -->|"rx_ciphertext_word_o[127:0]<br/>valid/ready"| RXTOP["apb_huffman_aes_rx_top"]
+  REG[("dma_regfile<br/>src/dst/len/mode/start")] -->|"control inputs"| RXDMA["dma_rx_engine"]
+  DMEMIN[("DMEM ciphertext<br/>SRC_ADDR")] -->|"dmem_rdata_i[31:0]<br/>4 reads per block"| RXDMA
+  RXDMA -->|"rx_ciphertext_word_o[127:0]<br/>valid/ready"| RXTOP[/"apb_huffman_aes_rx_top"/]
   RXTOP -->|"RX_STATUS/RX_META/RX_DATA<br/>PRDATA[31:0]"| RXDMA
-  RXDMA -->|"dmem_wdata_o[31:0]<br/>dmem_we_o=4'b1111"| DMEMOUT["DMEM plaintext<br/>DST_ADDR"]
+  RXDMA -->|"dmem_wdata_o[31:0]<br/>dmem_we_o=4'b1111"| DMEMOUT[("DMEM plaintext<br/>DST_ADDR")]
   RXDMA -->|"dma_done_o/dma_error_o<br/>bytes_done_o/last_error_code_o"| REG
 ```
 

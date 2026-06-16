@@ -82,16 +82,16 @@ vivado/build/rv32_soc_synth_rx/reports/
 
 ```mermaid
 flowchart LR
-  HOST["Host/Testbench/UART loader"] --> DMEM["DMEM 32 KiB"]
-  CPU["RV32I CPU control plane"] --> IMEM["IMEM instruction.mem"]
+  HOST[/"Host/Testbench/UART loader"/] --> DMEM[("DMEM 32 KiB")]
+  CPU["RV32I CPU control plane"] --> IMEM[("IMEM instruction.mem")]
   CPU <-->|"load/store"| DMEM
-  CPU -->|"MMIO load/store"| BR["cpu_mmio_to_apb_bridge"]
-  BR -->|"APB"| REG["dma_regfile"]
+  CPU -->|"MMIO load/store"| BR[/"cpu_mmio_to_apb_bridge"/]
+  BR -->|"APB"| REG[("dma_regfile")]
 
   REG -->|"TX config/start/status"| TXDMA["dma_tx_engine"]
   REG -->|"RX config/start/status"| RXDMA["dma_rx_engine"]
-  REG -->|"IV0..IV3"| TX["apb_huffman_aes_tx_top"]
-  REG -->|"IV0..IV3"| RX["apb_huffman_aes_rx_top"]
+  REG -->|"IV0..IV3"| TX[/"apb_huffman_aes_tx_top"/]
+  REG -->|"IV0..IV3"| RX[/"apb_huffman_aes_rx_top"/]
 
   TXDMA <-->|"read plaintext / write ciphertext"| DMEM
   TXDMA -->|"private APB writes"| TX
@@ -237,27 +237,27 @@ Firmware owns the storage policy:
 
 ```mermaid
 flowchart TD
-  A["secure_write(file_id, plain_addr, plain_len)"] --> B["find or allocate metadata slot"]
+  A(["secure_write(file_id, plain_addr, plain_len)"]) --> B["find or allocate metadata slot"]
   B --> C["choose cipher_addr = 0x4000 + slot * 0x0A00"]
   C --> D["generate IV and store provisional metadata"]
-  D --> E["write IV0..IV3 to DMA regfile"]
-  E --> F["run DMA mode 0x9"]
+  D --> E[/"write IV0..IV3 to DMA regfile"/]
+  E --> F[/"run DMA mode 0x9"/]
   F --> G{"DMA OK and ciphertext length valid?"}
-  G -->|"yes"| H["commit cipher_len and valid=1"]
-  G -->|"no"| I["return error, record remains invalid"]
+  G -->|"yes"| H(["commit cipher_len and valid=1"])
+  G -->|"no"| I(["return error, record remains invalid"])
 ```
 
 ### 7.2 Read Path
 
 ```mermaid
 flowchart TD
-  A["secure_read(file_id, dst_addr)"] --> B["find valid metadata record"]
-  B --> C["restore IV0..IV3 from metadata"]
+  A(["secure_read(file_id, dst_addr)"]) --> B["find valid metadata record"]
+  B --> C[/"restore IV0..IV3 from metadata"/]
   C --> D["read cipher_addr, cipher_len, plain_len"]
-  D --> E["run DMA mode 0x2"]
+  D --> E[/"run DMA mode 0x2"/]
   E --> F{"bytes_done == plain_len?"}
-  F -->|"yes"| G["plaintext restored in dst_addr"]
-  F -->|"no"| H["return read-length error"]
+  F -->|"yes"| G(["plaintext restored in dst_addr"])
+  F -->|"no"| H(["return read-length error"])
 ```
 
 ### 7.3 Metadata Record Layout
@@ -346,21 +346,21 @@ cbc_iv = {IV3, IV2, IV1, IV0}
 
 ```mermaid
 flowchart LR
-  SRC["DMEM plaintext"] --> TXDMA["dma_tx_engine"]
-  TXDMA --> APB["TX private APB writes"]
+  SRC[("DMEM plaintext")] --> TXDMA["dma_tx_engine"]
+  TXDMA --> APB[/"TX private APB writes"/]
   APB --> COLLECT["input_collect_unit"]
-  COLLECT --> FREQ["frequency_counter"]
+  COLLECT --> FREQ[("frequency_counter")]
   FREQ --> BUILD["huffman_builder"]
   BUILD --> CANON["canonical_code_generator"]
   CANON --> ENC["dynamic_huffman_encoder"]
   ENC --> PACK["bit_packer_128"]
   PACK --> POLICY{"TX policy"}
   POLICY -->|"COMPRESS_AES"| CBC["CBC XOR + AES-128 encrypt"]
-  POLICY -->|"COMPRESS_ONLY"| BYP["AES bypass"]
-  CBC --> FIFO["TX output FIFO"]
+  POLICY -->|"COMPRESS_ONLY"| BYP[/"AES bypass"/]
+  CBC --> FIFO[("TX output FIFO")]
   BYP --> FIFO
   FIFO --> TXDMA
-  TXDMA --> DST["DMEM ciphertext/transport"]
+  TXDMA --> DST[("DMEM ciphertext/transport")]
 ```
 
 Secure write uses:
@@ -380,16 +380,16 @@ TX output in secure mode is AES-CBC ciphertext over the Huffman transport.
 
 ```mermaid
 flowchart LR
-  CT["DMEM ciphertext"] --> RXDMA["dma_rx_engine"]
-  RXDMA --> STRM["128-bit ciphertext stream"]
+  CT[("DMEM ciphertext")] --> RXDMA["dma_rx_engine"]
+  RXDMA --> STRM[/"128-bit ciphertext stream"/]
   STRM --> AESI["AES-128-CBC decrypt"]
   AESI --> DEP["bit_depacker_128"]
   DEP --> PARSER["huffman_block_parser"]
   PARSER --> DEC["huffman_block_decoder"]
   DEC --> PACK32["rx_byte_packer_32"]
-  PACK32 --> IF["apb_huffman_rx_if"]
+  PACK32 --> IF[("apb_huffman_rx_if")]
   IF --> RXDMA
-  RXDMA --> OUT["DMEM restored plaintext"]
+  RXDMA --> OUT[("DMEM restored plaintext")]
 ```
 
 Secure read uses:

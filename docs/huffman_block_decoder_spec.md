@@ -29,9 +29,9 @@ Current verification status:
 
 ```mermaid
 flowchart LR
-  ENT["table entries"] --> SORT["sort by code_len, symbol"]
+  ENT[("table entries")] --> SORT["sort by code_len, symbol"]
   SORT --> ASSIGN["assign canonical codes"]
-  ASSIGN --> TABLE["main lookup table + fallback"]
+  ASSIGN --> TABLE[("main lookup table + fallback")]
   TABLE --> DECODE["payload decode"]
 ```
 

@@ -34,9 +34,9 @@ dma_rx_engine
 
 ```mermaid
 flowchart LR
-  DMAIN["DMA ciphertext stream<br/>ciphertext_word_in[127:0]<br/>valid/ready"] --> SEL["stream source select"]
-  APBIN["APB legacy staging<br/>CTXT_W0..W3<br/>debug path"] -.-> SEL
-  SEL --> CBUF["cipher_buf"]
+  DMAIN[/"DMA ciphertext stream<br/>ciphertext_word_in[127:0]<br/>valid/ready"/] --> SEL["stream source select"]
+  APBIN[/"APB legacy staging<br/>CTXT_W0..W3<br/>debug path"/] -.-> SEL
+  SEL --> CBUF[("cipher_buf")]
   CBUF --> WRAP["wrapper_rx"]
   WRAP --> AES["aes128_cipher_inv_top"]
   AES --> CBC["CBC XOR chain<br/>cbc_iv_i or previous ciphertext"]
@@ -44,8 +44,8 @@ flowchart LR
   DEP --> PAR["huffman_block_parser"]
   PAR --> DEC["huffman_block_decoder"]
   DEC --> PK["rx_byte_packer_32"]
-  PK --> APB["apb_huffman_rx_if<br/>RX output FIFO"]
-  APB --> DMAOUT["DMA APB readback<br/>RX_STATUS/META/DATA"]
+  PK --> APB[("apb_huffman_rx_if<br/>RX output FIFO")]
+  APB --> DMAOUT[/"DMA APB readback<br/>RX_STATUS/META/DATA"/]
 ```
 
 ## 4. Main Interfaces

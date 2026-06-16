@@ -85,13 +85,13 @@ per-block compatibility and coverage.
 
 ```mermaid
 flowchart LR
-  IN["byte stream from word adapter"] --> COL["collect current <=32-byte block"]
+  IN[/"byte stream from word adapter"/] --> COL[("collect current <=32-byte block")]
   COL --> WF{"whole-file table valid?"}
   WF -->|"yes: main synthesis path"| EMIT["emit using external global codebook"]
   WF -->|"no: non-synthesis legacy path"| BLD["local per-block build"]
   BLD --> MODE["fixed COMPRESSED mode"]
   MODE --> EMIT
-  EMIT --> OUT["stream_data/stream_len to bit_packer_128"]
+  EMIT --> OUT[/"stream_data/stream_len to bit_packer_128"/]
 ```
 
 For thesis/report explanation, use:

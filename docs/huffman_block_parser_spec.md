@@ -45,12 +45,12 @@ flowchart LR
   CRF --> CRS["COMP_REUSE_SIZE"]
   CRF --> META
   CRS --> META
-  M --> META["ST_META"]
+  M --> META[("ST_META")]
   RP --> META
   OS --> META
   CF --> META
-  META --> ENT["ST_ENTRY"]
-  META --> PAY["ST_PAYLOAD"]
+  META --> ENT[("ST_ENTRY")]
+  META --> PAY[("ST_PAYLOAD")]
   ENT --> PAY
 ```
 

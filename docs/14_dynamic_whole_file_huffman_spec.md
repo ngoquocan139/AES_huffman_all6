@@ -42,21 +42,21 @@ Report figure:
 
 ```mermaid
 flowchart TD
-  A["Start TX whole_file mode"] --> B["Pass 1: scan DMEM input"]
+  A(["Start TX whole_file mode"]) --> B[/"Pass 1: scan DMEM input"/]
   B --> C["Normalize symbols"]
-  C --> D["Accumulate global frequency table"]
+  C --> D[("Accumulate global frequency table")]
   D --> E["Build one canonical Huffman table"]
-  E --> F["Pass 2: read input again by 32-byte blocks"]
+  E --> F[/"Pass 2: read input again by 32-byte blocks"/]
   F --> G{"First compressed block?"}
-  G -->|"yes"| H["Emit table entries with symbol_count > 0"]
-  G -->|"no"| I["Emit table-reuse block with symbol_count = 0"]
+  G -->|"yes"| H[/"Emit table entries with symbol_count > 0"/]
+  G -->|"no"| I[/"Emit table-reuse block with symbol_count = 0"/]
   H --> J["Emit Huffman payload"]
   I --> J
-  J --> K["bit_packer_128"]
-  K --> L["AES-CBC or bypass"]
+  J --> K[("bit_packer_128")]
+  K --> L[/"AES-CBC or bypass"/]
   L --> M{"More blocks?"}
   M -->|"yes"| F
-  M -->|"no"| N["Flush frame"]
+  M -->|"no"| N(["Flush frame"])
 ```
 
 ## 2. Ly do can doi format

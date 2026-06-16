@@ -47,15 +47,15 @@ CPU chi nen stall khi chinh no dang bi rang buoc boi mot giao dich ma khong the 
 
 ```mermaid
 flowchart TD
-  A["Pipeline cycle"] --> B{"CPU MMIO request active?"}
+  A(["Pipeline cycle"]) --> B{"CPU MMIO request active?"}
   B -->|"yes"| C{"APB transaction complete?"}
   C -->|"no"| D["Global hold CPU pipeline"]
-  C -->|"yes"| E["Return MMIO data / commit store"]
+  C -->|"yes"| E[/"Return MMIO data / commit store"/]
   B -->|"no"| F{"Load-use hazard?"}
   F -->|"yes"| G["Insert bubble\nhold IF/ID only"]
   F -->|"no"| H{"DMA busy?"}
   H -->|"yes"| I["CPU continues\nsoftware may poll STATUS"]
-  H -->|"no"| J["Normal pipeline advance"]
+  H -->|"no"| J(["Normal pipeline advance"])
 ```
 
 ## 3. Quy tac stall cap he thong

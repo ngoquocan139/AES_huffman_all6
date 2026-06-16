@@ -20,19 +20,19 @@ Current verification status:
 
 ```mermaid
 flowchart TD
-  A["Decoded byte valid"] --> B{"Output word pending?"}
+  A[/"Decoded byte valid"/] --> B{"Output word pending?"}
   B -->|"yes and not ready"| C["Backpressure decoder"]
   B -->|"no or ready"| D["Append byte to accumulator"]
   D --> E{"4 bytes collected\nor last_in_block?"}
   E -->|"no"| F["Wait for next byte"]
-  E -->|"yes"| G["Publish word_data and valid_bytes"]
+  E -->|"yes"| G[/"Publish word_data and valid_bytes"/]
   G --> H{"word_ready?"}
   H -->|"no"| H
-  H -->|"yes"| I["Pop output word"]
+  H -->|"yes"| I[/"Pop output word"/]
   I --> J{"last_in_frame?"}
-  J -->|"yes"| K["Pulse frame_done"]
+  J -->|"yes"| K(["Pulse frame_done"])
   J -->|"no"| L{"last_in_block?"}
-  L -->|"yes"| M["Pulse block_done"]
+  L -->|"yes"| M(["Pulse block_done"])
   L -->|"no"| F
 ```
 

@@ -34,15 +34,15 @@ Luon phai tach 2 luong:
 
 ```mermaid
 flowchart TD
-  A["make compile / C_SRC"] --> B["instruction.mem"]
-  B --> C["imem_sync $readmemh"]
-  C --> D["RV32I fetch PC"]
+  A(["make compile / C_SRC"]) --> B[("instruction.mem")]
+  B --> C[("imem_sync $readmemh")]
+  C --> D[/"RV32I fetch PC"/]
   D --> E["IF stage"]
   E --> F["ID stage"]
   F --> G["EX stage"]
   G --> H["MEM stage"]
   H --> I["WB stage"]
-  I --> J["register file / DMEM / MMIO"]
+  I --> J[("register file / DMEM / MMIO")]
 ```
 
 ## 4. `instruction.mem` vao `IMEM`
@@ -364,10 +364,10 @@ Thanh ghi trong WB stage:
 
 ```mermaid
 flowchart LR
-  A["PC fetch lw"] --> B["ID decode rs1 + imm"]
+  A[/"PC fetch lw"/] --> B["ID decode rs1 + imm"]
   B --> C["EX compute effective addr"]
-  C --> D["MEM read DMEM or MMIO"]
-  D --> E["WB write rd"]
+  C --> D[/"MEM read DMEM or MMIO"/]
+  D --> E[("WB write rd")]
 ```
 
 Trong project nay, `lw` duoc dung de:
@@ -389,10 +389,10 @@ Trong project nay, `lw` duoc dung de:
 
 ```mermaid
 flowchart LR
-  A["PC fetch sw"] --> B["ID decode rs1/rs2 + imm"]
+  A[/"PC fetch sw"/] --> B["ID decode rs1/rs2 + imm"]
   B --> C["EX compute effective addr"]
-  C --> D["MEM write DMEM or MMIO"]
-  D --> E["No WB writeback"]
+  C --> D[/"MEM write DMEM or MMIO"/]
+  D --> E(["No WB writeback"])
 ```
 
 Trong project nay, `sw` duoc dung de:

@@ -45,18 +45,18 @@ Tuc la tu goc nhin cua CPU:
 
 ```mermaid
 flowchart TD
-  A["RV32I code"] --> B["lw input_len from DMEM"]
+  A(["RV32I code"]) --> B[/"lw input_len from DMEM"/]
   B --> C["secure_storage_fw\ncompute/store IV and metadata"]
-  C --> D["sw config registers\nSRC/DST/LEN/MODE/BLOCK/IV"]
-  D --> E["lw STATUS"]
+  C --> D[/"sw config registers\nSRC/DST/LEN/MODE/BLOCK/IV"/]
+  D --> E[/"lw STATUS"/]
   E --> F{"cfg_valid and idle?"}
   F -->|"no"| E
-  F -->|"yes"| G["sw CONTROL.start"]
-  G --> H["lw STATUS in polling loop"]
+  F -->|"yes"| G[/"sw CONTROL.start"/]
+  G --> H[/"lw STATUS in polling loop"/]
   H --> I{"done or error?"}
   I -->|"busy"| H
-  I -->|"error"| J["sw result fail signature"]
-  I -->|"done"| K["lw BYTES_DONE / CIPHERTEXT_BYTES_PRODUCED"]
+  I -->|"error"| J(["sw result fail signature"])
+  I -->|"done"| K[/"lw BYTES_DONE / CIPHERTEXT_BYTES_PRODUCED"/]
 ```
 
 ## 3. Memory map can nho

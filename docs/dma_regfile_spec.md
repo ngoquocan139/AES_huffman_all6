@@ -41,11 +41,11 @@ Verification status hien tai:
 
 ```mermaid
 flowchart LR
-    CPU["RV32I CPU"] --> APB["APB bus / decoder"]
-    APB --> REG["dma_regfile"]
+    CPU["RV32I CPU"] --> APB[/"APB bus / decoder"/]
+    APB --> REG[("dma_regfile")]
     REG --> ENG["dma_tx_engine or dma_rx_engine"]
-    ENG --> DMEM["DMEM port B"]
-    ENG --> ACC["TX / RX accelerator"]
+    ENG --> DMEM[("DMEM port B")]
+    ENG --> ACC[/"TX / RX accelerator"/]
 ```
 
 ## 4. Cong module

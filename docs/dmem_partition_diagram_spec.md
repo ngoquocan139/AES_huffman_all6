@@ -71,19 +71,19 @@ The same layout as a Mermaid flowchart:
 
 ```mermaid
 flowchart TB
-    A["0x0000_0000..0x0000_003F<br/>RESULT_WORD[0..15]"]
-    B["0x0000_0040..0x0000_005B<br/>input length + board control words"]
-    C["0x0000_0100..0x0000_01FF<br/>metadata slots 0..2 + IV counter<br/>zeroize page"]
-    D["0x0000_0200..0x0000_024F<br/>board snapshot result/meta"]
-    E["0x0000_0280..0x0000_031F<br/>storage testcase report words"]
-    F["0x0000_0800..0x0000_1FFF<br/>UART stage / bundle window"]
-    G["0x0000_2000..0x0000_2FFF<br/>INPUT1 plaintext region"]
-    H["0x0000_3000..0x0000_3FFF<br/>INPUT2 plaintext region"]
-    I["0x0000_4000..0x0000_49FF<br/>ciphertext slot 0"]
-    J["0x0000_4A00..0x0000_53FF<br/>ciphertext slot 1"]
-    K["0x0000_5400..0x0000_5DFF<br/>ciphertext slot 2"]
-    L["0x0000_6000..0x0000_7EFF<br/>RX restored plaintext region"]
-    M["0x0000_7F00..0x0000_7FFF<br/>CPU stack top area"]
+    A[("0x0000_0000..0x0000_003F<br/>RESULT_WORD[0..15]")]
+    B[("0x0000_0040..0x0000_005B<br/>input length + board control words")]
+    C[("0x0000_0100..0x0000_01FF<br/>metadata slots 0..2 + IV counter<br/>zeroize page")]
+    D[("0x0000_0200..0x0000_024F<br/>board snapshot result/meta")]
+    E[("0x0000_0280..0x0000_031F<br/>storage testcase report words")]
+    F[("0x0000_0800..0x0000_1FFF<br/>UART stage / bundle window")]
+    G[("0x0000_2000..0x0000_2FFF<br/>INPUT1 plaintext region")]
+    H[("0x0000_3000..0x0000_3FFF<br/>INPUT2 plaintext region")]
+    I[("0x0000_4000..0x0000_49FF<br/>ciphertext slot 0")]
+    J[("0x0000_4A00..0x0000_53FF<br/>ciphertext slot 1")]
+    K[("0x0000_5400..0x0000_5DFF<br/>ciphertext slot 2")]
+    L[("0x0000_6000..0x0000_7EFF<br/>RX restored plaintext region")]
+    M[("0x0000_7F00..0x0000_7FFF<br/>CPU stack top area")]
 
     A --> B --> C --> D --> E --> F --> G --> H --> I --> J --> K --> L --> M
 ```

@@ -27,27 +27,27 @@ Current verification status:
 
 ```mermaid
 flowchart TD
-  A["start_i"] --> B{"direction=TX and config valid?"}
-  B -->|"no"| ERR["STATE_ERROR"]
+  A(["start_i"]) --> B{"direction=TX and config valid?"}
+  B -->|"no"| ERR(["STATE_ERROR"])
   B -->|"yes"| C["Snapshot config"]
-  C --> D["APB write TX CONTROL soft_reset=1"]
+  C --> D[/"APB write TX CONTROL soft_reset=1"/]
   D --> E{"whole_file_i?"}
 
-  E -->|"no"| P0["APB write TX_POLICY bit0=compress_only"]
-  P0 --> P1["Single pass: read DMEM blocks"]
-  P1 --> P2["write BLOCK_SIZE/WORD_IN/START_BLOCK"]
-  P2 --> P3["poll done, drain AES_OUT FIFO"]
-  P3 --> DONE["STATE_COMPLETE"]
+  E -->|"no"| P0[/"APB write TX_POLICY bit0=compress_only"/]
+  P0 --> P1[/"Single pass: read DMEM blocks"/]
+  P1 --> P2[/"write BLOCK_SIZE/WORD_IN/START_BLOCK"/]
+  P2 --> P3[/"poll done, drain AES_OUT FIFO"/]
+  P3 --> DONE(["STATE_COMPLETE"])
 
-  E -->|"yes"| W0["APB write TX CONTROL global_clear=1"]
-  W0 --> W1["APB write TX_POLICY=0x6\nwhole_file=1 count_mode=1"]
-  W1 --> W2["Pass 1: read all DMEM input by 32-byte blocks"]
+  E -->|"yes"| W0[/"APB write TX CONTROL global_clear=1"/]
+  W0 --> W1[/"APB write TX_POLICY=0x6\nwhole_file=1 count_mode=1"/]
+  W1 --> W2[/"Pass 1: read all DMEM input by 32-byte blocks"/]
   W2 --> W3["TX top accumulates global frequency table"]
-  W3 --> W4["APB write TX CONTROL global_build_start=1"]
-  W4 --> W5["poll STATUS global build done/error"]
-  W5 --> W6["APB write TX_POLICY\nwhole_file=1 count_mode=0\ncompress_only=mode bit"]
-  W6 --> W7["Pass 2: reread DMEM input and emit Huffman stream"]
-  W7 --> W8["drain AES_OUT FIFO to DMEM"]
+  W3 --> W4[/"APB write TX CONTROL global_build_start=1"/]
+  W4 --> W5[/"poll STATUS global build done/error"/]
+  W5 --> W6[/"APB write TX_POLICY\nwhole_file=1 count_mode=0\ncompress_only=mode bit"/]
+  W6 --> W7[/"Pass 2: reread DMEM input and emit Huffman stream"/]
+  W7 --> W8[/"drain AES_OUT FIFO to DMEM"/]
   W8 --> DONE
 ```
 

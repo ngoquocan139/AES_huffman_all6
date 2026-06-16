@@ -34,8 +34,8 @@ Transport word gom:
 
 ```mermaid
 flowchart LR
-  TW["128-bit transport word"] --> BUF["bit buffer"]
-  BUF --> CHK["32-bit chunk output"]
+  TW[("128-bit transport word")] --> BUF[("bit buffer")]
+  BUF --> CHK[/"32-bit chunk output"/]
   CHK --> PAR["huffman_block_parser"]
 ```
 

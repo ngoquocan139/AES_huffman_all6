@@ -34,16 +34,16 @@ va ghi output tro lai `DMEM`.
 
 ```mermaid
 flowchart LR
-    CPU["RV32I CPU"] --> BR["cpu_mmio_to_apb_bridge"]
-    BR --> REG["dma_regfile"]
+    CPU["RV32I CPU"] --> BR[/"cpu_mmio_to_apb_bridge"/]
+    BR --> REG[("dma_regfile")]
     REG --> TXDMA["dma_tx_engine"]
-    REG --> IV["IV0..IV3"]
-    TXDMA --> DMEMR["DMEM Port B read"]
-    TXDMA --> TXAPB["private APB master"]
-    TXAPB --> TXTOP["apb_huffman_aes_tx_top"]
-    TXTOP --> TXFIFO["TX output FIFO"]
+    REG --> IV[("IV0..IV3")]
+    TXDMA --> DMEMR[/"DMEM Port B read"/]
+    TXDMA --> TXAPB[/"private APB master"/]
+    TXAPB --> TXTOP[/"apb_huffman_aes_tx_top"/]
+    TXTOP --> TXFIFO[("TX output FIFO")]
     TXFIFO --> TXDMA
-    TXDMA --> DMEMW["DMEM Port B write"]
+    TXDMA --> DMEMW[/"DMEM Port B write"/]
 ```
 
 ## 4. Modules And Roles
@@ -163,8 +163,7 @@ So do duoi day bam theo dung instance trong RTL:
 
 ```mermaid
 flowchart LR
-    DMA["dma_tx_engine
-    APB master"] --> APBIF["u_apb_huffman_tx_if
+    DMA[/"dma_tx_engine<br/>APB master"/] --> APBIF["u_apb_huffman_tx_if
     apb_huffman_tx_if"]
 
     APBIF -->|"start_block_o, continue_frame_o,
@@ -187,8 +186,7 @@ flowchart LR
     aes_ready_core_w"| EMIT["AES/output capture
     aes_emit_block_r"]
 
-    POLICY -->|"1: COMPRESS_ONLY"| BYPASS["bypass capture
-    emit_capture_data_w = data_in_w"]
+    POLICY -->|"1: COMPRESS_ONLY"| BYPASS[/"bypass capture<br/>emit_capture_data_w = data_in_w"/]
     BYPASS --> EMIT
 
     EMIT -->|"aes_out_word_w,
@@ -207,19 +205,15 @@ serialize transport word truc tiep ve APB output FIFO.
 
 ```mermaid
 flowchart LR
-    APBWORDS["APB 32-bit words
-    word_in/word_valid"] --> ADAPTER["input adapter
+    APBWORDS[/"APB 32-bit words<br/>word_in/word_valid"/] --> ADAPTER["input adapter
     inside huffman_aes_tx_top
     word -> byte"]
 
     ADAPTER -->|"count_byte_fire_w,
-    current_byte_w"| GCOUNT["u_file_frequency_counter
-    frequency_counter"]
+    current_byte_w"| GCOUNT[("u_file_frequency_counter<br/>frequency_counter")]
     GCOUNT -->|"file_freq_read_count_w"| GBUILD["u_file_huffman_builder
     huffman_builder"]
-    GBUILD -->|"symbol/code length/code tables"| EXTBOOK["external codebook wires
-    file_symbol_*, file_code_len_*,
-    file_code_*"]
+    GBUILD -->|"symbol/code length/code tables"| EXTBOOK[("external codebook wires<br/>file_symbol_*, file_code_len_*,<br/>file_code_*")]
 
     ADAPTER -->|"enc_start_block_w,
     enc_byte_in_w,
@@ -240,15 +234,12 @@ flowchart LR
     PACK -->|"encoder_stream_ready"| ENC
 
     PACK -->|"packer_transport_word,
-    packer_transport_valid"| WRAP["u_aes_input_wrapper
-    wrapper"]
+    packer_transport_valid"| WRAP[("u_aes_input_wrapper<br/>wrapper")]
     WRAP -->|"block_accept"| PACK
 
     WRAP -->|"cipher_en, data_in,
     key, mode, init_vector,
-    segment_len"| PARENT["parent:
-    apb_huffman_aes_tx_top
-    CBC/AES/bypass"]
+    segment_len"| PARENT[/"parent:<br/>apb_huffman_aes_tx_top<br/>CBC/AES/bypass"/]
 ```
 
 Duong whole-file Huffman co 2 pha:
@@ -275,20 +266,16 @@ flowchart LR
     input_collect_unit"]
     ICU -->|"collect_done/error"| FSM
 
-    BYTE["byte_in/byte_valid
-    from huffman_aes_tx_top adapter"] --> ICU
+    BYTE[/"byte_in/byte_valid<br/>from huffman_aes_tx_top adapter"/] --> ICU
 
-    ICU --> BUF["u_block_buffer
-    inside input_collect_unit"]
-    ICU --> LFREQ["u_frequency_counter
-    inside input_collect_unit"]
+    ICU --> BUF[("u_block_buffer<br/>inside input_collect_unit")]
+    ICU --> LFREQ[("u_frequency_counter<br/>inside input_collect_unit")]
 
     FSM -->|"start_emit"| EMIT["u_emit_backend
     emit_backend"]
     BUF -->|"buffer_read_data"| EMIT
 
-    EXT["external whole-file codebook
-    from u_file_huffman_builder"] -->|"symbol/code tables"| EMIT
+    EXT[("external whole-file codebook<br/>from u_file_huffman_builder")] -->|"symbol/code tables"| EMIT
 
     EMIT --> HDR["u_header_formatter
     header_formatter"]
@@ -301,7 +288,7 @@ flowchart LR
     STREAM -->|"stream_data,
     stream_len,
     stream_valid,
-    stream_last"| PACKER["u_bit_packer_128"]
+    stream_last"| PACKER[("u_bit_packer_128")]
 ```
 
 `u_input_collect_unit` giu lai byte cua block trong `u_block_buffer`. Khi emit,

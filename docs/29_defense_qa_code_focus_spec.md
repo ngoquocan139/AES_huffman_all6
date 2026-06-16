@@ -43,23 +43,23 @@ Neu bi hoi sau nua, tiep tuc xuong:
 
 ```mermaid
 flowchart LR
-    CPU["RV32I CPU"] --> BR["cpu_mmio_to_apb_bridge"]
-    BR --> RF["dma_regfile"]
+    CPU["RV32I CPU"] --> BR[/"cpu_mmio_to_apb_bridge"/]
+    BR --> RF[("dma_regfile")]
 
-    CPU -->|load/store| DMEM["DMEM"]
-    CPU -->|fetch| IMEM["IMEM"]
+    CPU -->|load/store| DMEM[("DMEM")]
+    CPU -->|fetch| IMEM[("IMEM")]
 
     RF --> TXDMA["dma_tx_engine"]
     RF --> RXDMA["dma_rx_engine"]
 
-    TXDMA --> TXTOP["apb_huffman_aes_tx_top"]
+    TXDMA --> TXTOP[/"apb_huffman_aes_tx_top"/]
     TXTOP --> DMEM
 
     DMEM --> RXDMA
-    RXDMA --> RXTOP["apb_huffman_aes_rx_top"]
+    RXDMA --> RXTOP[/"apb_huffman_aes_rx_top"/]
     RXTOP --> DMEM
 
-    RF --> IV["IV0..IV3"]
+    RF --> IV[("IV0..IV3")]
     IV --> TXTOP
     IV --> RXTOP
 ```
@@ -68,38 +68,38 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    SRC["DMEM plaintext"] --> TXDMA["dma_tx_engine"]
-    TXDMA --> TXAPB["apb_huffman_aes_tx_top"]
+    SRC[("DMEM plaintext")] --> TXDMA["dma_tx_engine"]
+    TXDMA --> TXAPB[/"apb_huffman_aes_tx_top"/]
     TXAPB --> ENC["dynamic_huffman_encoder"]
     ENC --> PACK["bit_packer_128"]
-    PACK --> AESW["AES wrapper / CBC or bypass"]
-    AESW --> FIFO["TX APB output/FIFO"]
-    FIFO --> DST["DMEM ciphertext / transport"]
+    PACK --> AESW[/"AES wrapper / CBC or bypass"/]
+    AESW --> FIFO[("TX APB output/FIFO")]
+    FIFO --> DST[("DMEM ciphertext / transport")]
 ```
 
 ### 3.3 RX detailed flow
 
 ```mermaid
 flowchart LR
-    SRC["DMEM ciphertext / transport"] --> RXDMA["dma_rx_engine"]
-    RXDMA --> RXAPB["apb_huffman_aes_rx_top"]
-    RXAPB --> AESW["AES wrapper_rx / CBC decrypt"]
+    SRC[("DMEM ciphertext / transport")] --> RXDMA["dma_rx_engine"]
+    RXDMA --> RXAPB[/"apb_huffman_aes_rx_top"/]
+    RXAPB --> AESW[/"AES wrapper_rx / CBC decrypt"/]
     AESW --> DEPACK["bit_depacker_128"]
     DEPACK --> PARSER["huffman_block_parser"]
     PARSER --> DEC["huffman_block_decoder"]
     DEC --> PACK32["rx_byte_packer_32"]
-    PACK32 --> DST["DMEM restored plaintext"]
+    PACK32 --> DST[("DMEM restored plaintext")]
 ```
 
 ### 3.4 CPU software control flow
 
 ```mermaid
 flowchart TD
-    A["CPU writes SRC/DST/LEN/MODE/BLOCK/IV"] --> B["CPU writes CONTROL.start"]
+    A[/"CPU writes SRC/DST/LEN/MODE/BLOCK/IV"/] --> B[/"CPU writes CONTROL.start"/]
     B --> C["DMA runs independently"]
-    C --> D["CPU polls STATUS"]
-    D -->|done_sticky=1| E["CPU reads bytes_done/debug/result"]
-    D -->|error_sticky=1| F["CPU reads debug_error and reports fail"]
+    C --> D[/"CPU polls STATUS"/]
+    D -->|done_sticky=1| E[/"CPU reads bytes_done/debug/result"/]
+    D -->|error_sticky=1| F[/"CPU reads debug_error and reports fail"/]
 ```
 
 ### 3.5 Multi-record storage register/mux detail
@@ -119,34 +119,34 @@ Y chinh:
 
 ```mermaid
 flowchart LR
-    USER["User request\nfile_id = 1"] --> SWMUX["RV32I software select mux\nfor each record:\nif record.file_id == requested_id"]
+    USER[/"User request\nfile_id = 1"/] --> SWMUX["RV32I software select mux\nfor each record:\nif record.file_id == requested_id"]
 
     subgraph DMEMTAB["DMEM software metadata table @ 0x00000100"]
-      R0["record0 registers in DMEM\nvalid=1\nfile_id=1\ncipher_addr=0x4000\ncipher_len=tx1_len\nplain_len=input1_len\niv0..iv3"]
-      R1["record1 registers in DMEM\nvalid=1\nfile_id=2\ncipher_addr=0x4A00\ncipher_len=tx2_len\nplain_len=input2_len\niv0..iv3"]
-      RN["recordN registers in DMEM\nvalid/file_id/addr/len/iv"]
+      R0[("record0 registers in DMEM\nvalid=1\nfile_id=1\ncipher_addr=0x4000\ncipher_len=tx1_len\nplain_len=input1_len\niv0..iv3")]
+      R1[("record1 registers in DMEM\nvalid=1\nfile_id=2\ncipher_addr=0x4A00\ncipher_len=tx2_len\nplain_len=input2_len\niv0..iv3")]
+      RN[("recordN registers in DMEM\nvalid/file_id/addr/len/iv")]
     end
 
     R0 --> SWMUX
     R1 --> SWMUX
     RN --> SWMUX
 
-    SWMUX --> SEL["selected_record register variables\ninside RV32I software"]
-    SEL --> W0["sw DMA_SRC_ADDR = selected.cipher_addr"]
-    SEL --> W1["sw DMA_DST_ADDR = RX_DST_BASE"]
-    SEL --> W2["sw DMA_LEN_BYTES = selected.cipher_len"]
-    SEL --> W3["sw DMA_MODE = 0x2"]
-    SEL --> W4["sw DMA_IV0..3 = selected.iv0..3"]
+    SWMUX --> SEL[("selected_record register variables\ninside RV32I software")]
+    SEL --> W0[/"sw DMA_SRC_ADDR = selected.cipher_addr"/]
+    SEL --> W1[/"sw DMA_DST_ADDR = RX_DST_BASE"/]
+    SEL --> W2[/"sw DMA_LEN_BYTES = selected.cipher_len"/]
+    SEL --> W3[/"sw DMA_MODE = 0x2"/]
+    SEL --> W4[/"sw DMA_IV0..3 = selected.iv0..3"/]
 
-    W0 --> RF["dma_regfile hardware registers"]
+    W0 --> RF[("dma_regfile hardware registers")]
     W1 --> RF
     W2 --> RF
     W3 --> RF
     W4 --> RF
 
     RF --> RXDMA["dma_rx_engine"]
-    RF --> RXTOP["apb_huffman_aes_rx_top"]
-    RXDMA --> OUT["DMEM RX output\nplaintext restored"]
+    RF --> RXTOP[/"apb_huffman_aes_rx_top"/]
+    RXDMA --> OUT[("DMEM RX output\nplaintext restored")]
 ```
 
 ### 3.6 Hardware register/mux view for one DMA launch
@@ -156,8 +156,8 @@ TX/RX datapath selection.
 
 ```mermaid
 flowchart LR
-    CPU["RV32I sw/lw"] --> BR["cpu_mmio_to_apb_bridge"]
-    BR --> RF["dma_regfile\nSRC/DST/LEN/MODE/BLOCK/IV registers"]
+    CPU[/"RV32I sw/lw"/] --> BR[/"cpu_mmio_to_apb_bridge"/]
+    BR --> RF[("dma_regfile\nSRC/DST/LEN/MODE/BLOCK/IV registers")]
 
     RF --> DIR["direction mux\nMODE[1:0]"]
     DIR -->|"01 TX"| TXSEL["TX config registers selected"]
@@ -166,13 +166,13 @@ flowchart LR
     TXSEL --> TXDMA["dma_tx_engine\nsnapshots SRC/DST/LEN/BLOCK/policy"]
     RXSEL --> RXDMA["dma_rx_engine\nsnapshots SRC/DST/LEN"]
 
-    RF --> IVMUX["IV register fanout\n{IV3,IV2,IV1,IV0}"]
-    IVMUX --> TXCBC["TX CBC register chain\nprev_cipher = IV for first block"]
-    IVMUX --> RXCBC["RX CBC register chain\nprev_cipher = IV for first block"]
+    RF --> IVMUX[("IV register fanout\n{IV3,IV2,IV1,IV0}")]
+    IVMUX --> TXCBC[("TX CBC register chain\nprev_cipher = IV for first block")]
+    IVMUX --> RXCBC[("RX CBC register chain\nprev_cipher = IV for first block")]
 
-    TXDMA --> DMEMB["DMEM Port B mux\nactive DMA owns read/write port"]
+    TXDMA --> DMEMB[("DMEM Port B mux\nactive DMA owns read/write port")]
     RXDMA --> DMEMB
-    DMEMB --> DMEM["DMEM"]
+    DMEMB --> DMEM[("DMEM")]
 ```
 
 ---

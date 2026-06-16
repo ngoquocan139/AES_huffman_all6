@@ -381,10 +381,10 @@ Current coverage targets:
 
 ```mermaid
 flowchart TD
-  A["./run.csh cov"] --> B["make gen_cov"]
-  B --> C["Open coverage/detail_report.txt"]
+  A(["./run.csh cov"]) --> B["make gen_cov"]
+  B --> C[/"Open coverage/detail_report.txt"/]
   C --> D{"Uncovered bins remain?"}
-  D -->|"No"| E["Coverage closed"]
+  D -->|"No"| E(["Coverage closed"])
   D -->|"Yes, reachable"| F["Add testcase to pat.list/run.csh or TB"]
   D -->|"Yes, unreachable"| G["Document exclusion reason"]
   F --> A

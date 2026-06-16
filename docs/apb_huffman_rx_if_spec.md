@@ -25,13 +25,13 @@ Current verification status:
 
 ```mermaid
 flowchart LR
-  PK["rx_byte_packer_32"] -->|"word_data/meta/valid"| FIFO["RX output FIFO"]
-  FIFO -->|"RX_STATUS head info"| DMA["dma_rx_engine"]
+  PK["rx_byte_packer_32"] -->|"word_data/meta/valid"| FIFO[("RX output FIFO")]
+  FIFO -->|"RX_STATUS head info"| DMA[/"dma_rx_engine"/]
   DMA -->|"read RX_META"| FIFO
   DMA -->|"read RX_DATA pops head"| FIFO
-  DMA -->|"write plaintext"| DMEM["DMEM"]
-  ERR["upstream rx_error"] --> STICKY["error_sticky"]
-  FIFO --> STATUS["RX_STATUS"]
+  DMA -->|"write plaintext"| DMEM[("DMEM")]
+  ERR["upstream rx_error"] --> STICKY[("error_sticky")]
+  FIFO --> STATUS[("RX_STATUS")]
   STICKY --> STATUS
 ```
 

@@ -21,9 +21,9 @@ Neu sau nay muon CPU debug truc tiep TX/RX, can them APB decoder/mux ben ngoai b
 ```mermaid
 flowchart LR
     CPU["RV32I core"] --> SOC["SoC address decode"]
-    SOC -->|DMEM region| DMEM["DMEM / dmem_ip_wrapper"]
-    SOC -->|MMIO region| BR["cpu_mmio_to_apb_bridge"]
-    BR --> DMA["dma_regfile"]
+    SOC -->|DMEM region| DMEM[("DMEM / dmem_ip_wrapper")]
+    SOC -->|MMIO region| BR[/"cpu_mmio_to_apb_bridge"/]
+    BR --> DMA[("dma_regfile")]
 ```
 
 ## 3. APB Protocol And Current FSM

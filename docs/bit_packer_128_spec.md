@@ -38,9 +38,9 @@ dynamic_huffman_encoder
 
 ```mermaid
 flowchart LR
-  IN["32-bit bit chunks"] --> SH["shift / accumulate"]
-  SH --> OUT["128-bit transport word"]
-  OUT --> FLUSH["flush on frame end"]
+  IN[/"32-bit bit chunks"/] --> SH["shift / accumulate"]
+  SH --> OUT[("128-bit transport word")]
+  OUT --> FLUSH(["flush on frame end"])
 ```
 
 Module:

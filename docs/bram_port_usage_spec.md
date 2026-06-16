@@ -45,12 +45,12 @@ Trang thai hien tai:
 
 ```mermaid
 flowchart LR
-  CPU["RV32I CPU"] -->|"Port A load/store"| DMEM["DMEM_ip"]
-  TX["dma_tx_engine"] -->|"Port B when TX busy"| MUX["DMEM Port B mux"]
+  CPU["RV32I CPU"] -->|"Port A load/store"| DMEM[("DMEM_ip")]
+  TX["dma_tx_engine"] -->|"Port B when TX busy"| MUX[("DMEM Port B mux")]
   RX["dma_rx_engine"] -->|"Port B when RX busy"| MUX
-  AUX["aux_* loader/testbench"] -->|"Port B when DMA idle"| MUX
+  AUX[/"aux_* loader/testbench"/] -->|"Port B when DMA idle"| MUX
   MUX --> DMEM
-  IMEM["IMEM_ip"] -->|"instruction fetch only"| CPU
+  IMEM[("IMEM_ip")] -->|"instruction fetch only"| CPU
 ```
 
 ## 3. Tong quan cac khoi bo nho

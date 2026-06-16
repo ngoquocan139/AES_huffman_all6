@@ -36,8 +36,7 @@ Current verification status:
 
 ```mermaid
 flowchart LR
-    APB["APB master
-    dma_tx_engine"] --> IF["u_apb_huffman_tx_if
+    APB[/"APB master<br/>dma_tx_engine"/] --> IF["u_apb_huffman_tx_if
     apb_huffman_tx_if"]
     IF -->|"start_block_o,
     block_size_o,
@@ -53,7 +52,7 @@ flowchart LR
     in parent top"]
     CBC --> AES["u_AES_top_tx
     aes128_cipher_top"]
-    POL -->|"1"| BYP["bypass capture"]
+    POL -->|"1"| BYP[/"bypass capture"/]
     AES --> OUT["output serializer
     aes_emit_block_r"]
     BYP --> OUT
@@ -64,15 +63,15 @@ Chi tiet du lieu ben trong `huffman_aes_tx_top`:
 
 ```mermaid
 flowchart LR
-    A["32-bit APB word stream"] --> B["input adapter
+    A[/"32-bit APB word stream"/] --> B["input adapter
     word -> byte"]
-    B -->|"count pass"| FC["u_file_frequency_counter"]
+    B -->|"count pass"| FC[("u_file_frequency_counter")]
     FC --> HB["u_file_huffman_builder"]
     HB -->|"external codebook"| C["u_dynamic_huffman_encoder"]
     B -->|"emit pass"| C
-    C --> D["u_bit_packer_128"]
-    D --> E["u_aes_input_wrapper"]
-    E --> F["parent CBC/AES or bypass"]
+    C --> D[("u_bit_packer_128")]
+    D --> E[("u_aes_input_wrapper")]
+    E --> F[/"parent CBC/AES or bypass"/]
 ```
 
 So do chi tiet hon nam trong

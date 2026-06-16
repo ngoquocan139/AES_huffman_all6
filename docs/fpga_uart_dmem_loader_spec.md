@@ -37,18 +37,18 @@ Current integration status:
 
 ```mermaid
 flowchart TD
-  A["Board reset"] --> B["Hold rv32_soc_top in reset"]
-  B --> C["Host sends LOAD magic"]
-  C --> D["Host sends payload_len_le32"]
+  A(["Board reset"]) --> B["Hold rv32_soc_top in reset"]
+  B --> C[/"Host sends LOAD magic"/]
+  C --> D[/"Host sends payload_len_le32"/]
   D --> E{"Length valid?"}
-  E -->|"no"| ERR["Send NAK and set error LED"]
-  E -->|"yes"| F["Receive payload bytes"]
+  E -->|"no"| ERR(["Send NAK and set error LED"])
+  E -->|"yes"| F[/"Receive payload bytes"/]
   F --> G["Pack bytes into 32-bit words"]
-  G --> H["Write source region via aux Port B"]
-  H --> I["Write INPUT_LEN_ADDR"]
-  I --> J["Send ACK"]
+  G --> H[/"Write source region via aux Port B"/]
+  H --> I[/"Write INPUT_LEN_ADDR"/]
+  I --> J[/"Send ACK"/]
   J --> K["Assert loader_done"]
-  K --> L["Release SoC reset"]
+  K --> L(["Release SoC reset"])
 ```
 
 ## 2. Scope
