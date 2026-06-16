@@ -10,7 +10,7 @@ cho bao cao:
 | SOC-01 | `dma_compress_aes_input1` | `input1.txt` | Main secure-storage loopback |
 | SOC-02 | `dma_compress_aes_input3` | `input3.txt` | Small/repeated input loopback |
 | SOC-03 | `dma_compress_aes_alnum63_cov` | `input_cov_alnum63.txt` | Alnum63/codebook stress loopback |
-| SOC-04 | `dma_storage_table_input1_then_input3` | `input1.txt` + `input3.txt` | Software-managed storage table demo |
+| SOC-04 | `dma_storage_table_input1_then_input3` | `input1.txt` + `input2.txt` | Software-managed storage table demo |
 
 Ba testcase loopback dau dung direct-DMA software:
 
@@ -113,7 +113,45 @@ Moi SOC testcase pass khi:
 | `tx_ciphertext_region_should_not_be_all_zero` | TX thuc su tao ciphertext/transport data |
 | `dma_start_pulse_count == 2` | Co dung 2 DMA transfer: TX roi RX |
 
-## 5. Latest Results
+## 5. Evaluation Metrics
+
+The compression result is reported with two groups of metrics. The payload
+metrics measure only the Huffman-compressed bitstream before AES padding and
+storage alignment. The storage metrics measure the actual encrypted output
+stored in DMEM after AES-CBC 128-bit block alignment.
+
+```text
+Payload ratio (%) = compressed_payload_bits / (input_len_bytes * 8) * 100
+Payload saving (%) = 100 - payload_ratio
+
+Storage ratio (%) = tx_ciphertext_bytes / input_len_bytes * 100
+Storage saving (%) = 100 - storage_ratio
+
+Compression ratio = input_len_bytes / tx_ciphertext_bytes
+```
+
+In these equations, `input_len_bytes` is the original plaintext file size,
+`compressed_payload_bits` is the Huffman payload size before AES-CBC padding,
+and `tx_ciphertext_bytes` is the final encrypted storage size produced by the
+TX path. A higher payload or storage saving is better. For `compression_ratio`,
+a larger value means the final stored ciphertext is smaller relative to the
+original plaintext, expressed in x:1 form.
+
+The benchmark counters are converted to throughput and processing time with:
+
+```text
+TX throughput = input_len_bytes / tx_busy_cycles * clock_MHz
+RX throughput = rx_plaintext_bytes / rx_busy_cycles * clock_MHz
+Processing time (us) = busy_cycles / clock_MHz
+```
+
+`tx_busy_cycles` and `rx_busy_cycles` are the hardware busy-cycle counters from
+the simulation log. `clock_MHz` is the clock frequency used for conversion. The
+simulation benchmark logs use `CLOCK_PERIOD_NS = 10 ns`, equivalent to
+`100 MHz`; for a `50 MHz` FPGA demo clock, the throughput is approximately half
+of the 100 MHz value and the processing time is approximately doubled.
+
+## 6. Latest Results
 
 | Testname | PASS/FAIL | Input bytes | TX bytes | RX bytes | Payload ratio | Payload saving | Storage ratio | Storage saving |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -126,23 +164,16 @@ Interpretation:
 
 | Testname | Note |
 |---|---|
-| `dma_compress_aes_input1` | Nen tot, storage saving `59.86%`, loopback dung. |
+| `dma_compress_aes_input1` | Nen tot, storage saving `65.50%`, loopback dung. |
 | `dma_compress_aes_input3` | Input ngan/lap lai cao, storage saving `53.72%`, loopback dung. |
 | `dma_compress_aes_alnum63_cov` | Input gan uniform voi 63 symbol, header/codebook overhead lon hon payload saving, nen storage saving am. Day la stress functional, khong phai case toi uu nen. |
 | `dma_storage_table_input1_then_input3` | Chung minh `secure_write` luu 2 ciphertext record, metadata giu `file_id/cipher_addr/cipher_len/plain_len/IV`, va `secure_read(file_id=1)` restore lai input1 dung. |
 
-## 6. Throughput Benchmark
+## 7. Throughput Benchmark
 
-Throughput duoc TB tinh theo:
-
-```text
-bytes_per_cycle = bytes / busy_cycles
-MB/s = bytes_per_cycle * (1000 / CLOCK_PERIOD_NS)
-```
-
-Voi `CLOCK_PERIOD_NS = 10 ns`, tuc benchmark simulation dang quy doi theo
-`100 MHz`. Neu demo FPGA chay `50 MHz`, throughput xap xi bang mot nua bang
-duoi.
+Throughput duoc TB tinh theo cong thuc o Section 5. Bang duoi dung gia tri
+benchmark simulation voi `CLOCK_PERIOD_NS = 10 ns`, tuc quy doi theo `100 MHz`.
+Neu demo FPGA chay `50 MHz`, throughput xap xi bang mot nua bang duoi.
 
 | Testname | TX cycles | RX cycles | TX input MB/s | TX output MB/s | RX input MB/s | RX output MB/s |
 |---|---:|---:|---:|---:|---:|---:|
@@ -150,7 +181,7 @@ duoi.
 | `dma_compress_aes_input3` | 10805 | 5206 | 2.240 | 1.037 | 2.151 | 4.648 |
 | `dma_compress_aes_alnum63_cov` | 44457 | 8491 | 1.134 | 1.260 | 6.595 | 5.936 |
 
-## 7. Output Files
+## 8. Output Files
 
 Per-test logs:
 

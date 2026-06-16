@@ -158,12 +158,14 @@ Current DMEM software layout:
 | `0x0000_0040` | `INPUT_LEN_ADDR` | Primary input length from TB/UART |
 | `0x0000_0044` | `INPUT2_LEN_ADDR` | Secondary input length for storage-table testcase |
 | `0x0000_0100` | `SECURE_META_BASE_ADDR` | Secure-storage metadata table |
-| `0x0000_0140` | second metadata slot | Slot 1, because record stride is `0x40` bytes |
+| `0x0000_0140` | metadata slot 1 | Slot 1, because record stride is `0x40` bytes |
+| `0x0000_0180` | metadata slot 2 | Slot 2, used by the three-record demo/bundle flow |
 | `0x0000_01F0` | `SECURE_IV_COUNTER_ADDR` | Firmware IV/version counter |
 | `0x0000_2000` | `INPUT1_SRC_ADDR` | Primary plaintext source |
 | `0x0000_3000` | `INPUT2_SRC_ADDR` | Secondary plaintext source |
 | `0x0000_4000` | ciphertext slot 0 | Firmware-selected ciphertext storage for slot 0 |
-| `0x0000_5000` | ciphertext slot 1 | Firmware-selected ciphertext storage for slot 1 |
+| `0x0000_4A00` | ciphertext slot 1 | Firmware-selected ciphertext storage for slot 1 |
+| `0x0000_5400` | ciphertext slot 2 | Firmware-selected ciphertext storage for slot 2 |
 | `0x0000_6000` | `INPUT1_RX_ADDR` | Restored plaintext output |
 
 ## 6. DMA Register Map
@@ -236,7 +238,7 @@ Firmware owns the storage policy:
 ```mermaid
 flowchart TD
   A["secure_write(file_id, plain_addr, plain_len)"] --> B["find or allocate metadata slot"]
-  B --> C["choose cipher_addr = 0x4000 + slot * 0x1000"]
+  B --> C["choose cipher_addr = 0x4000 + slot * 0x0A00"]
   C --> D["generate IV and store provisional metadata"]
   D --> E["write IV0..IV3 to DMA regfile"]
   E --> F["run DMA mode 0x9"]
@@ -264,7 +266,7 @@ Metadata base:
 
 ```text
 SECURE_META_BASE_ADDR    = 0x0000_0100
-SECURE_META_RECORD_COUNT = 2
+SECURE_META_RECORD_COUNT = 3
 SECURE_META_RECORD_SHIFT = 6
 SECURE_META_RECORD_WORDS = 16
 ```
@@ -563,7 +565,8 @@ and object-management layer.
 - No authentication tag or integrity/MAC check is implemented yet.
 - Metadata is stored in DMEM for the prototype; it is not a persistent flash
   filesystem.
-- Only two firmware metadata records are allocated in the current testcase.
+- Only three firmware metadata records are allocated in the current demo
+  firmware.
 - The current firmware API is polling-based; no interrupt/trap completion path
   is implemented.
 - Custom RISC-V instructions are not implemented.

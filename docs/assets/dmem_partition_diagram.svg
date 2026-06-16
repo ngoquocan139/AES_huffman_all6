@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1500" viewBox="0 0 1100 1500" role="img" aria-labelledby="title desc">
+  <title id="title">DMEM 32 KiB Partition</title>
+  <desc id="desc">Vertical address map for current secure-storage firmware DMEM layout.</desc>
+  <defs>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 16px Arial, sans-serif; fill: #374151; }
+      .addr { font: 700 15px Consolas, monospace; fill: #111827; }
+      .label { font: 700 18px Arial, sans-serif; fill: #111827; }
+      .note { font: 14px Arial, sans-serif; fill: #374151; }
+      .small { font: 13px Arial, sans-serif; fill: #4b5563; }
+      .axis { stroke: #111827; stroke-width: 2; }
+      .tick { stroke: #111827; stroke-width: 2; }
+      .box { stroke: #111827; stroke-width: 1.3; rx: 6; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1100" height="1500" fill="#ffffff"/>
+  <text x="550" y="45" text-anchor="middle" class="title">DMEM 32 KiB Partition</text>
+  <text x="550" y="72" text-anchor="middle" class="subtitle">Address range: 0x0000_0000 .. 0x0000_7FFF, byte addressed</text>
+
+  <line x1="115" y1="105" x2="115" y2="1405" class="axis"/>
+  <line x1="115" y1="105" x2="155" y2="105" class="tick"/>
+  <line x1="115" y1="1405" x2="155" y2="1405" class="tick"/>
+  <text x="85" y="110" text-anchor="end" class="addr">0x0000</text>
+  <text x="85" y="1410" text-anchor="end" class="addr">0x7FFF</text>
+
+  <g transform="translate(170,105)">
+    <rect class="box" x="0" y="0" width="820" height="58" fill="#dbeafe"/>
+    <text x="18" y="24" class="addr">0x0000_0000 .. 0x0000_003F</text>
+    <text x="18" y="46" class="label">RESULT_WORD[0..15] - firmware/testbench result words</text>
+
+    <rect class="box" x="0" y="62" width="820" height="58" fill="#bfdbfe"/>
+    <text x="18" y="86" class="addr">0x0000_0040 .. 0x0000_005B</text>
+    <text x="18" y="108" class="label">Input lengths + board control words</text>
+
+    <rect class="box" x="0" y="124" width="820" height="48" fill="#f3f4f6"/>
+    <text x="18" y="153" class="label">0x005C .. 0x00FF - reserved low gap</text>
+
+    <rect class="box" x="0" y="176" width="820" height="118" fill="#fde68a"/>
+    <text x="18" y="202" class="addr">0x0000_0100 .. 0x0000_01FF</text>
+    <text x="18" y="226" class="label">Secure metadata zeroize page</text>
+    <text x="38" y="250" class="note">slot0 0x0100..0x013F, slot1 0x0140..0x017F, slot2 0x0180..0x01BF</text>
+    <text x="38" y="274" class="note">IV counter at 0x01F0</text>
+
+    <rect class="box" x="0" y="298" width="820" height="58" fill="#e0f2fe"/>
+    <text x="18" y="322" class="addr">0x0000_0200 .. 0x0000_024F</text>
+    <text x="18" y="344" class="label">Board snapshot result/meta</text>
+
+    <rect class="box" x="0" y="360" width="820" height="58" fill="#ccfbf1"/>
+    <text x="18" y="384" class="addr">0x0000_0280 .. 0x0000_031F</text>
+    <text x="18" y="406" class="label">REPORT_WORD[0..39] - storage testcase report</text>
+
+    <rect class="box" x="0" y="422" width="820" height="54" fill="#f3f4f6"/>
+    <text x="18" y="455" class="label">0x0320 .. 0x07FF - reserved / scratch gap</text>
+
+    <rect class="box" x="0" y="480" width="820" height="88" fill="#dcfce7"/>
+    <text x="18" y="506" class="addr">0x0000_0800 .. 0x0000_1FFF</text>
+    <text x="18" y="530" class="label">UART stage / bundle window</text>
+    <text x="38" y="552" class="note">Alternate bundle input area before fixed legacy input bases</text>
+
+    <rect class="box" x="0" y="572" width="820" height="92" fill="#bbf7d0"/>
+    <text x="18" y="600" class="addr">0x0000_2000 .. 0x0000_2FFF</text>
+    <text x="18" y="626" class="label">INPUT1_SRC_ADDR region - primary plaintext</text>
+
+    <rect class="box" x="0" y="668" width="820" height="92" fill="#86efac"/>
+    <text x="18" y="696" class="addr">0x0000_3000 .. 0x0000_3FFF</text>
+    <text x="18" y="722" class="label">INPUT2_SRC_ADDR region - secondary plaintext</text>
+
+    <rect class="box" x="0" y="764" width="820" height="88" fill="#fecaca"/>
+    <text x="18" y="790" class="addr">0x0000_4000 .. 0x0000_49FF</text>
+    <text x="18" y="814" class="label">Ciphertext slot 0 - 0x0A00 bytes</text>
+    <text x="38" y="836" class="note">secure_cipher_addr_for_slot(0)</text>
+
+    <rect class="box" x="0" y="856" width="820" height="88" fill="#fca5a5"/>
+    <text x="18" y="882" class="addr">0x0000_4A00 .. 0x0000_53FF</text>
+    <text x="18" y="906" class="label">Ciphertext slot 1 - 0x0A00 bytes</text>
+    <text x="38" y="928" class="note">secure_cipher_addr_for_slot(1)</text>
+
+    <rect class="box" x="0" y="948" width="820" height="88" fill="#f87171"/>
+    <text x="18" y="974" class="addr">0x0000_5400 .. 0x0000_5DFF</text>
+    <text x="18" y="998" class="label">Ciphertext slot 2 - 0x0A00 bytes</text>
+    <text x="38" y="1020" class="note">secure_cipher_addr_for_slot(2)</text>
+
+    <rect class="box" x="0" y="1040" width="820" height="48" fill="#f3f4f6"/>
+    <text x="18" y="1070" class="label">0x5E00 .. 0x5FFF - reserved gap</text>
+
+    <rect class="box" x="0" y="1092" width="820" height="132" fill="#ddd6fe"/>
+    <text x="18" y="1120" class="addr">0x0000_6000 .. 0x0000_7EFF</text>
+    <text x="18" y="1146" class="label">SELECTED_RX_ADDR region - restored plaintext output</text>
+    <text x="38" y="1170" class="note">RX DMA writes selected file output here</text>
+
+    <rect class="box" x="0" y="1228" width="820" height="72" fill="#c4b5fd"/>
+    <text x="18" y="1256" class="addr">0x0000_7F00 .. 0x0000_7FFF</text>
+    <text x="18" y="1282" class="label">CPU stack top area</text>
+  </g>
+
+  <text x="170" y="1445" class="small">Note: figure groups small gaps for readability; see dmem_partition_diagram_spec.md for exact table.</text>
+</svg>

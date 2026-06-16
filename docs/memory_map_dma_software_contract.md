@@ -48,30 +48,35 @@ Current secure-storage testcase layout:
 | `0x0000_0040` | `INPUT1_LEN_ADDR` | Primary input length written by TB/UART |
 | `0x0000_0044` | `INPUT2_LEN_ADDR` | Secondary input length written by TB/UART |
 | `0x0000_0050` | `BOARD_STATUS_ADDR` | ZCU102 pushbutton/run/debug status word written by FPGA wrapper |
-| `0x0000_0054` | `BOARD_FILE_ID_ADDR` | Selected secure-storage `file_id`; default/valid values are `1` and `3` |
+| `0x0000_0054` | `BOARD_FILE_ID_ADDR` | Selected secure-storage `file_id`; default/valid values are `1`, `2`, and `3` |
 | `0x0000_0058` | `BOARD_EVENT_ADDR` | Monotonic board-control event counter |
 | `0x0000_0100` | `SECURE_META_BASE_ADDR` | Metadata table slot 0 |
 | `0x0000_0140` | metadata slot 1 | Slot 1, because record stride is `0x40` bytes |
+| `0x0000_0180` | metadata slot 2 | Slot 2 for the three-record demo/bundle flow |
 | `0x0000_01F0` | `SECURE_IV_COUNTER_ADDR` | Firmware IV/version counter |
 | `0x0000_0200` | `BOARD_SNAPSHOT_ADDR` | Optional FPGA-button snapshot copy of result words `0..15` |
 | `0x0000_0240` | `BOARD_SNAPSHOT_META` | Snapshot magic/count/status words |
+| `0x0000_0280` | `REPORT_BASE_ADDR` | Storage-table testcase report words `0..39` |
 | `0x0000_2000` | `INPUT1_SRC_ADDR` | Primary plaintext source |
 | `0x0000_3000` | `INPUT2_SRC_ADDR` | Secondary plaintext source |
 | `0x0000_4000` | ciphertext slot 0 | Secure write destination for metadata slot 0 |
-| `0x0000_5000` | ciphertext slot 1 | Secure write destination for metadata slot 1 |
+| `0x0000_4A00` | ciphertext slot 1 | Secure write destination for metadata slot 1 |
+| `0x0000_5400` | ciphertext slot 2 | Secure write destination for metadata slot 2 |
 | `0x0000_6000` | `INPUT1_RX_ADDR` | Restored plaintext destination |
 
 Firmware chooses ciphertext slots using:
 
 ```text
-cipher_addr = 0x0000_4000 + slot * 0x1000
+cipher_addr = 0x0000_4000 + slot * 0x0A00
 ```
 
 The current slot size is therefore:
 
 ```text
-SECURE_CIPHER_SLOT_BYTES = 0x1000
+SECURE_CIPHER_SLOT_BYTES = 0x0A00
 ```
+
+Report-ready table and figure: [dmem_partition_diagram_spec.md](./dmem_partition_diagram_spec.md).
 
 ## 3.1 ZCU102 Pushbutton Board-Control Contract
 
@@ -82,7 +87,7 @@ loader is idle.
 | Address | Field | Meaning |
 |---:|---|---|
 | `0x0000_0050` | status | bit0 `run_latched` auto-set after UART `LOAD`, bit1 board-control busy, bit2 zeroize done, bit3 snapshot valid, bits `15:8` selected file ID, bits `23:16` zeroize count, bits `31:24` snapshot count |
-| `0x0000_0054` | selected file ID | Hardware-selected `file_id`; firmware accepts `1` and `3`, otherwise defaults to `1` |
+| `0x0000_0054` | selected file ID | Hardware-selected `file_id`; firmware accepts `1`, `2`, and `3`, otherwise defaults to `1` |
 | `0x0000_0058` | event count | Incremented when the wrapper records a board-control event |
 | `0x0000_0200..0x0000_023F` | snapshot words | Copy of `RESULT_WORD(0..15)` after the snapshot pushbutton |
 | `0x0000_0240` | snapshot magic | `0x534E4150` (`"SNAP"`) |
@@ -106,7 +111,7 @@ Constants:
 ```text
 SECURE_META_BASE_ADDR        = 0x0000_0100
 SECURE_META_RECORD_SHIFT     = 6
-SECURE_META_RECORD_COUNT     = 2
+SECURE_META_RECORD_COUNT     = 3
 SECURE_META_RECORD_WORDS     = 16
 ```
 
@@ -397,7 +402,7 @@ immediately.
 ```text
 1. Reject file_id=0 or plain_len=0.
 2. Find an existing record for file_id, or allocate an empty slot.
-3. Select cipher_addr = 0x4000 + slot * 0x1000.
+3. Select cipher_addr = 0x4000 + slot * 0x0A00.
 4. Generate IV from file_id, addresses, length, and counter.
 5. Write IV to DMA IV registers and provisional metadata.
 6. Run DMA:
@@ -478,4 +483,4 @@ Missing production features:
 - production IV/nonce source,
 - runtime key management,
 - interrupt-based completion,
-- more than two metadata records in the current testcase.
+- more than three metadata records in the current demo firmware.

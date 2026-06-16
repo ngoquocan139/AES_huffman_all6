@@ -1,5 +1,7 @@
 # Spec Flow Index
 
+Status: updated against current RTL/docs layout on 2026-06-15.
+
 ## 1. Read This First
 
 The current source of truth is:
@@ -15,6 +17,9 @@ The current source of truth is:
 | 7 | [soc_4_5_end_to_end_report.md](./soc_4_5_end_to_end_report.md) | Main SoC end-to-end testcase evidence |
 | 8 | [coverage_regression_report.md](./coverage_regression_report.md) | Historical coverage and regression result |
 | 9 | [soc_usage_and_fpga_guide.md](./soc_usage_and_fpga_guide.md) | Day-to-day commands and FPGA preparation |
+| 10 | [dynamic_huffman_encoder_spec.md](./dynamic_huffman_encoder_spec.md) | Current RTL-accurate dynamic Huffman encoder wiring and compression flow |
+| 11 | [huffman_aes_riscv_flowchart_spec.md](./huffman_aes_riscv_flowchart_spec.md) | Flowcharts for TX Huffman/AES and RV32I DMA software control |
+| 12 | [dmem_partition_diagram_spec.md](./dmem_partition_diagram_spec.md) | Report-ready DMEM partition table and figure |
 
 Policy for the current report:
 
@@ -38,7 +43,7 @@ Policy for the current report:
 | Latest focused secure-storage result | `dma_storage_table_input1_then_input3`: `PASS=22`, `FAIL=0` |
 | Main secure-storage mode | `MODE=0x9`, whole-file Huffman + AES-128-CBC |
 | Main RX mode | `MODE=0x2`, AES-CBC decrypt + Huffman decode |
-| Metadata table | DMEM records at `0x0000_0100`, 2 slots, `0x40` bytes per slot |
+| Metadata table | DMEM records at `0x0000_0100`, 3 slots, `0x40` bytes per slot |
 | IV counter | DMEM word at `0x0000_01F0`, seed `0x31415926` |
 | MIT-BIH comparison | External preprocessed input, `29.87%` average final storage ratio |
 | FPGA strategy | Default ZCU102 project-mode implementation; USER_SI570 300 MHz divided to 50 MHz SoC/UART |
@@ -62,12 +67,13 @@ Read in this order when explaining the full system:
 |---:|---|---|
 | 1 | [00_current_system_spec.md](./00_current_system_spec.md) | Full current SoC overview |
 | 2 | [memory_map_dma_software_contract.md](./memory_map_dma_software_contract.md) | DMEM layout, DMA registers, secure metadata contract |
-| 3 | [iv_generation_and_cbc_contract_spec.md](./iv_generation_and_cbc_contract_spec.md) | IV generation, metadata storage, CBC word order |
-| 4 | [bram_port_usage_spec.md](./bram_port_usage_spec.md) | IMEM/DMEM BRAM ownership |
-| 5 | [cpu_dma_stall_policy_spec.md](./cpu_dma_stall_policy_spec.md) | CPU stall and DMA busy behavior |
-| 6 | [cpu_mmio_to_apb_bridge_spec.md](./cpu_mmio_to_apb_bridge_spec.md) | CPU MMIO to APB transaction semantics |
-| 7 | [dma_regfile_spec.md](./dma_regfile_spec.md) | DMA registers and mode decode |
-| 8 | [dma_riscv_instruction_programming_spec.md](./dma_riscv_instruction_programming_spec.md) | RV32I instructions used by control software |
+| 3 | [dmem_partition_diagram_spec.md](./dmem_partition_diagram_spec.md) | DMEM partition table and report figure |
+| 4 | [iv_generation_and_cbc_contract_spec.md](./iv_generation_and_cbc_contract_spec.md) | IV generation, metadata storage, CBC word order |
+| 5 | [bram_port_usage_spec.md](./bram_port_usage_spec.md) | IMEM/DMEM BRAM ownership |
+| 6 | [cpu_dma_stall_policy_spec.md](./cpu_dma_stall_policy_spec.md) | CPU stall and DMA busy behavior |
+| 7 | [cpu_mmio_to_apb_bridge_spec.md](./cpu_mmio_to_apb_bridge_spec.md) | CPU MMIO to APB transaction semantics |
+| 8 | [dma_regfile_spec.md](./dma_regfile_spec.md) | DMA registers and mode decode |
+| 9 | [dma_riscv_instruction_programming_spec.md](./dma_riscv_instruction_programming_spec.md) | RV32I instructions used by control software |
 
 ## 4. Secure Storage Firmware Reading Path
 
@@ -87,8 +93,9 @@ Read in this order when explaining the full system:
 | 2 | [dma_tx_engine_spec.md](./dma_tx_engine_spec.md) | TX DMA data mover |
 | 3 | [apb_huffman_aes_tx_top_spec.md](./apb_huffman_aes_tx_top_spec.md) | TX APB wrapper, Huffman, AES/bypass |
 | 4 | [dynamic_huffman_encoder_spec.md](./dynamic_huffman_encoder_spec.md) | Whole-file dynamic Huffman encoder |
-| 5 | [bit_packer_128_spec.md](./bit_packer_128_spec.md) | 128-bit transport packing |
-| 6 | [14_dynamic_whole_file_huffman_spec.md](./14_dynamic_whole_file_huffman_spec.md) | Whole-file Huffman policy |
+| 5 | [huffman_aes_riscv_flowchart_spec.md](./huffman_aes_riscv_flowchart_spec.md) | Report-ready flowcharts for TX core, Huffman, AES, and RV32I DMA software control |
+| 6 | [bit_packer_128_spec.md](./bit_packer_128_spec.md) | 128-bit transport packing |
+| 7 | [14_dynamic_whole_file_huffman_spec.md](./14_dynamic_whole_file_huffman_spec.md) | Whole-file Huffman policy |
 
 ## 6. RX Reading Path
 
@@ -114,6 +121,9 @@ Read in this order when explaining the full system:
 | [module_level_speed_area_comparison_report.md](./module_level_speed_area_comparison_report.md) | Module-level cycle/resource comparison |
 | [29_defense_qa_code_focus_spec.md](./29_defense_qa_code_focus_spec.md) | Oral defense Q&A |
 | [input1_instruction_wavedrom.md](./input1_instruction_wavedrom.md) | Input1 instruction/MMIO waveform trace for the current `dma_compress_aes_input1` pass log |
+| [assets/dynamic_huffman_encoder_rtl_wiring.png](./assets/dynamic_huffman_encoder_rtl_wiring.png) | Thesis/report figure for current encoder RTL wiring |
+| [assets/whole_file_huffman_compression_flow.png](./assets/whole_file_huffman_compression_flow.png) | Thesis/report flowchart for whole-file compression |
+| [assets/huffman_tree_2_wikimedia_public_domain.png](./assets/huffman_tree_2_wikimedia_public_domain.png) | Public-domain generic Huffman tree reference figure |
 
 ## 8. FPGA And Workflow Path
 
@@ -121,7 +131,7 @@ Read in this order when explaining the full system:
 |---|---|
 | [soc_usage_and_fpga_guide.md](./soc_usage_and_fpga_guide.md) | Commands, input selection, FPGA preparation |
 | [fpga_uart_dmem_loader_spec.md](./fpga_uart_dmem_loader_spec.md) | UART DMEM loader protocol |
-| [github_sync_and_self_hosted_runner_usage_spec.md](./github_sync_and_self_hosted_runner_usage_spec.md) | GitHub/self-hosted runner workflow |
+| `docs/archive_unused/github_sync_and_self_hosted_runner_usage_spec.md` | Archived GitHub/self-hosted runner workflow; not part of the thesis spec reading path |
 
 ## 9. Main Commands
 
@@ -195,3 +205,11 @@ Do not use these as the main report story:
 | Interrupt/trap DMA completion | Not implemented; polling is active |
 | Production entropy/secret IV generation | Not implemented; current IV is deterministic firmware demo IV |
 | Custom RISC-V instruction | Not implemented; current integration uses MMIO and firmware API |
+
+Archived files moved out of the active docs path:
+
+| Archived file | Reason |
+|---|---|
+| `archive_unused/chapter4_comparison_tables.md` | Temporary table draft already copied into `DATN/docs/Graduation_Thesis.docx` |
+| `archive_unused/chapter6_graduation_thesis_audit.md` | One-off audit note, not a maintained design spec |
+| `archive_unused/github_sync_and_self_hosted_runner_usage_spec.md` | Workflow note, not needed for thesis architecture/spec flow |

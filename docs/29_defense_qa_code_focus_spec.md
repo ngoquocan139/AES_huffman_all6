@@ -105,7 +105,7 @@ flowchart TD
 ### 3.5 Multi-record storage register/mux detail
 
 So do nay dung de tra loi cau hoi: "Neu da luu input1 dang compressed/encrypted,
-sau do luu tiep input3, thi lam sao quay lai giai ma input1?"
+sau do luu tiep input2, thi lam sao quay lai giai ma input1?"
 
 Y chinh:
 
@@ -123,7 +123,7 @@ flowchart LR
 
     subgraph DMEMTAB["DMEM software metadata table @ 0x00000100"]
       R0["record0 registers in DMEM\nvalid=1\nfile_id=1\ncipher_addr=0x4000\ncipher_len=tx1_len\nplain_len=input1_len\niv0..iv3"]
-      R1["record1 registers in DMEM\nvalid=1\nfile_id=3\ncipher_addr=0x5000\ncipher_len=tx2_len\nplain_len=input3_len\niv0..iv3"]
+      R1["record1 registers in DMEM\nvalid=1\nfile_id=2\ncipher_addr=0x4A00\ncipher_len=tx2_len\nplain_len=input2_len\niv0..iv3"]
       RN["recordN registers in DMEM\nvalid/file_id/addr/len/iv"]
     end
 
@@ -386,7 +386,7 @@ No chung minh CPU RV32I da cau hinh DMA bang MMIO that, TX da tao ciphertext/tra
 
 Vi day la bang chung cuoi cung rang toan bo chuoi TX->luu tru->RX hoat dong dung ve chuc nang. Neu check nay fail thi kien truc secure storage end-to-end chua dung.
 
-### Q16. Neu da luu input1 dang compressed/encrypted, sau do tiep tuc luu input3, sau nay co lay lai input1 duoc khong?
+### Q16. Neu da luu input1 dang compressed/encrypted, sau do tiep tuc luu input2, sau nay co lay lai input1 duoc khong?
 
 **Tra loi ngan:**
 
@@ -400,8 +400,9 @@ restore `IV0..IV3`, lay `cipher_addr/cipher_len/plain_len`, cau hinh RX
 **Bang chung hien co:**
 
 `dma_storage_table_input1_then_input3` da pass `PASS=22`, `FAIL=0`: TX input1,
-TX input3, sau do chon lai record input1 bang `secure_read(file_id=1)` va RX ra
-plaintext khop `input1.txt`.
+TX input2, sau do chon lai record input1 bang `secure_read(file_id=1)` va RX ra
+plaintext khop `input1.txt`. Ten testcase giu hau to `input3` theo lich su,
+nhung run command hien tai nap input thu hai bang `+INPUT_FILE2=input2.txt`.
 
 ---
 

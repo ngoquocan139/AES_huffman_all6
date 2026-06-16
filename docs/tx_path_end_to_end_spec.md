@@ -411,8 +411,8 @@ Area-optimized implementation notes:
 - Latest TX-only implementation at 50 MHz: `11933` LUTs, `5469` FFs,
   `3979` slices, `208` control sets, WNS `+1.277 ns`.
 - Latest full ZCU102 TX+RX implementation and bitstream pass:
-  `29542` LUTs, `18873` FFs, `6045` CLBs, `1699` control sets, WNS
-  `+9.331 ns`, WHS `+0.017 ns`.
+  `37069` LUTs, `19794` FFs, `7360` CLBs, `1794` control sets, WNS
+  `+7.871 ns`, WHS `+0.015 ns`, vectorless power `0.793 W`.
 
 ## 8. TX Software Flow
 

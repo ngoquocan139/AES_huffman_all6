@@ -73,7 +73,8 @@ ELF link: -march=rv32i -mabi=ilp32 -O1 -nostdlib -ffreestanding -Ttext=0x0 -Wl,-
 | `0x0000_2000` | Input1 plaintext |
 | `0x0000_3000` | Input2 plaintext |
 | `0x0000_4000` | TX output slot 0 |
-| `0x0000_5000` | TX output slot 1 |
+| `0x0000_4A00` | TX output slot 1 |
+| `0x0000_5400` | TX output slot 2 |
 | `0x0000_6000` | RX restored plaintext |
 
 ### 3.2 DMA MMIO registers
@@ -132,8 +133,8 @@ flowchart TD
     G --> H["generate IV\nwrite IV0..IV3 to DMA and metadata"]
     H --> I["run TX DMA\nmode 0x9, dst 0x4000"]
     I --> J["commit metadata slot 0\nvalid=1, cipher_len"]
-    J --> K["secure_write(file_id=3,\nplain=0x3000)"]
-    K --> L["allocate metadata slot 1\nrun TX to 0x5000"]
+    J --> K["secure_write(file_id=2,\nplain=0x3000)"]
+    K --> L["allocate metadata slot 1\nrun TX to 0x4A00"]
     L --> M["secure_find_record(file_id=1)"]
     M --> N["secure_read(file_id=1,\ndst=0x6000)"]
     N --> O["restore IV from slot 0\nrun RX mode 0x2"]
@@ -146,7 +147,7 @@ Key C calls:
 ```c
 secure_storage_init();
 tx1_rc = secure_write(1u, INPUT1_SRC_ADDR, input1_len, &tx1_result);
-tx2_rc = secure_write(3u, INPUT2_SRC_ADDR, input2_len, &tx2_result);
+tx2_rc = secure_write(2u, INPUT2_SRC_ADDR, input2_len, &tx2_result);
 selected_slot = secure_find_record(1u);
 rx1_rc = secure_read(1u, INPUT1_RX_ADDR, &rx1_result);
 ```
@@ -155,7 +156,7 @@ What each call does:
 
 | C call | Responsibility |
 |---|---|
-| `secure_storage_init()` | Clears two metadata records and seeds the IV counter at `0x1F0`. |
+| `secure_storage_init()` | Clears three metadata records and seeds the IV counter at `0x1F0`. |
 | `secure_write()` | Validates input, chooses a slot, generates IV, runs TX DMA, stores ciphertext length, marks metadata valid. |
 | `secure_find_record()` | Scans metadata table by `file_id`. This is the software-side file selector. |
 | `secure_read()` | Finds metadata, restores IV, runs RX DMA, checks restored plaintext length. |
@@ -267,7 +268,7 @@ is compiled into repeated `lw`, `andi`, and branch instructions:
 | `12` | TX2 ciphertext length |
 | `13` | Input2 length echo |
 | `14` | Selected file ID, expected `1` |
-| `15` | Metadata record count, expected `2` |
+| `15` | Metadata record count, expected `2` in the focused two-file simulation; up to `3` in bundle mode |
 
 Pass condition:
 
