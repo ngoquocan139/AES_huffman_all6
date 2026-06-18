@@ -349,7 +349,7 @@ flowchart LR
   SRC[("DMEM plaintext")] --> TXDMA["dma_tx_engine"]
   TXDMA --> APB[/"TX private APB writes"/]
   APB --> COLLECT["input_collect_unit"]
-  COLLECT --> FREQ[("frequency_counter")]
+  COLLECT --> FREQ["frequency_counter"]
   FREQ --> BUILD["huffman_builder"]
   BUILD --> CANON["canonical_code_generator"]
   CANON --> ENC["dynamic_huffman_encoder"]

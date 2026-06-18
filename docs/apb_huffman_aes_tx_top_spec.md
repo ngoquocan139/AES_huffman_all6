@@ -5,7 +5,7 @@
 `apb_huffman_aes_tx_top` la top-level module ghep noi 3 khoi chinh:
 
 1. `apb_huffman_tx_if`: APB slave de cau hinh block, nap du lieu 32-bit va phat lenh bat dau.
-2. `huffman_aes_tx_top`: chuyen word stream thanh byte stream, thuc hien whole-file dynamic Huffman trong flow synthesis hien tai, dong goi 128-bit va dua vao wrapper cua AES.
+2. `huffman_aes_tx_top`: xu ly payload whole-file, thuc hien whole-file dynamic Huffman trong flow synthesis hien tai, dong goi 128-bit va dua vao wrapper cua AES.
 3. TX output policy: chon giua:
    - `COMPRESS_AES`: CBC XOR transport word roi dua vao `aes128_cipher_top`
    - `COMPRESS_ONLY`: bypass AES va dua transport word thang ra output FIFO
@@ -63,14 +63,13 @@ Chi tiet du lieu ben trong `huffman_aes_tx_top`:
 
 ```mermaid
 flowchart LR
-    A[/"32-bit APB word stream"/] --> B["input adapter
-    word -> byte"]
-    B -->|"count pass"| FC[("u_file_frequency_counter")]
+    A[/"Whole-file plaintext bytes"/] --> B[/"payload-byte feed"/]
+    B -->|"count pass"| FC["u_file_frequency_counter"]
     FC --> HB["u_file_huffman_builder"]
     HB -->|"external codebook"| C["u_dynamic_huffman_encoder"]
     B -->|"emit pass"| C
-    C --> D[("u_bit_packer_128")]
-    D --> E[("u_aes_input_wrapper")]
+    C --> D["u_bit_packer_128"]
+    D --> E["u_aes_input_wrapper"]
     E --> F[/"parent CBC/AES or bypass"/]
 ```
 
@@ -83,7 +82,7 @@ Top nay phu trach:
 
 - cung cap APB slave interface de nap block du lieu;
 - gioi han block toi da 32 byte;
-- chuyen doi giao tiep APB/FIFO thanh stream 32-bit roi byte-stream cho encoder;
+- cap payload bytes cho whole-file count path va emit path cua encoder;
 - truyen du lieu da nen sang AES hoac bypass AES theo policy `compress_only`;
 - xuat cac tin hieu trang thai tong hop va debug.
 

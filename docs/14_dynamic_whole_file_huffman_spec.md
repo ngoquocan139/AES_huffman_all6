@@ -44,7 +44,7 @@ Report figure:
 flowchart TD
   A(["Start TX whole_file mode"]) --> B[/"Pass 1: scan DMEM input"/]
   B --> C["Normalize symbols"]
-  C --> D[("Accumulate global frequency table")]
+  C --> D["Accumulate global frequency table"]
   D --> E["Build one canonical Huffman table"]
   E --> F[/"Pass 2: read input again by 32-byte blocks"/]
   F --> G{"First compressed block?"}
@@ -52,7 +52,7 @@ flowchart TD
   G -->|"no"| I[/"Emit table-reuse block with symbol_count = 0"/]
   H --> J["Emit Huffman payload"]
   I --> J
-  J --> K[("bit_packer_128")]
+  J --> K["bit_packer_128"]
   K --> L[/"AES-CBC or bypass"/]
   L --> M{"More blocks?"}
   M -->|"yes"| F

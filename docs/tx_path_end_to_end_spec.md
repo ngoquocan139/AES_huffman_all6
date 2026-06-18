@@ -82,7 +82,7 @@ flowchart LR
 | `dma_tx_engine` | Data mover TX, doc DMEM, lap trinh TX APB, drain output FIFO, ghi DMEM |
 | `apb_huffman_aes_tx_top` | TX accelerator top |
 | `apb_huffman_tx_if` | APB slave wrapper ben trong TX |
-| `huffman_aes_tx_top` | Input adapter + Huffman TX + bit packer |
+| `huffman_aes_tx_top` | Whole-file Huffman TX + bit packer |
 | `dynamic_huffman_encoder` | [dynamic_huffman_encoder_spec.md](./dynamic_huffman_encoder_spec.md) |
 | `bit_packer_128` | [bit_packer_128_spec.md](./bit_packer_128_spec.md) |
 | `aes128_cipher_top` | AES encrypt core active |
@@ -205,12 +205,11 @@ serialize transport word truc tiep ve APB output FIFO.
 
 ```mermaid
 flowchart LR
-    APBWORDS[/"APB 32-bit words<br/>word_in/word_valid"/] --> ADAPTER["input adapter
-    inside huffman_aes_tx_top
-    word -> byte"]
+    APBWORDS[/"Whole-file plaintext bytes"/] --> ADAPTER[/"payload-byte feed
+    inside huffman_aes_tx_top"/]
 
     ADAPTER -->|"count_byte_fire_w,
-    current_byte_w"| GCOUNT[("u_file_frequency_counter<br/>frequency_counter")]
+    current_byte_w"| GCOUNT["u_file_frequency_counter<br/>frequency_counter"]
     GCOUNT -->|"file_freq_read_count_w"| GBUILD["u_file_huffman_builder
     huffman_builder"]
     GBUILD -->|"symbol/code length/code tables"| EXTBOOK[("external codebook wires<br/>file_symbol_*, file_code_len_*,<br/>file_code_*")]
@@ -234,7 +233,7 @@ flowchart LR
     PACK -->|"encoder_stream_ready"| ENC
 
     PACK -->|"packer_transport_word,
-    packer_transport_valid"| WRAP[("u_aes_input_wrapper<br/>wrapper")]
+    packer_transport_valid"| WRAP["u_aes_input_wrapper<br/>wrapper"]
     WRAP -->|"block_accept"| PACK
 
     WRAP -->|"cipher_en, data_in,
@@ -248,7 +247,7 @@ Duong whole-file Huffman co 2 pha:
    `input adapter -> u_file_frequency_counter -> u_file_huffman_builder`.
    Firmware/DMA nap toan file de dem tan suat, sau do pulse `global_build_start`.
 2. Emit phase:
-   `input adapter -> u_dynamic_huffman_encoder`, trong do encoder doc codebook
+   `payload-byte feed -> u_dynamic_huffman_encoder`, trong do encoder doc codebook
    tu `u_file_huffman_builder` qua cac port `external_*`, roi emit bitstream
    sang `u_bit_packer_128`.
 
@@ -266,10 +265,10 @@ flowchart LR
     input_collect_unit"]
     ICU -->|"collect_done/error"| FSM
 
-    BYTE[/"byte_in/byte_valid<br/>from huffman_aes_tx_top adapter"/] --> ICU
+    BYTE[/"byte_in/byte_valid<br/>from whole-file payload feed"/] --> ICU
 
     ICU --> BUF[("u_block_buffer<br/>inside input_collect_unit")]
-    ICU --> LFREQ[("u_frequency_counter<br/>inside input_collect_unit")]
+    ICU --> LFREQ["u_frequency_counter<br/>inside input_collect_unit"]
 
     FSM -->|"start_emit"| EMIT["u_emit_backend
     emit_backend"]
@@ -288,7 +287,7 @@ flowchart LR
     STREAM -->|"stream_data,
     stream_len,
     stream_valid,
-    stream_last"| PACKER[("u_bit_packer_128")]
+    stream_last"| PACKER["u_bit_packer_128"]
 ```
 
 `u_input_collect_unit` giu lai byte cua block trong `u_block_buffer`. Khi emit,
@@ -309,10 +308,10 @@ flowchart LR
 | `dma_tx_engine` | `u_apb_huffman_tx_if` | APB `PSEL/PENABLE/PWRITE/PADDR/PWDATA` | DMA ghi control va input words vao TX |
 | `u_apb_huffman_tx_if` | `u_huffman_aes_tx_top` | `start_block_o`, `continue_frame_o`, `block_size_o`, `word_in_o`, `word_valid_o` | Bat dau block va dua word 32-bit vao TX core |
 | `u_huffman_aes_tx_top` | `u_apb_huffman_tx_if` | `word_ready`, `tx_busy`, `tx_done`, `tx_error`, global build status | Backpressure va status |
-| Input adapter | `u_file_frequency_counter` | `count_byte_fire_w`, `current_byte_w` | Dem tan suat whole-file |
+| Whole-file payload-byte feed | `u_file_frequency_counter` | `count_byte_fire_w`, `current_byte_w` | Dem tan suat whole-file |
 | `u_file_frequency_counter` | `u_file_huffman_builder` | `file_freq_read_index_w`, `file_freq_read_count_w` | Builder doc bang tan suat |
 | `u_file_huffman_builder` | `u_dynamic_huffman_encoder` | `external_symbol_*`, `external_code_len_*`, `external_code_*` | Cap codebook canonical whole-file |
-| Input adapter | `u_dynamic_huffman_encoder` | `enc_byte_in_w`, `enc_byte_valid_w`, `enc_block_start_w`, `enc_block_end_w` | Dua byte payload vao encoder |
+| Whole-file payload-byte feed | `u_dynamic_huffman_encoder` | `enc_byte_in_w`, `enc_byte_valid_w`, `enc_block_start_w`, `enc_block_end_w` | Dua byte payload vao encoder |
 | `u_dynamic_huffman_encoder` | `u_bit_packer_128` | `encoder_stream_*` | Stream bit Huffman dang chunk 32-bit |
 | `u_bit_packer_128` | `u_aes_input_wrapper` | `packer_transport_word`, `packer_transport_valid`, `block_accept` | Gom thanh transport word 128-bit |
 | `u_aes_input_wrapper` | parent top | `cipher_en_w`, `data_in_w`, `key_w` | Yeu cau encrypt/bypass 1 transport block |
@@ -332,9 +331,10 @@ Chuc nang:
 - expose output FIFO cua TX de DMA doc
 - giu sticky status / error
 
-### 7.2 Input adapter
+### 7.2 Whole-file payload-byte feed
 
-Chuyen tung word 32-bit thanh byte stream theo thu tu byte noi bo cua TX.
+Cap byte payload cho count phase va emit phase cua TX core theo chinh sach
+whole-file dang duoc bao cao.
 
 ### 7.3 `dynamic_huffman_encoder`
 

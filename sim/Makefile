@@ -13,6 +13,7 @@ VSIM_RUN_MODE ?= -batch
 VSIM_DO ?= log -r /*; run -all; quit -f
 WLF_OUT ?= $(TESTNAME).wlf
 WLF_VIEW ?= sim.wlf
+WAVE_DO ?= spo2_loopback_wave.do
 WAVE_KILL_OLD ?= 1
 WAVE_ENV = PATH="$(QUESTA_BIN):$$PATH" MGLS_LICENSE_FILE="$(QUESTA_LICENSE)" LM_LICENSE_FILE="$(QUESTA_LICENSE)" QT_X11_NO_MITSHM=1 GDK_DISABLE=shm LIBGL_ALWAYS_INDIRECT=1
 QUESTA_ROOT ?= $(abspath ../../questasim)
@@ -167,51 +168,14 @@ wave:
 	@if [ "$(WAVE_KILL_OLD)" = "1" ]; then $(MAKE) --no-print-directory kill_wave >/dev/null 2>&1 || true; fi
 	@echo "[INFO] Opening $(WLF_VIEW) in Questa GUI waveform viewer"
 	@$(WAVE_ENV) \
-	vsim -gui -view $(WLF_VIEW) -do "view wave; delete wave *; \
-	add wave /test_bench/clk; \
-	add wave /test_bench/rst; \
-	add wave /test_bench/wf_if_pc; \
-	add wave /test_bench/wf_if_instr; \
-	add wave /test_bench/wf_cpu_hold; \
-	add wave /test_bench/wf_mmio_sel; \
-	add wave /test_bench/wf_mmio_stall; \
-	add wave /test_bench/wf_apb_psel; \
-	add wave /test_bench/wf_apb_penable; \
-	add wave /test_bench/wf_apb_pwrite; \
-	add wave /test_bench/wf_apb_paddr; \
-	add wave /test_bench/wf_apb_pwdata; \
-	add wave /test_bench/wf_apb_prdata; \
-	add wave /test_bench/wf_dma_src; \
-	add wave /test_bench/wf_dma_dst; \
-	add wave /test_bench/wf_dma_len; \
-	add wave /test_bench/wf_dma_dir; \
-	add wave /test_bench/wf_dma_compress_only; \
-	add wave /test_bench/wf_dma_whole_file; \
-	add wave /test_bench/wf_dma_block_size; \
-	add wave /test_bench/wf_dma_start; \
-	add wave /test_bench/wf_tx_state; \
-	add wave /test_bench/wf_tx_busy; \
-	add wave /test_bench/wf_tx_done; \
-	add wave /test_bench/wf_tx_error; \
-	add wave /test_bench/wf_tx_bytes_done; \
-	add wave /test_bench/wf_rx_state; \
-	add wave /test_bench/wf_rx_busy; \
-	add wave /test_bench/wf_rx_done; \
-	add wave /test_bench/wf_rx_error; \
-	add wave /test_bench/wf_rx_bytes_done; \
-	add wave /test_bench/wf_result_signature; \
-	add wave /test_bench/wf_error_mask; \
-	add wave /test_bench/wf_input_len_bytes; \
-	add wave /test_bench/wf_tx_ciphertext_bytes; \
-	add wave /test_bench/wf_rx_plaintext_bytes; \
-	radix -$(RADIX)"
+	vsim -gui -view $(WLF_VIEW) -do "do $(WAVE_DO); radix -$(RADIX)"
 
 wave_bg:
 	@test -f $(WLF_VIEW) || (echo "[FAIL] $(WLF_VIEW) not found. Run 'make all' or 'make all TESTNAME=...' first, or set WLF_VIEW=<file.wlf>."; exit 1)
 	@mkdir -p log
 	@if [ "$(WAVE_KILL_OLD)" = "1" ]; then $(MAKE) --no-print-directory kill_wave >/dev/null 2>&1 || true; fi
 	@echo "[INFO] Opening $(WLF_VIEW) in detached Questa GUI waveform viewer"
-	@$(WAVE_ENV) setsid -f vsim -gui -view $(WLF_VIEW) -do "view wave; delete wave *; radix -$(RADIX)" > log/wave_gui.log 2>&1
+	@$(WAVE_ENV) setsid -f vsim -gui -view $(WLF_VIEW) -do "do $(WAVE_DO); radix -$(RADIX)" > log/wave_gui.log 2>&1
 	@sleep 5
 	@! grep -E "Fatal|License Issue|Unable to checkout|Failure to obtain|Invalid license|Error loading design" log/wave_gui.log || (echo "[FAIL] Questa GUI startup failed. See sim/log/wave_gui.log"; tail -n 20 log/wave_gui.log; exit 1)
 	@pgrep -f '[v]ish -- -vsim .* -view .*$(notdir $(WLF_VIEW))' >/dev/null || (echo "[FAIL] Questa GUI did not stay up. See sim/log/wave_gui.log"; tail -n 20 log/wave_gui.log; exit 1)
