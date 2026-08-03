@@ -1,0 +1,24 @@
+{"kind":"layout","layoutId":"f95af2ed-6b96-4d61-a127-648a4393d62e","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"9e0a4f79-6578-480e-9120-d5a035513cda","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/aox9b5","slide":1,"title":"Evaluation and Performance Comparison","textShapes":9}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":1,"name":"deck-title","text":"Evaluation and Performance Comparison","textPreview":"Evaluation and Performance Comparison","textChars":37,"textLines":1,"bbox":[0,22,2400,58]}
+{"kind":"textbox","id":"sh/nuxc3ylc","slide":1,"name":"hardware-section","text":"Hardware Baselines","textPreview":"Hardware Baselines","textChars":18,"textLines":1,"bbox":[0,92,2400,46]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":1,"name":"software-section","text":"Software and Paper Baselines","textPreview":"Software and Paper Baselines","textChars":28,"textLines":1,"bbox":[0,658,2400,46]}
+{"kind":"shape","id":"sh/r2p8nqxs","slide":1,"name":"legend-swatch-0-0","bbox":[600,1279,34,24]}
+{"kind":"textbox","id":"sh/kjm1cfa9","slide":1,"name":"legend-label-0-0","text":"Our Design (local)","textPreview":"Our Design (local)","textChars":18,"textLines":1,"bbox":[646,1270,262,34]}
+{"kind":"shape","id":"sh/94fu18jq","slide":1,"name":"legend-swatch-0-1","bbox":[910,1279,34,24]}
+{"kind":"textbox","id":"sh/2p8nqxs7","slide":1,"name":"legend-label-0-1","text":"Hardware papers [1][3][4]","textPreview":"Hardware papers [1][3][4]","textChars":25,"textLines":1,"bbox":[956,1270,472,34]}
+{"kind":"shape","id":"sh/ra5gbq1o","slide":1,"name":"legend-swatch-0-2","bbox":[1430,1279,34,24]}
+{"kind":"textbox","id":"sh/gvy90je9","slide":1,"name":"legend-label-0-2","text":"Official AES IP [2]","textPreview":"Official AES IP [2]","textChars":19,"textLines":1,"bbox":[1476,1270,322,34]}
+{"kind":"shape","id":"sh/9gr2p8nq","slide":1,"name":"legend-swatch-1-0","bbox":[770,1315,34,24]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":1,"name":"legend-label-1-0","text":"Standard compressors (local)","textPreview":"Standard compressors (local)","textChars":28,"textLines":1,"bbox":[816,1306,452,34]}
+{"kind":"shape","id":"sh/re1w7mp0","slide":1,"name":"legend-swatch-1-1","bbox":[1270,1315,34,24]}
+{"kind":"textbox","id":"sh/nap4r65w","slide":1,"name":"legend-label-1-1","text":"ECG papers [5][6]","textPreview":"ECG papers [5][6]","textChars":17,"textLines":1,"bbox":[1316,1306,312,34]}
+{"kind":"textbox","id":"sh/upwb2hwf","slide":1,"name":"source-note","text":"References: [1] Good & Benaissa, CHES 2005. [2] OpenTitan AES HWIP. [3] Matai et al., ASAP 2014. [4] Guguloth et al., Results in Engineering, 2025. [5] Hameed et al., FGCS 2020. [6] Zarate Segura et al., IJETT 2024. Note: Throughput is normalized to 100 MHz where possible; efficiency is reported as bytes/cycle. FPGA/platform and input size differ across references.","textPreview":"References: [1] Good & Benaissa, CHES 2005. [2] OpenTitan AES HWIP. [3] Matai et al., ASAP 2014. [4] Guguloth et al., Results in Engineer...","textChars":367,"textLines":1,"bbox":[95,1375,2210,86]}
+{"kind":"chart","id":"ch/90je9cvi","slide":1,"name":"","chartType":"bar","title":"AES Throughput at 100 MHz","bbox":[45,150,560,460]}
+{"kind":"chart","id":"ch/gfmlkjm1","slide":1,"name":"","chartType":"bar","title":"AES Efficiency","bbox":[635,150,560,460]}
+{"kind":"chart","id":"ch/rytsvu9k","slide":1,"name":"","chartType":"bar","title":"Huffman Throughput","bbox":[1225,150,560,460]}
+{"kind":"chart","id":"ch/yd0z6103","slide":1,"name":"","chartType":"bar","title":"Huffman Efficiency","bbox":[1815,150,535,460]}
+{"kind":"chart","id":"ch/9cvixcze","slide":1,"name":"","chartType":"bar","title":"Compression + Encryption Input Throughput","bbox":[70,712,680,490]}
+{"kind":"chart","id":"ch/gr2p8nqx","slide":1,"name":"","chartType":"bar","title":"Payload Saving on 18,019 Preprocessed ECG Bytes","bbox":[790,712,700,490]}
+{"kind":"chart","id":"ch/ahoza1gv","slide":1,"name":"","chartType":"bar","title":"Saved vs 36,000 Raw ECG Bytes","bbox":[1530,712,770,490]}

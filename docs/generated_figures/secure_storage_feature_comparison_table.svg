@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <style>
+      .bg { fill: #f3f6fb; }
+      .slide { fill: #ffffff; stroke: #c7d2e3; stroke-width: 2; }
+      .topbar { fill: #0637a6; }
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 46px; font-weight: 700; fill: #ffffff; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 24px; fill: #1f2a44; }
+      .head { fill: #0b4fb3; }
+      .subhead { fill: #dbeafe; }
+      .rowA { fill: #ffffff; }
+      .rowB { fill: #eef4fb; }
+      .thisWork { fill: #dff7ea; }
+      .newCell { fill: #fff3d9; }
+      .grid { stroke: #9aa8bc; stroke-width: 1.6; }
+      .htext { font-family: Arial, Helvetica, sans-serif; font-size: 24px; font-weight: 700; fill: #ffffff; }
+      .cell { font-family: Arial, Helvetica, sans-serif; font-size: 23px; fill: #122033; }
+      .cellSmall { font-family: Arial, Helvetica, sans-serif; font-size: 20px; fill: #122033; }
+      .yes { font-family: Arial, Helvetica, sans-serif; font-size: 28px; font-weight: 700; fill: #0f7a43; }
+      .no { font-family: Arial, Helvetica, sans-serif; font-size: 28px; font-weight: 700; fill: #c72535; }
+      .partial { font-family: Arial, Helvetica, sans-serif; font-size: 23px; font-weight: 700; fill: #b7791f; }
+      .star { font-family: Arial, Helvetica, sans-serif; font-size: 24px; font-weight: 700; fill: #d97706; }
+      .note { font-family: Arial, Helvetica, sans-serif; font-size: 22px; fill: #334155; }
+      .foot { font-family: Arial, Helvetica, sans-serif; font-size: 20px; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1920" height="1080"/>
+  <rect class="slide" x="90" y="60" width="1740" height="960"/>
+  <rect class="topbar" x="90" y="60" width="1740" height="95"/>
+  <text x="130" y="122" class="title">Comparison with Related Secure-Storage Designs</text>
+  <text x="130" y="193" class="subtitle">Focus: embedded secure storage features. Items not implemented in this work are marked as x.</text>
+
+  <!-- Table geometry -->
+  <!-- x columns: 130, 560, 790, 1055, 1325, 1515, 1790 -->
+  <rect x="130" y="230" width="1660" height="56" class="head"/>
+  <line x1="560" y1="230" x2="560" y2="846" class="grid"/>
+  <line x1="790" y1="230" x2="790" y2="846" class="grid"/>
+  <line x1="1055" y1="230" x2="1055" y2="846" class="grid"/>
+  <line x1="1325" y1="230" x2="1325" y2="846" class="grid"/>
+  <line x1="1515" y1="230" x2="1515" y2="846" class="grid"/>
+
+  <text x="150" y="266" class="htext">Feature / Criterion</text>
+  <text x="592" y="255" class="htext">Software</text>
+  <text x="592" y="279" class="htext">baseline</text>
+  <text x="825" y="255" class="htext">ECG secure</text>
+  <text x="840" y="279" class="htext">storage paper</text>
+  <text x="1085" y="255" class="htext">Standalone</text>
+  <text x="1100" y="279" class="htext">HW cores</text>
+  <text x="1352" y="266" class="htext">This work</text>
+  <text x="1550" y="266" class="htext">Evaluation</text>
+
+  <!-- Rows -->
+  <g>
+    <rect x="130" y="286" width="1660" height="56" class="rowA"/>
+    <text x="150" y="322" class="cell">Compression before storage</text>
+    <text x="653" y="322" class="yes">Yes</text>
+    <text x="918" y="322" class="yes">Yes</text>
+    <text x="1155" y="322" class="partial">Partial</text>
+    <rect x="1325" y="286" width="190" height="56" class="thisWork"/>
+    <text x="1395" y="322" class="yes">Yes</text>
+    <text x="1550" y="322" class="star">Implemented in RTL</text>
+
+    <rect x="130" y="342" width="1660" height="56" class="rowB"/>
+    <text x="150" y="378" class="cell">AES-128-CBC encryption</text>
+    <text x="653" y="378" class="yes">Yes</text>
+    <text x="918" y="378" class="yes">Yes</text>
+    <text x="1155" y="378" class="yes">Yes</text>
+    <rect x="1325" y="342" width="190" height="56" class="thisWork"/>
+    <text x="1395" y="378" class="yes">Yes</text>
+    <text x="1550" y="378" class="star">Verified by NIST vectors</text>
+
+    <rect x="130" y="398" width="1660" height="56" class="rowA"/>
+    <text x="150" y="434" class="cell">Hardware data-path accelerator</text>
+    <text x="663" y="434" class="no">x</text>
+    <text x="928" y="434" class="partial">Partial</text>
+    <text x="1155" y="434" class="yes">Yes</text>
+    <rect x="1325" y="398" width="190" height="56" class="thisWork"/>
+    <text x="1395" y="434" class="yes">Yes</text>
+    <text x="1550" y="434" class="star">TX/RX accelerator</text>
+
+    <rect x="130" y="454" width="1660" height="56" class="rowB"/>
+    <text x="150" y="490" class="cell">RV32I SoC integration</text>
+    <text x="663" y="490" class="no">x</text>
+    <text x="928" y="490" class="no">x</text>
+    <text x="1168" y="490" class="no">x</text>
+    <rect x="1325" y="454" width="190" height="56" class="thisWork"/>
+    <text x="1395" y="490" class="yes">Yes</text>
+    <text x="1550" y="490" class="star">System-level advantage</text>
+
+    <rect x="130" y="510" width="1660" height="56" class="rowA"/>
+    <text x="150" y="546" class="cell">DMA / MMIO register control</text>
+    <text x="663" y="546" class="no">x</text>
+    <text x="928" y="546" class="no">x</text>
+    <text x="1168" y="546" class="no">x</text>
+    <rect x="1325" y="510" width="190" height="56" class="thisWork"/>
+    <text x="1395" y="546" class="yes">Yes</text>
+    <text x="1550" y="546" class="star">Closer to real SoC</text>
+
+    <rect x="130" y="566" width="1660" height="56" class="rowB"/>
+    <text x="150" y="602" class="cell">Secure write path: compress + encrypt</text>
+    <text x="663" y="602" class="no">x</text>
+    <text x="918" y="602" class="yes">Yes</text>
+    <text x="1155" y="602" class="partial">Partial</text>
+    <rect x="1325" y="566" width="190" height="56" class="thisWork"/>
+    <text x="1395" y="602" class="yes">Yes</text>
+    <text x="1550" y="602" class="star">TX secure-storage path</text>
+
+    <rect x="130" y="622" width="1660" height="56" class="rowA"/>
+    <text x="150" y="658" class="cell">Readback path: decrypt + decompress</text>
+    <text x="663" y="658" class="no">x</text>
+    <text x="918" y="658" class="yes">Yes</text>
+    <text x="1155" y="658" class="partial">Partial</text>
+    <rect x="1325" y="622" width="190" height="56" class="thisWork"/>
+    <text x="1395" y="658" class="yes">Yes</text>
+    <text x="1550" y="658" class="star">RX recovery verified</text>
+
+    <rect x="130" y="678" width="1660" height="56" class="rowB"/>
+    <text x="150" y="714" class="cell">Multi-record storage table</text>
+    <text x="663" y="714" class="no">x</text>
+    <text x="928" y="714" class="no">x</text>
+    <text x="1168" y="714" class="no">x</text>
+    <rect x="1325" y="678" width="190" height="56" class="thisWork"/>
+    <text x="1395" y="714" class="yes">Yes</text>
+    <text x="1550" y="714" class="star">File management feature</text>
+
+    <rect x="130" y="734" width="1660" height="56" class="rowA"/>
+    <text x="150" y="770" class="cell">FPGA synthesis / resource report</text>
+    <text x="663" y="770" class="no">x</text>
+    <text x="928" y="770" class="partial">Paper</text>
+    <text x="1155" y="770" class="yes">Yes</text>
+    <rect x="1325" y="734" width="190" height="56" class="thisWork"/>
+    <text x="1395" y="770" class="yes">Yes</text>
+    <text x="1550" y="770" class="star">Timing/resource shown</text>
+
+    <rect x="130" y="790" width="1660" height="56" class="rowB"/>
+    <text x="150" y="826" class="cell">Direct real-sensor acquisition</text>
+    <text x="663" y="826" class="no">x</text>
+    <text x="918" y="826" class="yes">Yes</text>
+    <text x="1168" y="826" class="no">x</text>
+    <rect x="1325" y="790" width="190" height="56" class="newCell"/>
+    <text x="1408" y="826" class="no">x</text>
+    <text x="1550" y="826" class="cellSmall">Future work</text>
+  </g>
+
+  <!-- Grid lines -->
+  <rect x="130" y="230" width="1660" height="616" fill="none" class="grid"/>
+  <g class="grid">
+    <line x1="130" y1="286" x2="1790" y2="286"/>
+    <line x1="130" y1="342" x2="1790" y2="342"/>
+    <line x1="130" y1="398" x2="1790" y2="398"/>
+    <line x1="130" y1="454" x2="1790" y2="454"/>
+    <line x1="130" y1="510" x2="1790" y2="510"/>
+    <line x1="130" y1="566" x2="1790" y2="566"/>
+    <line x1="130" y1="622" x2="1790" y2="622"/>
+    <line x1="130" y1="678" x2="1790" y2="678"/>
+    <line x1="130" y1="734" x2="1790" y2="734"/>
+    <line x1="130" y1="790" x2="1790" y2="790"/>
+    <line x1="130" y1="846" x2="1790" y2="846"/>
+  </g>
+
+  <rect x="130" y="880" width="1660" height="64" fill="#eef6ff" stroke="#93b4e8" stroke-width="2"/>
+  <text x="155" y="920" class="note">Main advantage: this work is a complete RV32I-based secure-storage SoC, not only a standalone AES or compression block.</text>
+  <text x="130" y="974" class="foot">Note: x = not implemented in this work/baseline; Partial = only algorithm/core-level support, not complete secure-storage SoC.</text>
+</svg>

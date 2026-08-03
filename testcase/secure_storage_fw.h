@@ -47,6 +47,9 @@ typedef unsigned int uint32_t;
 #define SECURE_META_VERSION          11u
 #define SECURE_META_FLAGS            12u
 
+#define SECURE_META_FLAG_SOURCE_ZEROIZED   (1u << 0)
+#define SECURE_META_FLAG_READBACK_ZEROIZED (1u << 1)
+
 #define SECURE_IV_COUNTER_ADDR       0x000001f0u
 #define SECURE_IV_COUNTER_WORD       (*(volatile uint32_t *)(SECURE_IV_COUNTER_ADDR))
 #define SECURE_IV_SEED               0x31415926u
@@ -80,6 +83,37 @@ static SECURE_INLINE uint32_t secure_rotl32(uint32_t value, uint32_t shift)
 static SECURE_INLINE void secure_load_delay(void)
 {
     __asm__ volatile("nop\nnop\n" ::: "memory");
+}
+
+static SECURE_INLINE uint32_t secure_align_down_word(uint32_t value)
+{
+    return value & ~3u;
+}
+
+static SECURE_INLINE uint32_t secure_align_up_word(uint32_t value)
+{
+    return (value + 3u) & ~3u;
+}
+
+static SECURE_INLINE void secure_zeroize_region(uint32_t addr,
+                                                uint32_t len_bytes)
+{
+    uint32_t start;
+    uint32_t end;
+    uint32_t offset;
+    volatile uint32_t *word_ptr;
+
+    if (len_bytes == 0u)
+        return;
+
+    start = secure_align_down_word(addr);
+    end = secure_align_up_word(addr + len_bytes);
+    word_ptr = (volatile uint32_t *)start;
+
+    for (offset = 0u; offset < (end - start); offset += 4u)
+        *word_ptr++ = 0u;
+
+    __asm__ volatile("" ::: "memory");
 }
 
 /* The RV32I bring-up core is sensitive to load-use on store addresses. Use
@@ -416,6 +450,29 @@ static SECURE_INLINE uint32_t secure_write(uint32_t file_id,
     return SECURE_OK;
 }
 
+static SECURE_INLINE uint32_t secure_write_zeroize_source(uint32_t file_id,
+                                                          uint32_t plain_addr,
+                                                          uint32_t plain_len,
+                                                          secure_dma_result_t *result)
+{
+    uint32_t rc;
+    uint32_t slot;
+
+    rc = secure_write(file_id, plain_addr, plain_len, result);
+    if (rc != SECURE_OK)
+        return rc;
+
+    secure_zeroize_region(plain_addr, plain_len);
+
+    slot = secure_find_record(file_id);
+    if (slot != 0xffffffffu)
+        SECURE_META_WORD(slot, SECURE_META_FLAGS) =
+            secure_metadata_read(slot, SECURE_META_FLAGS) |
+            SECURE_META_FLAG_SOURCE_ZEROIZED;
+
+    return SECURE_OK;
+}
+
 static SECURE_INLINE uint32_t secure_read(uint32_t file_id,
                                           uint32_t dst_addr,
                                           secure_dma_result_t *result)
@@ -449,6 +506,23 @@ static SECURE_INLINE uint32_t secure_read(uint32_t file_id,
         return SECURE_ERR_READ_LEN;
 
     return SECURE_OK;
+}
+
+static SECURE_INLINE void secure_zeroize_readback(uint32_t file_id,
+                                                  uint32_t dst_addr)
+{
+    uint32_t slot;
+    uint32_t plain_len;
+
+    slot = secure_find_record(file_id);
+    if (slot == 0xffffffffu)
+        return;
+
+    plain_len = secure_metadata_read(slot, SECURE_META_PLAIN_LEN);
+    secure_zeroize_region(dst_addr, plain_len);
+    SECURE_META_WORD(slot, SECURE_META_FLAGS) =
+        secure_metadata_read(slot, SECURE_META_FLAGS) |
+        SECURE_META_FLAG_READBACK_ZEROIZED;
 }
 
 static SECURE_INLINE uint32_t secure_delete(uint32_t file_id)

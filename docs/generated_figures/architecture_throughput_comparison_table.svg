@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<style>
+text{font-family:Arial,Helvetica,sans-serif;fill:#122033}
+.title{font-size:48px;font-weight:700;fill:#fff}
+.sub{font-size:27px}
+.head{font-size:27px;font-weight:700;fill:#fff}
+.cell{font-size:25px;font-weight:700}
+.small{font-size:22px}
+.yes{fill:#0f8b55}.no{fill:#c72535}.partial{fill:#f28c20}
+</style>
+<rect width="1920" height="1080" fill="#f3f6fb"/>
+<rect x="70" y="45" width="1780" height="990" rx="18" fill="#fff" stroke="#c7d2e3" stroke-width="2"/>
+<rect x="70" y="45" width="1780" height="100" fill="#0637a6"/>
+<text x="110" y="108" class="title">Architecture-Level Throughput Comparison</text>
+<text x="110" y="192" class="sub">The main speed advantage comes from RTL offload, DMA movement, and word/block-based processing.</text>
+<rect x="90" y="225" width="355" height="60" fill="#0b4fb3" stroke="#9aa8bc" stroke-width="2"/>
+<text x="106" y="263" class="head">Criterion</text>
+<rect x="445" y="225" width="350" height="60" fill="#0b4fb3" stroke="#9aa8bc" stroke-width="2"/>
+<text x="461" y="263" class="head">Software baseline</text>
+<rect x="795" y="225" width="355" height="60" fill="#0b4fb3" stroke="#9aa8bc" stroke-width="2"/>
+<text x="811" y="263" class="head">Standalone HW core</text>
+<rect x="1150" y="225" width="410" height="60" fill="#0f8b55" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1166" y="263" class="head">This work</text>
+<rect x="1560" y="225" width="310" height="60" fill="#f28c20" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1576" y="263" class="head">Impact / note</text>
+<rect x="90" y="285" width="355" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="106" y="334" class="cell">RTL datapath processing</text>
+<rect x="445" y="285" width="350" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="461" y="316" class="cell no">x</text>
+<text x="461" y="344" class="small">Algorithm steps run as CPU</text>
+<text x="461" y="368" class="small">software loops</text>
+<rect x="795" y="285" width="355" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="811" y="316" class="cell yes">Yes</text>
+<text x="811" y="344" class="small">Single-purpose hardware IP</text>
+<rect x="1150" y="285" width="410" height="86" fill="#e4f7ee" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1166" y="316" class="cell yes">Yes</text>
+<text x="1166" y="344" class="small">TX/RX accelerator is</text>
+<text x="1166" y="368" class="small">implemented in RTL</text>
+<rect x="1560" y="285" width="310" height="86" fill="#fff2df" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1576" y="317" class="cell">Higher throughput</text>
+<text x="1576" y="342" class="cell">mainly versus</text>
+<text x="1576" y="367" class="cell">software</text>
+<rect x="90" y="371" width="355" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="106" y="420" class="cell">CPU workload</text>
+<rect x="445" y="371" width="350" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="461" y="402" class="cell no">x</text>
+<text x="461" y="430" class="small">CPU computes and controls</text>
+<text x="461" y="454" class="small">data movement</text>
+<rect x="795" y="371" width="355" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="811" y="402" class="cell partial">Partial</text>
+<text x="811" y="430" class="small">External controller</text>
+<text x="811" y="454" class="small">usually feeds the IP</text>
+<rect x="1150" y="371" width="410" height="86" fill="#e4f7ee" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1166" y="402" class="cell yes">Yes</text>
+<text x="1166" y="430" class="small">CPU only writes MMIO registers</text>
+<text x="1166" y="454" class="small">and checks status</text>
+<rect x="1560" y="371" width="310" height="86" fill="#fff2df" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1576" y="403" class="cell">Reduces instruction</text>
+<text x="1576" y="428" class="cell">overhead</text>
+<rect x="90" y="457" width="355" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="106" y="506" class="cell">Data movement</text>
+<rect x="445" y="457" width="350" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="461" y="488" class="cell no">x</text>
+<text x="461" y="516" class="small">Many load/store operations</text>
+<text x="461" y="540" class="small">in software</text>
+<rect x="795" y="457" width="355" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="811" y="488" class="cell partial">Partial</text>
+<text x="811" y="516" class="small">Depends on integration</text>
+<text x="811" y="540" class="small">around the IP</text>
+<rect x="1150" y="457" width="410" height="86" fill="#e4f7ee" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1166" y="488" class="cell yes">Yes</text>
+<text x="1166" y="516" class="small">DMA moves data between DMEM and</text>
+<text x="1166" y="540" class="small">accelerator</text>
+<rect x="1560" y="457" width="310" height="86" fill="#fff2df" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1576" y="489" class="cell">Fewer memory-access</text>
+<text x="1576" y="514" class="cell">operations</text>
+<rect x="90" y="543" width="355" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="106" y="592" class="cell">Data granularity</text>
+<rect x="445" y="543" width="350" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="461" y="574" class="cell no">x</text>
+<text x="461" y="602" class="small">Often byte-by-byte</text>
+<text x="461" y="626" class="small">processing loops</text>
+<rect x="795" y="543" width="355" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="811" y="574" class="cell yes">Yes</text>
+<text x="811" y="602" class="small">Block-oriented</text>
+<text x="811" y="626" class="small">input/output</text>
+<rect x="1150" y="543" width="410" height="86" fill="#e4f7ee" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1166" y="574" class="cell yes">Yes</text>
+<text x="1166" y="602" class="small">32-bit words and 128-bit AES</text>
+<text x="1166" y="626" class="small">blocks</text>
+<rect x="1560" y="543" width="310" height="86" fill="#fff2df" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1576" y="575" class="cell">Better bus and</text>
+<text x="1576" y="600" class="cell">datapath utilization</text>
+<rect x="90" y="629" width="355" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="106" y="678" class="cell">AES-CBC execution</text>
+<rect x="445" y="629" width="350" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="461" y="660" class="cell no">x</text>
+<text x="461" y="688" class="small">AES rounds and XOR</text>
+<text x="461" y="712" class="small">feedback in software</text>
+<rect x="795" y="629" width="355" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="811" y="660" class="cell yes">Yes</text>
+<text x="811" y="688" class="small">Optimized AES datapath can</text>
+<text x="811" y="712" class="small">be very fast</text>
+<rect x="1150" y="629" width="410" height="86" fill="#e4f7ee" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1166" y="660" class="cell yes">Yes</text>
+<text x="1166" y="688" class="small">AES-128-CBC uses a fixed</text>
+<text x="1166" y="712" class="small">10-round block flow</text>
+<rect x="1560" y="629" width="310" height="86" fill="#fff2df" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1576" y="661" class="cell">Stable block latency</text>
+<rect x="90" y="715" width="355" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="106" y="764" class="cell">Huffman execution</text>
+<rect x="445" y="715" width="350" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="461" y="746" class="cell no">x</text>
+<text x="461" y="774" class="small">Tree/table/bit operations</text>
+<text x="461" y="798" class="small">handled by loops</text>
+<rect x="795" y="715" width="355" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="811" y="746" class="cell partial">Partial</text>
+<text x="811" y="774" class="small">Compression-only cores may</text>
+<text x="811" y="798" class="small">exist</text>
+<rect x="1150" y="715" width="410" height="86" fill="#e4f7ee" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1166" y="746" class="cell yes">Yes</text>
+<text x="1166" y="774" class="small">Frequency count, canonical</text>
+<text x="1166" y="798" class="small">code, and bit packing in RTL</text>
+<rect x="1560" y="715" width="310" height="86" fill="#fff2df" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1576" y="747" class="cell">Lower bit-management</text>
+<text x="1576" y="772" class="cell">overhead</text>
+<rect x="90" y="801" width="355" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="106" y="850" class="cell">Full secure-storage path</text>
+<rect x="445" y="801" width="350" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="461" y="832" class="cell no">x</text>
+<text x="461" y="860" class="small">Compression and encryption</text>
+<text x="461" y="884" class="small">are separate functions</text>
+<rect x="795" y="801" width="355" height="86" fill="#ffffff" stroke="#9aa8bc" stroke-width="2"/>
+<text x="811" y="832" class="cell no">x</text>
+<text x="811" y="860" class="small">Usually AES-only or</text>
+<text x="811" y="884" class="small">Huffman-only IP</text>
+<rect x="1150" y="801" width="410" height="86" fill="#e4f7ee" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1166" y="832" class="cell yes">Yes</text>
+<text x="1166" y="860" class="small">TX: compress + encrypt; RX:</text>
+<text x="1166" y="884" class="small">decrypt + decompress</text>
+<rect x="1560" y="801" width="310" height="86" fill="#fff2df" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1576" y="833" class="cell">System-level secure</text>
+<text x="1576" y="858" class="cell">storage path</text>
+<rect x="90" y="887" width="355" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="106" y="936" class="cell">AES-only top speed</text>
+<rect x="445" y="887" width="350" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="461" y="918" class="cell no">x</text>
+<text x="461" y="946" class="small">Software is normally</text>
+<text x="461" y="970" class="small">slower</text>
+<rect x="795" y="887" width="355" height="86" fill="#eef4fb" stroke="#9aa8bc" stroke-width="2"/>
+<text x="811" y="918" class="cell yes">Yes</text>
+<text x="811" y="946" class="small">Dedicated AES cores can be</text>
+<text x="811" y="970" class="small">fastest</text>
+<rect x="1150" y="887" width="410" height="86" fill="#e4f7ee" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1166" y="918" class="cell no">x</text>
+<text x="1166" y="946" class="small">Not designed to beat every AES-</text>
+<text x="1166" y="970" class="small">only core</text>
+<rect x="1560" y="887" width="310" height="86" fill="#fff0f0" stroke="#9aa8bc" stroke-width="2"/>
+<text x="1576" y="919" class="cell">Strength is</text>
+<text x="1576" y="944" class="cell">integrated secure</text>
+<text x="1576" y="969" class="cell">storage</text>
+<rect x="90" y="998" width="1740" height="70" rx="8" fill="#eaf2ff" stroke="#6ea8fe" stroke-width="2"/>
+<text x="115" y="1042" style="font-size:24px;font-weight:700;fill:#0637a6">Conclusion: strongest against software baselines; standalone optimized AES-only cores can still be faster.</text>
+</svg>

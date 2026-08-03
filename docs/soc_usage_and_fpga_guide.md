@@ -571,7 +571,7 @@ ZCU102 button map:
 |---|---|
 | CPU_RESET / SW20 | reset loader + SoC logic, then host must send UART `LOAD` again; this is not a DMEM erase |
 | Center / SW15 | optional manual run/resume latch; normal flow auto-runs after UART `LOAD` completes |
-| North / SW18 | zeroize secure metadata/IV region `0x100..0x1FF`, reset/hold SoC, clear run latch |
+| North / SW18 | zeroize secure DMEM region `0x100..0x7FFF`, reset/hold SoC, clear run latch |
 | East / SW17 | select next demo `file_id`: `1 -> 2 -> 3 -> 1` |
 | West / SW14 | select previous demo `file_id`: `1 -> 3 -> 2 -> 1` |
 | South / SW16 | snapshot result words from `0x00..0x3C` into `0x200..0x23F` |

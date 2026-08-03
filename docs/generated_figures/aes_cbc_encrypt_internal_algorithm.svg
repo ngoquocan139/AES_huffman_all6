@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<defs>
+<marker id="0b3f98Arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#0b3f98"/></marker>
+<marker id="15915cArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#15915c"/></marker>
+<marker id="f28c22Arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#f28c22"/></marker>
+<marker id="7137d8Arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#7137d8"/></marker>
+<marker id="dc3d4aArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#dc3d4a"/></marker>
+<marker id="0e7490Arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#0e7490"/></marker>
+<marker id="5f6f89Arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#5f6f89"/></marker>
+</defs>
+<rect width="1920" height="1080" fill="#f7f9fd"/>
+<text x="72" y="45" text-anchor="start" font-family="Arial" font-size="60" font-weight="700" fill="#0b3f98">AES-128-CBC Encryption with AES Round Details</text>
+<text x="74" y="112" text-anchor="start" font-family="Arial" font-size="29" font-weight="400" fill="#111827">CBC adds XOR feedback outside AES; AES-128 then transforms the 128-bit state through 10 rounds.</text>
+<rect x="0" y="150" width="1920" height="8" rx="0" fill="#0b3f98" stroke="#0b3f98" stroke-width="0"/>
+<rect x="70" y="185" width="1780" height="225" rx="8" fill="#ffffff" stroke="#c7d3e6" stroke-width="2"/>
+<rect x="70" y="185" width="1780" height="50" rx="0" fill="#0b3f98" stroke="#0b3f98" stroke-width="0"/>
+<text x="92" y="196" text-anchor="start" font-family="Arial" font-size="33" font-weight="700" fill="#ffffff">CBC encryption chaining</text>
+<rect x="110" y="285" width="175" height="90" rx="12" fill="#eaf2ff" stroke="#3b7cff" stroke-width="3"/>
+<text x="197.5" y="304.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">Plaintext</text>
+<text x="197.5" y="334.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">P_i</text>
+<circle cx="430" cy="330" r="42" fill="#ffffff" stroke="#111827" stroke-width="3"/>
+<line x1="399" y1="330" x2="461" y2="330" stroke="#111827" stroke-width="3"/>
+<line x1="430" y1="299" x2="430" y2="361" stroke="#111827" stroke-width="3"/>
+<text x="485" y="315" text-anchor="start" font-family="Arial" font-size="25" font-weight="700" fill="#111827">XOR</text>
+<rect x="570" y="275" width="245" height="110" rx="12" fill="#fff4df" stroke="#f28c22" stroke-width="3"/>
+<text x="692.5" y="304.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">AES-128</text>
+<text x="692.5" y="334.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">Encrypt core</text>
+<rect x="995" y="285" width="175" height="90" rx="12" fill="#f0e8ff" stroke="#7137d8" stroke-width="3"/>
+<text x="1082.5" y="304.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">Ciphertext</text>
+<text x="1082.5" y="334.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">C_i</text>
+<line x1="285" y1="330" x2="385" y2="330" stroke="#0b3f98" stroke-width="5" marker-end="url(#0b3f98Arrow)"/>
+<line x1="475" y1="330" x2="570" y2="330" stroke="#0b3f98" stroke-width="5" marker-end="url(#0b3f98Arrow)"/>
+<line x1="815" y1="330" x2="995" y2="330" stroke="#0b3f98" stroke-width="5" marker-end="url(#0b3f98Arrow)"/>
+<rect x="305" y="238" width="250" height="42" rx="12" fill="#ecfff5" stroke="#15915c" stroke-width="3"/>
+<text x="430.0" y="233.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="400" fill="#111827">C_0 = IV</text>
+<text x="430.0" y="263.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="400" fill="#111827">C_{i-1} for i &gt; 1</text>
+<polyline points="1082,375 1082,392 430,392 430,372" fill="none" stroke="#7137d8" stroke-width="4" marker-end="url(#7137d8Arrow)"/>
+<text x="745" y="394" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#5f6f89">feedback to next block</text>
+<rect x="70" y="445" width="1190" height="550" rx="8" fill="#ffffff" stroke="#c7d3e6" stroke-width="2"/>
+<rect x="70" y="445" width="1190" height="50" rx="0" fill="#f28c22" stroke="#f28c22" stroke-width="0"/>
+<text x="92" y="456" text-anchor="start" font-family="Arial" font-size="33" font-weight="700" fill="#ffffff">Inside AES-128 encryption core</text>
+<rect x="110" y="532" width="26" height="26" rx="0" fill="#eef5ff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="136" y="532" width="26" height="26" rx="0" fill="#ffffff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="162" y="532" width="26" height="26" rx="0" fill="#eef5ff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="188" y="532" width="26" height="26" rx="0" fill="#ffffff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="110" y="558" width="26" height="26" rx="0" fill="#ffffff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="136" y="558" width="26" height="26" rx="0" fill="#eef5ff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="162" y="558" width="26" height="26" rx="0" fill="#ffffff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="188" y="558" width="26" height="26" rx="0" fill="#eef5ff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="110" y="584" width="26" height="26" rx="0" fill="#eef5ff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="136" y="584" width="26" height="26" rx="0" fill="#ffffff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="162" y="584" width="26" height="26" rx="0" fill="#eef5ff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="188" y="584" width="26" height="26" rx="0" fill="#ffffff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="110" y="610" width="26" height="26" rx="0" fill="#ffffff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="136" y="610" width="26" height="26" rx="0" fill="#eef5ff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="162" y="610" width="26" height="26" rx="0" fill="#ffffff" stroke="#8fb3e8" stroke-width="1"/>
+<rect x="188" y="610" width="26" height="26" rx="0" fill="#eef5ff" stroke="#8fb3e8" stroke-width="1"/>
+<text x="106" y="649" text-anchor="start" font-family="Arial" font-size="19" font-weight="400" fill="#5f6f89">128-bit state</text>
+<text x="106" y="673" text-anchor="start" font-family="Arial" font-size="19" font-weight="400" fill="#5f6f89">4 x 4 bytes</text>
+<text x="110" y="490" text-anchor="start" font-family="Arial" font-size="25" font-weight="700" fill="#111827">Input to AES core: P_i xor feedback</text>
+<line x1="240" y1="585" x2="332" y2="585" stroke="#0b3f98" stroke-width="4" marker-end="url(#0b3f98Arrow)"/>
+<rect x="350" y="556" width="190" height="62" rx="12" fill="#eaf2ff" stroke="#0b3f98" stroke-width="2"/>
+<text x="445.0" y="565.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">Initial</text>
+<text x="445.0" y="590.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">AddRoundKey K0</text>
+<line x1="540" y1="587" x2="608" y2="587" stroke="#0b3f98" stroke-width="4" marker-end="url(#0b3f98Arrow)"/>
+<rect x="630" y="534" width="142" height="58" rx="12" fill="#e6fbff" stroke="#0e7490" stroke-width="2"/>
+<text x="701.0" y="553.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">SubBytes</text>
+<line x1="772" y1="563" x2="784" y2="563" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="788" y="534" width="142" height="58" rx="12" fill="#ecfff5" stroke="#15915c" stroke-width="2"/>
+<text x="859.0" y="555.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">ShiftRows</text>
+<line x1="930" y1="563" x2="942" y2="563" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="946" y="534" width="142" height="58" rx="12" fill="#fff4df" stroke="#f28c22" stroke-width="2"/>
+<text x="1017.0" y="555.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">MixColumns</text>
+<line x1="1088" y1="563" x2="1100" y2="563" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="1104" y="534" width="142" height="58" rx="12" fill="#eaf2ff" stroke="#0b3f98" stroke-width="2"/>
+<text x="1175.0" y="553.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">AddRoundKey</text>
+<rect x="616" y="496" width="644" height="122" rx="10" fill="#ffffff" stroke="#d6e1ef" stroke-width="1"/>
+<rect x="630" y="534" width="142" height="58" rx="12" fill="#e6fbff" stroke="#0e7490" stroke-width="2"/>
+<text x="701.0" y="553.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">SubBytes</text>
+<line x1="772" y1="563" x2="784" y2="563" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="788" y="534" width="142" height="58" rx="12" fill="#ecfff5" stroke="#15915c" stroke-width="2"/>
+<text x="859.0" y="555.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">ShiftRows</text>
+<line x1="930" y1="563" x2="942" y2="563" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="946" y="534" width="142" height="58" rx="12" fill="#fff4df" stroke="#f28c22" stroke-width="2"/>
+<text x="1017.0" y="555.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">MixColumns</text>
+<line x1="1088" y1="563" x2="1100" y2="563" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="1104" y="534" width="142" height="58" rx="12" fill="#eaf2ff" stroke="#0b3f98" stroke-width="2"/>
+<text x="1175.0" y="553.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">AddRoundKey</text>
+<text x="938.0" y="517" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#0b3f98">Rounds 1 to 9</text>
+<line x1="1220" y1="587" x2="1220" y2="690" stroke="#0b3f98" stroke-width="4" marker-end="url(#0b3f98Arrow)"/>
+<rect x="350" y="700" width="170" height="58" rx="12" fill="#e6fbff" stroke="#0e7490" stroke-width="2"/>
+<text x="435.0" y="719.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">SubBytes</text>
+<line x1="520" y1="729" x2="532" y2="729" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="536" y="700" width="170" height="58" rx="12" fill="#ecfff5" stroke="#15915c" stroke-width="2"/>
+<text x="621.0" y="721.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">ShiftRows</text>
+<line x1="706" y1="729" x2="718" y2="729" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="722" y="700" width="170" height="58" rx="12" fill="#fff4df" stroke="#f28c22" stroke-width="2"/>
+<text x="807.0" y="719.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">AddRoundKey</text>
+<rect x="336" y="662" width="570" height="122" rx="10" fill="#ffffff" stroke="#d6e1ef" stroke-width="1"/>
+<rect x="350" y="700" width="170" height="58" rx="12" fill="#e6fbff" stroke="#0e7490" stroke-width="2"/>
+<text x="435.0" y="719.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">SubBytes</text>
+<line x1="520" y1="729" x2="532" y2="729" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="536" y="700" width="170" height="58" rx="12" fill="#ecfff5" stroke="#15915c" stroke-width="2"/>
+<text x="621.0" y="721.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">ShiftRows</text>
+<line x1="706" y1="729" x2="718" y2="729" stroke="#5f6f89" stroke-width="3" marker-end="url(#5f6f89Arrow)"/>
+<rect x="722" y="700" width="170" height="58" rx="12" fill="#fff4df" stroke="#f28c22" stroke-width="2"/>
+<text x="807.0" y="719.5" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111827">AddRoundKey</text>
+<text x="621.0" y="683" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#0b3f98">Final round 10</text>
+<text x="621.0" y="785" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#dc3d4a">No MixColumns in final round</text>
+<line x1="900" y1="730" x2="1070" y2="730" stroke="#0b3f98" stroke-width="4" marker-end="url(#0b3f98Arrow)"/>
+<rect x="1085" y="688" width="135" height="84" rx="12" fill="#f0e8ff" stroke="#7137d8" stroke-width="3"/>
+<text x="1152.5" y="718.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">C_i</text>
+<rect x="240" y="875" width="175" height="60" rx="12" fill="#ffffff" stroke="#c7d3e6" stroke-width="3"/>
+<text x="327.5" y="893.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">Secret key K</text>
+<line x1="415" y1="905" x2="475" y2="905" stroke="#f28c22" stroke-width="4" marker-end="url(#f28c22Arrow)"/>
+<rect x="485" y="875" width="210" height="60" rx="12" fill="#fff4df" stroke="#f28c22" stroke-width="3"/>
+<text x="590.0" y="879.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">AES key</text>
+<text x="590.0" y="909.5" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#111827">expansion</text>
+<line x1="695" y1="905" x2="755" y2="905" stroke="#f28c22" stroke-width="4" marker-end="url(#f28c22Arrow)"/>
+<rect x="765" y="875" width="190" height="60" rx="12" fill="#fff9f0" stroke="#f28c22" stroke-width="3"/>
+<text x="860.0" y="882.0" text-anchor="middle" font-family="Arial" font-size="25" font-weight="400" fill="#111827">round keys</text>
+<text x="860.0" y="912.0" text-anchor="middle" font-family="Arial" font-size="25" font-weight="400" fill="#111827">K0 ... K10</text>
+<text x="980" y="895" text-anchor="start" font-family="Arial" font-size="20" font-weight="700" fill="#f28c22">keys -&gt; AddRoundKey</text>
+<rect x="1300" y="445" width="550" height="550" rx="8" fill="#ffffff" stroke="#c7d3e6" stroke-width="2"/>
+<rect x="1300" y="445" width="550" height="50" rx="0" fill="#0b3f98" stroke="#0b3f98" stroke-width="0"/>
+<text x="1322" y="456" text-anchor="start" font-family="Arial" font-size="33" font-weight="700" fill="#ffffff">What each AES step does</text>
+<text x="1330" y="520" text-anchor="start" font-family="Arial" font-size="25" font-weight="700" fill="#0b3f98">SubBytes</text>
+<text x="1330" y="551" text-anchor="start" font-family="Arial" font-size="25" font-weight="400" fill="#111827">byte substitution using S-box</text>
+<text x="1330" y="582" text-anchor="start" font-family="Arial" font-size="25" font-weight="700" fill="#0b3f98">ShiftRows</text>
+<text x="1330" y="613" text-anchor="start" font-family="Arial" font-size="25" font-weight="400" fill="#111827">cyclic row shifts in the 4 x 4 state</text>
+<text x="1330" y="644" text-anchor="start" font-family="Arial" font-size="25" font-weight="700" fill="#0b3f98">MixColumns</text>
+<text x="1330" y="675" text-anchor="start" font-family="Arial" font-size="25" font-weight="400" fill="#111827">column mixing over GF(2^8)</text>
+<text x="1330" y="706" text-anchor="start" font-family="Arial" font-size="25" font-weight="700" fill="#0b3f98">AddRoundKey</text>
+<text x="1330" y="737" text-anchor="start" font-family="Arial" font-size="25" font-weight="400" fill="#111827">XOR state with round key</text>
+<rect x="1330" y="775" width="485" height="155" rx="8" fill="#eaf2ff" stroke="#3b7cff" stroke-width="2"/>
+<text x="1360" y="805" text-anchor="start" font-family="Arial" font-size="27" font-weight="700" fill="#0b3f98">CBC formula</text>
+<text x="1360" y="850" text-anchor="start" font-family="Arial" font-size="24" font-weight="700" fill="#111827">C_1 = E_K(P_1 xor IV)</text>
+<text x="1360" y="879" text-anchor="start" font-family="Arial" font-size="24" font-weight="700" fill="#111827">C_i = E_K(P_i xor C_{i-1})</text>
+</svg>

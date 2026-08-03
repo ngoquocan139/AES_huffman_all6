@@ -38,6 +38,14 @@
 #define DEMO_RECORD_COUNT          3u
 #define BUNDLE_WAIT_POLLS          4096u
 
+#ifndef SECURE_STORAGE_ZEROIZE_AFTER_TX
+#define SECURE_STORAGE_ZEROIZE_AFTER_TX 0u
+#endif
+
+#ifndef SECURE_STORAGE_ZEROIZE_RX_AFTER_REPORT
+#define SECURE_STORAGE_ZEROIZE_RX_AFTER_REPORT 0u
+#endif
+
 #define BUNDLE_WORD(idx) \
     (*(volatile uint32_t *)(UART_STAGE_BASE_ADDR + ((idx) << 2u)))
 #define BUNDLE_RECORD_WORD(record, field) \
@@ -202,10 +210,17 @@ static SECURE_INLINE uint32_t run_secure_writes(demo_record_t *records,
     *tx_total_polls = 0u;
 
     for (idx = 0u; idx < record_count; idx++) {
+#if SECURE_STORAGE_ZEROIZE_AFTER_TX
+        records[idx].rc = secure_write_zeroize_source(records[idx].file_id,
+                                                      records[idx].src_addr,
+                                                      records[idx].plain_len,
+                                                      &records[idx].tx);
+#else
         records[idx].rc = secure_write(records[idx].file_id,
                                        records[idx].src_addr,
                                        records[idx].plain_len,
                                        &records[idx].tx);
+#endif
         *tx_total_polls = *tx_total_polls + records[idx].tx.polls;
 
         if (records[idx].rc != SECURE_OK)
@@ -451,6 +466,11 @@ int main(void) {
                                   selected_cipher_len,
                                   &rx_result,
                                   tx_total_polls);
+
+#if SECURE_STORAGE_ZEROIZE_RX_AFTER_REPORT
+        if (rx_rc == SECURE_OK)
+            secure_zeroize_readback(selected_file_id, SELECTED_RX_ADDR);
+#endif
 
         final_tx1_cipher_len = secure_metadata_read(0u, SECURE_META_CIPHER_LEN);
         final_tx2_cipher_len = secure_metadata_read(1u, SECURE_META_CIPHER_LEN);

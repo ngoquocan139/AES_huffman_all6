@@ -1,0 +1,215 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <marker id="arrowBlue" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#0a4fb3"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#3b4552"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#d71920"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#14875a"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fbff; }
+      .soc { fill: #ffffff; stroke: #1d2b3a; stroke-width: 2.5; }
+      .region { fill: none; stroke: #e01822; stroke-width: 5; stroke-dasharray: 18 14; }
+      .io { fill: #ffffff; stroke: #304bff; stroke-width: 3.5; stroke-dasharray: 12 10; }
+      .block { fill: #ffffff; stroke: #24364a; stroke-width: 2.2; }
+      .cpu { fill: #ffffff; stroke: #24364a; stroke-width: 2.5; }
+      .apb { fill: #eef4ff; stroke: #0a4fb3; stroke-width: 2.2; }
+      .reg { fill: #f5f7fb; stroke: #24364a; stroke-width: 2.2; }
+      .txBox { fill: #f5f9ff; stroke: #0a4fb3; stroke-width: 2.5; }
+      .rxBox { fill: #f4fff8; stroke: #14875a; stroke-width: 2.5; }
+      .txHead { fill: #083b92; }
+      .rxHead { fill: #128557; }
+      .txStage { fill: #eaf3ff; stroke: #0a4fb3; stroke-width: 2; }
+      .rxStage { fill: #edf9f1; stroke: #14875a; stroke-width: 2; }
+      .mem { fill: #f4f7fb; stroke: #24364a; stroke-width: 2.2; }
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 42px; font-weight: 700; fill: #083b92; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 22px; fill: #4a5a6b; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 700; fill: #132033; }
+      .label2 { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #132033; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 16px; fill: #132033; }
+      .tiny { font-family: Arial, Helvetica, sans-serif; font-size: 14px; fill: #132033; }
+      .white { fill: #ffffff; }
+      .muted { fill: #5a6878; }
+      .bus { stroke: #0a4fb3; stroke-width: 3; fill: none; marker-end: url(#arrowBlue); }
+      .sig { stroke: #3b4552; stroke-width: 2.4; fill: none; marker-end: url(#arrowGray); }
+      .dataTx { stroke: #d71920; stroke-width: 3.2; fill: none; marker-end: url(#arrowRed); }
+      .dataRx { stroke: #14875a; stroke-width: 3.2; fill: none; marker-end: url(#arrowGreen); }
+      .thin { stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1920" height="1080"/>
+  <text x="72" y="66" class="title">Secure-Storage SoC Architecture with Expanded TX/RX Datapaths</text>
+  <text x="74" y="104" class="subtitle">RV32I CPU configures DMA through APB; TX stores compressed ciphertext, while RX recovers plaintext through the reverse path.</text>
+
+  <rect class="soc" x="235" y="140" width="1445" height="840"/>
+  <text x="258" y="170" class="small">Top-level FPGA SoC in PL</text>
+
+  <rect class="region" x="535" y="165" width="1090" height="760"/>
+  <text x="960" y="158" class="small">Secure-storage DMA + accelerator subsystem</text>
+
+  <!-- External inputs and outputs -->
+  <rect class="io" x="35" y="395" width="185" height="230" rx="24"/>
+  <text x="82" y="430" class="label">INPUT</text>
+  <line x1="75" y1="475" x2="185" y2="475" class="sig"/>
+  <line x1="75" y1="515" x2="185" y2="515" class="sig"/>
+  <line x1="75" y1="555" x2="185" y2="555" class="sig"/>
+  <text x="84" y="467" class="small">clk</text>
+  <text x="83" y="507" class="small">rst_n</text>
+  <text x="70" y="547" class="small">uart_rx_i</text>
+  <path d="M220 510 L270 510" class="sig"/>
+
+  <rect class="io" x="1710" y="395" width="180" height="230" rx="24"/>
+  <text x="1755" y="430" class="label">OUTPUT</text>
+  <line x1="1740" y1="475" x2="1850" y2="475" class="sig"/>
+  <line x1="1740" y1="515" x2="1850" y2="515" class="sig"/>
+  <line x1="1740" y1="555" x2="1850" y2="555" class="sig"/>
+  <line x1="1740" y1="595" x2="1850" y2="595" class="sig"/>
+  <text x="1748" y="467" class="small">uart_tx_o</text>
+  <text x="1755" y="507" class="small">busy_o</text>
+  <text x="1755" y="547" class="small">done_o</text>
+  <text x="1755" y="587" class="small">error_o</text>
+
+  <!-- CPU and APB side -->
+  <rect class="cpu" x="285" y="315" width="230" height="330"/>
+  <text x="332" y="462" class="label">CPU Core RV32I</text>
+  <text x="322" y="498" class="small">firmware control</text>
+  <text x="320" y="526" class="small">APB MMIO access</text>
+
+  <rect class="apb" x="585" y="365" width="120" height="210"/>
+  <text x="615" y="450" class="label">APB</text>
+  <text x="597" y="480" class="label">Interface</text>
+
+  <rect class="reg" x="765" y="270" width="90" height="435"/>
+  <text x="815" y="596" class="label2" transform="rotate(-90 815 596)">DMA REGISTER FILE</text>
+  <text x="786" y="300" class="tiny">MMIO</text>
+  <text x="779" y="325" class="tiny">config</text>
+  <text x="777" y="350" class="tiny">status</text>
+
+  <path d="M515 410 L585 410" class="bus"/>
+  <text x="532" y="390" class="small">rs2</text>
+  <path d="M515 470 L585 470" class="bus"/>
+  <text x="520" y="453" class="small">alu_result</text>
+  <path d="M515 535 L585 535" class="bus"/>
+  <text x="520" y="518" class="small">dmem_we_o</text>
+  <path d="M705 470 L765 470" class="bus"/>
+  <text x="713" y="450" class="small">APB bus</text>
+
+  <!-- UART block -->
+  <rect class="block" x="585" y="755" width="170" height="90"/>
+  <text x="638" y="808" class="label">UART</text>
+  <path d="M755 800 H905" class="sig"/>
+  <text x="772" y="778" class="small">aux_rdata_i</text>
+  <path d="M1618 510 L1710 510" class="sig"/>
+
+  <!-- DMA engines -->
+  <rect class="txStage" x="900" y="265" width="92" height="96"/>
+  <text x="925" y="294" class="label2">TX</text>
+  <text x="913" y="321" class="small">DMA</text>
+  <text x="909" y="345" class="small">Engine</text>
+  <path d="M855 313 L900 313" class="sig"/>
+  <text x="864" y="292" class="small">ctrl/status</text>
+
+  <rect class="rxStage" x="900" y="595" width="92" height="96"/>
+  <text x="925" y="624" class="label2">RX</text>
+  <text x="913" y="651" class="small">DMA</text>
+  <text x="909" y="675" class="small">Engine</text>
+  <path d="M855 643 L900 643" class="sig"/>
+  <text x="864" y="622" class="small">ctrl/status</text>
+
+  <!-- DMEM block -->
+  <rect class="mem" x="1488" y="270" width="58" height="515"/>
+  <rect class="mem" x="1558" y="270" width="58" height="515"/>
+  <text x="1523" y="646" class="label2" transform="rotate(-90 1523 646)">DMEM port A: CPU access</text>
+  <text x="1593" y="642" class="label2" transform="rotate(-90 1593 642)">DMEM port B: DMA access</text>
+  <path d="M515 205 H1518 V270" class="sig"/>
+  <text x="890" y="198" class="small">CPU memory access</text>
+  <text x="1415" y="820" class="tiny">aux_en_o, aux_we_o, aux_addr_o, aux_wdata_o</text>
+
+  <!-- TX lane -->
+  <rect class="txBox" x="1030" y="220" width="410" height="235" rx="10"/>
+  <rect class="txHead" x="1030" y="220" width="410" height="46" rx="10"/>
+  <text x="1168" y="250" class="label white">TX Accelerator</text>
+  <text x="1050" y="290" class="tiny">Input: plaintext bytes from DMEM source</text>
+  <rect class="txStage" x="1050" y="310" width="115" height="42" rx="5"/>
+  <text x="1070" y="336" class="tiny">Byte buffer</text>
+  <rect class="txStage" x="1185" y="310" width="110" height="42" rx="5"/>
+  <text x="1198" y="336" class="tiny">Freq count</text>
+  <rect class="txStage" x="1315" y="310" width="105" height="42" rx="5"/>
+  <text x="1329" y="336" class="tiny">Code len</text>
+  <rect class="txStage" x="1050" y="375" width="145" height="42" rx="5"/>
+  <text x="1058" y="401" class="tiny">Canonical Huffman</text>
+  <rect class="txStage" x="1212" y="375" width="105" height="42" rx="5"/>
+  <text x="1226" y="401" class="tiny">Bit packer</text>
+  <rect class="txStage" x="1335" y="375" width="85" height="42" rx="5"/>
+  <text x="1350" y="401" class="tiny">AES enc</text>
+  <path d="M1165 331 H1185" class="sig thin"/>
+  <path d="M1295 331 H1315" class="sig thin"/>
+  <path d="M1108 352 V375" class="sig thin"/>
+  <path d="M1195 396 H1212" class="sig thin"/>
+  <path d="M1317 396 H1335" class="sig thin"/>
+
+  <path d="M992 313 H1030" class="bus"/>
+  <text x="1000" y="292" class="small">APB bus</text>
+  <path d="M1558 300 H1440" class="dataTx"/>
+  <text x="1438" y="282" class="small">read plaintext</text>
+  <path d="M1440 396 H1558" class="dataTx"/>
+  <text x="1438" y="378" class="small">write ciphertext</text>
+
+  <!-- RX lane -->
+  <rect class="rxBox" x="1030" y="550" width="410" height="260" rx="10"/>
+  <rect class="rxHead" x="1030" y="550" width="410" height="46" rx="10"/>
+  <text x="1168" y="580" class="label white">RX Accelerator</text>
+  <text x="1050" y="620" class="tiny">Input: ciphertext blocks from DMEM cipher region</text>
+  <rect class="rxStage" x="1050" y="640" width="105" height="42" rx="5"/>
+  <text x="1065" y="666" class="tiny">AES dec</text>
+  <rect class="rxStage" x="1175" y="640" width="112" height="42" rx="5"/>
+  <text x="1187" y="666" class="tiny">Bit depacker</text>
+  <rect class="rxStage" x="1308" y="640" width="112" height="42" rx="5"/>
+  <text x="1318" y="666" class="tiny">Header parser</text>
+  <rect class="rxStage" x="1050" y="705" width="145" height="42" rx="5"/>
+  <text x="1065" y="731" class="tiny">Canonical table</text>
+  <rect class="rxStage" x="1212" y="705" width="120" height="42" rx="5"/>
+  <text x="1225" y="731" class="tiny">Huffman dec</text>
+  <rect class="rxStage" x="1350" y="705" width="70" height="42" rx="5"/>
+  <text x="1361" y="731" class="tiny">Packer</text>
+  <path d="M1155 661 H1175" class="sig thin"/>
+  <path d="M1287 661 H1308" class="sig thin"/>
+  <path d="M1364 682 V705" class="sig thin"/>
+  <path d="M1195 726 H1212" class="sig thin"/>
+  <path d="M1332 726 H1350" class="sig thin"/>
+
+  <path d="M992 643 H1030" class="bus"/>
+  <text x="1000" y="622" class="small">APB bus</text>
+  <path d="M1558 585 H1440" class="dataRx"/>
+  <text x="1438" y="565" class="small">read ciphertext</text>
+  <path d="M1440 735 H1558" class="dataRx"/>
+  <text x="1438" y="716" class="small">write plaintext</text>
+
+  <!-- DMA read/write status lines -->
+  <path d="M946 361 V486 H1515" class="sig thin"/>
+  <text x="1070" y="478" class="small">TX read/write request</text>
+  <path d="M946 595 V520 H1515" class="sig thin"/>
+  <text x="1070" y="512" class="small">RX read/write request</text>
+
+  <!-- Legend and path summary -->
+  <rect class="block" x="285" y="790" width="250" height="130" rx="8"/>
+  <text x="305" y="825" class="label2">Signal meaning</text>
+  <line x1="310" y1="855" x2="380" y2="855" class="bus"/>
+  <text x="396" y="862" class="small">APB/control</text>
+  <line x1="310" y1="890" x2="380" y2="890" class="dataTx"/>
+  <text x="396" y="897" class="small">TX DMEM data</text>
+  <line x1="310" y1="920" x2="380" y2="920" class="dataRx"/>
+  <text x="396" y="927" class="small">RX DMEM data</text>
+
+  <rect x="570" y="855" width="910" height="50" rx="8" fill="#fff2df" stroke="#e57d1a" stroke-width="2"/>
+  <text x="595" y="886" class="small">TX path: plaintext -> Huffman compression -> bit packing -> AES-CBC encryption -> ciphertext in DMEM</text>
+  <rect x="570" y="915" width="910" height="50" rx="8" fill="#edf9f1" stroke="#14875a" stroke-width="2"/>
+  <text x="595" y="946" class="small">RX path: ciphertext -> AES-CBC decryption -> depacking/header parse -> Huffman decode -> recovered plaintext</text>
+</svg>

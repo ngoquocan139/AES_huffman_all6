@@ -260,7 +260,7 @@ module rv32_soc_fpga_zcu102_top (
     .RESULT_BASE_ADDR   (32'h0000_0000),
     .RESULT_WORDS       (16),
     .ZEROIZE_BASE_ADDR  (32'h0000_0100),
-    .ZEROIZE_WORDS      (64),
+    .ZEROIZE_WORDS      (8128),
     .FILE_ID_A          (32'd1),
     .FILE_ID_B          (32'd2),
     .FILE_ID_C          (32'd3)

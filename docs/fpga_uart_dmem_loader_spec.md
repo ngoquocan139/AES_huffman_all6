@@ -140,7 +140,7 @@ Current ZCU102 demo constraints:
 | `uart_tx_o` | UART2_RXD_I_FPGA_TXD | `F13` | FPGA TX -> USB-UART bridge RX |
 | `btn_reset_i` | CPU_RESET | `AM13` | full loader/SoC reset |
 | `btn_run_i` | GPIO_SW_C | `AG13` | optional manual run/resume latch; normal flow auto-runs after UART load |
-| `btn_zeroize_i` | GPIO_SW_N | `AG15` | clear secure metadata/IV region and hold SoC reset |
+| `btn_zeroize_i` | GPIO_SW_N | `AG15` | panic erase secure DMEM region and hold SoC reset |
 | `btn_file_next_i` | GPIO_SW_E | `AE14` | select next demo `file_id` |
 | `btn_file_prev_i` | GPIO_SW_W | `AF15` | select previous demo `file_id` |
 | `btn_snapshot_i` | GPIO_SW_S | `AE15` | copy result words into snapshot DMEM region |
@@ -349,7 +349,7 @@ Practical interpretation:
 |---|---|---|
 | CPU_RESET / SW20 | `btn_reset_i` | Reset UART loader, board-control latch state, and SoC logic. Host must send `LOAD` again. This is not a DMEM erase. |
 | Center / SW15 | `btn_run_i` | Optional manual set of `run_latched`; normal flow sets it automatically when UART `LOAD` completes. |
-| North / SW18 | `btn_zeroize_i` | Clear secure metadata/IV DMEM region `0x100..0x1FF`, reset/hold SoC during clearing, clear run latch. |
+| North / SW18 | `btn_zeroize_i` | Clear secure DMEM region `0x100..0x7FFF`, reset/hold SoC during clearing, clear run latch. |
 | East / SW17 | `btn_file_next_i` | Select next secure-storage `file_id`: `1 -> 2 -> 3 -> 1`; value is written to `0x54`. |
 | West / SW14 | `btn_file_prev_i` | Select previous secure-storage `file_id`: `1 -> 3 -> 2 -> 1`; value is written to `0x54`. |
 | South / SW16 | `btn_snapshot_i` | Copy result words `0x00..0x3C` to snapshot region `0x200..0x23F`. |
@@ -371,9 +371,9 @@ UART-only virtual debug words:
 | `0x0000_7F80..0x0000_7FBF` | live CPU debug window; readable over UART, not written into DMEM |
 
 The AES key is currently a fixed RTL parameter, not runtime key RAM. Therefore
-the zeroize button clears firmware-owned IV/metadata state and resets DMA IV
-registers through SoC reset. A future runtime key register file would need a
-dedicated clear path to make the key itself zeroizable.
+the zeroize button clears DMEM-resident secure state and resets DMA IV registers
+through SoC reset. A future runtime key register file would need a dedicated
+clear path to make the key itself zeroizable.
 
 ## 8. Software/Bitstream Contract
 

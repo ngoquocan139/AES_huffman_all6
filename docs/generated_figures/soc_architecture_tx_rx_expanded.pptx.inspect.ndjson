@@ -1,0 +1,83 @@
+{"kind":"deck","id":"pr/lkb5xd","name":"Deck"}
+{"kind":"layout","layoutId":"05fe3015-1a46-474f-a800-cb71139af1a4","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"5606b1a1-5a58-4edc-a4b2-b713e9d0af45","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/hwa2g3","slide":1,"title":"Expanded RV32I SoC Architecture for Secure Storage","textShapes":51}
+{"kind":"textbox","id":"sh/25kb6xkf","slide":1,"name":"title","text":"Expanded RV32I SoC Architecture for Secure Storage","textPreview":"Expanded RV32I SoC Architecture for Secure Storage","textChars":50,"textLines":1,"bbox":[55,32,1250,50]}
+{"kind":"textbox","id":"sh/9w3m94fu","slide":1,"name":"subtitle","text":"CPU controls the accelerator through APB/MMIO; TX and RX data movement is handled by dedicated DMA datapaths.","textPreview":"CPU controls the accelerator through APB/MMIO; TX and RX data movement is handled by dedicated DMA datapaths.","textChars":109,"textLines":1,"bbox":[55,80,1500,30]}
+{"kind":"shape","id":"sh/kb6xkf6d","slide":1,"name":"pl-boundary","bbox":[45,124,1830,875]}
+{"kind":"textbox","id":"sh/re1w7mp0","slide":1,"name":"pl-label","text":"Zynq UltraScale+ PL: custom RV32I SoC + secure-storage accelerator","textPreview":"Zynq UltraScale+ PL: custom RV32I SoC + secure-storage accelerator","textChars":66,"textLines":1,"bbox":[70,134,680,28]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":1,"name":"input","text":"INPUT\nclk\nrst_n\nuart_rx_i","textPreview":"INPUT | clk | rst_n | uart_rx_i","textChars":25,"textLines":4,"bbox":[65,412,155,175]}
+{"kind":"textbox","id":"sh/9knih4by","slide":1,"name":"cpu","text":"CPU Core\nRV32I","textPreview":"CPU Core | RV32I","textChars":14,"textLines":2,"bbox":[270,365,180,230]}
+{"kind":"shape","id":"sh/kzupwb2h","slide":1,"name":"input-to-cpu","bbox":[220,485,50,20]}
+{"kind":"textbox","id":"sh/ra5gbq1o","slide":1,"name":"apb-interface","text":"APB\nInterface","textPreview":"APB | Interface","textChars":13,"textLines":2,"bbox":[520,410,140,140]}
+{"kind":"shape","id":"sh/2p8nqxs7","slide":1,"name":"cpu-to-apb","bbox":[450,463,70,20]}
+{"kind":"textbox","id":"sh/gvy90je9","slide":1,"name":"cpu-apb-notes","text":"rs2 / alu_result\nDMEM write enable","textPreview":"rs2 / alu_result | DMEM write enable","textChars":34,"textLines":2,"bbox":[463,425,126,50]}
+{"kind":"textbox","id":"sh/9gr2p8nq","slide":1,"name":"dma-register","text":"DMA Register File\nMMIO registers\nsrc / dst / len / mode\nstatus / bytes / error","textPreview":"DMA Register File | MMIO registers | src / dst / len / mode | status / bytes / error","textChars":78,"textLines":4,"bbox":[735,345,200,280]}
+{"kind":"shape","id":"sh/2p8nqxs7","slide":1,"name":"apb-to-regfile","bbox":[660,463,75,20]}
+{"kind":"textbox","id":"sh/ra5gbq1o","slide":1,"name":"apb-label","text":"APB bus","textPreview":"APB bus","textChars":7,"textLines":1,"bbox":[670,445,70,22]}
+{"kind":"textbox","id":"sh/kjm1cfa9","slide":1,"name":"dmem","text":"DMEM / BRAM\n2-port access\n\nPort A: CPU/MMIO\nPort B: DMA","textPreview":"DMEM / BRAM | 2-port access |  | Port A: CPU/MMIO | Port B: DMA","textChars":55,"textLines":5,"bbox":[1650,348,170,310]}
+{"kind":"textbox","id":"sh/94fu18jq","slide":1,"name":"uart","text":"UART\nloader / debug output","textPreview":"UART | loader / debug output","textChars":26,"textLines":2,"bbox":[330,808,200,84]}
+{"kind":"shape","id":"sh/2hwfyxob","slide":1,"name":"uart-out","bbox":[530,834,90,24]}
+{"kind":"textbox","id":"sh/r2p8nqxs","slide":1,"name":"uart-aux","text":"aux_data_i","textPreview":"aux_data_i","textChars":10,"textLines":1,"bbox":[557,862,92,22]}
+{"kind":"textbox","id":"sh/kb6xkf6d","slide":1,"name":"output","text":"OUTPUT\nuart_tx_o\nbusy_o\ndone_o\nerror_o","textPreview":"OUTPUT | uart_tx_o | busy_o | done_o | error_o","textChars":38,"textLines":5,"bbox":[1738,700,125,180]}
+{"kind":"shape","id":"sh/9w3m94fu","slide":1,"name":"tx-section-outer","bbox":[975,175,825,270]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":1,"name":"tx-section-header","text":"TX expanded datapath: plaintext -> compressed ciphertext","textPreview":"TX expanded datapath: plaintext -> compressed ciphertext","textChars":56,"textLines":1,"bbox":[975,175,825,46]}
+{"kind":"textbox","id":"sh/ovahoza1","slide":1,"name":"tx-dma","text":"TX DMA\nEngine","textPreview":"TX DMA | Engine","textChars":13,"textLines":2,"bbox":[1005,265,95,70]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":1,"name":"tx-dma-sub","text":"read source DMEM","textPreview":"read source DMEM","textChars":16,"textLines":1,"bbox":[1017,301,71,28]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":1,"name":"tx-huff","text":"Huffman\ncompressor","textPreview":"Huffman | compressor","textChars":18,"textLines":2,"bbox":[1115,265,135,70]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":1,"name":"tx-huff-sub","text":"freq + codebook + emit","textPreview":"freq + codebook + emit","textChars":22,"textLines":1,"bbox":[1127,301,111,28]}
+{"kind":"textbox","id":"sh/onyd0z61","slide":1,"name":"tx-pack","text":"Bit packer\n128-bit word","textPreview":"Bit packer | 128-bit word","textChars":23,"textLines":2,"bbox":[1265,265,125,70]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":1,"name":"tx-pack-sub","text":"final + valid bits","textPreview":"final + valid bits","textChars":18,"textLines":1,"bbox":[1277,301,101,28]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":1,"name":"tx-aes","text":"AES-128-CBC\nencrypt","textPreview":"AES-128-CBC | encrypt","textChars":19,"textLines":2,"bbox":[1405,265,145,70]}
+{"kind":"textbox","id":"sh/d4vmtwra","slide":1,"name":"tx-aes-sub","text":"XOR IV/Ci-1 + AES rounds","textPreview":"XOR IV/Ci-1 + AES rounds","textChars":24,"textLines":1,"bbox":[1417,301,121,28]}
+{"kind":"textbox","id":"sh/oj2t83it","slide":1,"name":"tx-emit","text":"AES emit\nblock","textPreview":"AES emit | block","textChars":14,"textLines":2,"bbox":[1565,265,115,70]}
+{"kind":"textbox","id":"sh/yd0z6103","slide":1,"name":"tx-emit-sub","text":"write ciphertext","textPreview":"write ciphertext","textChars":16,"textLines":1,"bbox":[1577,301,91,28]}
+{"kind":"shape","id":"sh/rytsvu9k","slide":1,"name":"tx-a0","bbox":[1100,290,26,20]}
+{"kind":"shape","id":"sh/gfmlkjm1","slide":1,"name":"tx-a1","bbox":[1250,290,26,20]}
+{"kind":"shape","id":"sh/90je9cvi","slide":1,"name":"tx-a2","bbox":[1390,290,26,20]}
+{"kind":"shape","id":"sh/y1kre1w7","slide":1,"name":"tx-a3","bbox":[1550,290,26,20]}
+{"kind":"shape","id":"sh/rmhk3q5o","slide":1,"name":"tx-to-dmem","bbox":[1695,290,26,20]}
+{"kind":"textbox","id":"sh/g7adsji5","slide":1,"name":"tx-writeback","text":"ciphertext + metadata writeback","textPreview":"ciphertext + metadata writeback","textChars":31,"textLines":1,"bbox":[1405,358,290,24]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":1,"name":"tx-status","text":"TX status\nbusy / done / error\nbytes produced","textPreview":"TX status | busy / done / error | bytes produced","textChars":44,"textLines":3,"bbox":[1010,360,230,55]}
+{"kind":"shape","id":"sh/yxobm58z","slide":1,"name":"reg-to-tx","bbox":[935,275,40,20]}
+{"kind":"textbox","id":"sh/nih4byhg","slide":1,"name":"reg-to-tx-label","text":"cfg / start\nstatus poll","textPreview":"cfg / start | status poll","textChars":23,"textLines":2,"bbox":[925,234,75,45]}
+{"kind":"shape","id":"sh/7ed8bat4","slide":1,"name":"rx-section-outer","bbox":[975,505,825,305]}
+{"kind":"textbox","id":"sh/itgfmlkj","slide":1,"name":"rx-section-header","text":"RX expanded datapath: ciphertext -> recovered plaintext","textPreview":"RX expanded datapath: ciphertext -> recovered plaintext","textChars":55,"textLines":1,"bbox":[975,505,825,46]}
+{"kind":"textbox","id":"sh/pkzupwb2","slide":1,"name":"rx-dma","text":"RX DMA\nEngine","textPreview":"RX DMA | Engine","textChars":13,"textLines":2,"bbox":[1005,595,95,70]}
+{"kind":"textbox","id":"sh/0z61032l","slide":1,"name":"rx-dma-sub","text":"read metadata + ciphertext","textPreview":"read metadata + ciphertext","textChars":26,"textLines":1,"bbox":[1017,631,71,28]}
+{"kind":"textbox","id":"sh/72x4nap4","slide":1,"name":"rx-aes","text":"AES-128-CBC\ndecrypt","textPreview":"AES-128-CBC | decrypt","textChars":19,"textLines":2,"bbox":[1113,595,145,70]}
+{"kind":"textbox","id":"sh/ih4byhgn","slide":1,"name":"rx-aes-sub","text":"AES inv rounds + XOR","textPreview":"AES inv rounds + XOR","textChars":20,"textLines":1,"bbox":[1125,631,121,28]}
+{"kind":"textbox","id":"sh/p8nqxs72","slide":1,"name":"rx-depack","text":"Bit depacker\n128-bit word","textPreview":"Bit depacker | 128-bit word","textChars":25,"textLines":2,"bbox":[1271,595,125,70]}
+{"kind":"textbox","id":"sh/0nuxc3yl","slide":1,"name":"rx-depack-sub","text":"remove padding","textPreview":"remove padding","textChars":14,"textLines":1,"bbox":[1283,631,101,28]}
+{"kind":"textbox","id":"sh/7y1kre1w","slide":1,"name":"rx-header","text":"Header parser\n+ table rebuild","textPreview":"Header parser | + table rebuild","textChars":29,"textLines":2,"bbox":[1409,595,145,70]}
+{"kind":"textbox","id":"sh/ed8v6psf","slide":1,"name":"rx-header-sub","text":"symbol + code_len","textPreview":"symbol + code_len","textChars":17,"textLines":1,"bbox":[1421,631,121,28]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":1,"name":"rx-decode","text":"Prefix decoder","textPreview":"Prefix decoder","textChars":14,"textLines":1,"bbox":[1567,595,120,70]}
+{"kind":"textbox","id":"sh/1cfa9w3m","slide":1,"name":"rx-decode-sub","text":"match canonical codes","textPreview":"match canonical codes","textChars":21,"textLines":1,"bbox":[1579,631,96,28]}
+{"kind":"textbox","id":"sh/ulwval87","slide":1,"name":"rx-pack","text":"Byte / word\npacker","textPreview":"Byte / word | packer","textChars":18,"textLines":2,"bbox":[1700,595,110,70]}
+{"kind":"textbox","id":"sh/j6tovaho","slide":1,"name":"rx-pack-sub","text":"DMEM plaintext words","textPreview":"DMEM plaintext words","textChars":20,"textLines":1,"bbox":[1712,631,86,28]}
+{"kind":"shape","id":"sh/c3ylc7u5","slide":1,"name":"rx-a0","bbox":[1100,620,26,20]}
+{"kind":"shape","id":"sh/1kre1w7m","slide":1,"name":"rx-a1","bbox":[1253,620,26,20]}
+{"kind":"shape","id":"sh/uxc3ylc7","slide":1,"name":"rx-a2","bbox":[1391,620,26,20]}
+{"kind":"shape","id":"sh/ji5snelo","slide":1,"name":"rx-a3","bbox":[1549,620,26,20]}
+{"kind":"shape","id":"sh/8bat47y1","slide":1,"name":"rx-a4","bbox":[1682,620,26,20]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":1,"name":"rx-status","text":"RX status\nbusy / done / error\nbytes recovered","textPreview":"RX status | busy / done / error | bytes recovered","textChars":45,"textLines":3,"bbox":[1010,700,245,58]}
+{"kind":"shape","id":"sh/1orytsvu","slide":1,"name":"reg-to-rx","bbox":[935,605,40,20]}
+{"kind":"textbox","id":"sh/c7u54zid","slide":1,"name":"reg-to-rx-label","text":"selected file\nRX start","textPreview":"selected file | RX start","textChars":22,"textLines":2,"bbox":[925,560,75,45]}
+{"kind":"shape","id":"sh/jm1cfa9w","slide":1,"name":"rx-to-dmem","bbox":[1718,620,26,20]}
+{"kind":"textbox","id":"sh/u18jqh0f","slide":1,"name":"rx-writeback","text":"plaintext writeback","textPreview":"plaintext writeback","textChars":19,"textLines":1,"bbox":[1505,686,205,24]}
+{"kind":"shape","id":"sh/1032lszq","slide":1,"name":"accelerator-boundary","bbox":[955,150,870,685]}
+{"kind":"textbox","id":"sh/cfa9w3m9","slide":1,"name":"accelerator-label","text":"Secure-storage accelerator + DMA memory subsystem","textPreview":"Secure-storage accelerator + DMA memory subsystem","textChars":49,"textLines":1,"bbox":[1185,154,420,25]}
+{"kind":"shape","id":"sh/judg7ads","slide":1,"name":"mem-access-down","bbox":[1603,205,24,142]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":1,"name":"mem-access-text","text":"Memory access","textPreview":"Memory access","textChars":13,"textLines":1,"bbox":[1506,190,150,24]}
+{"kind":"shape","id":"sh/54zidony","slide":1,"name":"dmem-to-output","bbox":[1820,773,45,20]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":1,"name":"output-note","text":"status + UART","textPreview":"status + UART","textChars":13,"textLines":1,"bbox":[1710,888,140,22]}
+{"kind":"textbox","id":"sh/mlkjm1cf","slide":1,"name":"legend-title","text":"Legend:","textPreview":"Legend:","textChars":7,"textLines":1,"bbox":[70,940,70,22]}
+{"kind":"shape","id":"sh/f6dcbulw","slide":1,"name":"legend-data","bbox":[148,942,55,16]}
+{"kind":"textbox","id":"sh/4r65wjud","slide":1,"name":"legend-data-text","text":"data path","textPreview":"data path","textChars":9,"textLines":1,"bbox":[210,939,90,22]}
+{"kind":"shape","id":"sh/xc3ylc7u","slide":1,"name":"legend-ctrl","bbox":[295,942,55,16]}
+{"kind":"textbox","id":"sh/mtwra5gb","slide":1,"name":"legend-ctrl-text","text":"APB/control","textPreview":"APB/control","textChars":11,"textLines":1,"bbox":[357,939,105,22]}
+{"kind":"shape","id":"sh/fepkzupw","slide":1,"name":"legend-tx","bbox":[470,942,55,16]}
+{"kind":"textbox","id":"sh/4zidonyd","slide":1,"name":"legend-tx-text","text":"TX writeback","textPreview":"TX writeback","textChars":12,"textLines":1,"bbox":[532,939,115,22]}
+{"kind":"shape","id":"sh/xkf6dcbu","slide":1,"name":"legend-rx","bbox":[655,942,55,16]}
+{"kind":"textbox","id":"sh/qxs72x4n","slide":1,"name":"legend-rx-text","text":"RX readback","textPreview":"RX readback","textChars":11,"textLines":1,"bbox":[717,939,115,22]}
+{"kind":"notes","id":"nt/hwa2g3","slide":1,"text":""}

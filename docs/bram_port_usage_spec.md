@@ -36,6 +36,7 @@ Trang thai hien tai:
 | Item | Status |
 |---|---|
 | IMEM init | `sim/instruction.mem` tao bang `make compile C_SRC=...` |
+| Vivado memory IP | `vivado/synth_soc.tcl` mac dinh tao/import `blk_mem_gen` IP cho `DMEM_ip` va `IMEM_ip` |
 | Simulation input load | `test_bench` nap `+INPUT_FILE` vao DMEM Port B khi DMA idle |
 | FPGA input load | `uart_dmem_loader` nap payload vao DMEM Port B truoc khi release CPU reset |
 | DMA ownership | TX/RX DMA chiem DMEM Port B khi engine busy |
@@ -58,9 +59,11 @@ flowchart LR
 | Khoi | Module | Vai tro | Trang thai |
 |---|---|---|---|
 | IMEM sync model | `imem_sync` | Bo nho lenh dong bo cho CPU | Dang dung |
+| IMEM Vivado IP | `IMEM_ip` | `blk_mem_gen` single-port ROM, nap tu `instruction.mem` qua file COE | FPGA/Vivado flow |
 | DMEM sync legacy | `dmem_sync_wrab` + `dmem_sync` | Bo nho data don gian cho smoke test core cu | Legacy |
 | DMEM SoC wrapper | `dmem_ip_wrapper` | Wrapper cho dual-port BRAM | Huong dung cho SoC |
-| DMEM SoC model | `DMEM_ip` | Model hanh vi cho Vivado BRAM IP | Huong dung cho SoC |
+| DMEM Vivado IP | `DMEM_ip` | `blk_mem_gen` true dual-port BRAM, 8192 x 32-bit, byte write enable | FPGA/Vivado flow |
+| DMEM SoC model | `rtl/DMEM_ip.v` | Model hanh vi cho DMEM IP khi simulation/fallback | Khong compile chung voi IP |
 
 ## 4. IMEM
 
@@ -113,7 +116,9 @@ Trong `rv32_soc_top`, CPU noi vao IMEM nhu sau:
 - IMEM chi co 1 port va chi danh cho CPU fetch
 - khong dung port nay cho DMA
 - khong dung IMEM de luu data runtime
-- neu sau nay thay bang Vivado BRAM IP, phai giu hanh vi sync read 1 cycle
+- trong Vivado flow hien tai, `imem_sync` instantiate `IMEM_ip` khi define `VIVADO_USE_IP`
+- `IMEM_ip` duoc tao tu `blk_mem_gen` va nap noi dung bang file COE sinh tu `instruction.mem`
+- neu tat `VIVADO_USE_BRAM_IP`, `imem_sync` quay lai model RTL dung `$readmemh`
 
 ### 4.7 Khuyen nghi cau hinh Vivado
 

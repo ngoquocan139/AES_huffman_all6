@@ -1,207 +1,223 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1320" viewBox="0 0 2200 1320">
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1120" viewBox="0 0 1900 1120">
   <defs>
     <style>
       .page { fill: #ffffff; }
-      .title { font: 700 32px Arial, sans-serif; fill: #111111; }
+      .title { font: 700 34px Arial, sans-serif; fill: #111111; }
       .subtitle { font: 16px Arial, sans-serif; fill: #444444; }
-      .stage1 { fill: #edf7f1; stroke: #2d6b3f; stroke-width: 2.2; }
-      .stage2 { fill: #fff7e8; stroke: #8a5a00; stroke-width: 2.2; }
-      .stage3 { fill: #eef5ff; stroke: #1f4f82; stroke-width: 2.2; }
-      .io { fill: #f7f8fa; stroke: #9aa0a6; stroke-width: 1.7; }
-      .box { fill: #ffffff; stroke: #202124; stroke-width: 2; }
-      .subbox { fill: #fbfbfb; stroke: #444444; stroke-width: 1.7; }
-      .dashed { fill: none; stroke: #666666; stroke-width: 2; stroke-dasharray: 9 7; }
-      .stageTitle { font: 700 20px Arial, sans-serif; fill: #111111; }
-      .stageSub { font: 700 15px Arial, sans-serif; fill: #333333; }
-      .blockTitle { font: 700 17px Arial, sans-serif; fill: #111111; }
+      .boundary { fill: #ffffff; stroke: #666666; stroke-width: 2.2; stroke-dasharray: 10 8; }
+      .panel { fill: #f7f9fc; stroke: #2f65cc; stroke-width: 2.4; stroke-dasharray: 10 8; }
+      .panelOut { fill: #f7fdf8; stroke: #28824a; stroke-width: 2.4; stroke-dasharray: 10 8; }
+      .block { fill: #fffaf0; stroke: #202124; stroke-width: 2.2; }
+      .blockBlue { fill: #eef6ff; stroke: #202124; stroke-width: 2.2; }
+      .blockGreen { fill: #eefaf3; stroke: #202124; stroke-width: 2.2; }
+      .blockGray { fill: #f4f4f4; stroke: #202124; stroke-width: 2.2; }
+      .subblock { fill: #ffffff; stroke: #505050; stroke-width: 1.6; }
+      .legacy { fill: #fbfbfb; stroke: #777777; stroke-width: 2.0; stroke-dasharray: 8 6; }
+      .noteBox { fill: #ffffff; stroke: #b7b7b7; stroke-width: 1.4; }
+      .label { font: 700 18px Arial, sans-serif; fill: #111111; }
+      .subLabel { font: 700 15px Arial, sans-serif; fill: #222222; }
       .text { font: 14px Arial, sans-serif; fill: #222222; }
       .small { font: 13px Arial, sans-serif; fill: #333333; }
-      .tiny { font: 12px Arial, sans-serif; fill: #444444; }
-      .note { font: italic 13px Arial, sans-serif; fill: #555555; }
-      .green { stroke: #2d6b3f; stroke-width: 3.2; fill: none; }
-      .amber { stroke: #8a5a00; stroke-width: 3.2; fill: none; }
-      .blue { stroke: #1f4f82; stroke-width: 3.2; fill: none; }
-      .gray { stroke: #555555; stroke-width: 2.4; fill: none; }
-      .thin { stroke: #333333; stroke-width: 2; fill: none; }
-      .divider { stroke: #c7cbd1; stroke-width: 1.2; }
+      .tiny { font: 12px Arial, sans-serif; fill: #4a4a4a; }
+      .note { font: italic 13px Arial, sans-serif; fill: #444444; }
+      .wire { fill: none; stroke: #111111; stroke-width: 2.2; }
+      .wireData { fill: none; stroke: #265d96; stroke-width: 2.8; }
+      .wireCtrl { fill: none; stroke: #6d4c00; stroke-width: 2.6; }
+      .wireStatus { fill: none; stroke: #28824a; stroke-width: 2.4; }
+      .wireDash { fill: none; stroke: #777777; stroke-width: 2.2; stroke-dasharray: 8 6; }
+      .divider { stroke: #c7c7c7; stroke-width: 1.2; }
     </style>
-    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L10,5 L0,10 z" fill="#2d6b3f"/>
-    </marker>
-    <marker id="arrowAmber" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L10,5 L0,10 z" fill="#8a5a00"/>
-    </marker>
-    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L10,5 L0,10 z" fill="#1f4f82"/>
-    </marker>
-    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L10,5 L0,10 z" fill="#555555"/>
-    </marker>
     <marker id="arrowBlack" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L10,5 L0,10 z" fill="#111111"/>
     </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#265d96"/>
+    </marker>
+    <marker id="arrowCtrl" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6d4c00"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#28824a"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#777777"/>
+    </marker>
   </defs>
 
-  <rect class="page" x="0" y="0" width="2200" height="1320"/>
-  <text class="title" x="70" y="58">Whole-file Dynamic Huffman Compression Architecture</text>
-  <text class="subtitle" x="70" y="88">Block diagram aligned with Sections 3.4.2.1, 3.4.2.2, 3.4.2.3 and the Huffman stream interface in Fig. 3.9</text>
+  <rect class="page" x="0" y="0" width="1900" height="1120"/>
 
-  <!-- External input/control panels -->
-  <rect class="io" x="70" y="155" width="250" height="155" rx="8"/>
-  <text class="blockTitle" x="92" y="188">Control Inputs</text>
-  <text class="small" x="92" y="220">clk, rst_n</text>
-  <text class="small" x="92" y="242">start_block</text>
-  <text class="small" x="92" y="264">whole_file_enable</text>
-  <text class="small" x="92" y="286">whole_file_table_valid</text>
+  <text class="title" x="70" y="58">Dynamic Huffman Compression Block Architecture</text>
+  <text class="subtitle" x="70" y="86">RTL-derived block diagram for dynamic_huffman_encoder in the whole-file TX path</text>
 
-  <rect class="io" x="70" y="610" width="250" height="100" rx="8"/>
-  <text class="blockTitle" x="92" y="643">Control FSM Role</text>
-  <text class="small" x="92" y="673">schedules count/build</text>
-  <text class="small" x="92" y="695">then starts emit</text>
+  <!-- External input panels -->
+  <rect class="panel" x="65" y="150" width="250" height="176" rx="10"/>
+  <text class="label" x="95" y="184">Clock / Control</text>
+  <text class="small" x="95" y="216">clk, rst_n</text>
+  <text class="small" x="95" y="240">start_block</text>
+  <text class="small" x="95" y="264">whole_file_enable</text>
+  <text class="small" x="95" y="288">whole_file_emit_table</text>
+  <text class="small" x="95" y="312">whole_file_table_valid</text>
 
-  <rect class="io" x="70" y="360" width="250" height="185" rx="8"/>
-  <text class="blockTitle" x="92" y="413">Whole-file Payload</text>
-  <text class="small" x="92" y="445">byte_in[7:0]</text>
-  <text class="small" x="92" y="467">byte_valid</text>
-  <text class="small" x="92" y="489">block_start / block_end</text>
-  <line class="divider" x1="92" y1="510" x2="295" y2="510"/>
-  <text class="small" x="92" y="535">byte_ready</text>
+  <rect class="panel" x="65" y="405" width="250" height="188" rx="10"/>
+  <text class="label" x="95" y="439">Input Byte Stream</text>
+  <text class="small" x="95" y="471">byte_in[7:0]</text>
+  <text class="small" x="95" y="495">byte_valid</text>
+  <text class="small" x="95" y="519">block_start</text>
+  <text class="small" x="95" y="543">block_end</text>
+  <line class="divider" x1="95" y1="562" x2="285" y2="562"/>
+  <text class="small" x="95" y="584">byte_ready</text>
 
-  <!-- Stage 1 -->
-  <rect class="stage1" x="380" y="140" width="530" height="650" rx="14"/>
-  <text class="stageTitle" x="410" y="180">3.4.2.1 Input Collection, Frequency Counting,</text>
-  <text class="stageTitle" x="410" y="206">and Code-Length Derivation</text>
-  <text class="stageSub" x="410" y="235">Fig. 3.8b stage</text>
+  <rect class="panel" x="510" y="930" width="780" height="125" rx="10"/>
+  <text class="label" x="610" y="964">External Whole-File Canonical Codebook Interface</text>
+  <text class="small" x="560" y="1000">ADDR OUT: external_symbol_read_addr, external_code_len_read_index, external_code_read_index</text>
+  <text class="small" x="560" y="1026">DATA IN: external_symbol_count, external_symbol_read_data, external_code_len_read_data, external_code_read_data</text>
+  <text class="note" x="560" y="1050">Main synthesis path: codebook is built once in huffman_aes_tx_top, then reused by this encoder.</text>
 
-  <rect class="box" x="430" y="300" width="190" height="105" rx="8"/>
-  <text class="blockTitle" x="470" y="337">input_collect_unit</text>
-  <text class="text" x="458" y="366">captures valid bytes</text>
-  <text class="text" x="458" y="388">and block boundary</text>
+  <!-- Downstream/output panels -->
+  <rect class="panelOut" x="1600" y="190" width="240" height="100" rx="10"/>
+  <text class="label" x="1642" y="225">Downstream In</text>
+  <text class="small" x="1635" y="257">stream_ready</text>
 
-  <rect class="subbox" x="430" y="480" width="190" height="90" rx="8"/>
-  <text class="blockTitle" x="478" y="516">block_buffer</text>
-  <text class="text" x="468" y="544">current payload bytes</text>
+  <rect class="panelOut" x="1600" y="370" width="240" height="152" rx="10"/>
+  <text class="label" x="1630" y="405">Compressed Stream Out</text>
+  <text class="small" x="1635" y="437">stream_data[31:0]</text>
+  <text class="small" x="1635" y="461">stream_len[5:0]</text>
+  <text class="small" x="1635" y="485">stream_valid</text>
+  <text class="small" x="1635" y="509">stream_last</text>
 
-  <rect class="box" x="675" y="300" width="175" height="105" rx="8"/>
-  <text class="blockTitle" x="704" y="337">frequency_counter</text>
-  <text class="text" x="708" y="366">histogram[0..255]</text>
-  <text class="text" x="720" y="388">symbol counts</text>
+  <rect class="panelOut" x="1600" y="610" width="240" height="158" rx="10"/>
+  <text class="label" x="1650" y="645">Status / Debug</text>
+  <text class="small" x="1635" y="677">busy</text>
+  <text class="small" x="1635" y="701">done</text>
+  <text class="small" x="1635" y="725">error_flag</text>
+  <text class="small" x="1635" y="749">selected_mode_out[1:0]</text>
+  <text class="small" x="1635" y="773">fsm_state[3:0]</text>
 
-  <rect class="box" x="575" y="630" width="250" height="105" rx="8"/>
-  <text class="blockTitle" x="642" y="667">huffman_builder</text>
-  <text class="text" x="612" y="696">tree construction</text>
-  <text class="text" x="612" y="718">active-symbol code lengths</text>
+  <rect class="blockGray" x="1600" y="835" width="240" height="92" rx="8"/>
+  <text class="label" x="1662" y="870">bit_packer_128</text>
+  <text class="small" x="1648" y="900">forms 128-bit words</text>
 
-  <!-- Stage 2 -->
-  <rect class="stage2" x="970" y="140" width="520" height="650" rx="14"/>
-  <text class="stageTitle" x="1000" y="180">3.4.2.2 Canonical Code Generation</text>
-  <text class="stageTitle" x="1000" y="206">and Canonical Codebook Construction</text>
-  <text class="stageSub" x="1000" y="235">Fig. 3.8c stage</text>
+  <!-- Module boundary -->
+  <rect class="boundary" x="355" y="130" width="1185" height="780" rx="14"/>
+  <text class="small" x="380" y="165">Module boundary: dynamic_huffman_encoder</text>
 
-  <rect class="box" x="1030" y="320" width="215" height="115" rx="8"/>
-  <text class="blockTitle" x="1065" y="358">canonical_code_generator</text>
-  <text class="text" x="1062" y="388">sorts by code length</text>
-  <text class="text" x="1062" y="410">then by symbol index</text>
+  <!-- Control FSM -->
+  <rect class="block" x="430" y="205" width="260" height="140" rx="8"/>
+  <text class="label" x="505" y="240">control_fsm</text>
+  <text class="small" x="458" y="275">phase sequencing</text>
+  <text class="small" x="458" y="299">collect / optional build</text>
+  <text class="small" x="458" y="323">mode latch / emit</text>
 
-  <rect class="box" x="1285" y="300" width="155" height="75" rx="8"/>
-  <text class="blockTitle" x="1315" y="333">symbol table</text>
-  <text class="tiny" x="1312" y="355">external_symbol_*</text>
+  <!-- Fixed mode latch -->
+  <rect class="block" x="815" y="205" width="285" height="112" rx="8"/>
+  <text class="label" x="878" y="240">Fixed Mode Latch</text>
+  <text class="small" x="850" y="276">selected_mode = COMPRESSED</text>
+  <text class="small" x="850" y="300">MODE_COMPRESSED = 2'b10</text>
 
-  <rect class="box" x="1285" y="410" width="155" height="75" rx="8"/>
-  <text class="blockTitle" x="1308" y="443">code length table</text>
-  <text class="tiny" x="1305" y="465">external_code_len_*</text>
+  <!-- Input collect unit -->
+  <rect class="blockGreen" x="430" y="445" width="340" height="218" rx="8"/>
+  <text class="label" x="526" y="480">input_collect_unit</text>
+  <text class="small" x="462" y="512">byte handshake, block boundary,</text>
+  <text class="small" x="462" y="535">local buffer and local histogram</text>
+  <rect class="subblock" x="468" y="575" width="118" height="54" rx="4"/>
+  <text class="subLabel" x="488" y="598">block_buffer</text>
+  <text class="tiny" x="486" y="618">block bytes</text>
+  <rect class="subblock" x="612" y="575" width="122" height="54" rx="4"/>
+  <text class="subLabel" x="622" y="598">frequency</text>
+  <text class="subLabel" x="631" y="616">counter</text>
 
-  <rect class="box" x="1285" y="520" width="155" height="75" rx="8"/>
-  <text class="blockTitle" x="1325" y="553">code table</text>
-  <text class="tiny" x="1318" y="575">external_code_*</text>
+  <!-- Legacy builder -->
+  <rect class="legacy" x="455" y="740" width="285" height="118" rx="6"/>
+  <text class="label" x="506" y="775">huffman_builder</text>
+  <text class="small" x="487" y="807">legacy / non-synthesis path</text>
+  <text class="small" x="487" y="831">local symbol and code tables</text>
 
-  <rect class="subbox" x="1040" y="615" width="405" height="90" rx="8"/>
-  <text class="blockTitle" x="1132" y="650">External Codebook Read Interface</text>
-  <text class="text" x="1072" y="678">symbol_read_addr, code_len_read_index, code_read_index</text>
+  <!-- Codebook mux -->
+  <rect class="blockBlue" x="860" y="405" width="325" height="210" rx="8"/>
+  <text class="label" x="940" y="440">Codebook MUX</text>
+  <text class="small" x="892" y="474">selects external whole-file</text>
+  <text class="small" x="892" y="498">canonical codebook in FPGA path</text>
+  <line class="divider" x1="892" y1="520" x2="1150" y2="520"/>
+  <text class="small" x="892" y="550">symbol_count / symbol</text>
+  <text class="small" x="892" y="574">code_len / code</text>
 
-  <!-- Stage 3 -->
-  <rect class="stage3" x="1550" y="140" width="570" height="650" rx="14"/>
-  <text class="stageTitle" x="1580" y="180">3.4.2.3 Payload Encoding, Header Formatting,</text>
-  <text class="stageTitle" x="1580" y="206">and Output Packing</text>
-  <text class="stageSub" x="1580" y="235">Fig. 3.8d stage and Fig. 3.9 interface</text>
+  <!-- Emit backend -->
+  <rect class="blockBlue" x="1235" y="365" width="265" height="310" rx="8"/>
+  <text class="label" x="1300" y="400">emit_backend</text>
+  <text class="small" x="1265" y="430">header + payload emission</text>
+  <text class="small" x="1265" y="454">ready/valid stream interface</text>
 
-  <rect class="box" x="1610" y="292" width="240" height="300" rx="10"/>
-  <text class="blockTitle" x="1675" y="330">emit_backend</text>
-  <rect class="subbox" x="1640" y="365" width="180" height="58" rx="6"/>
-  <text class="text" x="1680" y="399">header_formatter</text>
-  <rect class="subbox" x="1640" y="448" width="180" height="58" rx="6"/>
-  <text class="text" x="1685" y="482">payload_emitter</text>
-  <rect class="subbox" x="1640" y="531" width="180" height="58" rx="6"/>
-  <text class="text" x="1678" y="557">stream_output</text>
-  <text class="tiny" x="1698" y="576">interface</text>
+  <rect class="subblock" x="1268" y="490" width="105" height="66" rx="4"/>
+  <text class="subLabel" x="1282" y="516">header</text>
+  <text class="subLabel" x="1279" y="536">formatter</text>
 
-  <rect class="io" x="1890" y="300" width="180" height="170" rx="8"/>
-  <text class="blockTitle" x="1932" y="333">Fig. 3.9</text>
-  <text class="text" x="1914" y="361">stream_data[31:0]</text>
-  <text class="text" x="1914" y="385">stream_len</text>
-  <text class="text" x="1914" y="409">stream_valid</text>
-  <text class="text" x="1914" y="433">stream_last</text>
-  <line class="divider" x1="1914" y1="448" x2="2048" y2="448"/>
-  <text class="text" x="1914" y="465">stream_ready</text>
+  <rect class="subblock" x="1390" y="490" width="84" height="66" rx="4"/>
+  <text class="subLabel" x="1404" y="516">payload</text>
+  <text class="subLabel" x="1407" y="536">emitter</text>
 
-  <rect class="box" x="1890" y="540" width="180" height="95" rx="8"/>
-  <text class="blockTitle" x="1930" y="578">bit_packer_128</text>
-  <text class="text" x="1920" y="606">variable bits to</text>
-  <text class="text" x="1920" y="628">128-bit blocks</text>
+  <rect class="subblock" x="1308" y="586" width="152" height="58" rx="4"/>
+  <text class="subLabel" x="1322" y="610">stream_output</text>
+  <text class="subLabel" x="1345" y="630">interface</text>
 
-  <rect class="box" x="1890" y="690" width="180" height="70" rx="8"/>
-  <text class="blockTitle" x="1920" y="733">AES-128-CBC</text>
+  <!-- Notes -->
+  <rect class="noteBox" x="385" y="875" width="1125" height="22" rx="3"/>
+  <text class="note" x="398" y="891">Dashed builder path is retained for non-synthesis compatibility; active FPGA/report path uses the external whole-file canonical codebook.</text>
 
-  <!-- Optional status panel -->
-  <rect class="io" x="1550" y="850" width="570" height="105" rx="8"/>
-  <text class="blockTitle" x="1580" y="885">Status / Debug Outputs</text>
-  <text class="small" x="1580" y="915">busy, done, error_flag, selected_mode_out[1:0], fsm_state[3:0]</text>
-  <text class="small" x="1580" y="938">These signals describe the encoder phase and error state; they are not payload data.</text>
+  <!-- Wires from external panels -->
+  <path class="wireCtrl" d="M315 238 L430 238" marker-end="url(#arrowCtrl)"/>
+  <text class="tiny" x="330" y="226">clk/rst/control</text>
 
-  <!-- Main buses -->
-  <path class="green" d="M320 470 H430" marker-end="url(#arrowGreen)"/>
-  <text class="tiny" x="338" y="458">byte stream</text>
-  <path class="thin" d="M430 535 H320" marker-end="url(#arrowBlack)"/>
-  <text class="tiny" x="344" y="523">byte_ready</text>
+  <path class="wireData" d="M315 495 L430 495" marker-end="url(#arrowBlue)"/>
+  <text class="tiny" x="332" y="483">byte stream + flags</text>
+  <path class="wireStatus" d="M430 585 L315 585" marker-end="url(#arrowGreen)"/>
+  <text class="tiny" x="340" y="607">byte_ready</text>
 
-  <path class="green" d="M620 352 H675" marker-end="url(#arrowGreen)"/>
-  <text class="tiny" x="626" y="339">valid byte</text>
-  <path class="green" d="M525 405 V480" marker-end="url(#arrowGreen)"/>
-  <text class="tiny" x="540" y="450">payload bytes</text>
-  <path class="green" d="M762 405 V630" marker-end="url(#arrowGreen)"/>
-  <text class="tiny" x="776" y="520">symbol counts</text>
+  <!-- Internal control wires -->
+  <path class="wireCtrl" d="M560 345 L560 445" marker-end="url(#arrowCtrl)"/>
+  <text class="tiny" x="575" y="397">start_collect</text>
 
-  <path class="amber" d="M825 682 H1030 V378" marker-end="url(#arrowAmber)"/>
-  <text class="tiny" x="880" y="670">code length table</text>
-  <path class="amber" d="M1245 378 H1285" marker-end="url(#arrowAmber)"/>
-  <path class="amber" d="M1245 420 H1285 V448" marker-end="url(#arrowAmber)"/>
-  <path class="amber" d="M1245 462 H1285 V558" marker-end="url(#arrowAmber)"/>
-  <text class="tiny" x="1254" y="365">canonical entries</text>
+  <path class="wireCtrl" d="M690 250 L815 250" marker-end="url(#arrowCtrl)"/>
+  <text class="tiny" x="710" y="237">start_mode</text>
 
-  <path class="amber" d="M1440 338 H1610 V405" marker-end="url(#arrowAmber)"/>
-  <path class="amber" d="M1440 448 H1610 V478" marker-end="url(#arrowAmber)"/>
-  <path class="amber" d="M1440 558 H1610 V478" marker-end="url(#arrowAmber)"/>
-  <text class="tiny" x="1460" y="318">external canonical codebook ports</text>
+  <path class="wireCtrl" d="M1100 260 L1368 260 L1368 365" marker-end="url(#arrowCtrl)"/>
+  <text class="tiny" x="1165" y="248">selected_mode</text>
 
-  <path class="green" d="M620 525 H1530 V478 H1610" marker-end="url(#arrowGreen)"/>
-  <text class="tiny" x="940" y="512">buffered payload bytes</text>
+  <path class="wireCtrl" d="M690 322 L760 322 L760 350 L1190 350 L1190 520 L1235 520" marker-end="url(#arrowCtrl)"/>
+  <text class="tiny" x="905" y="338">start_emit / phase control</text>
 
-  <path class="blue" d="M1850 448 H1890" marker-end="url(#arrowBlue)"/>
-  <text class="tiny" x="1845" y="435">stream chunks</text>
-  <path class="blue" d="M2070 588 H2110 V725 H2070" marker-end="url(#arrowBlue)"/>
-  <text class="tiny" x="2060" y="665">128-bit transport blocks</text>
+  <!-- Data path wires -->
+  <path class="wireData" d="M770 600 L1195 600 L1195 604 L1235 604" marker-end="url(#arrowBlue)"/>
+  <text class="tiny" x="850" y="586">buffer_read_data</text>
 
-  <!-- Boundary hints -->
-  <rect class="dashed" x="405" y="260" width="495" height="500" rx="12"/>
-  <text class="tiny" x="425" y="748">count/build logic in the TX whole-file path</text>
+  <path class="wireDash" d="M675 663 L675 740" marker-end="url(#arrowGray)"/>
+  <text class="tiny" x="690" y="704">freq_read_count</text>
 
-  <rect class="dashed" x="1585" y="260" width="300" height="365" rx="12"/>
-  <text class="tiny" x="1605" y="618">dynamic_huffman_encoder emit path</text>
+  <path class="wireDash" d="M740 800 L860 555" marker-end="url(#arrowGray)"/>
+  <text class="tiny" x="760" y="705">local code tables</text>
 
-  <!-- Bottom summary -->
-  <rect class="io" x="380" y="1035" width="1740" height="130" rx="8"/>
-  <text class="blockTitle" x="410" y="1070">How this figure links to the thesis text</text>
-  <text class="small" x="410" y="1100">Section 3.4.2.1 corresponds to the green stage: byte collection, histogram update, Huffman tree construction, and code-length derivation.</text>
-  <text class="small" x="410" y="1125">Section 3.4.2.2 corresponds to the amber stage: canonical code assignment and storage into the external symbol, code-length, and code tables.</text>
-  <text class="small" x="410" y="1150">Section 3.4.2.3 corresponds to the blue stage: payload bytes are encoded using the canonical codebook, emitted through Fig. 3.9 stream signals, packed to 128-bit blocks, and forwarded to AES-128-CBC.</text>
+  <path class="wireData" d="M900 930 L900 615" marker-end="url(#arrowBlue)"/>
+  <text class="tiny" x="914" y="740">external data</text>
+
+  <path class="wireData" d="M1025 615 L1025 930" marker-end="url(#arrowBlue)"/>
+  <text class="tiny" x="1038" y="773">read addr/index</text>
+
+  <path class="wireData" d="M1185 510 L1235 510" marker-end="url(#arrowBlue)"/>
+  <text class="tiny" x="1194" y="494">codebook</text>
+
+  <path class="wireData" d="M1500 443 L1600 443" marker-end="url(#arrowBlue)"/>
+  <text class="tiny" x="1510" y="428">stream data/len/valid/last</text>
+
+  <path class="wireStatus" d="M1600 245 L1500 505" marker-end="url(#arrowGreen)"/>
+  <text class="tiny" x="1528" y="320">stream_ready</text>
+
+  <path class="wireData" d="M1720 522 L1868 522 L1868 881 L1840 881" marker-end="url(#arrowBlue)"/>
+  <text class="tiny" x="1782" y="545">to packer</text>
+
+  <!-- Status -->
+  <path class="wireStatus" d="M690 325 L1555 325 L1555 690 L1600 690" marker-end="url(#arrowGreen)"/>
+  <text class="tiny" x="1240" y="313">busy / done / error / fsm_state</text>
+
+  <!-- Emit internal lines -->
+  <path class="wire" d="M1320 556 L1320 586" marker-end="url(#arrowBlack)"/>
+  <path class="wire" d="M1432 556 L1432 586" marker-end="url(#arrowBlack)"/>
 </svg>

@@ -33,6 +33,7 @@ endif
 TESTCASE_DIR ?= ../testcase
 RV_GCC ?= riscv64-unknown-elf-gcc
 RV_OBJCOPY ?= riscv64-unknown-elf-objcopy
+FW_DEFINES ?=
 VIVADO_BAT ?= H:\From_software\Vivado\Vivado\Vivado\2024.2\bin\vivado.bat
 VIVADO_WIN_ROOT ?= $(shell wslpath -w $(abspath ..) 2>/dev/null || printf 'H:\\Academic\\senior_project\\DATN\\work\\luc\\AES_huffman_all6')
 VIVADO_LICENSE ?= H:\Academic\senior_project\DATN\work\kingofvivado.lic
@@ -181,17 +182,132 @@ wave_bg:
 	@pgrep -f '[v]ish -- -vsim .* -view .*$(notdir $(WLF_VIEW))' >/dev/null || (echo "[FAIL] Questa GUI did not stay up. See sim/log/wave_gui.log"; tail -n 20 log/wave_gui.log; exit 1)
 	@echo "[PASS] Detached Questa GUI started. Log: sim/log/wave_gui.log"
 
+aes_build:
+	mkdir -p log
+	rm -rf work_aes
+	vlib work_aes
+	vmap work work_aes
+	vlog +incdir+../rtl -work work \
+	  ../rtl/aes128_cipher_core.v \
+	  ../rtl/aes128_key_expansion.v \
+	  ../rtl/aes128_cipher_top.v \
+	  ../tb/tb_aes128_round_wave.v
+
+aes_run: aes_build
+	mkdir -p log
+	vsim -batch -wlf aes128_round_wave.wlf -l aes128_round_wave.log -voptargs=+acc -assertdebug work.test_bench -do "log -r /*; run -all; quit -f"
+	@test -s aes128_round_wave.log || (echo "[FAIL] vsim produced an empty AES log; check Questa startup"; exit 1)
+	@! grep -E "Trouble making server|couldn't open socket|License Issue|Unable to checkout|Failure to obtain|Invalid license|Error loading design|\\*\\* Error|\\[FAIL\\]" aes128_round_wave.log || (echo "[FAIL] AES simulation failed; see sim/aes128_round_wave.log"; exit 1)
+	cp -f aes128_round_wave.log log/
+	cp -f aes128_round_wave.wlf log/
+	@echo "[PASS] AES ECB/core waveform generated: sim/aes128_round_wave.wlf"
+
+aes_wave: aes_run
+	$(MAKE) --no-print-directory wave WLF_VIEW=aes128_round_wave.wlf WAVE_DO=aes128_round_wave.do
+
+aes_wave_bg: aes_run
+	$(MAKE) --no-print-directory wave_bg WLF_VIEW=aes128_round_wave.wlf WAVE_DO=aes128_round_wave.do
+
+aes_cbc_build:
+	mkdir -p log
+	rm -rf work_aes_cbc
+	vlib work_aes_cbc
+	vmap work work_aes_cbc
+	vlog +incdir+../rtl -work work \
+	  ../rtl/aes128_cipher_core.v \
+	  ../rtl/aes128_key_expansion.v \
+	  ../rtl/aes128_cipher_top.v \
+	  ../tb/tb_aes128_cbc_round_wave.v
+
+aes_cbc_run: aes_cbc_build
+	mkdir -p log
+	vsim -batch -wlf aes128_cbc_round_wave.wlf -l aes128_cbc_round_wave.log -voptargs=+acc -assertdebug work.test_bench -do "log -r /*; run -all; quit -f"
+	@test -s aes128_cbc_round_wave.log || (echo "[FAIL] vsim produced an empty AES-CBC log; check Questa startup"; exit 1)
+	@! grep -E "Trouble making server|couldn't open socket|License Issue|Unable to checkout|Failure to obtain|Invalid license|Error loading design|\\*\\* Error|\\[FAIL\\]" aes128_cbc_round_wave.log || (echo "[FAIL] AES-CBC simulation failed; see sim/aes128_cbc_round_wave.log"; exit 1)
+	cp -f aes128_cbc_round_wave.log log/
+	cp -f aes128_cbc_round_wave.wlf log/
+	@echo "[PASS] AES-CBC waveform generated: sim/aes128_cbc_round_wave.wlf"
+
+aes_cbc_wave: aes_cbc_run
+	$(MAKE) --no-print-directory wave WLF_VIEW=aes128_cbc_round_wave.wlf WAVE_DO=aes128_cbc_round_wave.do
+
+aes_cbc_wave_bg: aes_cbc_run
+	$(MAKE) --no-print-directory wave_bg WLF_VIEW=aes128_cbc_round_wave.wlf WAVE_DO=aes128_cbc_round_wave.do
+
+aes_cbc_dec_build:
+	mkdir -p log
+	rm -rf work_aes_cbc_dec
+	vlib work_aes_cbc_dec
+	vmap work work_aes_cbc_dec
+	vlog +incdir+../rtl -work work \
+	  ../rtl/aes128_cipher_core_inv.v \
+	  ../rtl/aes128_key_expansion_inv.v \
+	  ../rtl/aes128_cipher_inv_top.v \
+	  ../tb/tb_aes128_cbc_decrypt_round_wave.v
+
+aes_cbc_dec_run: aes_cbc_dec_build
+	mkdir -p log
+	vsim -batch -wlf aes128_cbc_decrypt_round_wave.wlf -l aes128_cbc_decrypt_round_wave.log -voptargs=+acc -assertdebug work.test_bench -do "log -r /*; run -all; quit -f"
+	@test -s aes128_cbc_decrypt_round_wave.log || (echo "[FAIL] vsim produced an empty AES-CBC decrypt log; check Questa startup"; exit 1)
+	@! grep -E "Trouble making server|couldn't open socket|License Issue|Unable to checkout|Failure to obtain|Invalid license|Error loading design|\\*\\* Error|\\[FAIL\\]" aes128_cbc_decrypt_round_wave.log || (echo "[FAIL] AES-CBC decrypt simulation failed; see sim/aes128_cbc_decrypt_round_wave.log"; exit 1)
+	cp -f aes128_cbc_decrypt_round_wave.log log/
+	cp -f aes128_cbc_decrypt_round_wave.wlf log/
+	@echo "[PASS] AES-CBC decrypt waveform generated: sim/aes128_cbc_decrypt_round_wave.wlf"
+
+aes_cbc_dec_wave: aes_cbc_dec_run
+	$(MAKE) --no-print-directory wave WLF_VIEW=aes128_cbc_decrypt_round_wave.wlf WAVE_DO=aes128_cbc_decrypt_round_wave.do
+
+aes_cbc_dec_wave_bg: aes_cbc_dec_run
+	$(MAKE) --no-print-directory wave_bg WLF_VIEW=aes128_cbc_decrypt_round_wave.wlf WAVE_DO=aes128_cbc_decrypt_round_wave.do
+
+aes_cbc_enc_dec_build:
+	mkdir -p log
+	rm -rf work_aes_cbc_enc_dec
+	vlib work_aes_cbc_enc_dec
+	vmap work work_aes_cbc_enc_dec
+	vlog +incdir+../rtl -work work \
+	  ../rtl/aes128_cipher_core.v \
+	  ../rtl/aes128_key_expansion.v \
+	  ../rtl/aes128_cipher_top.v \
+	  ../rtl/aes128_cipher_core_inv.v \
+	  ../rtl/aes128_key_expansion_inv.v \
+	  ../rtl/aes128_cipher_inv_top.v \
+	  ../tb/tb_aes128_cbc_enc_dec_wave.v
+
+aes_cbc_enc_dec_run: aes_cbc_enc_dec_build
+	mkdir -p log
+	vsim -batch -wlf aes128_cbc_enc_dec_wave.wlf -l aes128_cbc_enc_dec_wave.log -voptargs=+acc -assertdebug work.test_bench -do "log -r /*; run -all; quit -f"
+	@test -s aes128_cbc_enc_dec_wave.log || (echo "[FAIL] vsim produced an empty AES-CBC enc/dec log; check Questa startup"; exit 1)
+	@! grep -E "Trouble making server|couldn't open socket|License Issue|Unable to checkout|Failure to obtain|Invalid license|Error loading design|\\*\\* Error|\\[FAIL\\]" aes128_cbc_enc_dec_wave.log || (echo "[FAIL] AES-CBC enc/dec simulation failed; see sim/aes128_cbc_enc_dec_wave.log"; exit 1)
+	cp -f aes128_cbc_enc_dec_wave.log log/
+	cp -f aes128_cbc_enc_dec_wave.wlf log/
+	@echo "[PASS] AES-CBC enc/dec waveform generated: sim/aes128_cbc_enc_dec_wave.wlf"
+
+aes_cbc_enc_dec_wave: aes_cbc_enc_dec_run
+	$(MAKE) --no-print-directory wave WLF_VIEW=aes128_cbc_enc_dec_wave.wlf WAVE_DO=aes128_cbc_enc_dec_wave.do
+
+aes_cbc_enc_dec_wave_bg: aes_cbc_enc_dec_run
+	$(MAKE) --no-print-directory wave_bg WLF_VIEW=aes128_cbc_enc_dec_wave.wlf WAVE_DO=aes128_cbc_enc_dec_wave.do
+
 kill_wave:
 	-@pkill -f '[v]ish -- -vsim .*\.wlf' || true
 
 clean:
 	rm -rf work
+	rm -rf work_aes
+	rm -rf work_aes_cbc
+	rm -rf work_aes_cbc_dec
+	rm -rf work_aes_cbc_enc_dec
 	rm -rf work_*
 	rm -rf vsim.dbg
 	rm -rf *.ini
 	rm -rf *.log
 	rm -rf  *.log
 	rm -rf *.wlf
+	rm -rf aes128_round_wave.vcd
+	rm -rf aes128_cbc_round_wave.vcd
+	rm -rf aes128_cbc_decrypt_round_wave.vcd
+	rm -rf aes128_cbc_enc_dec_wave.vcd
 	rm -rf wlft*
 	rm -rf transcript
 	rm -rf *.ucdb
@@ -221,8 +337,8 @@ clean_vivado:
 	rm -rf ../.Xil
 compile:
 	mkdir -p $(TESTCASE_DIR)
-	$(RV_GCC) -march=rv32i -mabi=ilp32 -Os -S $(C_SRC_PATH) -o $(ASM_OUT)
-	$(RV_GCC) -march=rv32i -mabi=ilp32 -O1 -nostdlib -ffreestanding -Ttext=0x0 -Wl,-e,_start $(C_SRC_PATH) -o $(ELF_OUT)
+	$(RV_GCC) $(FW_DEFINES) -march=rv32i -mabi=ilp32 -Os -S $(C_SRC_PATH) -o $(ASM_OUT)
+	$(RV_GCC) $(FW_DEFINES) -march=rv32i -mabi=ilp32 -O1 -nostdlib -ffreestanding -Ttext=0x0 -Wl,-e,_start $(C_SRC_PATH) -o $(ELF_OUT)
 	$(RV_OBJCOPY) -O binary $(ELF_OUT) $(BIN_OUT)
 	python3 -c "from pathlib import Path; data = Path('$(BIN_OUT)').read_bytes(); data += b'\\x00' * ((4 - len(data) % 4) % 4); Path('$(MEM_OUT)').write_text(''.join(f'{int.from_bytes(data[i:i+4], \"little\"):08x}\\n' for i in range(0, len(data), 4)))"
 	cp $(MEM_OUT) $(SIM_MEM_OUT)
@@ -385,6 +501,14 @@ help:
 	@echo "** make all      : build and run simulation (default TESTNAME=dma_compress_aes_input1)"
 	@echo "** make all_cov  : build and run simulation in coverage mode"
 	@echo "** make wave     : open waveform"
+	@echo "** make aes_run  : build and run standalone AES-128 ECB/core round waveform test"
+	@echo "** make aes_wave : build, run, and open AES-128 ECB/core waveform with input/output + 10 rounds"
+	@echo "** make aes_cbc_run  : build and run AES-128-CBC waveform test"
+	@echo "** make aes_cbc_wave : build, run, and open AES-128-CBC waveform"
+	@echo "** make aes_cbc_dec_run  : build and run AES-128-CBC decrypt waveform test"
+	@echo "** make aes_cbc_dec_wave : build, run, and open AES-128-CBC decrypt waveform"
+	@echo "** make aes_cbc_enc_dec_run  : build and run combined AES-128-CBC encrypt/decrypt waveform test"
+	@echo "** make aes_cbc_enc_dec_wave : build, run, and open combined AES-128-CBC encrypt/decrypt waveform"
 	@echo "** make gen_cov  : merge, generate coverage data base and text coverage report"
 	@echo "** make gen_html : merge, generate coverage data base and html coverage report"
 	@echo "** make compile C_SRC=test_mmio_dma.c"

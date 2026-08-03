@@ -10,6 +10,7 @@
 #   VIVADO_PART       default ZCU102 XCZU9EG part
 #   VIVADO_BOARD_PART optional Vivado board_part string
 #   VIVADO_XDC        optional XDC path, relative to repo root if not absolute
+#   VIVADO_USE_BRAM_IP default 1: create/import blk_mem_gen DMEM_ip and IMEM_ip
 
 proc env_or_default {name default_value} {
   if {[info exists ::env($name)] && $::env($name) ne ""} {
@@ -33,6 +34,122 @@ proc copy_reports_to_sim {report_dir sim_dir project_name} {
   }
 }
 
+proc write_imem_coe {mem_file coe_file depth} {
+  set words {}
+  if {[file exists $mem_file]} {
+    set fh [open $mem_file r]
+    while {[gets $fh line] >= 0} {
+      set line [string trim $line]
+      if {$line eq ""} {
+        continue
+      }
+      if {[string match "#*" $line] || [string match "//*" $line]} {
+        continue
+      }
+      set word [string trim [lindex [split $line] 0]]
+      if {[string match "@*" $word]} {
+        continue
+      }
+      regsub -nocase {^0x} $word "" word
+      set word [string toupper $word]
+      if {[string length $word] > 8} {
+        set word [string range $word end-7 end]
+      }
+      set pad_len [expr {8 - [string length $word]}]
+      if {$pad_len > 0} {
+        set word "[string repeat 0 $pad_len]$word"
+      }
+      lappend words $word
+      if {[llength $words] >= $depth} {
+        break
+      }
+    }
+    close $fh
+  }
+
+  while {[llength $words] < $depth} {
+    lappend words "00000000"
+  }
+
+  set fh [open $coe_file w]
+  puts $fh "memory_initialization_radix=16;"
+  puts $fh "memory_initialization_vector="
+  for {set i 0} {$i < $depth} {incr i} {
+    set sep ","
+    if {$i == [expr {$depth - 1}]} {
+      set sep ";"
+    }
+    puts $fh "[lindex $words $i]$sep"
+  }
+  close $fh
+}
+
+proc set_ip_props_if_present {ip_obj props} {
+  set supported_props [list_property $ip_obj]
+  foreach {prop value} $props {
+    if {[lsearch -exact $supported_props $prop] >= 0} {
+      set_property $prop $value $ip_obj
+    } else {
+      puts "WARNING: IP property not supported by this Vivado version: $prop"
+    }
+  }
+}
+
+proc create_memory_ips {build_dir root_instruction_mem} {
+  set imem_coe [file join $build_dir "IMEM_ip.coe"]
+  write_imem_coe $root_instruction_mem $imem_coe 2048
+  set project_name [get_property NAME [current_project]]
+
+  create_ip -name blk_mem_gen -vendor xilinx.com -library ip -module_name DMEM_ip
+  set dmem_ip [get_ips DMEM_ip]
+  set_ip_props_if_present $dmem_ip [list \
+    CONFIG.Memory_Type {True_Dual_Port_RAM} \
+    CONFIG.Use_Byte_Write_Enable {true} \
+    CONFIG.Byte_Size {8} \
+    CONFIG.Write_Width_A {32} \
+    CONFIG.Write_Depth_A {8192} \
+    CONFIG.Read_Width_A {32} \
+    CONFIG.Write_Width_B {32} \
+    CONFIG.Read_Width_B {32} \
+    CONFIG.Operating_Mode_A {READ_FIRST} \
+    CONFIG.Operating_Mode_B {READ_FIRST} \
+    CONFIG.Enable_A {Use_ENA_Pin} \
+    CONFIG.Enable_B {Use_ENB_Pin} \
+    CONFIG.Use_RSTA_Pin {false} \
+    CONFIG.Use_RSTB_Pin {false} \
+    CONFIG.Register_PortA_Output_of_Memory_Primitives {false} \
+    CONFIG.Register_PortB_Output_of_Memory_Primitives {false} \
+  ]
+
+  create_ip -name blk_mem_gen -vendor xilinx.com -library ip -module_name IMEM_ip
+  set imem_ip [get_ips IMEM_ip]
+  set_property -dict [list \
+    CONFIG.Memory_Type {Single_Port_ROM} \
+    CONFIG.Write_Width_A {32} \
+    CONFIG.Write_Depth_A {2048} \
+    CONFIG.Read_Width_A {32} \
+    CONFIG.Enable_A {Use_ENA_Pin} \
+    CONFIG.Load_Init_File {true} \
+    CONFIG.Coe_File $imem_coe \
+    CONFIG.Fill_Remaining_Memory_Locations {true} \
+    CONFIG.Remaining_Memory_Locations {00000000} \
+    CONFIG.Use_RSTA_Pin {false} \
+    CONFIG.Register_PortA_Output_of_Memory_Primitives {false} \
+  ] $imem_ip
+
+  generate_target all [get_files [list \
+    [get_property IP_FILE $dmem_ip] \
+    [get_property IP_FILE $imem_ip] \
+  ]]
+  set ip_gen_dir [file join $build_dir "${project_name}.gen" "sources_1" "ip"]
+  set ::memory_ip_synth_files [list \
+    [file normalize [file join $ip_gen_dir "DMEM_ip" "synth" "DMEM_ip.vhd"]] \
+    [file normalize [file join $ip_gen_dir "IMEM_ip" "synth" "IMEM_ip.vhd"]] \
+  ]
+  puts "INFO: created Vivado blk_mem_gen IPs: DMEM_ip and IMEM_ip"
+  puts "INFO: IMEM_ip COE initialization: $imem_coe"
+}
+
 set script_dir [file dirname [file normalize [info script]]]
 set repo_root  [file normalize [file join $script_dir ".."]]
 set sim_dir    [file join $repo_root "sim"]
@@ -54,6 +171,7 @@ set power_opt     [env_or_default VIVADO_POWER_OPT "0"]
 set power_opt_post_place [env_or_default VIVADO_POWER_OPT_POST_PLACE $power_opt]
 set reuse_synth  [env_or_default VIVADO_REUSE_SYNTH "0"]
 set reuse_impl   [env_or_default VIVADO_REUSE_IMPL "0"]
+set use_bram_ip  [env_or_default VIVADO_USE_BRAM_IP "1"]
 set part_name    [env_or_default VIVADO_PART "xczu9eg-ffvb1156-2-e"]
 set board_part   [env_or_default VIVADO_BOARD_PART ""]
 
@@ -61,6 +179,7 @@ set build_dir  [file join $repo_root "vivado" "build" $project_name]
 set report_dir [file join $build_dir "reports"]
 set post_synth_dcp [file join $build_dir "post_synth.dcp"]
 set post_route_dcp [file join $build_dir "post_route.dcp"]
+set ::memory_ip_synth_files {}
 file mkdir $build_dir
 file mkdir $report_dir
 
@@ -91,6 +210,7 @@ puts "INFO: power_opt=$power_opt"
 puts "INFO: power_opt_post_place=$power_opt_post_place"
 puts "INFO: reuse_synth=$reuse_synth"
 puts "INFO: reuse_impl=$reuse_impl"
+puts "INFO: use_bram_ip=$use_bram_ip"
 
 set clk_period_ns [expr {1000.0 / double($clock_mhz)}]
 set auto_clock_xdc [file join $build_dir "auto_clock.xdc"]
@@ -122,6 +242,10 @@ if {$can_reuse_impl} {
 
   set defines {}
   lappend defines SYNTHESIS
+  if {$use_bram_ip eq "1"} {
+    lappend defines VIVADO_USE_IP
+    create_memory_ips $build_dir $root_instruction_mem
+  }
   if {$fpga_build eq "tx_only"} {
     lappend defines FPGA_TX_ONLY
   } elseif {$fpga_build eq "rx_only"} {
@@ -133,6 +257,7 @@ if {$can_reuse_impl} {
   }
 
   set rtl_files {}
+  set dmem_model_src [file normalize [file join $rtl_dir "DMEM_ip.v"]]
   set rtl_f [file join $sim_dir "rtl.f"]
   if {![file exists $rtl_f]} {
     error "Missing RTL file list: $rtl_f"
@@ -150,7 +275,12 @@ if {$can_reuse_impl} {
     if {[string match "-f*" $line]} {
       continue
     }
-    append_unique rtl_files [file join $sim_dir $line]
+    set src [file normalize [file join $sim_dir $line]]
+    if {($use_bram_ip eq "1") && ($src eq $dmem_model_src)} {
+      puts "INFO: skipping behavioral DMEM_ip.v because Vivado blk_mem_gen DMEM_ip is enabled"
+      continue
+    }
+    append_unique rtl_files $src
   }
   close $fh
 
@@ -172,6 +302,14 @@ if {$can_reuse_impl} {
 
   set_property include_dirs $rtl_dir [current_fileset]
   set_property verilog_define $defines [current_fileset]
+  foreach ip_vhdl $::memory_ip_synth_files {
+    if {[file exists $ip_vhdl]} {
+      puts "INFO: read_vhdl IP wrapper $ip_vhdl"
+      read_vhdl $ip_vhdl
+    } else {
+      puts "WARNING: missing generated IP synthesis wrapper: $ip_vhdl"
+    }
+  }
   set read_cmd [list read_verilog -sv]
   foreach src $rtl_files {
     lappend read_cmd $src

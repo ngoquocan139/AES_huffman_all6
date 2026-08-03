@@ -1,0 +1,268 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#0b4fb3"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#394858"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ef7d15"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#14895a"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#6534d9"/>
+    </marker>
+    <style>
+      .bg { fill: #eef4ff; }
+      .soc { fill: #ffffff; stroke: #1d2b3a; stroke-width: 2.5; }
+      .subsys { fill: none; stroke: #e01822; stroke-width: 5; stroke-dasharray: 18 13; }
+      .io { fill: #e0f2fe; stroke: #2563eb; stroke-width: 3.2; stroke-dasharray: 12 9; }
+      .block { fill: #f5f3ff; stroke: #6d28d9; stroke-width: 2.1; }
+      .cpu { fill: #fff1cc; stroke: #b45309; stroke-width: 2.6; }
+      .apb { fill: #dbeafe; stroke: #0b4fb3; stroke-width: 2.4; }
+      .reg { fill: #ede9fe; stroke: #5b21b6; stroke-width: 2.3; }
+      .mem { fill: #e2e8f0; stroke: #334155; stroke-width: 2.2; }
+      .txLane { fill: #fff7ed; stroke: #ea580c; stroke-width: 3; }
+      .rxLane { fill: #ecfdf5; stroke: #059669; stroke-width: 3; }
+      .txHead { fill: #f97316; }
+      .rxHead { fill: #059669; }
+      .stageTx { fill: #fed7aa; stroke: #ea580c; stroke-width: 2; }
+      .stageRx { fill: #bbf7d0; stroke: #059669; stroke-width: 2; }
+      .stageAes { fill: #bfdbfe; stroke: #2563eb; stroke-width: 2; }
+      .stageTable { fill: #ddd6fe; stroke: #7c3aed; stroke-width: 2; }
+      .callout { fill: #dbeafe; stroke: #0b4fb3; stroke-width: 1.8; }
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 42px; font-weight: 700; fill: #083b92; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 21px; fill: #4a5a6b; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 700; fill: #132033; }
+      .label2 { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #132033; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 16px; fill: #132033; }
+      .tiny { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #132033; }
+      .micro { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #132033; }
+      .white { fill: #ffffff; }
+      .muted { fill: #607083; }
+      .bus { stroke: #0b4fb3; stroke-width: 3; fill: none; marker-end: url(#arrowBlue); }
+      .sig { stroke: #394858; stroke-width: 2.2; fill: none; marker-end: url(#arrowGray); }
+      .txData { stroke: #ef7d15; stroke-width: 3.2; fill: none; marker-end: url(#arrowOrange); }
+      .rxData { stroke: #14895a; stroke-width: 3.2; fill: none; marker-end: url(#arrowGreen); }
+      .tableData { stroke: #6534d9; stroke-width: 2.7; fill: none; marker-end: url(#arrowPurple); }
+      .thin { stroke-width: 1.8; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1920" height="1080"/>
+  <text x="60" y="58" class="title">Secure-Storage SoC Architecture with Expanded Huffman TX/RX Flow</text>
+  <text x="62" y="94" class="subtitle">CPU configures DMA through APB. TX compresses and encrypts data before storage; RX decrypts and reconstructs plaintext from the Huffman payload.</text>
+
+  <!-- Top-level SoC frame -->
+  <rect class="soc" x="235" y="125" width="1450" height="870"/>
+  <text x="260" y="154" class="small">FPGA PL SoC</text>
+
+  <rect class="subsys" x="540" y="152" width="1095" height="790"/>
+  <text x="970" y="145" class="small">Secure-storage accelerator subsystem</text>
+
+  <!-- External IO -->
+  <rect class="io" x="36" y="380" width="178" height="245" rx="22"/>
+  <text x="78" y="416" class="label">INPUT</text>
+  <line x1="72" y1="468" x2="184" y2="468" class="sig"/>
+  <line x1="72" y1="510" x2="184" y2="510" class="sig"/>
+  <line x1="72" y1="552" x2="184" y2="552" class="sig"/>
+  <text x="85" y="460" class="small">clk</text>
+  <text x="82" y="502" class="small">rst_n</text>
+  <text x="68" y="544" class="small">uart_rx_i</text>
+  <path d="M214 505 H286" class="sig"/>
+
+  <rect class="io" x="1710" y="380" width="180" height="245" rx="22"/>
+  <text x="1752" y="416" class="label">OUTPUT</text>
+  <line x1="1740" y1="466" x2="1850" y2="466" class="sig"/>
+  <line x1="1740" y1="508" x2="1850" y2="508" class="sig"/>
+  <line x1="1740" y1="550" x2="1850" y2="550" class="sig"/>
+  <line x1="1740" y1="592" x2="1850" y2="592" class="sig"/>
+  <text x="1748" y="458" class="small">uart_tx_o</text>
+  <text x="1756" y="500" class="small">busy_o</text>
+  <text x="1756" y="542" class="small">done_o</text>
+  <text x="1756" y="584" class="small">error_o</text>
+
+  <!-- CPU + APB + register file -->
+  <rect class="cpu" x="286" y="310" width="220" height="330"/>
+  <text x="326" y="450" class="label">CPU Core RV32I</text>
+  <text x="319" y="486" class="small">runs firmware</text>
+  <text x="315" y="514" class="small">sets DMA registers</text>
+  <text x="310" y="542" class="small">checks status/result</text>
+
+  <rect class="apb" x="582" y="365" width="122" height="210"/>
+  <text x="613" y="452" class="label">APB</text>
+  <text x="592" y="482" class="label">Interface</text>
+
+  <rect class="reg" x="755" y="260" width="98" height="460"/>
+  <text x="810" y="606" class="label2" transform="rotate(-90 810 606)">DMA REGISTER FILE</text>
+  <text x="775" y="298" class="tiny">CONTROL</text>
+  <text x="778" y="322" class="tiny">STATUS</text>
+  <text x="777" y="346" class="tiny">SRC/DST</text>
+  <text x="780" y="370" class="tiny">LEN/MODE</text>
+  <text x="779" y="394" class="tiny">IV[0..3]</text>
+
+  <path d="M506 408 H582" class="bus"/>
+  <text x="525" y="389" class="small">rs2</text>
+  <path d="M506 470 H582" class="bus"/>
+  <text x="514" y="452" class="small">alu_result</text>
+  <path d="M506 535 H582" class="bus"/>
+  <text x="512" y="518" class="small">dmem_we_o</text>
+  <path d="M704 470 H755" class="bus"/>
+  <text x="714" y="449" class="small">APB bus</text>
+
+  <!-- UART -->
+  <rect class="block" x="586" y="792" width="170" height="88"/>
+  <text x="638" y="845" class="label">UART</text>
+  <path d="M756 836 H910" class="sig"/>
+  <text x="774" y="816" class="small">aux_rdata_i</text>
+  <path d="M1635 505 H1710" class="sig"/>
+
+  <!-- DMEM dual-port -->
+  <rect class="mem" x="1504" y="260" width="56" height="545"/>
+  <rect class="mem" x="1572" y="260" width="56" height="545"/>
+  <text x="1538" y="650" class="label2" transform="rotate(-90 1538 650)">DMEM port A: CPU access</text>
+  <text x="1606" y="648" class="label2" transform="rotate(-90 1606 648)">DMEM port B: DMA access</text>
+  <path d="M506 202 H1532 V260" class="sig"/>
+  <text x="905" y="195" class="small">CPU memory access</text>
+  <text x="1382" y="840" class="tiny">aux_en_o, aux_we_o, aux_addr_o, aux_wdata_o</text>
+
+  <!-- DMA engines -->
+  <rect class="stageTx" x="884" y="278" width="92" height="92" rx="6"/>
+  <text x="910" y="307" class="label2">TX</text>
+  <text x="899" y="333" class="small">DMA</text>
+  <text x="897" y="356" class="small">engine</text>
+  <path d="M853 324 H884" class="sig"/>
+  <text x="858" y="303" class="tiny">ctrl/status</text>
+
+  <rect class="stageRx" x="884" y="590" width="92" height="92" rx="6"/>
+  <text x="910" y="619" class="label2">RX</text>
+  <text x="899" y="645" class="small">DMA</text>
+  <text x="897" y="668" class="small">engine</text>
+  <path d="M853 636 H884" class="sig"/>
+  <text x="858" y="615" class="tiny">ctrl/status</text>
+
+  <!-- TX expanded lane -->
+  <rect class="txLane" x="1010" y="210" width="458" height="300" rx="12"/>
+  <rect class="txHead" x="1010" y="210" width="458" height="45" rx="12"/>
+  <text x="1152" y="239" class="label white">Expanded TX Path</text>
+  <text x="1030" y="280" class="tiny">Plaintext -> Huffman bitstream -> AES-CBC ciphertext.</text>
+
+  <rect class="stageTx" x="1028" y="300" width="105" height="52" rx="6"/>
+  <text x="1041" y="323" class="tiny">word-to-byte</text>
+  <text x="1051" y="342" class="tiny">adapter</text>
+
+  <rect class="stageTx" x="1150" y="300" width="118" height="52" rx="6"/>
+  <text x="1165" y="321" class="tiny">input_collect</text>
+  <text x="1164" y="340" class="tiny">buffer + freq</text>
+
+  <rect class="stageTx" x="1285" y="300" width="105" height="52" rx="6"/>
+  <text x="1303" y="321" class="tiny">Huffman</text>
+  <text x="1306" y="340" class="tiny">builder</text>
+
+  <rect class="stageTable" x="1028" y="382" width="127" height="52" rx="6"/>
+  <text x="1042" y="403" class="tiny">canonical</text>
+  <text x="1041" y="422" class="tiny">code table</text>
+
+  <rect class="stageTx" x="1174" y="382" width="120" height="52" rx="6"/>
+  <text x="1191" y="403" class="tiny">emit header</text>
+  <text x="1185" y="422" class="tiny">+ payload bits</text>
+
+  <rect class="stageTx" x="1313" y="382" width="92" height="52" rx="6"/>
+  <text x="1328" y="403" class="tiny">bit</text>
+  <text x="1324" y="422" class="tiny">packer</text>
+
+  <rect class="stageAes" x="1408" y="382" width="45" height="52" rx="6"/>
+  <text x="1417" y="403" class="micro">AES</text>
+  <text x="1414" y="420" class="micro">CBC</text>
+
+  <path d="M1133 326 H1150" class="txData thin"/>
+  <path d="M1268 326 H1285" class="txData thin"/>
+  <path d="M1338 352 V366 H1092 V382" class="tableData thin"/>
+  <path d="M1155 408 H1174" class="tableData thin"/>
+  <path d="M1294 408 H1313" class="txData thin"/>
+  <path d="M1405 408 H1408" class="txData thin"/>
+  <text x="1026" y="466" class="tiny">Header = codebook. Payload = canonical codewords.</text>
+  <text x="1026" y="487" class="tiny">TX writes AES-CBC ciphertext to DMEM.</text>
+
+  <!-- RX expanded lane -->
+  <rect class="rxLane" x="1010" y="548" width="458" height="300" rx="12"/>
+  <rect class="rxHead" x="1010" y="548" width="458" height="45" rx="12"/>
+  <text x="1152" y="577" class="label white">Expanded RX Path</text>
+  <text x="1030" y="618" class="tiny">Ciphertext -> AES-CBC transport word -> Huffman decode -> plaintext.</text>
+
+  <rect class="stageAes" x="1028" y="638" width="92" height="52" rx="6"/>
+  <text x="1041" y="659" class="tiny">AES-CBC</text>
+  <text x="1046" y="678" class="tiny">decrypt</text>
+
+  <rect class="stageRx" x="1137" y="638" width="92" height="52" rx="6"/>
+  <text x="1151" y="659" class="tiny">bit</text>
+  <text x="1144" y="678" class="tiny">depacker</text>
+
+  <rect class="stageRx" x="1246" y="638" width="112" height="52" rx="6"/>
+  <text x="1262" y="659" class="tiny">block parser</text>
+  <text x="1260" y="678" class="tiny">header/payload</text>
+
+  <rect class="stageTable" x="1375" y="638" width="78" height="52" rx="6"/>
+  <text x="1388" y="659" class="micro">rebuild</text>
+  <text x="1387" y="676" class="micro">table</text>
+
+  <rect class="stageRx" x="1045" y="720" width="120" height="52" rx="6"/>
+  <text x="1058" y="741" class="tiny">Huffman</text>
+  <text x="1053" y="760" class="tiny">prefix decode</text>
+
+  <rect class="stageRx" x="1182" y="720" width="118" height="52" rx="6"/>
+  <text x="1198" y="741" class="tiny">byte packer</text>
+  <text x="1194" y="760" class="tiny">32-bit words</text>
+
+  <rect class="stageRx" x="1318" y="720" width="135" height="52" rx="6"/>
+  <text x="1330" y="741" class="tiny">APB/RX IF</text>
+  <text x="1328" y="760" class="tiny">write-back queue</text>
+
+  <path d="M1120 664 H1137" class="rxData thin"/>
+  <path d="M1229 664 H1246" class="rxData thin"/>
+  <path d="M1358 664 H1375" class="tableData thin"/>
+  <path d="M1414 690 V703 H1105 V720" class="tableData thin"/>
+  <path d="M1165 746 H1182" class="rxData thin"/>
+  <path d="M1300 746 H1318" class="rxData thin"/>
+  <text x="1026" y="806" class="tiny">RX rebuilds canonical codes from header entries.</text>
+  <text x="1026" y="827" class="tiny">RX writes recovered plaintext to DMEM.</text>
+
+  <!-- Connections between DMA, accelerator lanes, and DMEM -->
+  <path d="M976 324 H1010" class="bus"/>
+  <text x="984" y="304" class="tiny">APB/control</text>
+  <path d="M1572 300 H1468" class="txData"/>
+  <text x="1485" y="281" class="tiny">read plaintext</text>
+  <path d="M1468 408 H1572" class="txData"/>
+  <text x="1482" y="390" class="tiny">write ciphertext</text>
+
+  <path d="M976 636 H1010" class="bus"/>
+  <text x="984" y="616" class="tiny">APB/control</text>
+  <path d="M1572 650 H1468" class="rxData"/>
+  <text x="1482" y="631" class="tiny">read ciphertext</text>
+  <path d="M1468 746 H1572" class="rxData"/>
+  <text x="1482" y="727" class="tiny">write plaintext</text>
+
+  <path d="M930 370 V525 H1530" class="sig thin"/>
+  <text x="1070" y="517" class="tiny">DMA read/write request and address generation</text>
+  <path d="M930 590 V535 H1530" class="sig thin"/>
+
+  <!-- Bottom legend -->
+  <rect class="block" x="284" y="780" width="242" height="150" rx="8"/>
+  <text x="304" y="812" class="label2">Legend</text>
+  <line x1="310" y1="844" x2="380" y2="844" class="bus"/>
+  <text x="394" y="850" class="small">APB/control path</text>
+  <line x1="310" y1="878" x2="380" y2="878" class="txData"/>
+  <text x="394" y="884" class="small">TX data path</text>
+  <line x1="310" y1="912" x2="380" y2="912" class="rxData"/>
+  <text x="394" y="918" class="small">RX data path</text>
+
+  <rect class="callout" x="560" y="875" width="905" height="46" rx="7"/>
+  <text x="585" y="904" class="small">Main point: TX stores compact Huffman table info in the header; RX rebuilds the table before decoding payload bits.</text>
+  <rect x="560" y="930" width="905" height="34" rx="7" fill="#fff7e8" stroke="#ef7d15" stroke-width="1.8"/>
+  <text x="585" y="953" class="tiny">TX: plaintext bytes -> dynamic Huffman encode -> transport word -> AES-CBC ciphertext</text>
+  <rect x="560" y="968" width="905" height="34" rx="7" fill="#effaf4" stroke="#14895a" stroke-width="1.8"/>
+  <text x="585" y="991" class="tiny">RX: AES-CBC plaintext transport word -> parse header -> rebuild canonical table -> Huffman decode -> plaintext bytes</text>
+</svg>

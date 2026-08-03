@@ -1,0 +1,83 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/2sq2v7",
+    "id": "2sq2v7",
+    "slide": 1,
+    "layoutId": "f7e9ca4c-762e-44ec-9af1-9d2dee7f8383",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "289be1ed-7003-4458-9d30-ef9529a2e154",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#F7FAFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "bg1": "#FFFFFF",
+      "bg2": "#000000",
+      "tx1": "#1F1F1F",
+      "tx2": "#FFFFFF",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    }
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "f7e9ca4c-762e-44ec-9af1-9d2dee7f8383",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "289be1ed-7003-4458-9d30-ef9529a2e154",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "289be1ed-7003-4458-9d30-ef9529a2e154",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/at47y1kr",
+      "id": "1",
+      "bbox": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "alt": "Secure-storage ECG paper comparison slide",
+      "contentType": "image/png",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "94a67c65-5f57-4b63-a7d0-7a61b326cc67",
+        "contentType": "image/png",
+        "byteLength": 234627
+      }
+    }
+  ],
+  "composeRuns": []
+}

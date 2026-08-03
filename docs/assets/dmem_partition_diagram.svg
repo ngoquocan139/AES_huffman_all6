@@ -39,7 +39,7 @@
 
     <rect class="box" x="0" y="176" width="820" height="118" fill="#fde68a"/>
     <text x="18" y="202" class="addr">0x0000_0100 .. 0x0000_01FF</text>
-    <text x="18" y="226" class="label">Secure metadata zeroize page</text>
+    <text x="18" y="226" class="label">Secure metadata / IV page</text>
     <text x="38" y="250" class="note">slot0 0x0100..0x013F, slot1 0x0140..0x017F, slot2 0x0180..0x01BF</text>
     <text x="38" y="274" class="note">IV counter at 0x01F0</text>
 

@@ -29,10 +29,10 @@ foreach pat (`cat pat.list | sed '\/\//d' | sed '/^#/d' | sed '/^$/d'`)
             set c_src = "test_mmio_dma.c"
             set run_args = "+CASE_NAME=dma_compress_aes_input3 +INPUT_FILE=input3.txt"
             breaksw
-        case dma_storage_table_input1_then_input2:
+        case dma_storage_table_three_record_bundle:
             set tb_name = "test_bench"
             set c_src = "test_mmio_dma_storage_table.c"
-            set run_args = "+CASE_NAME=dma_storage_table_input1_then_input2 +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt"
+            set run_args = "+CASE_NAME=dma_storage_table_three_record_bundle +INPUT_FILE=input1.txt +INPUT_FILE2=input2.txt +INPUT_FILE3=mitdb_112_mlii_10s_delta2_var.bin +INPUT_BINARY +STORAGE_BUNDLE +STORAGE_TRACE"
             breaksw
         case dma_compress_aes_one_symbol_cov:
             set tb_name = "test_bench"

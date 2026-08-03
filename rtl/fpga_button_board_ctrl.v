@@ -8,7 +8,7 @@ module fpga_button_board_ctrl #(
   parameter [31:0]  RESULT_BASE_ADDR      = 32'h0000_0000,
   parameter integer RESULT_WORDS          = 16,
   parameter [31:0]  ZEROIZE_BASE_ADDR     = 32'h0000_0100,
-  parameter integer ZEROIZE_WORDS         = 64,
+  parameter integer ZEROIZE_WORDS         = 8128,
   parameter [31:0]  FILE_ID_A             = 32'd1,
   parameter [31:0]  FILE_ID_B             = 32'd2,
   parameter [31:0]  FILE_ID_C             = 32'd3
@@ -48,7 +48,7 @@ module fpga_button_board_ctrl #(
   localparam [3:0] ST_SNAPSHOT_META3   = 4'd11;
 
   localparam [31:0] SNAPSHOT_MAGIC = 32'h534e4150; // "SNAP"
-  localparam [7:0] ZEROIZE_LAST_W = ZEROIZE_WORDS - 1;
+  localparam [15:0] ZEROIZE_LAST_W = ZEROIZE_WORDS - 1;
   localparam [7:0] SNAPSHOT_LAST_W = RESULT_WORDS - 1;
 
   wire run_level_w;
@@ -80,7 +80,7 @@ module fpga_button_board_ctrl #(
   reg [31:0] event_count_r;
   reg [31:0] zeroize_count_r;
   reg [31:0] snapshot_count_r;
-  reg [7:0]  zeroize_idx_r;
+  reg [15:0] zeroize_idx_r;
   reg [7:0]  snapshot_idx_r;
   reg [31:0] snapshot_word_r;
 
@@ -194,7 +194,7 @@ module fpga_button_board_ctrl #(
       event_count_r      <= 32'd0;
       zeroize_count_r    <= 32'd0;
       snapshot_count_r   <= 32'd0;
-      zeroize_idx_r      <= 8'd0;
+      zeroize_idx_r      <= 16'd0;
       snapshot_idx_r     <= 8'd0;
       snapshot_word_r    <= 32'd0;
       aux_en_o           <= 1'b0;
@@ -265,7 +265,7 @@ module fpga_button_board_ctrl #(
             if (pending_zeroize_r) begin
               pending_zeroize_r <= 1'b0;
               zeroize_active_r  <= 1'b1;
-              zeroize_idx_r     <= 8'd0;
+              zeroize_idx_r     <= 16'd0;
               state_r           <= ST_ZEROIZE_WRITE;
             end else if (pending_snapshot_r) begin
               pending_snapshot_r <= 1'b0;
@@ -322,17 +322,17 @@ module fpga_button_board_ctrl #(
           if (!loader_busy_i) begin
             aux_en_o    <= 1'b1;
             aux_we_o    <= 4'b1111;
-            aux_addr_o  <= ZEROIZE_BASE_ADDR + {22'd0, zeroize_idx_r, 2'b00};
+            aux_addr_o  <= ZEROIZE_BASE_ADDR + {14'd0, zeroize_idx_r, 2'b00};
             aux_wdata_o <= 32'd0;
             if (zeroize_idx_r == ZEROIZE_LAST_W) begin
-              zeroize_idx_r     <= 8'd0;
+              zeroize_idx_r     <= 16'd0;
               zeroize_active_r  <= 1'b0;
               zeroize_done_r    <= 1'b1;
               zeroize_count_r   <= zeroize_count_r + 32'd1;
               pending_status_r  <= 1'b1;
               state_r           <= ST_IDLE;
             end else begin
-              zeroize_idx_r <= zeroize_idx_r + 8'd1;
+              zeroize_idx_r <= zeroize_idx_r + 16'd1;
             end
           end
         end

@@ -1,0 +1,88 @@
+{"kind":"deck","id":"pr/c15n2l","name":"Deck"}
+{"kind":"layout","layoutId":"dd4e6462-387b-4a4f-b9f3-7b3591de5d56","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"0409dc7e-d626-410f-86ee-d4baa0527a92","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/7wmkrz","slide":1,"title":"C","textShapes":74}
+{"kind":"shape","id":"sh/oj2t83it","slide":1,"name":"logo-circle","bbox":[67,35,76,76]}
+{"kind":"textbox","id":"sh/vy90je9c","slide":1,"name":"logo-mark","text":"C","textPreview":"C","textChars":1,"textLines":1,"bbox":[84,43,42,42]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":1,"name":"logo-caption","text":"HCMUTE","textPreview":"HCMUTE","textChars":6,"textLines":1,"bbox":[64,114,85,22]}
+{"kind":"textbox","id":"sh/dsji5sne","slide":1,"name":"university-name","text":"HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY\nAND EDUCATION","textPreview":"HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY | AND EDUCATION","textChars":55,"textLines":2,"bbox":[165,38,620,64]}
+{"kind":"textbox","id":"sh/o7qpg3ex","slide":1,"name":"university-subtitle","text":"HCMC University of Technology and Education","textPreview":"HCMC University of Technology and Education","textChars":43,"textLines":1,"bbox":[165,102,520,26]}
+{"kind":"textbox","id":"sh/vmtwra5g","slide":1,"name":"section-band","text":"DESIGN QUALITY EVALUATION","textPreview":"DESIGN QUALITY EVALUATION","textChars":25,"textLines":1,"bbox":[45,155,945,70]}
+{"kind":"textbox","id":"sh/61032lsz","slide":1,"name":"performance-title","text":"Performance Evaluation","textPreview":"Performance Evaluation","textChars":22,"textLines":1,"bbox":[85,265,640,50]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":1,"name":"performance-subtitle","text":"Direct RTL/FPGA verification on ECG secure-storage workload","textPreview":"Direct RTL/FPGA verification on ECG secure-storage workload","textChars":59,"textLines":1,"bbox":[85,330,720,34]}
+{"kind":"shape","id":"sh/mtwra5gb","slide":1,"name":"metric-card-0","bbox":[85,745,205,90]}
+{"kind":"textbox","id":"sh/fepkzupw","slide":1,"name":"metric-value-0","text":"29.87%","textPreview":"29.87%","textChars":6,"textLines":1,"bbox":[85,758,205,36]}
+{"kind":"textbox","id":"sh/4zidonyd","slide":1,"name":"metric-label-0","text":"final ratio","textPreview":"final ratio","textChars":11,"textLines":1,"bbox":[85,795,205,26]}
+{"kind":"shape","id":"sh/xkf6dcbu","slide":1,"name":"metric-card-1","bbox":[320,745,205,90]}
+{"kind":"textbox","id":"sh/mlkjm1cf","slide":1,"name":"metric-value-1","text":"70.13%","textPreview":"70.13%","textChars":6,"textLines":1,"bbox":[320,758,205,36]}
+{"kind":"textbox","id":"sh/f6dcbulw","slide":1,"name":"metric-label-1","text":"raw ECG saving","textPreview":"raw ECG saving","textChars":14,"textLines":1,"bbox":[320,795,205,26]}
+{"kind":"shape","id":"sh/4r65wjud","slide":1,"name":"metric-card-2","bbox":[555,745,205,90]}
+{"kind":"textbox","id":"sh/xc3ylc7u","slide":1,"name":"metric-value-2","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[555,758,205,36]}
+{"kind":"textbox","id":"sh/m94fu18j","slide":1,"name":"metric-label-2","text":"byte match","textPreview":"byte match","textChars":10,"textLines":1,"bbox":[555,795,205,26]}
+{"kind":"shape","id":"sh/fu18jqh0","slide":1,"name":"input-box","bbox":[85,850,675,122]}
+{"kind":"textbox","id":"sh/7qpg3ex0","slide":1,"name":"input-title","text":"Comparison input set:","textPreview":"Comparison input set:","textChars":21,"textLines":1,"bbox":[105,864,230,24]}
+{"kind":"textbox","id":"sh/i5sneloj","slide":1,"name":"input-details","text":"MIT-BIH records: 100, 106, 112, 117, 213\nRaw reference: 7200 B/record = 3600 samples x 2 B\nSoC input avg 3603.8 B; stored avg 2150.4 B\nPaper platform: MATLAB 2018a, Win7 64-bit, i5 2nd Gen, 8 GB RAM","textPreview":"MIT-BIH records: 100, 106, 112, 117, 213 | Raw reference: 7200 B/record = 3600 samples x 2 B | SoC input avg 3603.8 B; stored avg 2150.4 ...","textChars":198,"textLines":4,"bbox":[105,892,635,72]}
+{"kind":"textbox","id":"sh/pwb2hwfy","slide":1,"name":"comparison-title","text":"Comparison with ECG Huffman + CBC-AES Paper","textPreview":"Comparison with ECG Huffman + CBC-AES Paper","textChars":43,"textLines":1,"bbox":[820,300,780,36]}
+{"kind":"textbox","id":"sh/0bi9s36h","slide":1,"name":"table-head-0-surface","text":"Metric","textPreview":"Metric","textChars":6,"textLines":1,"bbox":[820,342,230,48]}
+{"kind":"textbox","id":"sh/7y1kre1w","slide":1,"name":"table-head-1-surface","text":"ECG CBC-AES Paper [1]","textPreview":"ECG CBC-AES Paper [1]","textChars":21,"textLines":1,"bbox":[1050,342,275,48]}
+{"kind":"textbox","id":"sh/ed8v6psf","slide":1,"name":"table-head-2-surface","text":"This Work","textPreview":"This Work","textChars":9,"textLines":1,"bbox":[1325,342,250,48]}
+{"kind":"textbox","id":"sh/p4r65wju","slide":1,"name":"table-head-3-surface","text":"Correctness","textPreview":"Correctness","textChars":11,"textLines":1,"bbox":[1575,342,130,48]}
+{"kind":"textbox","id":"sh/wjudg7ad","slide":1,"name":"table-head-4-surface","text":"Improvement (%)","textPreview":"Improvement (%)","textChars":15,"textLines":1,"bbox":[1705,342,210,48]}
+{"kind":"textbox","id":"sh/72x4nap4","slide":1,"name":"table-r0-c0-surface","text":"Compression\nratio","textPreview":"Compression | ratio","textChars":17,"textLines":2,"bbox":[820,390,230,42]}
+{"kind":"textbox","id":"sh/ih4byhgn","slide":1,"name":"table-r0-c1-surface","text":"35.015%","textPreview":"35.015%","textChars":7,"textLines":1,"bbox":[1050,390,275,42]}
+{"kind":"textbox","id":"sh/c3ylc7u5","slide":1,"name":"table-r0-c2-surface","text":"29.87%","textPreview":"29.87%","textChars":6,"textLines":1,"bbox":[1325,390,250,42]}
+{"kind":"textbox","id":"sh/1kre1w7m","slide":1,"name":"table-r0-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,390,130,42]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":1,"name":"table-r0-c4-surface","text":"+14.69%","textPreview":"+14.69%","textChars":7,"textLines":1,"bbox":[1705,390,210,42]}
+{"kind":"textbox","id":"sh/ji5snelo","slide":1,"name":"table-r1-c0-surface","text":"Space\nsaving","textPreview":"Space | saving","textChars":12,"textLines":2,"bbox":[820,432,230,42]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":1,"name":"table-r1-c1-surface","text":"64.985%","textPreview":"64.985%","textChars":7,"textLines":1,"bbox":[1050,432,275,42]}
+{"kind":"textbox","id":"sh/1cfa9w3m","slide":1,"name":"table-r1-c2-surface","text":"70.13%","textPreview":"70.13%","textChars":6,"textLines":1,"bbox":[1325,432,250,42]}
+{"kind":"textbox","id":"sh/ulwval87","slide":1,"name":"table-r1-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,432,130,42]}
+{"kind":"textbox","id":"sh/j6tovaho","slide":1,"name":"table-r1-c4-surface","text":"+7.92%","textPreview":"+7.92%","textChars":6,"textLines":1,"bbox":[1705,432,210,42]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":1,"name":"table-r2-c0-surface","text":"PRD / byte\nmatch","textPreview":"PRD / byte | match","textChars":16,"textLines":2,"bbox":[820,474,230,42]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":1,"name":"table-r2-c1-surface","text":"0.411","textPreview":"0.411","textChars":5,"textLines":1,"bbox":[1050,474,275,42]}
+{"kind":"textbox","id":"sh/twra5gbq","slide":1,"name":"table-r2-c2-surface","text":"0 mismatch\nbyte-exact RX","textPreview":"0 mismatch | byte-exact RX","textChars":24,"textLines":2,"bbox":[1325,474,250,42]}
+{"kind":"textbox","id":"sh/4byhgn29","slide":1,"name":"table-r2-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,474,130,42]}
+{"kind":"textbox","id":"sh/bq1oryts","slide":1,"name":"table-r2-c4-surface","text":"0%","textPreview":"0%","textChars":2,"textLines":1,"bbox":[1705,474,210,42]}
+{"kind":"textbox","id":"sh/m58z25kb","slide":1,"name":"table-r3-c0-surface","text":"Compression\ntime","textPreview":"Compression | time","textChars":16,"textLines":2,"bbox":[820,516,230,42]}
+{"kind":"textbox","id":"sh/t83itgfm","slide":1,"name":"table-r3-c1-surface","text":"~3.8641 s","textPreview":"~3.8641 s","textChars":9,"textLines":1,"bbox":[1050,516,275,42]}
+{"kind":"textbox","id":"sh/4nap4r65","slide":1,"name":"table-r3-c2-surface","text":"1.056 ms\nTX comp-only","textPreview":"1.056 ms | TX comp-only","textChars":21,"textLines":2,"bbox":[1325,516,250,42]}
+{"kind":"textbox","id":"sh/b2hwfyxo","slide":1,"name":"table-r3-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,516,130,42]}
+{"kind":"textbox","id":"sh/mhk3q5o7","slide":1,"name":"table-r3-c4-surface","text":"+99.97%","textPreview":"+99.97%","textChars":7,"textLines":1,"bbox":[1705,516,210,42]}
+{"kind":"textbox","id":"sh/tgfmlkjm","slide":1,"name":"table-r4-c0-surface","text":"Decompression\ntime","textPreview":"Decompression | time","textChars":18,"textLines":2,"bbox":[820,558,230,42]}
+{"kind":"textbox","id":"sh/4vmtwra5","slide":1,"name":"table-r4-c1-surface","text":"~0.5818 s","textPreview":"~0.5818 s","textChars":9,"textLines":1,"bbox":[1050,558,275,42]}
+{"kind":"textbox","id":"sh/epkzupwb","slide":1,"name":"table-r4-c2-surface","text":"0.483 ms\nRX Huffman","textPreview":"0.483 ms | RX Huffman","textChars":19,"textLines":2,"bbox":[1325,558,250,42]}
+{"kind":"textbox","id":"sh/7adsji5s","slide":1,"name":"table-r4-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,558,130,42]}
+{"kind":"textbox","id":"sh/wval87ed","slide":1,"name":"table-r4-c4-surface","text":"+99.92%","textPreview":"+99.92%","textChars":7,"textLines":1,"bbox":[1705,558,210,42]}
+{"kind":"textbox","id":"sh/pg3ex0nu","slide":1,"name":"table-r5-c0-surface","text":"Encryption\ntime","textPreview":"Encryption | time","textChars":15,"textLines":2,"bbox":[820,600,230,42]}
+{"kind":"textbox","id":"sh/e1w7mp0b","slide":1,"name":"table-r5-c1-surface","text":"~2.7106 s","textPreview":"~2.7106 s","textChars":9,"textLines":1,"bbox":[1050,600,275,42]}
+{"kind":"textbox","id":"sh/7mp0bi9s","slide":1,"name":"table-r5-c2-surface","text":"29.6 us\nTX AES","textPreview":"29.6 us | TX AES","textChars":14,"textLines":2,"bbox":[1325,600,250,42]}
+{"kind":"textbox","id":"sh/w7mp0bi9","slide":1,"name":"table-r5-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,600,130,42]}
+{"kind":"textbox","id":"sh/psfil0rq","slide":1,"name":"table-r5-c4-surface","text":"+99.999%","textPreview":"+99.999%","textChars":8,"textLines":1,"bbox":[1705,600,210,42]}
+{"kind":"textbox","id":"sh/ed8bat47","slide":1,"name":"table-r6-c0-surface","text":"Decryption\ntime","textPreview":"Decryption | time","textChars":15,"textLines":2,"bbox":[820,642,230,42]}
+{"kind":"textbox","id":"sh/7u54zido","slide":1,"name":"table-r6-c1-surface","text":"~3.0449 s","textPreview":"~3.0449 s","textChars":9,"textLines":1,"bbox":[1050,642,275,42]}
+{"kind":"textbox","id":"sh/vy90je9c","slide":1,"name":"table-r6-c2-surface","text":"69.2 us\nRX AES","textPreview":"69.2 us | RX AES","textChars":14,"textLines":2,"bbox":[1325,642,250,42]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":1,"name":"table-r6-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,642,130,42]}
+{"kind":"textbox","id":"sh/d4vmtwra","slide":1,"name":"table-r6-c4-surface","text":"+99.998%","textPreview":"+99.998%","textChars":8,"textLines":1,"bbox":[1705,642,210,42]}
+{"kind":"textbox","id":"sh/oj2t83it","slide":1,"name":"table-r7-c0-surface","text":"Compression +\nencryption","textPreview":"Compression + | encryption","textChars":24,"textLines":2,"bbox":[820,684,230,42]}
+{"kind":"textbox","id":"sh/vmtwra5g","slide":1,"name":"table-r7-c1-surface","text":"~6.5747 s","textPreview":"~6.5747 s","textChars":9,"textLines":1,"bbox":[1050,684,275,42]}
+{"kind":"textbox","id":"sh/61032lsz","slide":1,"name":"table-r7-c2-surface","text":"1.065 ms\nTX path","textPreview":"1.065 ms | TX path","textChars":16,"textLines":2,"bbox":[1325,684,250,42]}
+{"kind":"textbox","id":"sh/dsji5sne","slide":1,"name":"table-r7-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,684,130,42]}
+{"kind":"textbox","id":"sh/o7qpg3ex","slide":1,"name":"table-r7-c4-surface","text":"+99.98%","textPreview":"+99.98%","textChars":7,"textLines":1,"bbox":[1705,684,210,42]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":1,"name":"table-r8-c0-surface","text":"TX/RX cycles","textPreview":"TX/RX cycles","textChars":12,"textLines":1,"bbox":[820,726,230,42]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":1,"name":"table-r8-c1-surface","text":"N/R","textPreview":"N/R","textChars":3,"textLines":1,"bbox":[1050,726,275,42]}
+{"kind":"textbox","id":"sh/gr2p8nqx","slide":1,"name":"table-r8-c2-surface","text":"53233 TX\n24222 RX","textPreview":"53233 TX | 24222 RX","textChars":17,"textLines":2,"bbox":[1325,726,250,42]}
+{"kind":"textbox","id":"sh/9cvixcze","slide":1,"name":"table-r8-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,726,130,42]}
+{"kind":"textbox","id":"sh/ylc7u54z","slide":1,"name":"table-r8-c4-surface","text":"0%","textPreview":"0%","textChars":2,"textLines":1,"bbox":[1705,726,210,42]}
+{"kind":"textbox","id":"sh/r65wjudg","slide":1,"name":"table-r9-c0-surface","text":"TX/RX throughput","textPreview":"TX/RX throughput","textChars":16,"textLines":1,"bbox":[820,768,230,42]}
+{"kind":"textbox","id":"sh/g3ex0nux","slide":1,"name":"table-r9-c1-surface","text":"N/R","textPreview":"N/R","textChars":3,"textLines":1,"bbox":[1050,768,275,42]}
+{"kind":"textbox","id":"sh/5o7qpg3e","slide":1,"name":"table-r9-c2-surface","text":"6.828 MB/s TX-in\n15.072 MB/s RX-out","textPreview":"6.828 MB/s TX-in | 15.072 MB/s RX-out","textChars":35,"textLines":2,"bbox":[1325,768,250,42]}
+{"kind":"textbox","id":"sh/yxobm58z","slide":1,"name":"table-r9-c3-surface","text":"100%","textPreview":"100%","textChars":4,"textLines":1,"bbox":[1575,768,130,42]}
+{"kind":"textbox","id":"sh/nih4byhg","slide":1,"name":"table-r9-c4-surface","text":"0%","textPreview":"0%","textChars":2,"textLines":1,"bbox":[1705,768,210,42]}
+{"kind":"shape","id":"sh/g7adsji5","slide":1,"name":"source-box","bbox":[820,824,1095,128]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":1,"name":"source-label","text":"Source:","textPreview":"Source:","textChars":7,"textLines":1,"bbox":[845,842,90,26]}
+{"kind":"textbox","id":"sh/h4byhgn2","slide":1,"name":"source-note","text":"[1] A lossless compression and encryption mechanism for remote monitoring of ECG data\nusing Huffman coding and CBC-AES, FGCS 2019; simulated in MATLAB 2018a on Windows 7,\ni5 2nd Gen, 8 GB RAM. N/R = not reported.\nNote: ML precision is TP/(TP+FP); this slide uses byte-match correctness = matched bytes/total bytes.\nRTL timing is measured from perf counters at 50 MHz on the five MIT-BIH records.","textPreview":"[1] A lossless compression and encryption mechanism for remote monitoring of ECG data | using Huffman coding and CBC-AES, FGCS 2019; simu...","textChars":395,"textLines":5,"bbox":[945,838,945,96]}
+{"kind":"shape","id":"sh/sji5snel","slide":1,"name":"footer-blue","bbox":[50,1000,1730,60]}
+{"kind":"shape","id":"sh/3ylc7u54","slide":1,"name":"footer-red","bbox":[1780,1000,90,60]}
+{"kind":"textbox","id":"sh/adsji5sn","slide":1,"name":"footer-text","text":"Application target: embedded secure data storage with compression, encryption, and byte-exact readback.","textPreview":"Application target: embedded secure data storage with compression, encryption, and byte-exact readback.","textChars":103,"textLines":1,"bbox":[75,1015,1665,32]}
+{"kind":"image","id":"im/hcrmhk3q","slide":1,"name":"","geometry":"roundRect","alt":"FPGA secure-storage run log","bbox":[85,395,675,310]}
+{"kind":"notes","id":"nt/7wmkrz","slide":1,"text":""}

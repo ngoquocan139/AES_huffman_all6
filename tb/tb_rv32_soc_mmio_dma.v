@@ -35,6 +35,7 @@ module test_bench;
 
   localparam [31:0] INPUT_LEN_ADDR   = 32'h00000040;
   localparam [31:0] INPUT2_LEN_ADDR  = 32'h00000044;
+  localparam [31:0] BOARD_FILE_ID_ADDR = 32'h00000054;
   localparam [31:0] SRC_BASE_ADDR    = 32'h00002000;
   localparam [31:0] SRC2_BASE_ADDR   = 32'h00003000;
   localparam [31:0] UART_STAGE_BASE_ADDR = 32'h00000800;
@@ -149,6 +150,11 @@ module test_bench;
   integer storage_bundle_record_count;
   integer storage_expected_record_count;
   integer source_compare_base_addr;
+  integer storage_bundle_file1_offset;
+  integer storage_bundle_file2_offset;
+  integer storage_bundle_file3_offset;
+  integer storage_readback_mismatch_count;
+  integer storage_expected_dma_starts;
 
   reg [127:0] first_tx_transport_word;
   reg [127:0] first_tx_ciphertext_dmem_word;
@@ -418,6 +424,14 @@ module test_bench;
                       (mode == MODE_TX_COMPRESS_ONLY_BLOCK) ||
                       (mode == MODE_TX_COMPRESS_AES_WHOLE)  ||
                       (mode == MODE_TX_COMPRESS_ONLY_WHOLE);
+    end
+  endfunction
+
+  function automatic is_tx_compress_only_mode;
+    input [31:0] mode;
+    begin
+      is_tx_compress_only_mode = (mode == MODE_TX_COMPRESS_ONLY_BLOCK) ||
+                                 (mode == MODE_TX_COMPRESS_ONLY_WHOLE);
     end
   endfunction
 
@@ -886,6 +900,7 @@ module test_bench;
       bundle_offset = ((8 + (storage_bundle_record_count * 16) + 15) / 16) * 16;
 
       file1_offset = bundle_offset;
+      storage_bundle_file1_offset = file1_offset;
       source_compare_base_addr = UART_STAGE_BASE_ADDR + file1_offset;
       load_bundle_file_to_dmem(input_file_name,
                                UART_STAGE_BASE_ADDR + file1_offset,
@@ -897,6 +912,7 @@ module test_bench;
 
       if (input2_file_enable) begin
         file2_offset = bundle_offset;
+        storage_bundle_file2_offset = file2_offset;
         load_bundle_file_to_dmem(input2_file_name,
                                  UART_STAGE_BASE_ADDR + file2_offset,
                                  max_bundle_payload - file2_offset,
@@ -908,6 +924,7 @@ module test_bench;
 
       if (input3_file_enable) begin
         file3_offset = bundle_offset;
+        storage_bundle_file3_offset = file3_offset;
         load_bundle_file_to_dmem(input3_file_name,
                                  UART_STAGE_BASE_ADDR + file3_offset,
                                  max_bundle_payload - file3_offset,
@@ -929,6 +946,60 @@ module test_bench;
       if (input3_file_enable)
         $display("#   bundle[3] file=%0s len=%0d offset=0x%08x",
                  input3_file_name, input3_len_bytes, file3_offset);
+    end
+  endtask
+
+  task automatic wait_for_storage_selected_id;
+    input [31:0] selected_id;
+    input integer expected_len;
+    integer poll;
+    begin
+      aux_write_word(BOARD_FILE_ID_ADDR, selected_id);
+      repeat (8) @(posedge clk);
+
+      begin : wait_for_selected_report
+        for (poll = 0; poll < MAX_WAIT_CYCLES; poll = poll + 1) begin
+          for (i = 0; i < 16; i = i + 1)
+            aux_read_word(i * 4, result_words[i]);
+
+          if ((result_words[0] === RESULT_SIGNATURE_STOR) &&
+              (result_words[1] === 32'h00000000) &&
+              (result_words[8] === EXPECTED_RX_DONE) &&
+              (result_words[9] === expected_len[31:0]) &&
+              (result_words[14] === selected_id))
+            disable wait_for_selected_report;
+
+          @(posedge clk);
+        end
+      end
+
+      if (!((result_words[0] === RESULT_SIGNATURE_STOR) &&
+            (result_words[1] === 32'h00000000) &&
+            (result_words[8] === EXPECTED_RX_DONE) &&
+            (result_words[9] === expected_len[31:0]) &&
+            (result_words[14] === selected_id))) begin
+        $display("[FAIL] storage selected file_id=%0d did not complete, result_id=%0d rx_len=%0d expected_len=%0d error=0x%08x",
+                 selected_id, result_words[14], result_words[9], expected_len, result_words[1]);
+        fail_count = fail_count + 1;
+      end
+    end
+  endtask
+
+  task automatic compare_rx_region_to_source;
+    input [31:0] source_base_addr;
+    input integer byte_count;
+    output integer mismatch_count;
+    integer idx;
+    reg [7:0] src_byte;
+    reg [7:0] rx_byte;
+    begin
+      mismatch_count = 0;
+      for (idx = 0; idx < byte_count; idx = idx + 1) begin
+        aux_read_byte(source_base_addr + idx, src_byte);
+        aux_read_byte(RX_DST_BASE_ADDR + idx, rx_byte);
+        if (rx_byte !== src_byte)
+          mismatch_count = mismatch_count + 1;
+      end
     end
   endtask
 
@@ -6013,6 +6084,9 @@ module test_bench;
     end else if ($test$plusargs("LOG_TRACE")) begin
       testcase_label = "TP-03 Log-Event Huffman Compression-Only Verification";
       trace_prefix = "LOG";
+    end else if ($test$plusargs("STORAGE_TRACE")) begin
+      testcase_label = "TP-04 Software-Managed Multi-Record Storage Verification";
+      trace_prefix = "STOR";
     end else if ($test$plusargs("DMA_TRACE")) begin
       testcase_label = "DMA Secure-Storage Loopback Verification";
       trace_prefix = "DMA";
@@ -6022,6 +6096,11 @@ module test_bench;
     input3_len_bytes = 0;
     storage_bundle_record_count = 0;
     storage_expected_record_count = input2_file_enable ? 2 : 1;
+    storage_bundle_file1_offset = 0;
+    storage_bundle_file2_offset = 0;
+    storage_bundle_file3_offset = 0;
+    storage_readback_mismatch_count = 0;
+    storage_expected_dma_starts = 0;
     source_compare_base_addr = SRC_BASE_ADDR;
     src_mismatch_count = 0;
     rx_mismatch_count = 0;
@@ -6059,6 +6138,7 @@ module test_bench;
       load_input_txt_to_dmem;
       load_secondary_input_txt_to_dmem;
     end
+    aux_write_word(BOARD_FILE_ID_ADDR, 32'h00000001);
     rst = 0;
 
     wait_cycles = 0;
@@ -6428,6 +6508,7 @@ module test_bench;
       check_true ("tx_ciphertext_region_should_not_be_all_zero", tx_nonzero_byte_count != 0);
       check_eq_32("dma_start_pulse_count", dma_start_pulse_count, 32'h00000002);
     end else if (result_words[0] == RESULT_SIGNATURE_STOR) begin
+      storage_expected_dma_starts = storage_expected_record_count + 1;
       check_eq_32("storage_result_signature", result_words[0], RESULT_SIGNATURE_STOR);
       check_eq_32("storage_cpu_error_mask_should_be_zero", result_words[1], 32'h00000000);
       check_eq_32("storage_tx1_status_before_start", result_words[2], EXPECTED_TX_IDLE);
@@ -6454,8 +6535,26 @@ module test_bench;
       check_eq_32("source_dmem_should_match_input1_file", src_mismatch_count, 32'h00000000);
       check_eq_32("loopback_rx_should_match_input1_file", rx_mismatch_count, 32'h00000000);
       check_true ("storage_tx1_ciphertext_region_should_not_be_all_zero", tx_nonzero_byte_count != 0);
+      if (storage_bundle_mode && (storage_expected_record_count == 3)) begin
+        wait_for_storage_selected_id(32'h00000002, input2_len_bytes);
+        compare_rx_region_to_source(UART_STAGE_BASE_ADDR + storage_bundle_file2_offset[31:0],
+                                    input2_len_bytes,
+                                    storage_readback_mismatch_count);
+        check_eq_32("storage_file2_selected_id", result_words[14], 32'h00000002);
+        check_eq_32("storage_file2_rx_len_matches_input2", result_words[9], input2_len_bytes[31:0]);
+        check_eq_32("storage_file2_readback_matches_source", storage_readback_mismatch_count, 32'h00000000);
+
+        wait_for_storage_selected_id(32'h00000003, input3_len_bytes);
+        compare_rx_region_to_source(UART_STAGE_BASE_ADDR + storage_bundle_file3_offset[31:0],
+                                    input3_len_bytes,
+                                    storage_readback_mismatch_count);
+        check_eq_32("storage_file3_selected_id", result_words[14], 32'h00000003);
+        check_eq_32("storage_file3_rx_len_matches_input3", result_words[9], input3_len_bytes[31:0]);
+        check_eq_32("storage_file3_readback_matches_source", storage_readback_mismatch_count, 32'h00000000);
+        storage_expected_dma_starts = storage_expected_record_count * 2;
+      end
       check_eq_32("storage_dma_start_pulse_count", dma_start_pulse_count,
-                  storage_expected_record_count[31:0] + 32'h00000001);
+                  storage_expected_dma_starts[31:0]);
     end else if (result_words[0] == RESULT_SIGNATURE_TX) begin
       check_eq_32("result_signature", result_words[0], RESULT_SIGNATURE_TX);
       check_eq_32("cpu_error_mask_should_be_zero", result_words[1], 32'h00000000);

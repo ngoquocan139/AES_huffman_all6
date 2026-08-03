@@ -30,9 +30,9 @@ DMEM is byte-addressed and spans `0x0000_0000..0x0000_7FFF` (`32 KiB`).
 | `0x0000_0100..0x0000_013F` | `0x40` | metadata slot 0 | Secure-storage metadata record 0 |
 | `0x0000_0140..0x0000_017F` | `0x40` | metadata slot 1 | Secure-storage metadata record 1 |
 | `0x0000_0180..0x0000_01BF` | `0x40` | metadata slot 2 | Secure-storage metadata record 2 |
-| `0x0000_01C0..0x0000_01EF` | `0x30` | Reserved zeroize page | Cleared with metadata page by board zeroize |
+| `0x0000_01C0..0x0000_01EF` | `0x30` | Reserved secure page | Covered by board zeroize |
 | `0x0000_01F0..0x0000_01F3` | `0x04` | `SECURE_IV_COUNTER_ADDR` | Firmware IV/version counter |
-| `0x0000_01F4..0x0000_01FF` | `0x0C` | Reserved zeroize page | Cleared with metadata page by board zeroize |
+| `0x0000_01F4..0x0000_01FF` | `0x0C` | Reserved secure page | Covered by board zeroize |
 | `0x0000_0200..0x0000_023F` | `0x40` | `BOARD_SNAPSHOT_ADDR` | Optional copy of `RESULT_WORD[0..15]` after snapshot button |
 | `0x0000_0240..0x0000_024F` | `0x10` | `BOARD_SNAPSHOT_META` | Snapshot magic, file ID, count, status |
 | `0x0000_0250..0x0000_027F` | `0x30` | Reserved low area | Gap before testcase report |
@@ -54,8 +54,8 @@ Notes:
   `0x0000_4000 + slot * 0x0A00`.
 - The UART bundle stage window starts at `0x0000_0800`. Legacy fixed-source
   tests still use `0x2000` and `0x3000` as plaintext base addresses.
-- Board zeroize clears `0x0000_0100..0x0000_01FF`, covering metadata slots and
-  the IV counter.
+- Board zeroize clears `0x0000_0100..0x0000_7FFF`, covering metadata/IV,
+  plaintext staging, ciphertext slots, RX scratch, and the demo stack area.
 
 ## 3. DMEM Partition Figure
 
@@ -73,7 +73,7 @@ The same layout as a Mermaid flowchart:
 flowchart TB
     A[("0x0000_0000..0x0000_003F<br/>RESULT_WORD[0..15]")]
     B[("0x0000_0040..0x0000_005B<br/>input length + board control words")]
-    C[("0x0000_0100..0x0000_01FF<br/>metadata slots 0..2 + IV counter<br/>zeroize page")]
+    C[("0x0000_0100..0x0000_01FF<br/>metadata slots 0..2 + IV counter<br/>start of board-zeroize range")]
     D[("0x0000_0200..0x0000_024F<br/>board snapshot result/meta")]
     E[("0x0000_0280..0x0000_031F<br/>storage testcase report words")]
     F[("0x0000_0800..0x0000_1FFF<br/>UART stage / bundle window")]

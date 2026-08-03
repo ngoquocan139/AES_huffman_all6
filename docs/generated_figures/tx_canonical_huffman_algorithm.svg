@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <style>
+      .title { font: 700 36px Arial, sans-serif; fill: #07358f; }
+      .subtitle { font: 20px Arial, sans-serif; fill: #475569; }
+      .sectionTitle { font: 700 22px Arial, sans-serif; fill: #ffffff; }
+      .text { font: 18px Arial, sans-serif; fill: #111827; }
+      .small { font: 15px Arial, sans-serif; fill: #475569; }
+      .mono { font: 18px Consolas, monospace; fill: #111827; }
+      .monoBold { font: 700 18px Consolas, monospace; fill: #111827; }
+      .panel { fill: #ffffff; stroke: #b8c7e6; stroke-width: 2; rx: 12; }
+      .blueHead { fill: #0b3292; }
+      .greenHead { fill: #168a5b; }
+      .orangeHead { fill: #f28c28; }
+      .purpleHead { fill: #6d3ad6; }
+      .lightBlue { fill: #eaf2ff; stroke: #2563eb; stroke-width: 1.5; rx: 8; }
+      .lightGreen { fill: #e9fbf1; stroke: #16a34a; stroke-width: 1.5; rx: 8; }
+      .lightOrange { fill: #fff3e6; stroke: #f28c28; stroke-width: 1.5; rx: 8; }
+      .lightPurple { fill: #f3e8ff; stroke: #7c3aed; stroke-width: 1.5; rx: 8; }
+      .gray { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; rx: 8; }
+      .codeBox { fill: #eff6ff; stroke: #1d4ed8; stroke-width: 1.5; rx: 8; }
+      .arrow { stroke: #0b3292; stroke-width: 4; fill: none; marker-end: url(#arrowHead); }
+      .thinArrow { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrowHeadGray); }
+      .line { stroke: #dbe4f0; stroke-width: 1.5; }
+    </style>
+    <marker id="arrowHead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#0b3292" />
+    </marker>
+    <marker id="arrowHeadGray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M1,1 L9,5 L1,9 Z" fill="#64748b" />
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <text x="58" y="58" class="title">TX Canonical Huffman Encoding Algorithm</text>
+  <text x="58" y="94" class="subtitle">The TX path uses the Huffman tree only to derive code lengths, then assigns deterministic canonical codes.</text>
+
+  <!-- Flow arrows -->
+  <path d="M410 198 L500 198" class="arrow"/>
+  <path d="M700 198 L790 198" class="arrow"/>
+  <path d="M1065 198 L1155 198" class="arrow"/>
+
+  <!-- Panel 1 -->
+  <rect x="50" y="135" width="360" height="690" class="panel"/>
+  <rect x="50" y="135" width="360" height="48" class="blueHead"/>
+  <text x="72" y="166" class="sectionTitle">1. Read tree depth</text>
+  <text x="75" y="217" class="text">Code length is the depth from</text>
+  <text x="75" y="242" class="text">leaf symbol to the root.</text>
+
+  <rect x="80" y="280" width="290" height="420" class="gray"/>
+  <text x="110" y="315" class="monoBold">symbol</text>
+  <text x="215" y="315" class="monoBold">depth</text>
+  <text x="300" y="315" class="monoBold">len</text>
+  <line x1="100" y1="335" x2="350" y2="335" class="line"/>
+  <text x="125" y="370" class="mono">E</text><text x="230" y="370" class="mono">1</text><text x="315" y="370" class="mono">1</text>
+  <text x="125" y="410" class="mono">U</text><text x="230" y="410" class="mono">3</text><text x="315" y="410" class="mono">3</text>
+  <text x="125" y="450" class="mono">D</text><text x="230" y="450" class="mono">3</text><text x="315" y="450" class="mono">3</text>
+  <text x="125" y="490" class="mono">L</text><text x="230" y="490" class="mono">3</text><text x="315" y="490" class="mono">3</text>
+  <text x="125" y="530" class="mono">C</text><text x="230" y="530" class="mono">4</text><text x="315" y="530" class="mono">4</text>
+  <text x="125" y="570" class="mono">M</text><text x="230" y="570" class="mono">5</text><text x="315" y="570" class="mono">5</text>
+  <text x="125" y="610" class="mono">Z</text><text x="230" y="610" class="mono">6</text><text x="315" y="610" class="mono">6</text>
+  <text x="125" y="650" class="mono">K</text><text x="230" y="650" class="mono">6</text><text x="315" y="650" class="mono">6</text>
+
+  <rect x="80" y="725" width="290" height="64" class="lightBlue"/>
+  <text x="100" y="752" class="small">Tree is not emitted as the final</text>
+  <text x="100" y="774" class="small">codebook; only code lengths are used.</text>
+
+  <!-- Panel 2 -->
+  <rect x="500" y="135" width="200" height="690" class="panel"/>
+  <rect x="500" y="135" width="200" height="48" class="greenHead"/>
+  <text x="522" y="166" class="sectionTitle">2. Sort</text>
+  <text x="525" y="217" class="text">Canonical rule:</text>
+  <text x="525" y="251" class="small">1. Shorter code_len first</text>
+  <text x="525" y="276" class="small">2. Same len: ASCII first</text>
+
+  <rect x="525" y="320" width="150" height="360" class="lightGreen"/>
+  <text x="552" y="354" class="monoBold">Order</text>
+  <line x1="545" y1="374" x2="655" y2="374" class="line"/>
+  <text x="560" y="410" class="mono">E</text>
+  <text x="560" y="450" class="mono">D</text>
+  <text x="560" y="490" class="mono">L</text>
+  <text x="560" y="530" class="mono">U</text>
+  <text x="560" y="570" class="mono">C</text>
+  <text x="560" y="610" class="mono">M</text>
+  <text x="560" y="650" class="mono">K</text>
+  <text x="560" y="690" class="mono">Z</text>
+
+  <text x="525" y="738" class="small">Example: D, L, U all have</text>
+  <text x="525" y="760" class="small">len=3, so ASCII order is used.</text>
+
+  <!-- Panel 3 -->
+  <rect x="790" y="135" width="275" height="690" class="panel"/>
+  <rect x="790" y="135" width="275" height="48" class="orangeHead"/>
+  <text x="812" y="166" class="sectionTitle">3. Assign codes</text>
+  <text x="815" y="215" class="text">Start with current_code = 0</text>
+
+  <rect x="815" y="245" width="225" height="65" class="codeBox"/>
+  <text x="835" y="273" class="monoBold">len=1</text>
+  <text x="835" y="298" class="mono">E = 0</text>
+
+  <rect x="815" y="330" width="225" height="75" class="gray"/>
+  <text x="835" y="359" class="monoBold">len=2</text>
+  <text x="835" y="384" class="mono">no symbol</text>
+
+  <path d="M928 405 L928 435" class="thinArrow"/>
+  <text x="950" y="428" class="small">shift left</text>
+
+  <rect x="815" y="442" width="225" height="118" class="codeBox"/>
+  <text x="835" y="470" class="monoBold">len=3</text>
+  <text x="835" y="496" class="mono">D = 100</text>
+  <text x="835" y="522" class="mono">L = 101</text>
+  <text x="835" y="548" class="mono">U = 110</text>
+
+  <rect x="815" y="580" width="225" height="55" class="codeBox"/>
+  <text x="835" y="613" class="mono">C = 1110</text>
+
+  <rect x="815" y="655" width="225" height="55" class="codeBox"/>
+  <text x="835" y="688" class="mono">M = 11110</text>
+
+  <rect x="815" y="730" width="225" height="68" class="codeBox"/>
+  <text x="835" y="758" class="mono">K = 111110</text>
+  <text x="835" y="784" class="mono">Z = 111111</text>
+
+  <!-- Panel 4 -->
+  <rect x="1155" y="135" width="395" height="690" class="panel"/>
+  <rect x="1155" y="135" width="395" height="48" class="purpleHead"/>
+  <text x="1177" y="166" class="sectionTitle">4. Final TX tables</text>
+
+  <text x="1185" y="218" class="text">Header stores symbol + code_len:</text>
+  <rect x="1185" y="242" width="330" height="195" class="lightPurple"/>
+  <text x="1208" y="276" class="mono">E:1  D:3  L:3  U:3</text>
+  <text x="1208" y="312" class="mono">C:4  M:5  K:6  Z:6</text>
+  <text x="1208" y="365" class="small">This lets RX rebuild the same</text>
+  <text x="1208" y="388" class="small">canonical codebook.</text>
+
+  <text x="1185" y="478" class="text">Payload uses canonical codes:</text>
+  <rect x="1185" y="502" width="330" height="260" class="lightBlue"/>
+  <text x="1210" y="536" class="mono">E = 0</text>
+  <text x="1210" y="568" class="mono">D = 100</text>
+  <text x="1210" y="600" class="mono">L = 101</text>
+  <text x="1210" y="632" class="mono">U = 110</text>
+  <text x="1210" y="664" class="mono">C = 1110</text>
+  <text x="1210" y="696" class="mono">M = 11110</text>
+  <text x="1210" y="728" class="mono">K = 111110</text>
+  <text x="1210" y="760" class="mono">Z = 111111</text>
+
+  <rect x="50" y="842" width="1500" height="38" fill="#eaf2ff" stroke="#2563eb" stroke-width="1.5" rx="8"/>
+  <text x="97" y="867" class="text">TX output idea: header carries the compact codebook information; payload carries the compressed bitstream encoded with the generated canonical codes.</text>
+</svg>

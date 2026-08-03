@@ -1,0 +1,273 @@
+{"kind":"deck","id":"pr/v8vrv8","name":"Deck"}
+{"kind":"layout","layoutId":"e19d3867-8f47-4bc2-b307-015d20e335e2","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"a1fe2928-64db-4504-8511-86a9f05762c2","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/frkjfw","slide":1,"title":"TX Huffman Tree to Code Length","textShapes":72}
+{"kind":"textbox","id":"sh/wval87ed","slide":1,"text":"TX Huffman Tree to Code Length","textPreview":"TX Huffman Tree to Code Length","textChars":30,"textLines":1,"bbox":[38,24,1140,44]}
+{"kind":"textbox","id":"sh/7adsji5s","slide":1,"text":"TX builds a Huffman tree by repeatedly merging the two lowest-weight nodes, then uses leaf depth as code_len.","textPreview":"TX builds a Huffman tree by repeatedly merging the two lowest-weight nodes, then uses leaf depth as code_len.","textChars":109,"textLines":1,"bbox":[40,68,1140,26]}
+{"kind":"shape","id":"sh/epkzupwb","slide":1,"bbox":[0,100,1280,5]}
+{"kind":"shape","id":"sh/psfil0rq","slide":1,"bbox":[38,122,335,485]}
+{"kind":"shape","id":"sh/w7mp0bi9","slide":1,"bbox":[38,122,335,42]}
+{"kind":"textbox","id":"sh/7mp0bi9s","slide":1,"text":"1. Initial partial trees","textPreview":"1. Initial partial trees","textChars":24,"textLines":1,"bbox":[54,131,303,25]}
+{"kind":"textbox","id":"sh/e1w7mp0b","slide":1,"text":"Start with one leaf per symbol","textPreview":"Start with one leaf per symbol","textChars":30,"textLines":1,"bbox":[65,176,270,25]}
+{"kind":"textbox","id":"sh/l0rqd4vm","slide":1,"text":"2\nZ","textPreview":"2 | Z","textChars":3,"textLines":2,"bbox":[58.88,226.24,58.24,51.52]}
+{"kind":"textbox","id":"sh/wfyxobm5","slide":1,"text":"7\nK","textPreview":"7 | K","textChars":3,"textLines":2,"bbox":[134.88,226.24,58.24,51.52]}
+{"kind":"textbox","id":"sh/ixczed8v","slide":1,"text":"24\nM","textPreview":"24 | M","textChars":4,"textLines":2,"bbox":[210.88,226.24,58.24,51.52]}
+{"kind":"textbox","id":"sh/bi9s36hc","slide":1,"text":"32\nC","textPreview":"32 | C","textChars":4,"textLines":2,"bbox":[286.88,226.24,58.24,51.52]}
+{"kind":"textbox","id":"sh/032lszqt","slide":1,"text":"37\nU","textPreview":"37 | U","textChars":4,"textLines":2,"bbox":[58.88,320.24,58.24,51.52]}
+{"kind":"textbox","id":"sh/tovahoza","slide":1,"text":"42\nD","textPreview":"42 | D","textChars":4,"textLines":2,"bbox":[134.88,320.24,58.24,51.52]}
+{"kind":"textbox","id":"sh/i9s36hcr","slide":1,"text":"42\nL","textPreview":"42 | L","textChars":4,"textLines":2,"bbox":[210.88,320.24,58.24,51.52]}
+{"kind":"textbox","id":"sh/bulwval8","slide":1,"text":"120\nE","textPreview":"120 | E","textChars":5,"textLines":2,"bbox":[286.88,320.24,58.24,51.52]}
+{"kind":"shape","id":"sh/0fepkzup","slide":1,"bbox":[67,445,267,120]}
+{"kind":"textbox","id":"sh/p0bi9s36","slide":1,"text":"Priority queue rule","textPreview":"Priority queue rule","textChars":19,"textLines":1,"bbox":[88,462,225,25]}
+{"kind":"textbox","id":"sh/idonyd0z","slide":1,"text":"Merge two lowest weights.\nParent weight = sum.","textPreview":"Merge two lowest weights. | Parent weight = sum.","textChars":46,"textLines":2,"bbox":[88,500,225,45]}
+{"kind":"textbox","id":"sh/byhgn29g","slide":1,"text":"parent = w1 + w2","textPreview":"parent = w1 + w2","textChars":16,"textLines":1,"bbox":[88,540,225,26]}
+{"kind":"shape","id":"sh/3q5o7qpg","slide":1,"bbox":[405,122,295,485]}
+{"kind":"shape","id":"sh/e9cvixcz","slide":1,"bbox":[405,122,295,42]}
+{"kind":"textbox","id":"sh/lwval87e","slide":1,"text":"2. Merge until root","textPreview":"2. Merge until root","textChars":19,"textLines":1,"bbox":[421,131,263,25]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":1,"text":"Each row is one merge:","textPreview":"Each row is one merge:","textChars":22,"textLines":1,"bbox":[430,176,230,25]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":1,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[430,218,34,27]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":1,"text":"Z2 + K7","textPreview":"Z2 + K7","textChars":7,"textLines":1,"bbox":[480,218,105,27]}
+{"kind":"shape","id":"sh/loj2t83i","slide":1,"bbox":[592,222,25,26]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":1,"text":"9","textPreview":"9","textChars":1,"textLines":1,"bbox":[625,218,52,27]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":1,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[430,261,34,27]}
+{"kind":"textbox","id":"sh/at47y1kr","slide":1,"text":"9 + M24","textPreview":"9 + M24","textChars":7,"textLines":1,"bbox":[480,261,105,27]}
+{"kind":"shape","id":"sh/onyd0z61","slide":1,"bbox":[592,265,25,26]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":1,"text":"33","textPreview":"33","textChars":2,"textLines":1,"bbox":[625,261,52,27]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":1,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[430,304,34,27]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":1,"text":"C32 + 33","textPreview":"C32 + 33","textChars":8,"textLines":1,"bbox":[480,304,105,27]}
+{"kind":"shape","id":"sh/ovahoza1","slide":1,"bbox":[592,308,25,26]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":1,"text":"65","textPreview":"65","textChars":2,"textLines":1,"bbox":[625,304,52,27]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":1,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[430,347,34,27]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":1,"text":"U37 + D42","textPreview":"U37 + D42","textChars":9,"textLines":1,"bbox":[480,347,105,27]}
+{"kind":"shape","id":"sh/o7qpg3ex","slide":1,"bbox":[592,351,25,26]}
+{"kind":"textbox","id":"sh/dsji5sne","slide":1,"text":"79","textPreview":"79","textChars":2,"textLines":1,"bbox":[625,347,52,27]}
+{"kind":"textbox","id":"sh/9w3m94fu","slide":1,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[430,390,34,27]}
+{"kind":"textbox","id":"sh/kb6xkf6d","slide":1,"text":"L42 + 65","textPreview":"L42 + 65","textChars":8,"textLines":1,"bbox":[480,390,105,27]}
+{"kind":"shape","id":"sh/rqd4vmtw","slide":1,"bbox":[592,394,25,26]}
+{"kind":"textbox","id":"sh/25kb6xkf","slide":1,"text":"107","textPreview":"107","textChars":3,"textLines":1,"bbox":[625,390,52,27]}
+{"kind":"textbox","id":"sh/9knih4by","slide":1,"text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[430,433,34,27]}
+{"kind":"textbox","id":"sh/kzupwb2h","slide":1,"text":"79 + 107","textPreview":"79 + 107","textChars":8,"textLines":1,"bbox":[480,433,105,27]}
+{"kind":"shape","id":"sh/re1w7mp0","slide":1,"bbox":[592,437,25,26]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":1,"text":"186","textPreview":"186","textChars":3,"textLines":1,"bbox":[625,433,52,27]}
+{"kind":"textbox","id":"sh/9gr2p8nq","slide":1,"text":"7","textPreview":"7","textChars":1,"textLines":1,"bbox":[430,476,34,27]}
+{"kind":"textbox","id":"sh/gvy90je9","slide":1,"text":"E120 + 186","textPreview":"E120 + 186","textChars":10,"textLines":1,"bbox":[480,476,105,27]}
+{"kind":"shape","id":"sh/upwb2hwf","slide":1,"bbox":[592,480,25,26]}
+{"kind":"textbox","id":"sh/nap4r65w","slide":1,"text":"306","textPreview":"306","textChars":3,"textLines":1,"bbox":[625,476,52,27]}
+{"kind":"textbox","id":"sh/cvixczed","slide":1,"text":"Stop: one root = 306","textPreview":"Stop: one root = 306","textChars":20,"textLines":1,"bbox":[430,546,247,37]}
+{"kind":"shape","id":"sh/5gbq1ory","slide":1,"bbox":[732,122,510,485]}
+{"kind":"shape","id":"sh/udg7adsj","slide":1,"bbox":[732,122,510,42]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":1,"text":"3. Final tree and code_len","textPreview":"3. Final tree and code_len","textChars":26,"textLines":1,"bbox":[748,131,478,25]}
+{"kind":"shape","id":"sh/cj6tovah","slide":1,"bbox":[770,190,450,0]}
+{"kind":"textbox","id":"sh/54zidony","slide":1,"text":"d0","textPreview":"d0","textChars":2,"textLines":1,"bbox":[775,178,30,17]}
+{"kind":"shape","id":"sh/u9knih4b","slide":1,"bbox":[770,250,450,0]}
+{"kind":"textbox","id":"sh/judg7ads","slide":1,"text":"d1","textPreview":"d1","textChars":2,"textLines":1,"bbox":[775,238,30,17]}
+{"kind":"shape","id":"sh/fil0rqd4","slide":1,"bbox":[770,313,450,0]}
+{"kind":"textbox","id":"sh/qxs72x4n","slide":1,"text":"d2","textPreview":"d2","textChars":2,"textLines":1,"bbox":[775,301,30,17]}
+{"kind":"shape","id":"sh/xobm58z2","slide":1,"bbox":[770,375,450,0]}
+{"kind":"textbox","id":"sh/83itgfml","slide":1,"text":"d3","textPreview":"d3","textChars":2,"textLines":1,"bbox":[775,363,30,17]}
+{"kind":"shape","id":"sh/fu18jqh0","slide":1,"bbox":[770,438,450,0]}
+{"kind":"textbox","id":"sh/m94fu18j","slide":1,"text":"d4","textPreview":"d4","textChars":2,"textLines":1,"bbox":[775,426,30,17]}
+{"kind":"shape","id":"sh/x0nuxc3y","slide":1,"bbox":[770,500,450,0]}
+{"kind":"textbox","id":"sh/4fu18jqh","slide":1,"text":"d5","textPreview":"d5","textChars":2,"textLines":1,"bbox":[775,488,30,17]}
+{"kind":"shape","id":"sh/f6dcbulw","slide":1,"bbox":[770,560,450,0]}
+{"kind":"textbox","id":"sh/mlkjm1cf","slide":1,"text":"d6","textPreview":"d6","textChars":2,"textLines":1,"bbox":[775,548,30,17]}
+{"kind":"shape","id":"sh/wra5gbq1","slide":1,"bbox":[980,190,-135,60]}
+{"kind":"shape","id":"sh/lc7u54zi","slide":1,"bbox":[980,190,95,60]}
+{"kind":"shape","id":"sh/eloj2t83","slide":1,"bbox":[1075,250,-115,63]}
+{"kind":"shape","id":"sh/36hcrmhk","slide":1,"bbox":[1075,250,63,63]}
+{"kind":"shape","id":"sh/wfyxobm5","slide":1,"bbox":[960,313,-60,62]}
+{"kind":"shape","id":"sh/l0rqd4vm","slide":1,"bbox":[960,313,25,62]}
+{"kind":"shape","id":"sh/ed8bat47","slide":1,"bbox":[1138,313,-58,62]}
+{"kind":"shape","id":"sh/7u54zido","slide":1,"bbox":[1138,313,50,62]}
+{"kind":"shape","id":"sh/w7mp0bi9","slide":1,"bbox":[1188,375,-50,63]}
+{"kind":"shape","id":"sh/psfil0rq","slide":1,"bbox":[1188,375,22,63]}
+{"kind":"shape","id":"sh/loj2t83i","slide":1,"bbox":[1210,438,-44,62]}
+{"kind":"shape","id":"sh/w3m94fu1","slide":1,"bbox":[1210,438,10,62]}
+{"kind":"shape","id":"sh/3itgfmlk","slide":1,"bbox":[1166,500,-34,60]}
+{"kind":"shape","id":"sh/ex0nuxc3","slide":1,"bbox":[1166,500,26,60]}
+{"kind":"shape","id":"sh/lwval87e","slide":1,"bbox":[957,167,46,46]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":1,"text":"306","textPreview":"306","textChars":3,"textLines":1,"bbox":[953,180,54,22]}
+{"kind":"shape","id":"sh/3q5o7qpg","slide":1,"bbox":[1052,227,46,46]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":1,"text":"186","textPreview":"186","textChars":3,"textLines":1,"bbox":[1048,240,54,22]}
+{"kind":"shape","id":"sh/l87ed8ba","slide":1,"bbox":[937,290,46,46]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":1,"text":"79","textPreview":"79","textChars":2,"textLines":1,"bbox":[933,303,54,22]}
+{"kind":"shape","id":"sh/6hcrmhk3","slide":1,"bbox":[1115,290,46,46]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":1,"text":"107","textPreview":"107","textChars":3,"textLines":1,"bbox":[1111,303,54,22]}
+{"kind":"shape","id":"sh/onyd0z61","slide":1,"bbox":[1165,352,46,46]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":1,"text":"65","textPreview":"65","textChars":2,"textLines":1,"bbox":[1161,365,54,22]}
+{"kind":"shape","id":"sh/6tovahoz","slide":1,"bbox":[1187,415,46,46]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":1,"text":"33","textPreview":"33","textChars":2,"textLines":1,"bbox":[1183,428,54,22]}
+{"kind":"shape","id":"sh/ovahoza1","slide":1,"bbox":[1143,477,46,46]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":1,"text":"9","textPreview":"9","textChars":1,"textLines":1,"bbox":[1139,490,54,22]}
+{"kind":"textbox","id":"sh/61032lsz","slide":1,"text":"120\nE","textPreview":"120 | E","textChars":5,"textLines":2,"bbox":[823.68,231.14,42.64,37.72]}
+{"kind":"textbox","id":"sh/vmtwra5g","slide":1,"text":"len=1","textPreview":"len=1","textChars":5,"textLines":1,"bbox":[812,272.86,66,17]}
+{"kind":"textbox","id":"sh/c7u54zid","slide":1,"text":"37\nU","textPreview":"37 | U","textChars":4,"textLines":2,"bbox":[881.28,358.44,37.44,33.12]}
+{"kind":"textbox","id":"sh/1orytsvu","slide":1,"text":"len=3","textPreview":"len=3","textChars":5,"textLines":1,"bbox":[867,395.56,66,17]}
+{"kind":"textbox","id":"sh/u18jqh0f","slide":1,"text":"42\nD","textPreview":"42 | D","textChars":4,"textLines":2,"bbox":[966.28,358.44,37.44,33.12]}
+{"kind":"textbox","id":"sh/jm1cfa9w","slide":1,"text":"len=3","textPreview":"len=3","textChars":5,"textLines":1,"bbox":[952,395.56,66,17]}
+{"kind":"textbox","id":"sh/cfa9w3m9","slide":1,"text":"42\nL","textPreview":"42 | L","textChars":4,"textLines":2,"bbox":[1061.28,358.44,37.44,33.12]}
+{"kind":"textbox","id":"sh/1032lszq","slide":1,"text":"len=3","textPreview":"len=3","textChars":5,"textLines":1,"bbox":[1047,395.56,66,17]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":1,"text":"32\nC","textPreview":"32 | C","textChars":4,"textLines":2,"bbox":[1120.32,422.36,35.36,31.28]}
+{"kind":"textbox","id":"sh/judg7ads","slide":1,"text":"len=4","textPreview":"len=4","textChars":5,"textLines":1,"bbox":[1105,457.64,66,17]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":1,"text":"24\nM","textPreview":"24 | M","textChars":4,"textLines":2,"bbox":[1203.36,485.28,33.28,29.44]}
+{"kind":"textbox","id":"sh/54zidony","slide":1,"text":"len=5","textPreview":"len=5","textChars":5,"textLines":1,"bbox":[1187,518.72,66,17]}
+{"kind":"textbox","id":"sh/ra5gbq1o","slide":1,"text":"2\nZ","textPreview":"2 | Z","textChars":3,"textLines":2,"bbox":[1116.4,546.2,31.2,27.6]}
+{"kind":"textbox","id":"sh/2p8nqxs7","slide":1,"text":"len=6","textPreview":"len=6","textChars":5,"textLines":1,"bbox":[1099,577.8,66,17]}
+{"kind":"textbox","id":"sh/9gr2p8nq","slide":1,"text":"7\nK","textPreview":"7 | K","textChars":3,"textLines":2,"bbox":[1176.4,546.2,31.2,27.6]}
+{"kind":"textbox","id":"sh/gvy90je9","slide":1,"text":"len=6","textPreview":"len=6","textChars":5,"textLines":1,"bbox":[1159,577.8,66,17]}
+{"kind":"textbox","id":"sh/r2p8nqxs","slide":1,"text":"code_len = leaf depth: E=1, U/D/L=3, C=4, M=5, Z/K=6","textPreview":"code_len = leaf depth: E=1, U/D/L=3, C=4, M=5, Z/K=6","textChars":52,"textLines":1,"bbox":[765,580,440,34]}
+{"kind":"shape","id":"sh/2hwfyxob","slide":1,"bbox":[38,626,1140,36]}
+{"kind":"textbox","id":"sh/94fu18jq","slide":1,"text":"TX output from this stage is code_len for each symbol; the tree shape itself is not stored in the compressed block.","textPreview":"TX output from this stage is code_len for each symbol; the tree shape itself is not stored in the compressed block.","textChars":115,"textLines":1,"bbox":[55,634,1105,23]}
+{"kind":"notes","id":"nt/frkjfw","slide":1,"text":""}
+{"kind":"slide","id":"sl/idclqq","slide":2,"title":"TX Canonical Huffman Encoding","textShapes":33}
+{"kind":"textbox","id":"sh/epkzupwb","slide":2,"text":"TX Canonical Huffman Encoding","textPreview":"TX Canonical Huffman Encoding","textChars":29,"textLines":1,"bbox":[38,24,1140,44]}
+{"kind":"textbox","id":"sh/pg3ex0nu","slide":2,"text":"Tree depth gives code_len. TX sorts symbols and assigns deterministic canonical codes.","textPreview":"Tree depth gives code_len. TX sorts symbols and assigns deterministic canonical codes.","textChars":86,"textLines":1,"bbox":[40,68,1140,26]}
+{"kind":"shape","id":"sh/wval87ed","slide":2,"bbox":[0,100,1280,5]}
+{"kind":"shape","id":"sh/7mp0bi9s","slide":2,"bbox":[38,122,285,485]}
+{"kind":"shape","id":"sh/e1w7mp0b","slide":2,"bbox":[38,122,285,42]}
+{"kind":"textbox","id":"sh/psfil0rq","slide":2,"text":"1. Read tree depth","textPreview":"1. Read tree depth","textChars":18,"textLines":1,"bbox":[54,131,253,25]}
+{"kind":"textbox","id":"sh/w7mp0bi9","slide":2,"text":"code_len = tree depth","textPreview":"code_len = tree depth","textChars":21,"textLines":1,"bbox":[63,180,230,50]}
+{"kind":"textbox","id":"sh/7u54zido","slide":2,"text":"symbol   depth   len\n\nE        1       1\nU        3       3\nD        3       3\nL        3       3\nC        4       4\nM        5       5\nZ        6       6\nK        6       6","textPreview":"symbol   depth   len |  | E        1       1 | U        3       3 | D        3       3 | L        3       3 | C        4       4 | M     ...","textChars":173,"textLines":10,"bbox":[68,222,220,260]}
+{"kind":"textbox","id":"sh/ed8bat47","slide":2,"text":"code_len","textPreview":"code_len","textChars":8,"textLines":1,"bbox":[68,517,220,44]}
+{"kind":"shape","id":"sh/onyd0z61","slide":2,"bbox":[321,335,42,26]}
+{"kind":"shape","id":"sh/d8v6psfi","slide":2,"bbox":[355,122,210,485]}
+{"kind":"shape","id":"sh/6hcrmhk3","slide":2,"bbox":[355,122,210,42]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":2,"text":"2. Sort","textPreview":"2. Sort","textChars":7,"textLines":1,"bbox":[371,131,178,25]}
+{"kind":"textbox","id":"sh/ovahoza1","slide":2,"text":"Canonical order:","textPreview":"Canonical order:","textChars":16,"textLines":1,"bbox":[373,184,174,25]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":2,"text":"shorter code_len first\nsame length: ASCII first","textPreview":"shorter code_len first | same length: ASCII first","textChars":47,"textLines":2,"bbox":[373,216,174,64]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":2,"text":"Order\n\nE\nD\nL\nU\nC\nM\nK\nZ","textPreview":"Order |  | E | D | L | U | C | M | K | Z","textChars":22,"textLines":10,"bbox":[404,297,112,240]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":2,"text":"len=3: D < L < U","textPreview":"len=3: D < L < U","textChars":16,"textLines":1,"bbox":[385,552,150,34]}
+{"kind":"shape","id":"sh/o7qpg3ex","slide":2,"bbox":[564,335,42,26]}
+{"kind":"shape","id":"sh/dsji5sne","slide":2,"bbox":[598,122,265,485]}
+{"kind":"shape","id":"sh/hk3q5o7q","slide":2,"bbox":[598,122,265,42]}
+{"kind":"textbox","id":"sh/oza1gvy9","slide":2,"text":"3. Assign code","textPreview":"3. Assign code","textChars":14,"textLines":1,"bbox":[614,131,233,25]}
+{"kind":"textbox","id":"sh/zed8v6ps","slide":2,"text":"Start: current_code = 0","textPreview":"Start: current_code = 0","textChars":23,"textLines":1,"bbox":[616,180,229,27]}
+{"kind":"textbox","id":"sh/6xkf6dcb","slide":2,"text":"len","textPreview":"len","textChars":3,"textLines":1,"bbox":[620,222,52,30]}
+{"kind":"textbox","id":"sh/hwfyxobm","slide":2,"text":"assigned code","textPreview":"assigned code","textChars":13,"textLines":1,"bbox":[672,222,168,30]}
+{"kind":"textbox","id":"sh/obm58z25","slide":2,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[620,252,52,42]}
+{"kind":"textbox","id":"sh/zqtcj6to","slide":2,"text":"E = 0","textPreview":"E = 0","textChars":5,"textLines":1,"bbox":[672,252,168,42]}
+{"kind":"textbox","id":"sh/65wjudg7","slide":2,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[620,294,52,48]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":2,"text":"no symbol; shift left","textPreview":"no symbol; shift left","textChars":21,"textLines":1,"bbox":[672,294,168,48]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":2,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[620,342,52,78]}
+{"kind":"textbox","id":"sh/ixczed8v","slide":2,"text":"D = 100\nL = 101\nU = 110","textPreview":"D = 100 | L = 101 | U = 110","textChars":23,"textLines":3,"bbox":[672,342,168,78]}
+{"kind":"textbox","id":"sh/bi9s36hc","slide":2,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[620,420,52,42]}
+{"kind":"textbox","id":"sh/032lszqt","slide":2,"text":"C = 1110","textPreview":"C = 1110","textChars":8,"textLines":1,"bbox":[672,420,168,42]}
+{"kind":"textbox","id":"sh/tovahoza","slide":2,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[620,462,52,42]}
+{"kind":"textbox","id":"sh/i9s36hcr","slide":2,"text":"M = 11110","textPreview":"M = 11110","textChars":9,"textLines":1,"bbox":[672,462,168,42]}
+{"kind":"textbox","id":"sh/bulwval8","slide":2,"text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[620,504,52,62]}
+{"kind":"textbox","id":"sh/0fepkzup","slide":2,"text":"K = 111110\nZ = 111111","textPreview":"K = 111110 | Z = 111111","textChars":21,"textLines":2,"bbox":[672,504,168,62]}
+{"kind":"shape","id":"sh/p0bi9s36","slide":2,"bbox":[862,335,42,26]}
+{"kind":"shape","id":"sh/idonyd0z","slide":2,"bbox":[895,122,285,485]}
+{"kind":"shape","id":"sh/byhgn29g","slide":2,"bbox":[895,122,285,42]}
+{"kind":"textbox","id":"sh/fil0rqd4","slide":2,"text":"4. TX tables","textPreview":"4. TX tables","textChars":12,"textLines":1,"bbox":[911,131,253,25]}
+{"kind":"textbox","id":"sh/qxs72x4n","slide":2,"text":"Header: codebook info","textPreview":"Header: codebook info","textChars":21,"textLines":1,"bbox":[920,180,230,25]}
+{"kind":"textbox","id":"sh/xobm58z2","slide":2,"text":"E:1    D:3    L:3    U:3\nC:4    M:5    K:6    Z:6","textPreview":"E:1    D:3    L:3    U:3 | C:4    M:5    K:6    Z:6","textChars":49,"textLines":2,"bbox":[923,214,222,90]}
+{"kind":"textbox","id":"sh/83itgfml","slide":2,"text":"Payload: canonical codes","textPreview":"Payload: canonical codes","textChars":24,"textLines":1,"bbox":[920,327,230,25]}
+{"kind":"textbox","id":"sh/fu18jqh0","slide":2,"text":"E = 0\nD = 100\nL = 101\nU = 110\nC = 1110\nM = 11110\nK = 111110\nZ = 111111","textPreview":"E = 0 | D = 100 | L = 101 | U = 110 | C = 1110 | M = 11110 | K = 111110 | Z = 111111","textChars":70,"textLines":8,"bbox":[923,362,222,180]}
+{"kind":"shape","id":"sh/m94fu18j","slide":2,"bbox":[38,626,1140,36]}
+{"kind":"textbox","id":"sh/x0nuxc3y","slide":2,"text":"TX output: header carries codebook information; payload carries compressed bits encoded with canonical codes.","textPreview":"TX output: header carries codebook information; payload carries compressed bits encoded with canonical codes.","textChars":109,"textLines":1,"bbox":[55,634,1105,23]}
+{"kind":"notes","id":"nt/idclqq","slide":2,"text":""}
+{"kind":"slide","id":"sl/2e6eif","slide":3,"title":"RX Canonical Huffman Reconstruction","textShapes":32}
+{"kind":"textbox","id":"sh/bq1oryts","slide":3,"text":"RX Canonical Huffman Reconstruction","textPreview":"RX Canonical Huffman Reconstruction","textChars":35,"textLines":1,"bbox":[38,24,1140,44]}
+{"kind":"textbox","id":"sh/4byhgn29","slide":3,"text":"RX reads only symbol + code length from the header, then rebuilds the same canonical code table as TX.","textPreview":"RX reads only symbol + code length from the header, then rebuilds the same canonical code table as TX.","textChars":102,"textLines":1,"bbox":[40,68,1140,26]}
+{"kind":"shape","id":"sh/twra5gbq","slide":3,"bbox":[0,100,1280,5]}
+{"kind":"shape","id":"sh/mhk3q5o7","slide":3,"bbox":[38,122,285,485]}
+{"kind":"shape","id":"sh/b2hwfyxo","slide":3,"bbox":[38,122,285,42]}
+{"kind":"textbox","id":"sh/4nap4r65","slide":3,"text":"1. Read header entries","textPreview":"1. Read header entries","textChars":22,"textLines":1,"bbox":[54,131,253,25]}
+{"kind":"textbox","id":"sh/t83itgfm","slide":3,"text":"Header carries codebook\ninformation:","textPreview":"Header carries codebook | information:","textChars":36,"textLines":2,"bbox":[63,180,230,50]}
+{"kind":"textbox","id":"sh/mp0bi9s3","slide":3,"text":"symbol   code_len\n\nE    1\nD    3\nL    3\nU    3\nC    4\nM    5\nK    6\nZ    6","textPreview":"symbol   code_len |  | E    1 | D    3 | L    3 | U    3 | C    4 | M    5 | K    6 | Z    6","textChars":74,"textLines":10,"bbox":[68,222,218,270]}
+{"kind":"textbox","id":"sh/bat47y1k","slide":3,"text":"No original tree stored","textPreview":"No original tree stored","textChars":23,"textLines":1,"bbox":[68,517,218,46]}
+{"kind":"shape","id":"sh/ji5snelo","slide":3,"bbox":[321,335,42,26]}
+{"kind":"shape","id":"sh/uxc3ylc7","slide":3,"bbox":[355,122,210,485]}
+{"kind":"shape","id":"sh/1kre1w7m","slide":3,"bbox":[355,122,210,42]}
+{"kind":"textbox","id":"sh/c3ylc7u5","slide":3,"text":"2. Sort entries","textPreview":"2. Sort entries","textChars":15,"textLines":1,"bbox":[371,131,178,25]}
+{"kind":"textbox","id":"sh/j6tovaho","slide":3,"text":"Canonical order:","textPreview":"Canonical order:","textChars":16,"textLines":1,"bbox":[373,184,174,25]}
+{"kind":"textbox","id":"sh/ulwval87","slide":3,"text":"shorter code_len first\nsame length: ASCII first","textPreview":"shorter code_len first | same length: ASCII first","textChars":47,"textLines":2,"bbox":[373,216,174,64]}
+{"kind":"textbox","id":"sh/1cfa9w3m","slide":3,"text":"Order\n\nE\nD\nL\nU\nC\nM\nK\nZ","textPreview":"Order |  | E | D | L | U | C | M | K | Z","textChars":22,"textLines":10,"bbox":[404,297,112,240]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":3,"text":"len=3: D < L < U","textPreview":"len=3: D < L < U","textChars":16,"textLines":1,"bbox":[385,552,150,34]}
+{"kind":"shape","id":"sh/j2t83itg","slide":3,"bbox":[564,335,42,26]}
+{"kind":"shape","id":"sh/qh0fepkz","slide":3,"bbox":[598,122,265,485]}
+{"kind":"shape","id":"sh/i5sneloj","slide":3,"bbox":[598,122,265,42]}
+{"kind":"textbox","id":"sh/7qpg3ex0","slide":3,"text":"3. Recreate codes","textPreview":"3. Recreate codes","textChars":17,"textLines":1,"bbox":[614,131,233,25]}
+{"kind":"textbox","id":"sh/0bi9s36h","slide":3,"text":"Start with current_code = 0.","textPreview":"Start with current_code = 0.","textChars":28,"textLines":1,"bbox":[616,180,229,27]}
+{"kind":"textbox","id":"sh/pwb2hwfy","slide":3,"text":"len","textPreview":"len","textChars":3,"textLines":1,"bbox":[620,222,52,30]}
+{"kind":"textbox","id":"sh/ed8v6psf","slide":3,"text":"generated code","textPreview":"generated code","textChars":14,"textLines":1,"bbox":[672,222,168,30]}
+{"kind":"textbox","id":"sh/7y1kre1w","slide":3,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[620,252,52,42]}
+{"kind":"textbox","id":"sh/wjudg7ad","slide":3,"text":"E = 0","textPreview":"E = 0","textChars":5,"textLines":1,"bbox":[672,252,168,42]}
+{"kind":"textbox","id":"sh/p4r65wju","slide":3,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[620,294,52,48]}
+{"kind":"textbox","id":"sh/ih4byhgn","slide":3,"text":"no symbol, shift left","textPreview":"no symbol, shift left","textChars":21,"textLines":1,"bbox":[672,294,168,48]}
+{"kind":"textbox","id":"sh/72x4nap4","slide":3,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[620,342,52,78]}
+{"kind":"textbox","id":"sh/xc3ylc7u","slide":3,"text":"D = 100\nL = 101\nU = 110","textPreview":"D = 100 | L = 101 | U = 110","textChars":23,"textLines":3,"bbox":[672,342,168,78]}
+{"kind":"textbox","id":"sh/4r65wjud","slide":3,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[620,420,52,42]}
+{"kind":"textbox","id":"sh/f6dcbulw","slide":3,"text":"C = 1110","textPreview":"C = 1110","textChars":8,"textLines":1,"bbox":[672,420,168,42]}
+{"kind":"textbox","id":"sh/mlkjm1cf","slide":3,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[620,462,52,42]}
+{"kind":"textbox","id":"sh/xkf6dcbu","slide":3,"text":"M = 11110","textPreview":"M = 11110","textChars":9,"textLines":1,"bbox":[672,462,168,42]}
+{"kind":"textbox","id":"sh/4zidonyd","slide":3,"text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[620,504,52,62]}
+{"kind":"textbox","id":"sh/fepkzupw","slide":3,"text":"K = 111110\nZ = 111111","textPreview":"K = 111110 | Z = 111111","textChars":21,"textLines":2,"bbox":[672,504,168,62]}
+{"kind":"shape","id":"sh/mtwra5gb","slide":3,"bbox":[862,335,42,26]}
+{"kind":"shape","id":"sh/xobm58z2","slide":3,"bbox":[895,122,285,485]}
+{"kind":"shape","id":"sh/83itgfml","slide":3,"bbox":[895,122,285,42]}
+{"kind":"textbox","id":"sh/cfa9w3m9","slide":3,"text":"4. RX lookup table","textPreview":"4. RX lookup table","textChars":18,"textLines":1,"bbox":[911,131,253,25]}
+{"kind":"textbox","id":"sh/1032lszq","slide":3,"text":"The decoder stores prefix rules:","textPreview":"The decoder stores prefix rules:","textChars":32,"textLines":1,"bbox":[913,180,249,28]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":3,"text":"code    symbol\n\n0      E\n100    D\n101    L\n110    U\n1110   C\n11110  M\n111110 K\n111111 Z","textPreview":"code    symbol |  | 0      E | 100    D | 101    L | 110    U | 1110   C | 11110  M | 111110 K | 111111 Z","textChars":87,"textLines":10,"bbox":[923,222,222,250]}
+{"kind":"textbox","id":"sh/judg7ads","slide":3,"text":"Same table as TX because the canonical rule is deterministic.","textPreview":"Same table as TX because the canonical rule is deterministic.","textChars":61,"textLines":1,"bbox":[915,494,245,72]}
+{"kind":"shape","id":"sh/c7u54zid","slide":3,"bbox":[38,626,1140,36]}
+{"kind":"textbox","id":"sh/1orytsvu","slide":3,"text":"Key idea: RX reconstructs the codebook from code_len; it does not transmit or rebuild the original Huffman tree.","textPreview":"Key idea: RX reconstructs the codebook from code_len; it does not transmit or rebuild the original Huffman tree.","textChars":112,"textLines":1,"bbox":[55,634,1105,23]}
+{"kind":"notes","id":"nt/2e6eif","slide":3,"text":""}
+{"kind":"slide","id":"sl/jydwqi","slide":4,"title":"RX Huffman Payload Decoding","textShapes":37}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":4,"text":"RX Huffman Payload Decoding","textPreview":"RX Huffman Payload Decoding","textChars":27,"textLines":1,"bbox":[38,24,1140,44]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":4,"text":"After the table is rebuilt, payload bits are consumed by prefix match until block_size output bytes are recovered.","textPreview":"After the table is rebuilt, payload bits are consumed by prefix match until block_size output bytes are recovered.","textChars":114,"textLines":1,"bbox":[40,68,1140,26]}
+{"kind":"shape","id":"sh/e9cvixcz","slide":4,"bbox":[0,100,1280,5]}
+{"kind":"shape","id":"sh/loj2t83i","slide":4,"bbox":[42,123,1145,148]}
+{"kind":"shape","id":"sh/w3m94fu1","slide":4,"bbox":[42,123,1145,42]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":4,"text":"Compressed block seen by RX","textPreview":"Compressed block seen by RX","textChars":27,"textLines":1,"bbox":[58,132,1113,25]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":4,"text":"mode\n2b","textPreview":"mode | 2b","textChars":7,"textLines":2,"bbox":[70,175,90,62]}
+{"kind":"textbox","id":"sh/lkjm1cfa","slide":4,"text":"block_size\n7 bytes","textPreview":"block_size | 7 bytes","textChars":18,"textLines":2,"bbox":[160,175,150,62]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":4,"text":"symbol_count\n8 entries","textPreview":"symbol_count | 8 entries","textChars":22,"textLines":2,"bbox":[310,175,170,62]}
+{"kind":"textbox","id":"sh/il0rqd4v","slide":4,"text":"entries\nE:1 D:3 L:3 U:3 ...","textPreview":"entries | E:1 D:3 L:3 U:3 ...","textChars":27,"textLines":2,"bbox":[480,175,320,62]}
+{"kind":"textbox","id":"sh/b6xkf6dc","slide":4,"text":"payload bits\n0 0 0 100 100 101 0","textPreview":"payload bits | 0 0 0 100 100 101 0","textChars":32,"textLines":2,"bbox":[800,175,360,62]}
+{"kind":"textbox","id":"sh/0rqd4vmt","slide":4,"text":"Header = dictionary information. Payload = actual compressed data encoded using that dictionary.","textPreview":"Header = dictionary information. Payload = actual compressed data encoded using that dictionary.","textChars":96,"textLines":1,"bbox":[73,242,1040,24]}
+{"kind":"shape","id":"sh/tcj6tova","slide":4,"bbox":[42,295,335,315]}
+{"kind":"shape","id":"sh/idonyd0z","slide":4,"bbox":[42,295,335,42]}
+{"kind":"textbox","id":"sh/byhgn29g","slide":4,"text":"1. Match prefix","textPreview":"1. Match prefix","textChars":15,"textLines":1,"bbox":[58,304,303,25]}
+{"kind":"textbox","id":"sh/0je9cvix","slide":4,"text":"Input window:","textPreview":"Input window:","textChars":13,"textLines":1,"bbox":[70,352,140,24]}
+{"kind":"textbox","id":"sh/t47y1kre","slide":4,"text":"1001010...","textPreview":"1001010...","textChars":10,"textLines":1,"bbox":[72,382,245,44]}
+{"kind":"shape","id":"sh/i9s36hcr","slide":4,"bbox":[168,433,36,42]}
+{"kind":"textbox","id":"sh/bulwval8","slide":4,"text":"first match: 100 = D","textPreview":"first match: 100 = D","textChars":20,"textLines":1,"bbox":[78,482,235,58]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":4,"text":"Consume 3 bits, then continue with the next prefix.","textPreview":"Consume 3 bits, then continue with the next prefix.","textChars":51,"textLines":1,"bbox":[72,552,250,42]}
+{"kind":"shape","id":"sh/ex0nuxc3","slide":4,"bbox":[407,295,430,315]}
+{"kind":"shape","id":"sh/loj2t83i","slide":4,"bbox":[407,295,430,42]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":4,"text":"2. Decode sequentially","textPreview":"2. Decode sequentially","textChars":22,"textLines":1,"bbox":[423,304,398,25]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":4,"text":"Example payload segmentation:","textPreview":"Example payload segmentation:","textChars":29,"textLines":1,"bbox":[435,352,330,24]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":4,"text":"0","textPreview":"0","textChars":1,"textLines":1,"bbox":[436,390,45,42]}
+{"kind":"shape","id":"sh/lwval87e","slide":4,"bbox":[447.5,436,22,29]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":4,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[436,472,45,40]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":4,"text":"0","textPreview":"0","textChars":1,"textLines":1,"bbox":[491,390,45,42]}
+{"kind":"shape","id":"sh/ahoza1gv","slide":4,"bbox":[502.5,436,22,29]}
+{"kind":"textbox","id":"sh/knih4byh","slide":4,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[491,472,45,40]}
+{"kind":"textbox","id":"sh/d8bat47y","slide":4,"text":"0","textPreview":"0","textChars":1,"textLines":1,"bbox":[546,390,45,42]}
+{"kind":"shape","id":"sh/2lszqtcj","slide":4,"bbox":[557.5,436,22,29]}
+{"kind":"textbox","id":"sh/v6psfil0","slide":4,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[546,472,45,40]}
+{"kind":"textbox","id":"sh/kf6dcbul","slide":4,"text":"100","textPreview":"100","textChars":3,"textLines":1,"bbox":[601,390,62,42]}
+{"kind":"shape","id":"sh/d0z61032","slide":4,"bbox":[621,436,22,29]}
+{"kind":"textbox","id":"sh/29gr2p8n","slide":4,"text":"D","textPreview":"D","textChars":1,"textLines":1,"bbox":[601,472,62,40]}
+{"kind":"textbox","id":"sh/vu9knih4","slide":4,"text":"100","textPreview":"100","textChars":3,"textLines":1,"bbox":[673,390,62,42]}
+{"kind":"shape","id":"sh/k3q5o7qp","slide":4,"bbox":[693,436,22,29]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":4,"text":"D","textPreview":"D","textChars":1,"textLines":1,"bbox":[673,472,62,40]}
+{"kind":"textbox","id":"sh/5kb6xkf6","slide":4,"text":"101","textPreview":"101","textChars":3,"textLines":1,"bbox":[745,390,62,42]}
+{"kind":"shape","id":"sh/czed8v6p","slide":4,"bbox":[765,436,22,29]}
+{"kind":"textbox","id":"sh/neloj2t8","slide":4,"text":"L","textPreview":"L","textChars":1,"textLines":1,"bbox":[745,472,62,40]}
+{"kind":"textbox","id":"sh/ytsvu9kn","slide":4,"text":"0","textPreview":"0","textChars":1,"textLines":1,"bbox":[817,390,45,42]}
+{"kind":"shape","id":"sh/5sneloj2","slide":4,"bbox":[828.5,436,22,29]}
+{"kind":"textbox","id":"sh/cbulwval","slide":4,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[817,472,45,40]}
+{"kind":"textbox","id":"sh/nqxs72x4","slide":4,"text":"Repeated symbols come from repeated codewords in the payload, not from per-symbol counts in the header.","textPreview":"Repeated symbols come from repeated codewords in the payload, not from per-symbol counts in the header.","textChars":103,"textLines":1,"bbox":[435,550,360,42]}
+{"kind":"shape","id":"sh/u54zidon","slide":4,"bbox":[867,295,320,315]}
+{"kind":"shape","id":"sh/5wjudg7a","slide":4,"bbox":[867,295,320,42]}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":4,"text":"3. Stop by block_size","textPreview":"3. Stop by block_size","textChars":21,"textLines":1,"bbox":[883,304,288,25]}
+{"kind":"textbox","id":"sh/qd4vmtwr","slide":4,"text":"Recovered bytes:","textPreview":"Recovered bytes:","textChars":16,"textLines":1,"bbox":[895,356,248,28]}
+{"kind":"textbox","id":"sh/fyxobm58","slide":4,"text":"E E E D D L E","textPreview":"E E E D D L E","textChars":13,"textLines":1,"bbox":[905,408,220,57]}
+{"kind":"textbox","id":"sh/8jqh0fep","slide":4,"text":"output_count = 7\nblock_size = 7","textPreview":"output_count = 7 | block_size = 7","textChars":31,"textLines":2,"bbox":[908,491,255,64]}
+{"kind":"textbox","id":"sh/x4nap4r6","slide":4,"text":"DONE","textPreview":"DONE","textChars":4,"textLines":1,"bbox":[935,562,150,42]}
+{"kind":"shape","id":"sh/qpg3ex0n","slide":4,"bbox":[38,626,1140,36]}
+{"kind":"textbox","id":"sh/fa9w3m94","slide":4,"text":"Key idea: the payload carries the repeated occurrences; block_size tells RX when the original block is fully recovered.","textPreview":"Key idea: the payload carries the repeated occurrences; block_size tells RX when the original block is fully recovered.","textChars":119,"textLines":1,"bbox":[55,634,1105,23]}
+{"kind":"notes","id":"nt/jydwqi","slide":4,"text":""}

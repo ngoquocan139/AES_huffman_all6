@@ -1,0 +1,1017 @@
+Journal Pre-proof
+A lossless compression and encryption mechanism for remote monitoring
+of ECG data using Huffman coding and CBC-AES
+Mustafa Emad Hameed, Masrullizam Mat Ibrahim, Nurulfajar
+Abd Manap, Ali A. Mohammed
+PII: S0167-739X(19)31395-0
+DOI: https://doi.org/10.1016/j.future.2019.10.010
+Reference: FUTURE 5235
+To appear in: Future Generation Computer Systems
+Received date : 4 June 2019
+Revised date : 7 August 2019
+Accepted date : 24 October 2019
+Please cite this article as: M.E. Hameed, M.M. Ibrahim, N.A. Manap et al., A lossless compression
+and encryption mechanism for remote monitoring of ECG data using Huffman coding and
+CBC-AES, Future Generation Computer Systems (2019), doi:
+https://doi.org/10.1016/j.future.2019.10.010.
+This is a PDF file of an article that has undergone enhancements after acceptance, such as the
+addition of a cover page and metadata, and formatting for readability, but it is not yet the definitive
+version of record. This version will undergo additional copyediting, typesetting and review before it
+is published in its final form, but we are providing this version to give early visibility of the article.
+Please note that, during the production process, errors may be discovered which could affect the
+content, and all legal disclaimers that apply to the journal pertain.
+© 2019 Published by Elsevier B.V .
+A Lossless Compression and Encryption Mechanism for Remote Monitoring of ECG Data Using Huffman 
+coding and CBC-AES 
+Authors list: 
+Mustafa Emad Hameed1, 2, *, Masrullizam Mat Ibrahim 1, Nurulfajar Abd Manap 1, Ali A. Mohammed3 
+ 
+Affiliation of authors: 
+1 Centre for Telecommunication Research and Innovation (CeTRI), Faculty of Electronic and Computer               
+Engineering (FKeKK), Universiti Teknikal Malaysia Melaka (UTeM), Malaysia. 
+2 Department of Computer Techniques Engineering, Bilad Al-rafidan University College, Diyala, Baqubah. 
+3 Faculty of Information and Communications Technology, UTeM, Melaka, Malaysia. 
+ 
+*Corresponding Author: 
+Name: Mustafa Emad Hameed 
+E-mail: Mihhh221@gmail.com 
+Address: Faculty of Electronic and Computer Engineering (FKeKK), Universiti Teknikal Malaysia Melaka 
+(UTeM), Malaysia. 
+Abstract 
+Biomedical signal processing provides a cross-disciplinary international forum through which research on signal and 
+images measurement and analysis of clinical medicine and biological sciences are shared. The broadcast transmission 
+in wireless body area networks raises serious security challeng e when employed in biomedical applications. 
+Electrocardiography (ECG) signal is frequently used for diagnos is of cardiovascular diseases. However, the ECG 
+data need a large memory storage device due to continuous heart  rate logs and vital parameter storage. Thus, 
+compression schemes are applied to the ECG data before sending them to telemedicine centers for monitoring and 
+analysis. Therefore, a proper compression mechanism cannot only improve the storage efficiency but also help in the 
+rapid data transfer from one device to another due to its compa ct size. We propose a scheme using buffer blocks, 
+peak detection, compression, and encryption mechanism to enable seamless and secure transmission of ECG signal 
+from the sensor to the monitor. The study will prove that the q uality of the reconstructed signals obtained using the 
+proposed scheme, which uses discrete wavelet transform, Huffman  coding, and Cipher Block Chaining-Advanced 
+Encryption Standard algorithm approach, is superior to that obtained using unencrypted compression. Furthermore, 
+the proposed system can provide quality-control compressed data , although the data have been encrypted. The 
+experimental results show that the proposed system provides an effective means for assuring data security and 
+compression performance for ECG data storage and transmission. The security of the scheme is applied against 
+known attacks on privacy, such as eavesdropping and passive monitoring attack.  
+Keywords – Compression, DWT, Encryption, Electrocardiogram, Peak Detection, Signal blocks 
+1- Introduction 
+ Heart-related diseases are becoming more common all over the wo rld due to several factors actively affecting the 
+stress level and physical condition of the individuals. In the medical field, electrocardiogram (ECG) signal processing 
+was researched numerous times in the past due to its significan ce in monitoring heart status [1]. ECG signals carry 
+electrical waves of heart functions, which mainly consist of fi ve kinds of peaks, i.e., P, Q, R, S, and T. The QRS 
+complex in this context must be recognized. This condition illu strates left and right ventricular depolarization and 
+features a normal duration of 80–100 ms. Normally, a person experiences a heart rate of 80–100 beats per minute. If 
+the heart rate exceeds 100 beats per minute, the condition is termed as tachycardia, and if the beats are less than 60 
+per minute, bradycardia is diagnosed [2]. 
+The Portable ECG sensing devices obtain the signals and send it  directly to the monitor for further analysis, which 
+may detect an increase in sheer volume of data in terms of comp lexity and timeliness. Therefore, the signal is 
+Journal Pre-proof
+Journal Pre-proof
+transferred over a wireless channel, where it contaminates the initial signal. On the other hand, electrode movement 
+and muscle activity also cause noise in the initial signal [3].  Several complexities arise in this situation due to the 
+improper transmission rate or low bandwidth in the communicatio n channel. Normally, continuous flow of signal 
+may lead to an increased sheer volume of data [4].  
+ Therefore, the data volume significantly affects the improper transm ission rate or low bandwidth in the 
+communication channel. Continuous flow of signal may lead to packet drop and significant loss of vital information. 
+However, the compression that eliminates data redundancy is needed to optimize storage space and reduce the time 
+required for data transmission, thus causing stability [5] [6].  Additionally, the ECG biomedical signals contain 
+sensitive private health information and details that serve to individually distinguish patients; hence, these signals 
+must be encrypted prior to transmission across public media to prevent unauthorized access by adversaries from 
+cyber-attacks [7]. However, the ECG data must be compressed for transmission, and storage compression mechanism 
+quality in reconstructed ECG needs to be measured by the most p opular functions such as percentage root-mean-
+square difference (PRD). However, the quality of reconstruction  and the results may vary during evaluation of the 
+scheme due to different levels of data compressions [8]. Studie s demonstrated that if the efficiency of ECG 
+compression scheme is tested alone in terms of quality through PRD method, then variable outcomes may occur. 
+Thus, the use of multiple methods (PRD1 and compression ratio ( CR)) was proposed to achieve more accurate and 
+reliable results and better conclusions during simulations. Simulations were performed on Massachusetts Institute of 
+Technology-Beth Israel Hospital (MIT-BIH) ECG arrythmia dataset with different compression levels to analyze its 
+influence on scheme performance using PRD1 and CR. During the p ast few years, various methods have been 
+proposed for ECG compression and encryption. Among these method s, lossless methods aim for high compression 
+ratio and zero information loss upon reconstruction with a symm etric key block cipher with lightweight properties 
+to enhance confidentiality, integrity, and authentication in EC G signal transmission. The privacy issue without 
+limiting trading aims to avoid data collection attacks and maintain correct open transaction records [9]. However, the 
+amount of privacy protection should be improved when the data transmission size has become extremely large  [10]. 
+Hence, most of the previous works concentrated more on the qual ity of signal based on peak detection but lacked 
+information on the security aspect. Although several works reported security models with filtering and compression 
+schemes, these schemes lacked inefficiency in terms of secure, lossless compression, or noise filtering. We propose 
+a new system model based on lossless schemes, such as Huffman c oding for compression, to ensure that no 
+information is lost upon reconstruction. To avoid data tamperin g, we use a symmetric ciphering key based on the 
+Advanced Encryption Standard (AES)-Cipher Block Chaining (CBC) algorithm with 256-bit key size.   
+2- Related Work  
+Several ECG signal compression algorithms have been suggested over the past two decades. Compression algorithms 
+are classified into two primary groups: loss and lossless. The first group features a compression rate (CR) that is 
+usually higher the second because of loss of important data. Th e other technique exhibits low CR and preserves 
+helpful and essential data. Mo st scientists succeed in combinin g encryption and compression. Compression with 
+elimination of information redundancy, which optimizes the stor age room and decreases data transmission time, 
+results in stability and resistance to encryption schemes [11].  Consequently, the nearest neighboring coupled-map 
+lattices and non-uniform discrete cosine transform, which appli e s  t h e  H u f f m a n  c o d i n g ,  a r e  u s e d  f o r  i m a g e  
+compression and encryption [12]. This method displays a high co mpression rate and security level compared with 
+the other approaches. Another research [13] presented a novel t ransform compression method based on adaptive 
+Fourier decomposition (AFD) algorithm hybridized with symbol substitution (SS) technique. This previous research 
+aimed for the lossless encoding in the compression of AFD resul ts using SS technique to enhance CR while 
+maintaining the reconstruction quality. Here, SS also serves the purpose of built-in encryption at the same time. The 
+compression schemes play a major role in healthcare sector by saving storage space and achieving better transmission 
+rate of data. The major problem arises when the data are decompressed as the reconstructed data may lose important 
+information. Therefore, the proposed scheme can compress data without any loss of important information and apply 
+Journal Pre-proof
+Journal Pre-proof
+cryptographic scheme to preserve confidentiality from unauthorized access [14]. One work used a mobile computing 
+device to eliminate the usage of computers. This device perform s preprocessing, such as removal of Gaussian and 
+baseline noise, peak detection, and heart rate analysis, and co mpression of the ECG signal. During compression, a 
+three-level wavelet transformati on (db04) is applied, and thres hold mechanisms are used. Next, Huffman coding 
+technique is used to compress and encrypt the signal. A compression rate of 97.72% and PRD of 0.522 are obtained, 
+and these values agree well with any compression scheme. Furthe r, The ECG signals are transmitted over 
+transmission control protocol/internet protocol to telemedicine clinics for specialist assessment.  
+ Compressed sensing (CS) is another ECG compression algorithm t hat uses a sparse binary matrix as the 
+sensing matrix [15]. This method exhibits higher CR than the wavelet algorithm and costs less energy. According a 
+study [16], ECG illustrates an individual’s heart electrical mo vements. ECG helps in monitoring and diagnosis of 
+heart-related diseases. Remote monitoring applications, such as  telemedicine, necessitate the storage of a large 
+amount of data for assessment and diagnosis. Wireless transmiss ion consumes more energy while transmitting 
+uncompressed data. Thus, data compression is required to reduce  storage space and improve transmission rate and 
+bandwidth usage. Diverse lossless compression schemes are proposed for ECG records, and the time efficiency and 
+compression rate of these schemes were compared. Studies concluded that minimum variance Huffman coding is the 
+best option to compress ECG signals. A study considered MIT-BIH  arrhythmia dataset and MATLAB tool for 
+simulations. According to the results, almost half of the stora ge memory can be saved with minimum variance and 
+use a Huffman code having a computational complexity of NLog2N.  One proposed scheme showed the better 
+utilization of bandwidth with simple buffer design. Another research [17] has proposed a quad-level vector developed 
+for compression and classification of ECG signals. In this meth od, the compression ratio has been improved while 
+maintaining the small compression error rate. The existence of encryption-then-compression (ETC) approaches for 
+multimedia using state-of-the-ar t encryption techniques inevita bly sacrifice the compression efficiency or signal 
+quality [18]. These approaches not only use ETC to process ECG data to protec t data privacy but also provide the 
+same quality of the reconstructed signals without sacrificing t he compression efficiency relative to unencrypted 
+compressions. 
+           Another proposed scheme is the compression-then-encr yption of MIT-BIH arrhythmia ECG signals. This 
+scheme involves complexity sorting (beat detection, 2D ECG array formation, period normalization, Dc equalization, 
+complexity sorting, codec quantization, and JPEG2000 codec), and coupled chaotic map mutation [19]. One scheme 
+assumes wireless transmission ( using Rayleigh fading wireless c hannel) of ECG through orthogonal frequency 
+division multiplexing and enhances it to correct impaired samples using moving median filtering. This scheme also 
+shows storage space minimization through 2D compression mechani sm and combines it with chaotic based on 
+mutation scheme to randomize the ECG vector to maintain the pro tection of data confidentiality, thus preventing 
+eavesdropping. 
+3- ECG Signal 
+The ECG signals carry electrical waves of heart functions, which mainly consist of five kinds of peaks, i.e., P, Q, R, 
+S and T Figure 1. The QRS complex in this context must be recog nized. This complex illustrates left and right 
+ventricular depolarization and shows a normal duration of 80–10 0 ms. Normally, a person experiences a heart rate 
+of 80–100 beats per minute. If the heart rate exceeds 100 beats  per minute, the condition is termed as tachycardia, 
+and if the beats are less than 60  per minute, bradycardia is di agnosed [20]. Advancements in medical science and 
+portable instruments have drasti cally reduced sensor equipment size. Portable ECG sensing devices obtain signals 
+and send them directly to the monitor for further analysis. In conventional systems, a sensor continually sends each 
+bit of the signal to the monitor upon sensing without any buffe r. A few complexities arise here due to the improper 
+transmission rate or low bandwidth in the communication channel . Continuous flow of sign al may lead to packet 
+drop and significant loss of vital information. A small buffer at the sensor (connected with microcontroller) level 
+could help in this regard. 
+Journal Pre-proof
+Journal Pre-proof
+ 
+Figure 1. Display of the ECG signal 
+ The MIT-BIH Arrhythmia Database contains 48 signal records (36 0 Hz) of 47 unique patients and with a 
+length of 30 min each. This database is a standard dataset that is used in several past research [21]. Two leads can be 
+found in each record, where lead  A is the principal lead used t o detect heartbeats due to the prominence of QRS 
+complex. Lead B, also known as V1, helps in the arrhythmic clas sification of ventricular ectopic beat and 
+supraventricular ectopic beat [22]. 
+A- Block Creation: 
+             Let noisy signal be 𝒩𝒮, the length of it is  
+                                ℒൌS i z e ሺ 𝒩 𝒮 ሻ                                                     (1) 
+             Number of blocks required be 𝒩ℬ, thus, the block size. The Figure 2(a) display the creation four block on 
+the ECG signal. 
+                                   ℬ𝒮 ൌ ℒ/𝒩ℬ                                                     (2)  
+                 Now, ℬሺiሻ is the set of signal |𝒩𝒮|୧, that can be computed as:  
+ℬሺiሻൌ| 𝒩 𝒮 |୧ൌሺ 𝒩 𝒮ሺሺ୧ିଵሻ∗ℬ𝒮ሻାଵ,𝒩 𝒮ሺሺ୧ିଵሻ∗ℬ𝒮ሻାଶ,..,𝒩 𝒮 ℬ𝒮∗୧ሻ            (3) 
+Peak count is detected using the QRS complex of each block through WFDB toolkit, so that after reconstruction 
+the peak count can be matched. 
+B- Peak Detection 
+QRS complex and peak detection has its own significance in analyzing ECG records for various diseases Figure 
+2(b) shown the QRS complex peak detection. We found Pan-Tompkings scheme to provide better peak detection 
+on MIT-BIH arrhythmia dataset. Pan-Tompkins scheme involves five major operations [23]. 
+I. Band Pass Filtering 
+The bandpass filter reduces the influence of muscle noise, 60 Hz interference, baseline wander, and T-wave 
+interference. This approach results in a filter design with int eger coefficients. Since only integer arithmetic 
+is necessary, a real-time filter can be implemented with a simp le microprocessor and still have available 
+Journal Pre-proof
+Journal Pre-proof
+computing power left to do the QRS recognition task. The band-pass filter is obtained by cascading the 2nd 
+order low-pass filter and the high-pass filter [23]. 
+ 
+ 
+a. Low Pass Filter 
+In this 2nd order low-pass filter, assuming sampling time as 1, the transfer function is computed 
+as:  
+        ℋሺ𝓏ሻ ൌ ሺ1 െ 𝓏ି଺ሻଶ/ሺ1 െ 𝓏ିଵሻଶ                                       (4) 
+Also, the difference equation of the filter is given as: 
+𝓎 ሺ 𝓃 ሻ ൌ 2 𝓎 ሺ 𝓃െ1 ሻെ𝓎 ሺ 𝓃െ2 ሻ൅𝓍 ሺ 𝓃 ሻെ2 𝓍 ሺ 𝓃െ6 ሻ൅𝓍 ሺ 𝓃െ1 2 ሻ         (5) 
+Here, the cutoff frequency is approx. 11Hz having gain of 36. 
+  
+b. High Pass Filter 
+The transfer function of the high pass filter assuming sampling time as 1 is:  
+ℋሺ𝓏ሻ ൌ ሾ𝒴ሺ𝓏ሻ/𝒳ሺ𝓏ሻሿ  ൌ  ሺെ1 ൅ 32𝓏ିଵ଺൅𝓏ିଷଶሻ/ሺ1 ൅ zିଵሻ               (6) 
+The difference equation of the filter is given as:  
+𝓎ሺ𝓃ሻൌ  32𝓍ሺ𝓃െ1 6ሻെሾ 𝓎ሺ𝓃െ1 ሻ൅𝓍ሺ𝓃ሻെ𝓍ሺ𝓃െ3 2ሻሿ                 (7) 
+The low cutoff freq. is approx. 5Hz, gain is 32 and has 16 samples delay. 
+ 
+II. Derivative 
+Upon filtering, a differentiation function is applied to retrieve QRS complex slope. Applying 5-point 
+derivation transfer function as: 
+ℋሺ𝓏ሻൌ 0.125ሺെ
+ଵ
+𝓏మെ
+ଵ
+ଶ𝓏൅2 𝓏െ𝓏ଶሻ                                 (8) 
+The difference equation can be described as: 
+                                𝓎ሺ𝓃ሻൌ 0.125ሾെ𝓍ሺ𝓃െ2 ሻെ2 𝓍ሺ𝓃െ1 ሻ൅2 𝓍ሺ𝓃൅1 ሻ൅𝓍ሺ𝓃൅2 ሻሿ           (9) 
+ 
+III. Squaring Function 
+Upon 2nd step of derivation, signal is squared point by point, 
+            𝓎ሺ𝓃ሻൌሾ 𝓍ሺ𝓃ሻሿଶ                                                      (10) 
+This process makes all the data points positive and does non-linear amplification of the output of the 
+derivative emphasizing the higher frequencies.  
+  
+IV. Moving Window Integration (MWI) 
+MWI function is used to attain waveform feature info as well as R wave slope.  The function is 
+formed as:  
+(a) (b)
+Figure 2.  (a) ECG signal block creation Figure 2. (b)  ECG signal QRS detection  
+Journal Pre-proof
+Journal Pre-proof
+   𝓎ሺ𝓃ሻൌሾ 𝓍ሺ𝓃െ ሺ𝒩െ1 ሻሿ൅𝓍 ൫ 𝓃െሺ𝒩െ2 ሻ൯൅⋯൅𝓍ሺ𝓃ሻሿ/𝒩         (11) 
+Here, 𝒩is the sample count in the width of the integration window, 𝒩ൌ3 0 
+ 
+V. Threshold Adjustment and Decision MakingSubsequent to MWI step, appropriate thresholds are attuned 
+in order to identify the R-peaks. To   recognize R-peaks accurately i.e. without missing any R peaks and 
+making incorrect detections, a d ecision-making block is develop ed that chooses whether the identified 
+peak is valid QRS complex or not [23]. 
+ 
+4- Discrete Wavelet Transform  
+    Wavelets are arithmetic functions that work on signal data as per resolution or scale. DWT can be categorized as 
+a type of wavelet that is discretely sampled. One of the key merits of DWT over Fourier transforms is that it analyzes 
+both frequency and time (location) in parallel [24]. The soft o r hard threshold methods define shrinkage rules. The 
+DWT combined with a threshold can be applied to the signal vect or based on its characteristics [25]. Two 
+thresholding methods, namely, soft and hard, are used, with the hard one being the easier method to use.  
+Hard Thresholding: 
+𝜂ሺ𝑥ሻൌ൜𝑥 |𝑥| ൒𝑇
+0 |𝑥| ൏𝑇                                           (12) 
+Soft Thresholding: 
+𝜂ሺ𝑥ሻൌ൝
+𝑥െ𝑇 𝑥൐𝑇
+0 |𝑥| ൑𝑇
+𝑥൅𝑇 𝑥൏െ 𝑇
+                                   (13) 
+A- De-Noising 
+Real time signals do contain different sort of noises. Additive  noise signal consists of two major components i.e. 
+clean signal and noise. Let 𝒩ሺ𝑡ሻ be the additive noise at the 𝑡 sample time, which is added to clean signal 𝒮ሺ𝑡ሻ , 
+therefore noisy signal is, 
+             𝒩𝒮ሺ𝑡ሻൌ𝒮ሺ𝑡ሻ൅ 𝒩ሺ𝑡ሻ                      (14) 
+As the BIT-MIH dataset doesn’t contain any noise so we add whit e gaussian noise artificially. The function to add 
+white gaussian noise 𝒩ሺ𝑡ሻ to signal  𝒮ሺ𝑡ሻ is 𝑁𝑆ሺ𝑡ሻ  ൌ  𝑎𝑤𝑔𝑛ሺ𝒮ሺ𝑡ሻ, 𝒩ሺ𝑡ሻሻ.  Assuming 𝑊ሺ∙ሻ to be forward wavelet 
+transform operator and 𝑊െ1 ሺ ∙ ሻ to be inverse wavelet transform operators. Keeping 𝜆 as threshold, 𝐷ሺ∙, 𝜆ሻ signify 
+the denoising operator. Thus, the process of recovering 𝒮መሺ𝑡ሻ to the equivalent of 𝒮ሺ𝑡ሻ can be illustrated as [26]: 
+𝒴ൌ𝒲 ሺ𝒳ሻ 
+                                                                                           𝒵ൌ𝒟 ሺ𝒴, 𝜆ሻ                           (15) 
+𝒮ൌ𝒲 ିଵሺ𝒵ሻ 
+In the proposed model, Wavelets are used to de-noise the additi ve gaussian noise. In a very simplest way, using 
+wavelets a signal can be denoised using: 
+     𝒮መൌ  𝑤 𝑑 𝑒 𝑛 ሺ 𝒩 𝒮 ,𝑡 ℎ 𝑟 ,𝑠 ℎ ,𝑠 𝑐 𝑙 ,𝑛 ,𝑤 𝑛 ሻ             (16) 
+Here, 𝒩𝒮 is the signal contaminated with white gaussian noise, 𝑇𝐻𝑅 is the threshold rule selected (rigrsure / heursure 
+/ sqtwolog), 𝑆𝐻 is for Soft or Hard thresholding, 𝑆𝐶𝐿 is for threshold rescaling, 𝑁 is wavelet transforming level and 
+𝑊𝑁 is for wavelet name. This function returns Denoised signal 𝒮መ. WDEN function is the combination of four major 
+functions:  
+Journal Pre-proof
+Journal Pre-proof
+1. ሾ 𝑐 𝑎 ,𝑐 𝑑 ሿ ൌ  𝑤 𝑎 𝑣 𝑒 𝑑 𝑒 𝑐 ሺ 𝒩 𝒮 ,𝑛 ,𝑤 𝑛 ሻ 
+It does wavelet decomposition of the noised signal 𝒩𝒮 at transforming level 𝑛, using wavelet type as 𝑤𝑛. 
+Its process steps are: 
+𝑠ൌ𝑠 𝑖 𝑧 𝑒ሺ𝑁𝑆ሻ→ 𝑟 𝑜 𝑤  𝑣 𝑒 𝑐 𝑡 𝑜 𝑟 
+𝑐𝑑 ൌ  𝑧𝑒𝑟𝑜𝑠ሺ1, 𝑛 ൅ 2ሻ 
+𝑐𝑑ሺ𝑒𝑛𝑑ሻ  ൌ  𝑙𝑒𝑛𝑔𝑡ℎሺ𝒩𝒮ሻ 
+𝑓𝑜𝑟 𝑘 ൌ  1: 𝑛 
+    ሾ𝒩𝒮, 𝑑ሿ  ൌ  𝑑𝑤𝑡ሺ𝒩𝒮, 𝐿𝑜_𝐷, 𝐻𝑖_𝐷ሻ  → 𝑑 𝑒 𝑐 𝑜 𝑚 𝑝 𝑜 𝑠 𝑖 𝑡 𝑖 𝑜 𝑛  
+    𝑐𝑎 ൌ ሾ𝑑 𝑐𝑎ሿ            ሺ𝑠𝑡𝑜𝑟𝑒 𝑑𝑒𝑡𝑎𝑖𝑙ሻ 
+    𝑐𝑑ሺ𝑛൅2െ𝑘 ሻൌ 𝑙 𝑒 𝑛 𝑔 𝑡 ℎሺ𝑑ሻ   →  𝑠𝑡𝑜𝑟𝑒 𝑙𝑒𝑛𝑔𝑡ℎ 
+𝑒𝑛𝑑 
+  
+Last approximation - 
+𝑐𝑎 ൌ  ሾ𝒩𝒮 𝑐𝑎ሿ 
+𝑐𝑑ሺ1ሻ  ൌ  𝑙𝑒𝑛𝑔𝑡ℎሺ𝒩𝒮ሻ 
+𝑖𝑓 𝑠ሺ1ሻ ൐ 1, 𝑐𝑎 ൌ  𝑐𝑎′;  𝑐𝑑 ൌ  𝑐𝑑′;  𝑒𝑛𝑑 
+ 
+It returns 𝑐𝑎 (wavelet decomposition vector) and 𝑐𝑑 (Length of coefficients by level). 
+ 
+2. 𝑡ℎ𝑟 ൌ 𝑡ℎ𝑠𝑒𝑙𝑒𝑐𝑡ሺ𝑐𝑎, 𝑡ℎ𝑟ሻ 
+It returns threshold 𝑐𝑎-adapted value by 𝑡ℎ𝑟 set selection rule. 
+𝑛 ൌ  𝑙𝑒𝑛𝑔𝑡ℎሺ𝑐𝑎ሻ 
+𝑖𝑓 𝑡ℎ𝑟 ൌ ′𝑟𝑖𝑔𝑟𝑠𝑢𝑟𝑒′ 
+        𝑠𝑥2 ൌ  𝑠𝑜𝑟𝑡ሺ𝑎𝑏𝑠ሺ𝑐𝑎ሻሻ
+ଶ 
+        𝑟𝑖𝑠𝑘𝑠 ൌ  ሺ𝑛 െ ሺ2 ∙ ሺ1: 𝑛ሻሻ ൅ ሺ𝑐𝑢𝑚𝑠𝑢𝑚ሺ𝑠𝑥2ሻ ൅ ሺ𝑛 െ 1: െ1: 0ሻ ∙ 𝑠𝑥2ሻሻ/𝑛 
+        ሾ~, 𝑏𝑒𝑠𝑡ሿ  ൌ  𝑚𝑖𝑛ሺ𝑟𝑖𝑠𝑘𝑠ሻ 
+        𝑡ℎ𝑟 ൌ  ඥ𝑠𝑥2ሺ𝑏𝑒𝑠𝑡ሻ 
+𝑖𝑓 𝑡ℎ𝑟 ൌ ′ℎ𝑒𝑢𝑟𝑠𝑢𝑟𝑒′ 
+        ℎ𝑡ℎ𝑟 ൌ ඥ2∙𝑙 𝑜 𝑔 ሺ 𝑛 ሻ 
+        𝑒𝑡𝑎 ൌ  ሺ𝑛𝑜𝑟𝑚ሺ𝑐𝑎ሻଶെ𝑛 ሻ / 𝑛  
+        𝑐𝑟𝑖𝑡 ൌ  ሺ𝑙𝑜𝑔ሺ𝑛ሻ/𝑙𝑜𝑔ሺ2ሻଵ.ହሻ/√𝑛 
+        𝑖𝑓 𝑒𝑡𝑎 ൏  𝑐𝑟𝑖𝑡 
+            𝑡ℎ𝑟 ൌ  ℎ𝑡ℎ𝑟 
+        𝑒𝑙𝑠𝑒 
+            𝑡ℎ𝑟 ൌ  𝑚𝑖𝑛ሺ𝑡ℎ𝑠𝑒𝑙𝑒𝑐𝑡ሺ𝑐𝑎, ′𝑟𝑖𝑔𝑟𝑠𝑢𝑟𝑒′ሻ, ℎ𝑡ℎ𝑟ሻ 
+        𝑒𝑛𝑑 
+𝑖𝑓 𝑡ℎ𝑟 ൌ ′𝑠𝑞𝑡𝑤𝑜𝑙𝑜𝑔′ 
+        𝑡ℎ𝑟 ൌ ඥ 2 ∗ 𝑙𝑜𝑔ሺ𝑛ሻ
+ 
+𝑒𝑛𝑑 
+ 
+3. 𝑐𝑎 ൌ 𝑤𝑡ℎ𝑟𝑒𝑠ℎሺ𝑐𝑎, 𝑠ℎ, 𝑡ℎ𝑟ሻ 
+It takes input 𝑐𝑎 (1st step), 𝑠ℎ as soft or hard thresholding, 𝑡ℎ𝑟 as thresholding value (2nd step) and returns 
+soft/hard T-thresholding (depends on 𝑠ℎ). 
+𝑖𝑓 𝑠ℎ ൌ ′𝑠′ 
+    𝑡𝑚𝑝 ൌ  ሺ𝑎𝑏𝑠ሺ𝑐𝑎ሻ െ 𝑡ℎ𝑟ሻ 
+    𝑡𝑚𝑝 ൌ  ሺ𝑡𝑚𝑝 ൅ 𝑎𝑏𝑠ሺ𝑡𝑚𝑝ሻሻ
+2
+ 
+Journal Pre-proof
+Journal Pre-proof
+    𝑐𝑎   ൌ  𝑠𝑖𝑔𝑛ሺ𝑐𝑎ሻ ∙ 𝑡𝑚𝑝 
+𝑖𝑓 𝑠ℎ ൌᇱℎᇱ  
+   𝑐𝑎 ൌ 𝑐𝑎 ∙ ሺ𝑎𝑏𝑠ሺ𝑐𝑎ሻ൐𝑡 ℎ 𝑟ሻ;  
+𝑒𝑛𝑑 
+ 
+4. 𝒮መሾ𝑛ሿ ൌ  𝑤𝑎𝑣𝑒𝑟𝑒𝑐ሺ𝑐𝑎, 𝑐𝑑, 𝑤𝑛ሻ 
+        It performs a multilevel 1-D wavelet reconstruction thr ough wavelet type 𝑤𝑛 and returns     reconstructed 
+signal 𝒮መሾ𝑛ሿ base on multilevel wavelet decomposition structure 𝑐𝑎 and 𝑐𝑑. 
+𝐼𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑎𝑡𝑖𝑜𝑛: 
+𝒮መሾ𝑛ሿ  ൌ  𝑐𝑎ሺ1: 𝑐𝑑ሺ1ሻሻ 
+𝐼𝑡𝑒𝑟𝑎𝑡𝑒𝑑 𝑟𝑒𝑐𝑜𝑛𝑠𝑡𝑟𝑢𝑐𝑡𝑖𝑜𝑛: 
+𝑖𝑚𝑎𝑥 ൌ  𝑟𝑚𝑎𝑥 ൅ 1 
+𝑓𝑜𝑟 𝑝 ൌ  𝑛𝑚𝑎𝑥: െ1: 𝑛 ൅ 1 
+    𝑑 ൌ  𝑑𝑒𝑡𝑐𝑜𝑒𝑓 ሺ𝑐𝑎, 𝑐𝑑, 𝑝ሻ     →   𝑒𝑥𝑡𝑟𝑎𝑐𝑡 𝑑𝑒𝑡𝑎𝑖𝑙 
+    𝒮መሾ𝑛ሿ  ൌ  𝑖𝑑𝑤𝑡ሺ𝒮መሾ𝑛ሿ, 𝑑, 𝐿𝑜_𝑅, 𝐻𝑖_𝑅, 𝑐𝑑ሺ𝑖𝑚𝑎𝑥 െ 𝑝ሻሻ 
+𝑒𝑛𝑑 
+The wavelet function 𝜓 is defined as[27]: 
+               𝜓
+ሺ௪,௣ሻൌ2௪/ଶ𝜓ሺ2௪𝑥െ𝑝 ሻ                        (17) 
+And the scaling function as: 
+              𝜙ሺ௪,௣ሻൌ2௪/ଶ𝜙ሺ2௪𝑥െ𝑝 ሻ                         (18) 
+Here in above equation, w depicts wavelet’s width or scale inde x. 𝑝 indicates position or location index. Wavelet 
+equation as per wavelet coefficients can be expressed as [27]: 
+             𝜓ሺ𝑥ሻ ൌ∑ 𝑔௣ඥ2𝜙ሺ2𝑥 െ 𝑝ሻேିଵ
+௣                     (19) 
+In above equation, high pass coefficients are represented by 𝑔௣ for 𝑝 ൌ 0 , 1 ,..𝑁െ1. As per scaling coefficients, 
+scaling function can be expressed as [27]: 
+              𝜙ሺ𝑥ሻ ൌ∑ ℎ௣ඥ2𝜙ሺ2𝑥 െ 𝑝ሻேିଵ
+௣                     (20) 
+Here, scaling function is represented by 𝜙ሺ𝑥ሻ and ℎ଴,ℎ ଵ,..,ℎ ௣ are the low pass scaling coefficients. 
+5- Compression  
+Compression refers to the process of compacting data size throu gh formulas or arithmetic operations. Compression 
+ratio is calculated to measure the performance of compression s cheme and compactness of data. Two types of 
+compression schemes, i.e., lossy and lossless, are available. Lossless schemes recover a compressed file to its original 
+status without any loss of data while decompressed [28]. Particularly, in applications such as critical medical records, 
+financial statement files and other vital files are always processed with lossless scheme as any loss of single bits may 
+also affect data aversively. The proposed scheme Huffman coding is used for compression and decompression. 
+  A- Huffman Coding 
+Lossless compression techniques are useful in applications where each bit of data is significant for analysis such as 
+in the medical field. ECG signals are complex to analyze due to  the slight variation in signal values, which may be 
+misrecognized as peak types. In Huffman coding, input string characters are assigned with variable length codes (bit 
+Journal Pre-proof
+Journal Pre-proof
+sequences), and the frequency o f individual character determine s the allocated code length. The smallest code is 
+assigned to a character with the maximum frequency, and the largest one is assigned to the character with minimum 
+frequency [29]. These variable length codes are known as prefix  codes, which are unique for each character 
+assignment. Thus, no ambiguity should ensue at the time of deco ding operation on the encoded bit stream [30]. In 
+Huffman coding, if n unique characters exist for encoding, then the overall edge count (ec). would be [31], 
+           𝑒𝑐 ൌ ሺ2 ∗ 𝑛 െ 2 ሻ                             (21) 
+et the input be symbol alphabet be 𝐴 of size 𝑛, thus, 
+          𝐴ൌሺ 𝑎ଵ,𝑎 ଶ,..,𝑎 ௡ሻ                             (22) 
+Tuple of non-negative symbol weights (proportionate to likelihoods), 
+                                                              𝑊ൌሺ 𝑤ଵ,𝑤 ଶ,..,𝑤 ௡ሻ                            (23) 
+Where 𝑤௜, 
+      𝑤௜ൌ𝑤 𝑒 𝑖 𝑔 ℎ 𝑡ሺ𝑎௜ሻ,1 ൑ 𝑖 ൑ 𝑛.               (24) 
+Outcome is the tuple of binary code, 
+𝐶ሺ𝑊ሻൌሺ 𝑐ଵ,𝑐 ଶ,..,𝑐 ௡ሻ                                (25) 
+where 𝑐௜ is the code for 𝑎௜, 
+       1൑𝑖൑𝑛 .                                            (26) 
+Aim of Huffman coding is, let weighted path length of code 𝐶 be, 
+   𝐿ሺ𝐶ሺ𝑊ሻሻ ൌ∑ 𝑤௜
+௡
+௜ୀଵ ൈ𝑙 𝑒 𝑛 𝑔 𝑡 ℎ ሺ 𝑐௜ሻ          (27) 
+with condition  
+                              𝐿൫𝐶ሺ𝑊ሻ൯൑𝐿 ሺ 𝑇ሺ𝑊ሻሻ                                            (28) 
+for any code 𝑇ሺ𝑊ሻ. 
+Shannon formulated the data content ℎሺ𝑏𝑖𝑡𝑠ሻ of each symbol 𝑎௜ having non-null likelihood as [32]: 
+                            ℎሺ𝑎௜ሻൌ𝑙 𝑜 𝑔ଶ
+ଵ
+௪೔
+                                                           (29) 
+The Entropy H(bits) is the weighted summation of data 𝑎௜ having non-zero likelihood 𝑤௜ can be defined as: 
+𝐻ሺ𝐴ሻൌ ∑ 𝑤௜ℎሺ𝑎௜ሻ௪೔வ଴   ൌ∑ 𝑤௜𝑙𝑜𝑔ଶ
+ଵ
+௪೔௪೔வ଴   ൌെ∑ 𝑤௜𝑙𝑜𝑔ଶ𝑤௜௪೔வ଴         (30) 
+As lim
+௪→଴శ𝑤 𝑙𝑜𝑔ଶ 𝑤 ൌ 0, means 𝑎௜with zero likelihood doesn’t add any value to the entropy, thus to make it simpler, 
+symbols 𝑎௜ with non-zero likelihood can be ignored in the above equation and even the symbol length doesn’t 
+affect entropy. For each symbol, average length is described as: 
+                       𝑙௔௩௚ൌ∑ 𝑤௜ൈ𝑙௜
+ே
+௜ୀଵ                                                              (31) 
+Journal Pre-proof
+Journal Pre-proof
+In above equation, 𝑙௜is the encoded length of 𝑎௜. Usually, for any compression scheme, 
+                        𝑙௜൒𝐻ሺ𝐴ሻ                                                                           (32) 
+also, the efficiency of compression is computed as: 
+                𝐸ൌ𝑙 ௔௩௚/𝐻ሺ𝐴ሻ                                                                          (33) 
+ Here, proximity of 𝐸 to 1 describes the efficiency of the compression scheme.  
+6- Cryptography 
+Cryptographic mechanism is a pro cess in which information is co nverted to prevent it from being recognized by 
+attackers [33]. The encrypted data are deemed safe for storage status relatively. However, the data encryption process 
+still faces adversarial actions [34]. Cryptography includes two processes. The first process is an encryption procedure 
+that converts the intelligible data into unintelligible information using a cryptography algorithm and encryption key. 
+The second process is decryption, which involves converting the unintelligible data into intelligible information using 
+the same algorithm and a decryption key  [35].  Cryptography is  divided into two broad categories: symmetric key 
+and asymmetric key cryptography. The first category, also known as symmetric key cryptography (otherwise called 
+secret-key cryptography), uses the same key at the source and destination. The second category, that is, asymmetric 
+key cryptography, uses different keys (called the public key) at the source and destination [36].  
+A- AES Algorithm 
+ AES was one among the finalists in the National Institute of St andards and Technology competition and won the 
+title of most secure cryptographic algorithm in October 2000. AES is also known as Rijndael and can feature variable 
+key sizes of 128, 192, or 256 bits with a fixed block size of 128 bits. AES is a symmetric algorithm that uses a single 
+secret key for both encryption and decryption [37].  Each round of AES encryption or decryption includes four basic 
+stages. Permutation stage is ShiftRows, and the remaining three substitution stages are Substitute byte, MixColumns, 
+and AddRoundKey. Figure 3 shows the encryption and decryption p rocedures of the AES al gorithm. For 256-bit 
+AES, the key length (Nk) is 8, i.e., 8 words of 32 bits, the block size (Nb) is 4, i.e., 4 words of 32 bits, and the number 
+of rounds (Nr) is 14. The ciphering function,  
+𝐸𝑛𝑐ሺ𝑖𝑛ሾ4 ∗ 𝑁𝑏ሿ, 𝑜𝑢𝑡ሾ4 ∗ 𝑁𝑏ሿ , 𝑤ሾ𝑁𝑏 ∗ ሺ𝑁𝑟 ൅ 1ሻሿሻ                    (34) 
+can be elaborated in following steps: 
+Let 𝑠𝑡 be the state and round be 𝑟𝑑, 
+ 
+Journal Pre-proof
+Journal Pre-proof
+  
+ 
+𝑠𝑡𝑎𝑟𝑡 
+𝑠𝑡 ൌ 𝑖𝑛 
+ 𝐴𝑑𝑑𝑅𝑜𝑢𝑛𝑑𝐾𝑒𝑦ሺ𝑠𝑡, 𝑤ሻ 
+ 𝑓𝑜𝑟 𝑟𝑑 ൌ 1 & 𝑟𝑑 ൑ ሺ𝑁𝑟 െ 1ሻ 
+𝑆𝑢𝑏𝐵𝑦𝑡𝑒𝑠ሺ𝑠𝑡ሻ 
+𝑆ℎ𝑖𝑓𝑡𝑅𝑜𝑤𝑠ሺ𝑠𝑡ሻ 
+𝑀𝑖𝑥𝐶𝑜𝑙𝑢𝑚𝑛𝑠ሺ𝑠𝑡 
+𝐴𝑑𝑑𝑅𝑜𝑢𝑛𝑑𝐾𝑒𝑦ሺ𝑠𝑡, 𝑤 ൅ 𝑟𝑑 ∗ 𝑁𝑏ሻ 
+𝑒𝑛𝑑 
+𝑆𝑢𝑏𝐵𝑦𝑡𝑒𝑠ሺ𝑠𝑡ሻ 
+𝑆ℎ𝑖𝑓𝑡𝑅𝑜𝑤𝑠ሺ𝑠𝑡ሻ 
+𝐴𝑑𝑑𝑅𝑜𝑢𝑛𝑑𝐾𝑒𝑦ሺ𝑠𝑡, 𝑤 ൅ 𝑁𝑟 ∗ 𝑁𝑏ሻ 
+𝑜𝑢𝑡 ൌ 𝑠𝑡 
+𝑠𝑡𝑜𝑝 
+AES works well with both hardware as well as software.  There a re five operational modes in AES i.e. ECB, CBC, 
+CFB, OFB and CTR. 
+B- Cipher Block Chaining (CBC) 
+To each ciphertext block produced earlier, an XOR is added to e ach plaintext block. Ciphering through CBC mode 
+of AES can be illustrated as Figure 3a. Figure 3b shows the encryption and decryption procedures of the CBC mode 
+operation. The outcome of each succeeding ciphertext block relies on the preceding one. The initial plaintext block 
+is added XOR to an unsystematic initialization vector. 
+Figure 3.  Block diagrams of AES algorithm 
+Journal Pre-proof
+Journal Pre-proof
+ 
+ 
+CBC is an advancement of the an cestral block level ciphering ve rsion of AES such as ECB [38]. In this ciphering 
+scheme, the dependency of every encrypted block is observed on all plaintext blocks, which are operated up to that 
+stage. Given this procedure, an additional level of computation is required while generating the ciphertext. The CBC 
+mode of AES is used for cipher operation [39]. The functions of encryption and decryption are as follows. 
+Encryption 
+       𝒞ሺ𝒮ሻ𝒥 ൌℰ ൫ 𝒦 , ൣ 𝒫 ሺ 𝒮 ሻ𝒥 ⊕𝒞 ሺ 𝒮 ሻ𝒥ିଵ൧ ൯ ,𝒥 ൌ 1 , 2 ,..,𝒩                        (35) 
+Here, 𝒞ሺ𝒮ሻ𝒥 is the signal 𝒮 cipher of 𝒥௧௛ block, ℰ is the encryption function which takes secret key 𝒦 and XOR of 
+plain signal block 𝒫ሺ𝒮ሻ𝒥 with previous block cipher 𝒞ሺ𝒮ሻ𝒥ିଵ. This operation continues till 𝒩௧௛block. 
+The 0th block cipher 𝒞ሺ𝒮ሻ଴ is initialized with Initialization Vector ℐ𝒱. Thus, 𝒞ሺ𝒮ሻ଴ൌℐ 𝒱. 
+Decryption 
+𝒟൫𝒦, 𝒞ሺ𝒮ሻ𝒥൯ൌ𝒟 ሺ 𝒦 ,ℰ ൫ 𝒦 ,ൣ 𝒫ሺ𝒮ሻ𝒥 ⊕𝒞 ሺ𝒮ሻ𝒥ିଵ൧൯
+𝒟൫𝒦, 𝒞ሺ𝒮ሻ𝒥൯ൌ𝒫ሺ𝒮ሻ𝒥 ⊕𝒞 ሺ𝒮ሻ𝒥ିଵ
+ቋ                                 (36) 
+𝒟൫𝒦, 𝒞ሺ𝒮ሻ𝒥൯⊕𝒞 ሺ 𝒮 ሻ𝒥ିଵൌ𝒞 ሺ 𝒮 ሻ𝒥ିଵ⊕𝒞 ሺ 𝒮 ሻ𝒥ିଵ⊕𝒫 ሺ 𝒮 ሻ𝒥 ൌ𝒫 ሺ 𝒮 ሻ𝒥   (37) 
+Here, 𝒟 is the decryption function that takes 2 input, secret key 𝒦 and signal cipher block 𝒞ሺ𝒮ሻ𝒥 and results in plain 
+signal block 𝒫ሺ𝒮ሻ𝒥. 
+7- System Model 
+The methodology being proposed in this paper seeks to effectively combine the de-noising, compression and 
+encryption for ECG data remote monitoring system. 
+A-Block Diagram of Proposed Model 
+Figure 5 presents the block diagram of the proposed ECG compression and encryption method. In the first stage, the 
+ECG biomedical signal has been loaded into proposed system. The second stage removes noise from the signal using 
+the DWT combined with a threshold. The third stage uses a QRS c omplex by applying the Pan–Tompkins scheme, 
+in which the QRS can be extracted from the ECG signal. The fourth stage involves the block creation of ECG signal. 
+In the fifth stage, the compression method is applied by using Huffman coding on each block of ECG signal. 
+   Figure 4.  (a) Encryption in the CBC mode                  Figure 3. (b)  Decryption in the CBC mode 
+(a) (b)
+Journal Pre-proof
+Journal Pre-proof
+ 
+ 
+completing the previous stage, the encryption method is applied based on AES-CBC algorithm in the sixth stage, and 
+the ECG signal block is transmitted for monitoring. Finally, after receiving the ECG signal block, the decryption and 
+decompress processes are applied based on inversion AES-CBC and inversion Huffman coding, respectively. Then, 
+the block aggregation is used to recuperate the original ECG biomedical signal. 
+ 
+B- Summarized Algorithm 
+𝑙𝑒𝑡 𝑛 ൌ 𝑁𝑢𝑚_𝑜𝑓_𝐵𝑙𝑜𝑐𝑘, 𝐵𝑆 ൌ 𝐵𝑙𝑜𝑐𝑘_𝑆𝑖𝑧𝑒, 𝒩𝒮 ൌ 𝑁𝑜𝑖𝑠𝑒𝑦_𝑆𝑖𝑔𝑛𝑎𝑙, 𝑖 ൌ 1 
+𝑤ℎ𝑖𝑙𝑒ሺ𝑖൑𝑛 ሻ 𝑑𝑜 
+ℬሺ𝑖ሻൌ| 𝒩 𝒮 |௜ൌሺ 𝒩 𝒮ሺሺ௜ିଵሻ∗ℬ𝒮ሻାଵ,𝒩 𝒮ሺሺ௜ିଵሻ∗ℬ𝒮ሻାଶ,..,𝒩 𝒮 ℬ𝒮∗୧ሻ //Blocks Creation 
+𝑄𝑅𝑆ℬሺ௜ሻൌ𝑃 𝑇 _ 𝑄 𝑅 𝑆 ሺ 𝐵ሺ𝑖ሻሻ //Q,R,S values 
+𝐷𝐹ℬሺ𝚤ሻ෣ ൌ 𝑤 𝑑 𝑒 𝑛ሺ𝐹𝐵ሺ𝑖ሻ,𝑡 ℎ 𝑟 ,𝑠 ℎ ,𝑠 𝑐 𝑙 ,𝑛 ,𝑤 𝑛ሻ //Denoised/Filtered Signal 
+𝐶𝐹ℬሺ𝑖ሻൌ𝐻 𝑢 𝑓 𝑓 _ 𝐶 𝑜 𝑚 ሺ 𝐷 𝐹 ℬሺ𝚤ሻ෣ ሻ //Compressed Signal 
+𝐸𝐶𝐹𝐵ሺ𝑖ሻ𝒥 ൌℰ ൫ 𝒦 , ൣ 𝐶 𝐹 𝐵 ሺ 𝑖 ሻ𝒥 ⊕𝐸 𝐶 𝐹 𝐵 ሺ 𝑖 ሻ𝒥ିଵ൧ ൯ ,𝒥 ൌ 1 , 2 ,..,𝒩 // Encrypted Signal 
+𝒟൫𝒦, 𝐸𝐶𝐹𝐵ሺ𝑖ሻ𝒥൯⊕𝐸 𝐶 𝐹 𝐵 ሺ 𝑖 ሻ𝒥ିଵൌ𝐸 𝐶 𝐹 𝐵 ሺ 𝑖 ሻ𝒥ିଵ⊕𝐸 𝐶 𝐹 𝐵 ሺ 𝑖 ሻ𝒥ିଵ⊕𝐶 𝐹 𝐵 ሺ 𝑖 ሻ𝒥 ൌ𝐶 𝐹 𝐵 ሺ 𝑖 ሻ𝒥 //Decrypted Signal 
+𝑄𝑅𝑆஼ி஻ሺ௜ሻൌ𝑃 𝑇 _ 𝑄 𝑅 𝑆 ሺ 𝐶 𝐹 𝐵 ሺ 𝑖 ሻ𝒥ሻ //Q,R,S values 
+𝐸𝑛𝑑 
+ In the above algorithm, noisy signal 𝒩𝒮 is initially divided into 𝑛 blocks. Each block ℬሺ𝑖ሻ is analyzed using 
+Pan Tompkins method to detect 𝑄𝑅𝑆 peaks count. Further, denoising is performed using wavelets keeping suitable 
+threshold, scale and level. Once the denoised signal block i.e.  𝐷𝐹ℬሺ𝚤ሻ෣  is obtained, a lossless compression scheme 
+based on Huffman encoding s applied to get compressed block 𝐶𝐹ℬሺ𝑖ሻ. Next, ciphering of block is performed using 
+AES (CBC) 256 bit to get encrypted block 𝐸𝐶𝐹𝐵ሺ𝑖ሻ𝒥. Similarly, decryption is performed on server to obtain plain 
+ECG signal block and QRS peak detection is achieved through pan Tompkins Scheme. The details of every notation 
+and processes involved in this brief algorithm is provided in previous sections. 
+ 
+8- Performance Evaluation 
+For performance evaluation, various metrices functions are used such as PRD, CR, MSE, PSNR, etc. The functions 
+are defined as: 
+Figure 5. block diagram of propose system model (a) Sender (b) Receiver      
+Journal Pre-proof
+Journal Pre-proof
+Compression Ratio (CR): is the measure of compression achieved in signal through encoding mechanisms. It doesn’t 
+provide information on compressed signal quality but measures e fficiency of algorithm in reducing storage space 
+[40]: 
+                    𝐶𝑅 ൌ  
+∑ ሺ௕௜௧൫𝒮ሾ௡ሿതതതതതത൯ሻಿ೙సభ
+∑ ሺ௕௜௧ሺ𝒮ሾ௡ሿሻሻಿ೙సభ
+                                     (38) 
+       Here, encoded signal 𝒮ሾ𝑛ሿതതതതതത and original signal 𝒮ሾ𝑛ሿ is converted to bits and then the length of encoded bits are 
+divided with original signal length to fin CR value. The lower the CR, the better is the efficiency. 
+Percentage Root-mean-square Difference (PRD): is a measure to evaluate error or difference between original 𝒮ሾ𝑛ሿ 
+and reconstructed signal (𝒮መሾ𝑛ሿ), where 𝑁 is the length of signal 𝒮. The process can be defined as [40]: 
+         𝑃𝑅𝐷 ൌ  ට
+∑ ሺ 𝒮ሾ௡ሿି𝒮መሾ௡ሿሻమಿ೙సభ
+∑ 𝒮ሾ௡ሿమಿ೙సభ
+ ൈ 100                 (39) 
+Signal-to-noise ratio (SNR):  is indicates the relativeness of denoised signal corresponding to original signal. 
+Standard method to calculate it is:  
+     𝑆𝑁𝑅 ൌ 10 𝑙𝑜𝑔ଵ଴
+∑ ሺ𝒮ሾ௡ሿమሻ|ಿ೙సభ
+∑ ሺ 𝒮ሾ௡ሿି𝒮ሷሾ௡ሿሻమಿ೙సభ
+                      (40) 
+ 
+      Also, it is inversely proportionate to 𝑙𝑜𝑔ሺ𝑀𝑆𝐸ሻ. Thus, elevated value of SNR indicates better Denoising quality. 
+Peak signal-to-noise ratio (PSNR): Similar, to 𝑆𝑁𝑅, 𝑃𝑆𝑁𝑅 also indicates accuracy of De noising. It is a standard 
+approach and is followed in almost everywhere where denoising task is performed. Using 𝑀𝑆𝐸 and original signal, 
+PSNR is calculated as: 
+           𝑃𝑆𝑁𝑅 ൌ 20 𝑙𝑜𝑔ଵ଴
+୫ୟ୶ ሺ𝒮ሾ௡ሿሻ
+√ெௌா                                        (41) 
+cross-correlation (CC): It is a measurement metrics to find how much similarity is there between two discrete signals. 
+If original and reconstructed signals match completely then equation returns 1 else depending on similarity it returns 
+between 0 to 1 values.  
+  
+          𝐶𝑅𝑂𝑆𝑆_𝐶𝑂𝑅𝑅 ൌ
+ாሺሺ𝒮ሷሾ௡ሿିఓ𝒮መሻሺ𝒮ሾ௡ሿିఓ𝒮ሻሻ
+ఙ𝒮መఙ𝒮
+                          (42) 
+         Here, 𝐸ሺሻ specifies the mean function. 𝜇𝒮መ and 𝜇𝒮 indicates average of denoised signal 𝒮ሷሾ𝑛ሿ and original signal 
+𝒮ሾ𝑛ሿ. Also, 𝜎𝒮መ and 𝜎𝒮 indicates standard deviation of respective signals. 
+mean square error (MSE): Through MSE quality of Denoising is measured. After Denoising, if the signals are much 
+similar to the original, it indicates the lower error rate or better Denoising. 
+                    𝑀𝑆𝐸 ൌ
+∑ ሺ 𝒮ሾ௡ሿି𝒮ሷሾ௡ሿሻమಿ೙సభ
+ே                                       (43) 
+         In the above equation, 𝒮ሾ𝑛ሿ original and 𝒮ሷሾ𝑛ሿ is the denoised signal. 𝑁 indicates the length of the signal. 
+mean absolute error (MAE): Similar to MSE, MAE is also a metric to assess quality of denoised signal. MAE result 
+should be lower for high quality denoising. Standard equation of 𝑀𝐴𝐸 goes like: 
+            𝑀𝐴𝐸 ൌ
+∑ |ሺ𝒮ሾ௡ሿି𝒮ሷሾ௡ሿሻ|ಿ೙సభ
+ே                                               (44) 
+ 
+9- Experimental Results 
+This portion reports and deliberates the results of the conduct ed investigations. In this work, we use the DWT for 
+clean signals with thresholding.  
+Journal Pre-proof
+Journal Pre-proof
+ 
+ 
+ 
+ 
+Then, the compression signal uses the lossless method based on the Huffman coding algorithm, and signal encryption 
+uses the symmetric key cryptography based on the AES-CBC algori thm block ciphering. Above the Figure 6a 
+illustrates the original ECG signal for one block. Figure 6b illustrates the compression and encryption, and Figure 6c 
+reveals the decryption and decomp ression of ECG biomedical sign al. The execution of the proposed method is 
+assessed using parameters, including de-noise signal MSE, PSNR,  SNR, and CC, and compression performance 
+parameters PRD and CR. The timely execution and security level are significant parameters for the evaluation of the 
+proposed system performance. 
+                                                                            Table 1: Simulation Setup 
+ 
+       
+ 
+ 
+          For the experimental results, we select five datasets, namely, 100, 106, 112, 117, and 213, from the MIT-BIH 
+repository. These records contain 3600 samples (ML II-Lead 2) with a total duration of 10 s and frequency of 3600 
+Dataset MIT-BIH Arrh ythmia Database (MITDB) – ML II 
+No. of Datasets 5 Datasets (100, 106, 112, 117, 123) 
+Sample Duration 10Secs 
+Sampling Frequency 3600Hz 
+Operating System Windows 7 64-Bi t 
+Processor i 5  2 nd Gen 
+Ram 8 G B  
+Simulation toolkit MATLAB 2018a 
+         Figure 6. (a)  Original ECG signal    Figure 6. (b) Encryption in the CBC mode      
+Figure 6. (c) Decryption the ECG signal 
+(a) (b)
+(c)
+Journal Pre-proof
+Journal Pre-proof
+Hz. All the simulations were carried out in MATLAB 2018a toolki t on Windows 7 64-bit OS with 8 GB RAM. 
+Accordingly, Table 1 lists the fundamental setup information us ed in this work. The ECG obtained from MIT-BIH 
+repository is the most filtered one. Thus, we added extra noise  to check the efficiency of our approaches. The 
+efficiency of algorithms may vary depending on the volume and t ype of noise. However, we add noise in the range 
+of 0.5–2 dB to check the efficiency of approaches on different parameters, such as MSE, MAE, PSNR, SNR, ad CC. 
+After performing extensive experiments on 10 different wavelets , we select three wavelets,  namely, db04, bior1.3, 
+and Haar, that commonly deliver the best results while filtering. Table 2 provides the performance results of various 
+wavelets while eliminating 0.5 dB noise, demonstrating the use of various wavelets and a rescaling factor of ONE. 
+The Haar wavelet combined with Rigrsure threshold possesses the  minimum MSE among its peers. MSE is an 
+important measure for determining the error percentage in recon structed signals. Hence, the wavelet performance 
+can be assessed easily using Haar. HAAR performs better in terms of MAE, PSNR, SNR, and CC. PSNR is a measure 
+of noise ratio in signal. Thus, better filtering always deliver s better results. The PSNR of HAAR on 0.5 dB noise 
+reconstructed signal is 52.66 dB, which is considerably higher than that of the other wavelets. Thus, comparative 
+analysis can assess that the Haar wavelet is the best among its peers considering the above-mentioned parameters. 
+Table 2: Denoising Performance of Wavelets (Noise: 0.05dB, Rescaling: ONE) 
+Dataset Wavelet Threshold MSE MAE PSNR SNR CC 
+100 db04 Ri grsure 0.229367 0.395815 52.06072 43.59881 0.999902 
+100 bior1.3 Ri grsure 0.200955 0.372725 52.63503 44.17312 0.999914 
+100 Haar Rigrsure 0.199723 0.371882 52.66174 44.19982 0.999914 
+106 db04 Ri grsure 0.151975 0.33624 60.54325 46.83681 0.999987 
+106 bior1.3 Ri grsure 0.125033 0.318309 61.39072 47.68428 0.99999 
+106 Haar Rigrsure 0.124998 0.318308 61.39192 47.68548 0.99999 
+112 db04 Ri grsure 0.408883 0.520654 35.7053 49.15925 0.999877 
+112 bior1.3 Ri grsure 0.196942 0.368586 38.87791 52.33186 0.999941 
+112 Haar Rigrsure 0.194441 0.366689 38.93341 52.38736 0.999942 
+117 db04 Ri grsure 0.229234 0.396281 21.96024 51.27331 0.999947 
+117 bior1.3 Ri grsure 0.187291 0.366351 22.83787 52.15094 0.999957 
+117 Haar Rigrsure 0.185274 0.364278 22.88487 52.19794 0.999957 
+213 db04 Ri grsure 0.283329 0.432859 58.24687 48.73775 0.999989 
+213 bior1.3 Ri grsure 0.125002 0.318309 61.8006 52.29147 0.999995 
+213 Haar Rigrsure 0.125032 0.318585 61.79958 52.29046 0.999995 
+ 
+Table 3 illustrates the performance of filtering wavelets on 1 dB noise-reconstructed signal. Keeping the rescaling 
+factor as ONE, the PSNR of Haar is comparatively better than that of db04 and bior1.3. Haar also outperforms other 
+wavelets in terms of MSE and MAE, indicating better reconstruct ion. Similarly, Table 4 demonstrates the filtering 
+results obtained while maintaining a noise level of 2 dB. Rigrsure is used as threshold, and a rescaling factor ONE is 
+applied on five different datasets. As expected from the previo us results, Haar performs better than its peers, i.e., 
+db04 and bior1.3, in terms of MSE, MAE, PSNR, SNR, and CC. Table 5 indicates the time efficiency of the proposed 
+approaches while performing various operations. As presented in the table, time is measured in seconds. Representing 
+the best approach, Pan–Tompkins QRS detection approach requires around 1.9261 s when working on 106 datasets. 
+Table 3: Denoising Performance of Wavelets (Noise: 1dB, Rescaling: ONE) 
+Dataset Wavelet Threshold MSE MAE PSNR SNR CC 
+100 db04 Ri grsure 0.604366 0.670927 47.85302 39.39111 0.999739 
+100 bior1.3 Ri grsure 0.5761 0.659486 48.06104 39.59913 0.999751 
+Journal Pre-proof
+Journal Pre-proof
+100 Haar Rigrsure 0.574795 0.658876 48.0709 39.60898 0.999752 
+106 db04 Ri grsure 0.526976 0.644487 55.14306 41.43661 0.999956 
+106 bior1.3 Ri grsure 0.500008 0.636652 55.37119 41.66475 0.999958 
+106 Haar Rigrsure 0.499981 0.636607 55.37143 41.66499 0.999958 
+112 db04 Ri grsure 0.783886 0.736226 32.87876 46.33271 0.999762 
+112 bior1.3 Ri grsure 0.571801 0.657534 34.24884 47.70279 0.999827 
+112 Haar Rigrsure 0.569411 0.656654 34.26703 47.72098 0.999827 
+117 db04 Ri grsure 0.604237 0.668277 17.75095 47.06403 0.999877 
+117 bior1.3 Ri grsure 0.562281 0.65472 18.06349 47.37657 0.999887 
+117 Haar Rigrsure 0.560262 0.653791 18.07911 47.39218 0.999888 
+213 db04 Ri grsure 0.658328 0.691176 54.58536 45.07624 0.999974 
+213 B3ior1.3 Ri grsure 0.50001 0.636611 55.78 46.27088 0.99998 
+213 Haa Rigrsure 0.499994 0.636607 55.78014 46.27101 0.99998 
+ 
+Table 4: Denoising Performance of Wavelets (Noise: 2dB, Rescaling: ONE) 
+Dataset Wavelet Threshold MSE MAE PSNR SNR CC 
+100 db04 Ri grsure 0.604379 0.670371 47.85293 39.39102 0.999739 
+100 bior1.3 Ri grsure 0.576069 0.661183 48.06128 39.59937 0.999752 
+100 Haar Rigrsure 0.573429 0.660187 48.08122 39.61931 0.999753 
+106 db04 Ri grsure 0.526975 0.643562 55.14306 41.43662 0.999956 
+106 bior1.3 Ri grsure 0.500024 0.636596 55.37106 41.66461 0.999958 
+106 Haar Rigrsure 0.499982 0.636846 55.37142 41.66498 0.999958 
+112 db04 Ri grsure 0.783884 0.737138 32.87877 46.33272 0.999762 
+112 bior1.3 Ri grsure 0.572089 0.65974 34.24666 47.7006 0.999827 
+112 Haar Rigrsure 0.569382 0.658533 34.26725 47.7212 0.999827 
+117 db04 Ri grsure 0.60424 0.6667 17.75093 47.064 0.999861 
+117 bior1.3 Ri grsure 0.562058 0.655914 18.06521 47.37828 0.999871 
+117 Haar Rigrsure 0.560278 0.655646 18.07899 47.39206 0.999871 
+213 db04 Ri grsure 0.658329 0.69102 54.58536 45.07623 0.999974 
+213 bior1.3 Ri grsure 0.500017 0.636588 55.77994 46.27081 0.999981 
+213 Haar Rigrsure 0.499937 0.636567 55.78063 46.27151 0.999981 
+ 
+Block creation times are almost the same for all as signal length remains the same in all the records. Key generation, 
+encryption, and decryption times are almost similar on different records because of the same signal length. Although 
+no significant variation exists in the compression time, the decompression time of signal 112 is slightly higher than 
+that of other signals. This result may be due to the high fluct uations in heartbeat (neighboring sequences are distant 
+numbers that may affect encoding efficiency). CR shows no consi derable variations when using different datasets, 
+but the PRD of record no. 112 is slightly higher than that of other records. 
+Table 5: Time Efficiency Performance of Methods (Noise: 0.05dB) 
+Dataset 
+QRS 
+Time 
+Blocking 
+Time 
+AES Key 
+Gen. Time 
+Encrypt 
+Time 
+Comp. 
+Time 
+Decom. 
+Time 
+Decrypt 
+Time 
+Recons. 
+Time CR PRD 
+100m 2.1679 0.0004 0.1393 2.6824 3.6946 0.5226 2.8839 1.7687 0.3576  0.4187 
+106m 1.9261 0.0004 0.1190 2.5763 3.8248 0.5200 2.8177 1.8019 0.3547  0.4134 
+Journal Pre-proof
+Journal Pre-proof
+112m 2.0495 0.0004 0.1719 2.6238 3.8655 0.6781 3.3940 2.2903 0.3543  0.4699 
+117m 1.9720 0.0004 0.1320 2.6205 3.9283 0.5506 2.9075 1.8387 0.3556  0.4591 
+213m 2.1237 0.0004 0.1321 2.7744 3.9342 0.5362 2.9241 1.8800 0.3533  0.4204 
+ 
+Similar to the previous table, Table 6 illustrates the efficien cy of the proposed approaches on five selected records 
+of MIT-BIH arrhythmia dataset with 1 dB noise. Results indicate the approach proposed for various operations, such 
+a s  b l o c k  c r e a t i o n ,  k e y  g e n e r a t i o n ,  e n c r y p t i o n ,  d e c r y p t i o n ,  c o m pression, and decompressi on. The efficiency of 
+compression techniques is assessed using the compression ratio and PRD.   
+Table 6: Time Efficiency Performance of Methods (Noise: 1dB) 
+Dataset 
+QRS 
+Time 
+Blocking 
+Time 
+AES Key 
+Gen. Time 
+Encrypt 
+Time 
+Comp. 
+Time 
+Decom. 
+Time 
+Decrypt 
+Time 
+Recons. 
+Time CR PRD 
+100 2.2180 0.0006 0.1377 2.6614 3.8156 0.5400 2.9281 1.8484 0.3 589 0.4159 
+106 1.9932 0.0004 0.1506 2.7678 3.7718 0.5489 2.8774 1.8429 0.3 556 0.4127 
+112 2.2008 0.0004 0.1457 2.7726 3.9296 0.6923 3.4468 2.2234 0.3 543 0.4686 
+117 2.0357 0.0006 0.1573 2.6994 3.8599 0.5366 2.8618 1.8350 0.3 539 0.4584 
+213 2.1057 0.0004 0.1389 2.7878 3.9871 0.5722 2.9458 1.8324 0.3 536 0.4187 
+ 
+Table 7 presents similar kinds of results as shown in previous tables on signals with 2 dB noise. Fig. 8 presents the 
+mean CR and PRD retrieved on the selected five datasets with 0.5, 1, and 2 dB noise. As the results barely show 
+any difference while changing the dataset and noise ratio, the average is demonstrated as shown below.  
+Table 7: Time Efficiency Performance of Methods (Noise: 2dB) 
+Dataset 
+QRS 
+Time 
+Blocking 
+Time 
+AES Key 
+Gen. Time 
+Encrypt 
+Time 
+Comp. 
+Time 
+Decom. 
+Time 
+Decrypt 
+Time 
+Recons. 
+Time CR PRD 
+100 1.9656 0.0004 0.1345 2.7200 3.7631 0.5378 3.0326 1.8599 0.3 583 0.4164 
+106 2.0803 0.0004 0.1047 2.7553 3.8942 0.6698 3.4446 2.2538 0.3 542 0.4120 
+112 2.1944 0.0004 0.1266 2.7490 3.9741 0.6638 3.5252 2.2902 0.3 522 0.4669 
+117 2.0422 0.0004 0.1416 2.6815 3.8543 0.5967 2.8338 1.8720 0.3 522 0.4572 
+213 1.9730 0.0004 0.1245 2.7868 3.8650 0.5618 2.8505 2.1368 0.3 502 0.4180 
+ 
+The ECG signal compression aims to achieve high compression rat es without changing the signal quality. The 
+compression rate should be checked with the other parameters to  evaluate the experimental results of the quality of 
+the reconstructed signal. Table 8 compares the performance of t he compression algorithm with that of other 
+algorithms in previous studies. 
+Table 8: Comparison performance of compression algorithm with other algorithms 
+ 
+ 
+ 
+ 
+ 
+ 
+10- Conclusion 
+Al
+gorithm Compression Ratio PDR 
+[14] 0.9772 0.522 
+[17] 0.9408 0.641 
+[41] 0.9333 1.067 
+1.137 
+1.184 
+[18] 0.401  
+0.519 
+0.42 
+0.88 
+Proposed Work 0.35015 0.411 
+Journal Pre-proof
+Journal Pre-proof
+This work mainly aimed to develop a lightweight model to process ECG signals efficiently and securely. To test the 
+efficiency of the proposed model, five distinguished datasets f rom MIT-BIH arrhythmia repository were processed 
+through several mechanisms, including denoising, compression, f iltering, and encryption. As compressed signals 
+require less computation time compared with raw signals, the Hu f f m a n  l o s s l e s s  s c h e m e  w a s  e m p l o y e d .  T h e  
+efficiency of the mechanisms were computed in terms of PRD, CR, PSNR, and MSE. Experimental results prove the 
+efficacy of the algorithms used. This work used a novel block-level processing and encryption of signal using 256-
+bit AES (CBC), which could be further tested in real-time embedded devices. The compression rate of the algorithm 
+is 35.015% and the PRD is 0.411. The reconstructed signal is fu lly reliable with the original signal, and the 
+insignificant error between the two signals indicates their sim ilarity. After compression, the ECG signal can be 
+transmitted anywhere in the world. 
+References 
+[1]  and S. D. S. Chaudhuri, D. Tanmay, “E E Ambulation Analysi s in Wearable ECG,” Springer, no. March 
+2009, pp. 1–11, 2009. 
+[2] J. S. Sahambi, S. N. Tandon, and R. K. P. Bhatt, “Using wav elet transforms for ECG characterization. An 
+on-line digital signal processing system,” IEEE Eng. Med. Biol. Mag., vol. 16, no. 1, pp. 77–83, 1997. 
+[3] M. Rakshit and S. Das, “An efficient ECG denoising methodol ogy using empirical mode decomposition and 
+adaptive switching mean filter,” Biomed. Signal Process. Control, vol. 40, pp. 140–148, 2018. 
+[4] J. Andreu-Perez, C. C. Y. Poon, R. D. Merrifield, S. T. C. Wong, and G.-Z. Yang, “Big Data for Health,” 
+IEEE J. Biomed. Heal. Informatics, vol. 19, no. 4, pp. 1193–1208, 2015. 
+[5] D. Gurve, B. S. Saini, and I. Saini, “An improved lossy and  lossless combined ECG data compression using 
+ASCII character encoding,” Int. J. Med. Eng. Inform., vol. 8, no. 4, pp. 758–764, 2016. 
+[6] A. F. Hussein, S. J. Hashim, A. F. A. Aziz, F. Z. Rokhani, and W. A. W. Adnan, “A real time ECG data 
+compression scheme for enhanced bluetooth low energy ECG system power consumption,” J. Ambient Intell. 
+Humaniz. Comput., vol. 0, no. 0, p. 0, 2017. 
+[7] H. Al-Hamadi, A. Gawanmeh, J. Baek, and M. Al-Qutayri, “Lig htweight Security Protocol for ECG Bio-
+Sensors,” Wirel. Pers. Commun., vol. 95, no. 4, pp. 5097–5120, 2017. 
+[8] M. Blanco-Velasco, F. Cruz-Roldán, J. I. Godino-Llorente, J . Blanco-Velasco, C. Armiens-Aparicio, and F. 
+López-Ferreras, “On the use of PRD and CR parameters for ECG co mpression,” Med. Eng. Phys., vol. 27, 
+no. 9, pp. 798–802, 2005. 
+[9] K. Gai, Y. Wu, L. Zhu, and M. Qiu, “Privacy-preserving Ener gy Trading Using Consortium Blockchain in 
+Smart Grid,” IEEE Trans. Ind. Informatics, vol. 15, no. 6, pp. 3548–3558, 2019. 
+[ 1 0 ]  K .  G a i ,  K .  R .  C h o o ,  S .  M e m b e r ,  M .  Q i u ,  a n d  L .  Z h u ,  “ P r i v a cy-Preserving Content-Oriented Wireless 
+Communication in Internet-of-Things,” IEEE Internet Things J., vol. 5, no. 4, pp. 3059–3067, 2018. 
+[11] R. Gupta and M. Mitra, “Wi reless Electrocardiogram Transmi ssion in ISM Band: An Approach Towards 
+Telecardiology,” J. Med. Syst., vol. 38, no. 10, Oct. 2014. 
+[12] M. Zhang and X. Tong, “A new algorithm of image compressio n and encryption based on spatiotemporal 
+cross chaotic system,” Multimed. Tools Appl., vol. 74, no. 24, pp. 11255–11279, 2015. 
+[13] J. Ma, T. Zhang, and M. Dong , “A novel ECG data compressio n method using adaptive fourier 
+decomposition with security guarantee in e-health applications,” IEEE J. Biomed. Heal. Informatics, vol. 19, 
+no. 3, pp. 986–994, 2015. 
+[14] M. Raeiatibanadkooki and S. R. Quchani, “Compression and E ncryption of ECG Signal Using Wavelet and 
+Journal Pre-proof
+Journal Pre-proof
+Chaotically Huffman Code in Telemedicine Application,” Mob. Syst., vol. 40, no. 3, pp. 1–8, 2016. 
+[15] H. Mamaghanian, N. Khaled, D. Atienza, and P. Vandergheyns t, “Compressed Sensing for Real-Time 
+Energy-Efficient ECG Compression on Wireless Body Sensor Nodes,” IEEE Trans. Biomed. Eng., vol. 58, 
+no. 9, pp. 2456–2466, 2011. 
+[16] R. Tornekar and S. Gajre, “‘Comparative Study of Lossless ECG Signal Compression Techniques for 
+Wireless Networks,’” 2017 Comput. Cardiol. Conf., vol. 44, pp. 1–4, 2018. 
+[ 1 7 ]  H .  K i m ,  R .  F .  Y a z i c i o g l u ,  P .  M e r k e n ,  C .  V a n  H o o f ,  a n d  H .  J. Yoo, “ECG signal compression and 
+classification algorithm with quad level vector for ECG holter system,” IEEE Trans. Inf. Technol. Biomed., 
+vol. 14, no. 1, pp. 93–100, 2010. 
+[18] T. Y. Liu, K. J. Lin, and H. C. Wu, “ECG data encryption t hen compression using singular value 
+decomposition,” IEEE J. Biomed. Heal. Informatics, vol. 22, no. 3, pp. 707–713, 2018. 
+[19] A. Pandey, B. S. Saini, B. Singh, and N. Sood, Complexity sorting and coupled chaotic map based on 2D 
+ECG data compression-then-encryption and its OFDM transmission with impair sample correction. 2018. 
+[20] W. P. Adam Gacek, ECG Signal Processing, Classification and Interpretation, 1st ed. 2012. 
+[21] “MIT-BIH, ‘MIT-BIH arrhythmia database,’ (Jul. 10, 2012). [Online]. Available: 
+http://physionet.org/physiobank/database/mitdb/.” 
+[22] G. B. Moody, “PhysioNet: Res earch Resource for Complex Physiologic Signals,” Circulation, vol. 101, no. 
+23, pp. 1–88, 2000. 
+[23] J. Pan and W. J. Tompkins, “A Real-Time QRS Detection Algo rithm,” IEEE Trans. Biomed. Eng., vol. BME-
+32, no. 3, pp. 230–236, 1985. 
+[24] A. Graps, “An Introduction to Wavelets,” IEEE Comput. Sci. Eng., vol. 2, pp. 1–18, 1995. 
+[25] D. Biswas, E. B. Mazomenos, and K. Maharatna, “ECG compres sion for remote healthcare systems using 
+selective thresholding based on energy compaction,” in 2012 International Symposium on Signals, Systems, 
+and Electronics (ISSSE), 2012, pp. 1–6. 
+[26] R. Rangarajan, R. Venkataramanan, and S. Shah, “Image Deno ising Using Wavelets-Wavelets & Time 
+Frequency,” 2002. 
+[27] P. Brémaud, Mathematical Principles of Signal Processing Fourier and Wavelet Analysis . New York: 
+Springer-Verlag Berlin Heidelberg GmbH, 2002. 
+[28] V. Kumar, S. C. Saxena, and V. K. Giri, “Direct data compr ession of ECG signal for telemedicine,” Int. J. 
+Syst. Sci., vol. 37, no. 1, pp. 45–63, 2006. 
+[29] H. Hermassi, R. Rhouma, and S. Belghith, “Joint compressio n and encryption using chaotically mutated 
+Huffman trees,” Commun. Nonlinear Sci. Numer. Simul., vol. 15, no. 10, pp. 2987–2999, 2010. 
+[30] K. K. Tseng, J. M. Jiang, J. S. Pan, L. L. Tang, C. Y. Hsu , and C. C. Chen, “Enhanced Huffman coding with 
+encryption for wireless data broadcasting system,” Proc. - 2012 Int. Symp. Comput. Consum. Control. IS3C 
+2012, pp. 622–625, 2012. 
+[31] D. HUFFMAN, “Huffman_1952_Minimum-Redundancy-Codes,” in PROCEEDINGS OF THE I.R.E., 2002, 
+pp. 1–4. 
+[32] I. Csiszar, A first course in information theory [Book Review], 1 st., vol. 49, no. 7. Springer, 2002. 
+[33] C. F. Lin, S. H. Shih, and J. De Zhu, “Chaos based encrypt ion system for encrypting electroencephalogram 
+Journal Pre-proof
+Journal Pre-proof
+signals,” J. Med. Syst., vol. 38, no. 5, pp. 1–10, 2014. 
+[34] K. Gai, M. Qiu, and S. Member, “Blend Arithmetic Operation s on Tensor-based Fully Homomorphic 
+Encryption Over Real Numbers,” IEEE Trans. Ind. Informatics, vol. 14, no. 8, pp. 3590–3598, 2018. 
+[35] M. E. Hameed, M. M. Ibrahim, and N. A. Manap, “Review on I mprovement of Advanced Encryption 
+Standard ( AES ) Algorithm based on Time Execution , Differential Cryptanalysis and Level of Security,” J. 
+Telecommun. Electron. Comput. Eng., vol. 10, no. 1, pp. 139–145, 2018. 
+[36] M. S. Reddy and Y. A. Babu, “Evaluation Of Microblaze and Implementation Of AES Algorithm using 
+Spartan-3E,” Int. J. Adv. Res. Electr. Electron. Instrum. Eng., vol. 2, no. 7, pp. 3341–3347, 2013. 
+[37] R. Concepts, “White Paper AES Encryption AES Encryption an d Related Concepts,” Townsend Secur., pp. 
+0–4, 2016. 
+[38] M. Vaidehi and B. J. Rabi, “Design and analysis of AES-CBC  mode for high security applications,” 2nd Int. 
+Conf. Curr. Trends Eng. Technol. ICCTET 2014, pp. 499–502, 2014. 
+[39] M. E. Hameed, M. M. Ibrahi m, N. A. Manap and M. L. Attiah,  “Comparative study of several operation 
+modes of AES algorithm for encryption ECG biomedical signal,” Int. J. Electr. Comput. Eng., vol. 9, no. 6, 
+2019. 
+[40] S. K. Mukhopadhyay, S. Mitra, and M. Mitra, “An ECG signal  compression technique using ASCII character 
+encoding,” Measurement, vol. 45, no. 6, pp. 1651–1660, 2012. 
+[41] B. S. Kim, S. K. Yoo, and M. H. Lee, “Wavelet-based low-de lay ECG compression algorithm for continuous 
+ECG transmission,” IEEE Trans. Inf. Technol. Biomed., vol. 10, no. 1, pp. 77–83, 2006. 
+ 
+Journal Pre-proof
+Journal Pre-proof
+Authors Interest  
+1. Mustafa Emad Hameed is a Ph.D. Candidate at the Faculty of Electronic 
+and Computer Engineering (FKeKK), Universiti Teknikal Malaysia 
+Melaka (UTeM ), Malaysia. He received his B.Sc. in Software 
+Engineering from Alrafidain University College, Iraq in 2009. He 
+obtained his M.Tech Computer Science and Engineering in Computer 
+Science and Information Technology from Sam Higginbottom University 
+Of Agriculture Technology And Sciences, Allahabad, India in 2012 . His 
+current research interests include Compression  Signal, Cryptography , 
+filtering mechanism and Embedded System of Healthcare System. 
+ 
+2. Masrullizam bin Mat Ibrahim. Ghani received his Ph.D. in Image a nd 
+Signal Processing from Electronic Engineering / University of Stratchylde, 
+UK. He obtained a master's in Computer Engineering/ Electrical -
+Electronics & Telecommunications from the Malaysia University of 
+Technology (UTM) and a BSc in Computer Engineering / Electrical -
+Electronics from the Malaysia University of Technology (UTM). His 
+research areas of interest include Digital System, VHDL Design, 
+Electronics. 
+ 
+3. Nurulfajar bin Abd. Manap . Ghani received his Ph.D. in Image and Video 
+Processing from Electronic E ngineering / University of Stratchylde, UK.  
+He obtained a master's in Computer Engineering/ Electrical from the 
+Malaysia University of Technology (UTM) and a BSc  in Computer 
+Engineering/ Electrical from the Malaysia University of Technology 
+(UTM). His res earch areas of interest include Multi -view and 3D Visual 
+Signal Processing, Image and Video Processing, Stereo Vision, 3D Image 
+Synthesis, 3D and Free-Viewpoint Applications. 
+ 
+4. Ali A. Mohammed is a Ph.D. Candidate at the Faculty of Information and 
+Communications Technology (FTMK), Universiti Teknikal Malaysia 
+Melaka (UTeM), Malaysia. He received his B.Sc. in Computer Science 
+Journal Pre-proof
+Journal Pre-proof
+from the University of Diyala, Iraq in 2009. He obtained his M.Sc.  deg ree 
+in Information Technology from the infrastructure University Kuala 
+Lumpur (IUKL), Malaysia in 2014. His current research interests include 
+Ubiquitous Computing, Distributed Systems, and Embedded Healthcare 
+Systems. 
+ 
+Journal Pre-proof
+Journal Pre-proof
+Journal Pre-proof
+Journal Pre-proof
+Journal Pre-proof
+Journal Pre-proof
+Journal Pre-proof
+Journal Pre-proof
+Journal Pre-proof
+Journal Pre-proof
+Highlights  
+1- The research explored the highlight security, privacy and data 
+size challenges of the healthcare system based on ECG 
+biomedical signal. 
+2- The ECG signal cryptography capability to provide high level 
+security used Advance Encryption Standard algorithm with 
+CBC mode operation and 256-bit key size. 
+3- High-Performance ECG compression algorithm without any 
+loss of information with guaranteed reconstruction quality.  
+4- The DWT combined with a Thresholding can be applied to the 
+signal vector provide high efficiency for filtering mechanism.  
+ 
+Journal Pre-proof
+Journal Pre-proof
+Conflict of Interest and Authorship Conformation Form 
+ 
+Please check the following as appropriate: 
+ 
+ 
+o   All authors have participated in (a) conception and design, or analysis and 
+interpretation of the data; (b) drafting the article or revising it critically for 
+important intellectual content; and (c) approval of the final version.   
+ 
+o   This manuscript has not been submitted to, nor is under review at, another 
+journal or other publishing venue. 
+ 
+o   The authors have no affiliation with any organization with a direct or indirect 
+financial interest in the subject matter discussed in the manuscript 
+ 
+o   The following authors have affiliations with organizations with direct or 
+indirect financial interest in the subject matter discussed in the manuscript: 
+ 
+Author’s name             Affiliation 
+Mustafa Emad Hameed                        Universiti Teknikal Malaysia Melaka (UTeM). 
+Bilad Al-rafidan University College, Diyala, Baqubah-Iraq. 
+Masrullizam bin Mat Ibrahim               Universiti Teknikal Malaysia Melaka (UTeM). 
+Nurulfajar bin Abd. Manap                  Universiti Teknikal Malaysia Melaka (UTeM). 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Journal Pre-proof
+Journal Pre-proof

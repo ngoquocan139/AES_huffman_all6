@@ -70,7 +70,8 @@ generation and canonical codebook construction. The blue stage corresponds to
 payload encoding, header formatting, the Fig. 3.9 Huffman stream interface,
 128-bit packing, and forwarding to AES-128-CBC.
 
-Editable source for draw.io / diagrams.net: `docs/assets/dynamic_huffman_compression_block_diagram.drawio`.
+Updated SVG source: `docs/assets/dynamic_huffman_compression_block_diagram.svg`.
+PNG preview for Word insertion: `docs/assets/dynamic_huffman_compression_block_diagram_preview.png`.
 
 ## 4. Submodules And Responsibilities
 

@@ -1,0 +1,26 @@
+{"kind":"deck","id":"pr/48xyy6","name":"Deck"}
+{"kind":"layout","layoutId":"56c29e26-28b3-47b0-8bac-68fa740c70af","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"ada7edfb-57fe-4067-bdf5-e2bfac1dffc1","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/30afxi","slide":1,"title":"Evaluation and Performance Comparison","textShapes":9}
+{"kind":"textbox","id":"sh/fa9w3m94","slide":1,"name":"deck-title","text":"Evaluation and Performance Comparison","textPreview":"Evaluation and Performance Comparison","textChars":37,"textLines":1,"bbox":[0,22,2400,58]}
+{"kind":"textbox","id":"sh/8v6psfil","slide":1,"name":"hardware-section","text":"Hardware Baselines","textPreview":"Hardware Baselines","textChars":18,"textLines":1,"bbox":[0,92,2400,46]}
+{"kind":"textbox","id":"sh/xczed8v6","slide":1,"name":"software-section","text":"Software and Paper Baselines","textPreview":"Software and Paper Baselines","textChars":28,"textLines":1,"bbox":[0,658,2400,46]}
+{"kind":"shape","id":"sh/q5o7qpg3","slide":1,"name":"legend-swatch-0-0","bbox":[555,1279,34,24]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":1,"name":"legend-label-0-0","text":"Our Design","textPreview":"Our Design","textChars":10,"textLines":1,"bbox":[601,1270,202,34]}
+{"kind":"shape","id":"sh/8bat47y1","slide":1,"name":"legend-swatch-0-1","bbox":[805,1279,34,24]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":1,"name":"legend-label-0-1","text":"Research paper / cited hardware design","textPreview":"Research paper / cited hardware design","textChars":38,"textLines":1,"bbox":[851,1270,562,34]}
+{"kind":"shape","id":"sh/qh0fepkz","slide":1,"name":"legend-swatch-0-2","bbox":[1415,1279,34,24]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":1,"name":"legend-label-0-2","text":"Official hardware IP/spec","textPreview":"Official hardware IP/spec","textChars":25,"textLines":1,"bbox":[1461,1270,382,34]}
+{"kind":"shape","id":"sh/8nqxs72x","slide":1,"name":"legend-swatch-1-0","bbox":[715,1315,34,24]}
+{"kind":"textbox","id":"sh/j6tovaho","slide":1,"name":"legend-label-1-0","text":"Standard-library compressors","textPreview":"Standard-library compressors","textChars":28,"textLines":1,"bbox":[761,1306,422,34]}
+{"kind":"shape","id":"sh/ulwval87","slide":1,"name":"legend-swatch-1-1","bbox":[1185,1315,34,24]}
+{"kind":"textbox","id":"sh/ed8v6psf","slide":1,"name":"legend-label-1-1","text":"ECG/application paper baselines","textPreview":"ECG/application paper baselines","textChars":31,"textLines":1,"bbox":[1231,1306,452,34]}
+{"kind":"textbox","id":"sh/7y1kre1w","slide":1,"name":"source-note","text":"Sources: Good & Benaissa, CHES 2005; OpenTitan AES HWIP documentation; Matai et al., ASAP 2014; Guguloth et al., Results in Engineering 2025; Hameed et al., FGCS 2020; Zarate Segura et al., IJETT 2024. Throughput is normalized to 100 MHz where possible; efficiency is reported as bytes/cycle. FPGA/platform and input size differ across references.","textPreview":"Sources: Good & Benaissa, CHES 2005; OpenTitan AES HWIP documentation; Matai et al., ASAP 2014; Guguloth et al., Results in Engineering 2...","textChars":347,"textLines":1,"bbox":[95,1375,2210,86]}
+{"kind":"chart","id":"ch/q5o7qpg3","slide":1,"name":"","chartType":"bar","title":"AES Throughput at 100 MHz","bbox":[45,150,560,460]}
+{"kind":"chart","id":"ch/jqh0fepk","slide":1,"name":"","chartType":"bar","title":"AES Efficiency","bbox":[635,150,560,460]}
+{"kind":"chart","id":"ch/8bat47y1","slide":1,"name":"","chartType":"bar","title":"Huffman Throughput","bbox":[1225,150,560,460]}
+{"kind":"chart","id":"ch/1w7mp0bi","slide":1,"name":"","chartType":"bar","title":"Huffman Efficiency","bbox":[1815,150,535,460]}
+{"kind":"chart","id":"ch/uxc3ylc7","slide":1,"name":"","chartType":"bar","title":"Compression + Encryption Input Throughput","bbox":[70,712,680,490]}
+{"kind":"chart","id":"ch/ji5snelo","slide":1,"name":"","chartType":"bar","title":"Payload Saving on 18,019 Preprocessed ECG Bytes","bbox":[790,712,700,490]}
+{"kind":"chart","id":"ch/vu9knih4","slide":1,"name":"","chartType":"bar","title":"Saved vs 36,000 Raw ECG Bytes","bbox":[1530,712,770,490]}
+{"kind":"notes","id":"nt/30afxi","slide":1,"text":""}

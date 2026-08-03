@@ -1,0 +1,107 @@
+{"kind":"deck","id":"pr/hod1tz","name":"Deck"}
+{"kind":"layout","layoutId":"5938b267-3242-4e8a-ad79-2ed076b59fc2","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"30ec7562-7732-4116-9fa7-d24b53679f29","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/lwuaic","slide":1,"title":"RX Canonical Huffman Reconstruction","textShapes":32}
+{"kind":"textbox","id":"sh/7mp0bi9s","slide":1,"text":"RX Canonical Huffman Reconstruction","textPreview":"RX Canonical Huffman Reconstruction","textChars":35,"textLines":1,"bbox":[38,24,1120,44]}
+{"kind":"textbox","id":"sh/w7mp0bi9","slide":1,"text":"RX reads only symbol + code length from the header, then rebuilds the same canonical code table as TX.","textPreview":"RX reads only symbol + code length from the header, then rebuilds the same canonical code table as TX.","textChars":102,"textLines":1,"bbox":[40,68,1120,26]}
+{"kind":"shape","id":"sh/psfil0rq","slide":1,"bbox":[0,100,1280,5]}
+{"kind":"shape","id":"sh/epkzupwb","slide":1,"bbox":[38,122,285,485]}
+{"kind":"shape","id":"sh/7adsji5s","slide":1,"bbox":[38,122,285,42]}
+{"kind":"textbox","id":"sh/wval87ed","slide":1,"text":"1. Read header entries","textPreview":"1. Read header entries","textChars":22,"textLines":1,"bbox":[54,131,253,25]}
+{"kind":"textbox","id":"sh/pg3ex0nu","slide":1,"text":"Header carries codebook information:","textPreview":"Header carries codebook information:","textChars":36,"textLines":1,"bbox":[56,180,249,28]}
+{"kind":"textbox","id":"sh/eloj2t83","slide":1,"text":"symbol   code_len\n\nE        1\nD        3\nL        3\nU        3\nC        4\nM        5\nK        6\nZ        6","textPreview":"symbol   code_len |  | E        1 | D        3 | L        3 | U        3 | C        4 | M        5 | K        6 | Z        6","textChars":106,"textLines":10,"bbox":[68,222,218,270]}
+{"kind":"textbox","id":"sh/36hcrmhk","slide":1,"text":"No original tree stored","textPreview":"No original tree stored","textChars":23,"textLines":1,"bbox":[68,517,218,46]}
+{"kind":"shape","id":"sh/fil0rqd4","slide":1,"bbox":[321,335,42,26]}
+{"kind":"shape","id":"sh/qxs72x4n","slide":1,"bbox":[355,122,210,485]}
+{"kind":"shape","id":"sh/xobm58z2","slide":1,"bbox":[355,122,210,42]}
+{"kind":"textbox","id":"sh/83itgfml","slide":1,"text":"2. Sort entries","textPreview":"2. Sort entries","textChars":15,"textLines":1,"bbox":[371,131,178,25]}
+{"kind":"textbox","id":"sh/fu18jqh0","slide":1,"text":"Canonical order:","textPreview":"Canonical order:","textChars":16,"textLines":1,"bbox":[373,184,174,25]}
+{"kind":"textbox","id":"sh/m94fu18j","slide":1,"text":"shorter code_len first\nsame length: ASCII first","textPreview":"shorter code_len first | same length: ASCII first","textChars":47,"textLines":2,"bbox":[373,216,174,64]}
+{"kind":"textbox","id":"sh/x0nuxc3y","slide":1,"text":"Order\n\nE\nD\nL\nU\nC\nM\nK\nZ","textPreview":"Order |  | E | D | L | U | C | M | K | Z","textChars":22,"textLines":10,"bbox":[404,297,112,240]}
+{"kind":"textbox","id":"sh/4fu18jqh","slide":1,"text":"len=3: D < L < U","textPreview":"len=3: D < L < U","textChars":16,"textLines":1,"bbox":[385,552,150,34]}
+{"kind":"shape","id":"sh/f6dcbulw","slide":1,"bbox":[564,335,42,26]}
+{"kind":"shape","id":"sh/mlkjm1cf","slide":1,"bbox":[598,122,265,485]}
+{"kind":"shape","id":"sh/upwb2hwf","slide":1,"bbox":[598,122,265,42]}
+{"kind":"textbox","id":"sh/nap4r65w","slide":1,"text":"3. Recreate codes","textPreview":"3. Recreate codes","textChars":17,"textLines":1,"bbox":[614,131,233,25]}
+{"kind":"textbox","id":"sh/cvixczed","slide":1,"text":"Start with current_code = 0.","textPreview":"Start with current_code = 0.","textChars":28,"textLines":1,"bbox":[616,180,229,27]}
+{"kind":"textbox","id":"sh/5gbq1ory","slide":1,"text":"len","textPreview":"len","textChars":3,"textLines":1,"bbox":[620,222,52,30]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":1,"text":"generated code","textPreview":"generated code","textChars":14,"textLines":1,"bbox":[672,222,168,30]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":1,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[620,252,52,42]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":1,"text":"E = 0","textPreview":"E = 0","textChars":5,"textLines":1,"bbox":[672,252,168,42]}
+{"kind":"textbox","id":"sh/54zidony","slide":1,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[620,294,52,48]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":1,"text":"no symbol, shift left","textPreview":"no symbol, shift left","textChars":21,"textLines":1,"bbox":[672,294,168,48]}
+{"kind":"textbox","id":"sh/judg7ads","slide":1,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[620,342,52,78]}
+{"kind":"textbox","id":"sh/9w3m94fu","slide":1,"text":"D = 100\nL = 101\nU = 110","textPreview":"D = 100 | L = 101 | U = 110","textChars":23,"textLines":3,"bbox":[672,342,168,78]}
+{"kind":"textbox","id":"sh/kb6xkf6d","slide":1,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[620,420,52,42]}
+{"kind":"textbox","id":"sh/rqd4vmtw","slide":1,"text":"C = 1110","textPreview":"C = 1110","textChars":8,"textLines":1,"bbox":[672,420,168,42]}
+{"kind":"textbox","id":"sh/25kb6xkf","slide":1,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[620,462,52,42]}
+{"kind":"textbox","id":"sh/9knih4by","slide":1,"text":"M = 11110","textPreview":"M = 11110","textChars":9,"textLines":1,"bbox":[672,462,168,42]}
+{"kind":"textbox","id":"sh/kzupwb2h","slide":1,"text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[620,504,52,62]}
+{"kind":"textbox","id":"sh/re1w7mp0","slide":1,"text":"K = 111110\nZ = 111111","textPreview":"K = 111110 | Z = 111111","textChars":21,"textLines":2,"bbox":[672,504,168,62]}
+{"kind":"shape","id":"sh/2t83itgf","slide":1,"bbox":[862,335,42,26]}
+{"kind":"shape","id":"sh/9gr2p8nq","slide":1,"bbox":[895,122,285,485]}
+{"kind":"shape","id":"sh/gvy90je9","slide":1,"bbox":[895,122,285,42]}
+{"kind":"textbox","id":"sh/onyd0z61","slide":1,"text":"4. RX lookup table","textPreview":"4. RX lookup table","textChars":18,"textLines":1,"bbox":[911,131,253,25]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":1,"text":"The decoder stores prefix rules:","textPreview":"The decoder stores prefix rules:","textChars":32,"textLines":1,"bbox":[913,180,249,28]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":1,"text":"code      symbol\n\n0         E\n100       D\n101       L\n110       U\n1110      C\n11110     M\n111110    K\n111111    Z","textPreview":"code      symbol |  | 0         E | 100       D | 101       L | 110       U | 1110      C | 11110     M | 111110    K | 111111    Z","textChars":113,"textLines":10,"bbox":[923,222,222,250]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":1,"text":"Same table as TX because the canonical rule is deterministic.","textPreview":"Same table as TX because the canonical rule is deterministic.","textChars":61,"textLines":1,"bbox":[915,494,245,72]}
+{"kind":"shape","id":"sh/ovahoza1","slide":1,"bbox":[38,626,1140,36]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":1,"text":"Key idea: RX reconstructs the codebook from code_len; it does not transmit or rebuild the original Huffman tree.","textPreview":"Key idea: RX reconstructs the codebook from code_len; it does not transmit or rebuild the original Huffman tree.","textChars":112,"textLines":1,"bbox":[55,634,1105,23]}
+{"kind":"notes","id":"nt/lwuaic","slide":1,"text":""}
+{"kind":"slide","id":"sl/thck9m","slide":2,"title":"RX Huffman Payload Decoding","textShapes":37}
+{"kind":"textbox","id":"sh/m94fu18j","slide":2,"text":"RX Huffman Payload Decoding","textPreview":"RX Huffman Payload Decoding","textChars":27,"textLines":1,"bbox":[38,24,1120,44]}
+{"kind":"textbox","id":"sh/x0nuxc3y","slide":2,"text":"After the table is rebuilt, payload bits are consumed by prefix match until block_size output bytes are recovered.","textPreview":"After the table is rebuilt, payload bits are consumed by prefix match until block_size output bytes are recovered.","textChars":114,"textLines":1,"bbox":[40,68,1120,26]}
+{"kind":"shape","id":"sh/4fu18jqh","slide":2,"bbox":[0,100,1280,5]}
+{"kind":"shape","id":"sh/fil0rqd4","slide":2,"bbox":[42,123,1145,148]}
+{"kind":"shape","id":"sh/qxs72x4n","slide":2,"bbox":[42,123,1145,42]}
+{"kind":"textbox","id":"sh/xobm58z2","slide":2,"text":"Compressed block seen by RX","textPreview":"Compressed block seen by RX","textChars":27,"textLines":1,"bbox":[58,132,1113,25]}
+{"kind":"textbox","id":"sh/83itgfml","slide":2,"text":"mode\n2b","textPreview":"mode | 2b","textChars":7,"textLines":2,"bbox":[70,175,90,62]}
+{"kind":"textbox","id":"sh/fepkzupw","slide":2,"text":"block_size\n7 bytes","textPreview":"block_size | 7 bytes","textChars":18,"textLines":2,"bbox":[160,175,150,62]}
+{"kind":"textbox","id":"sh/mtwra5gb","slide":2,"text":"symbol_count\n8 entries","textPreview":"symbol_count | 8 entries","textChars":22,"textLines":2,"bbox":[310,175,170,62]}
+{"kind":"textbox","id":"sh/oj2t83it","slide":2,"text":"entries\nE:1 D:3 L:3 U:3 ...","textPreview":"entries | E:1 D:3 L:3 U:3 ...","textChars":27,"textLines":2,"bbox":[480,175,320,62]}
+{"kind":"textbox","id":"sh/d4vmtwra","slide":2,"text":"payload bits\n0 0 0 100 100 101 0","textPreview":"payload bits | 0 0 0 100 100 101 0","textChars":32,"textLines":2,"bbox":[800,175,360,62]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":2,"text":"Header = dictionary information. Payload = actual compressed data encoded using that dictionary.","textPreview":"Header = dictionary information. Payload = actual compressed data encoded using that dictionary.","textChars":96,"textLines":1,"bbox":[73,242,1040,24]}
+{"kind":"shape","id":"sh/vy90je9c","slide":2,"bbox":[42,295,335,315]}
+{"kind":"shape","id":"sh/o7qpg3ex","slide":2,"bbox":[42,295,335,42]}
+{"kind":"textbox","id":"sh/dsji5sne","slide":2,"text":"1. Match prefix","textPreview":"1. Match prefix","textChars":15,"textLines":1,"bbox":[58,304,303,25]}
+{"kind":"textbox","id":"sh/61032lsz","slide":2,"text":"Input window:","textPreview":"Input window:","textChars":13,"textLines":1,"bbox":[70,352,140,24]}
+{"kind":"textbox","id":"sh/vmtwra5g","slide":2,"text":"1001010...","textPreview":"1001010...","textChars":10,"textLines":1,"bbox":[72,382,245,44]}
+{"kind":"shape","id":"sh/ovahoza1","slide":2,"bbox":[168,433,36,42]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":2,"text":"first match: 100 = D","textPreview":"first match: 100 = D","textChars":20,"textLines":1,"bbox":[78,482,235,58]}
+{"kind":"textbox","id":"sh/1kre1w7m","slide":2,"text":"Consume 3 bits, then continue with the next prefix.","textPreview":"Consume 3 bits, then continue with the next prefix.","textChars":51,"textLines":1,"bbox":[72,552,250,42]}
+{"kind":"shape","id":"sh/c3ylc7u5","slide":2,"bbox":[407,295,430,315]}
+{"kind":"shape","id":"sh/ji5snelo","slide":2,"bbox":[407,295,430,42]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":2,"text":"2. Decode sequentially","textPreview":"2. Decode sequentially","textChars":22,"textLines":1,"bbox":[423,304,398,25]}
+{"kind":"textbox","id":"sh/1cfa9w3m","slide":2,"text":"Example payload segmentation:","textPreview":"Example payload segmentation:","textChars":29,"textLines":1,"bbox":[435,352,330,24]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":2,"text":"0","textPreview":"0","textChars":1,"textLines":1,"bbox":[436,390,45,42]}
+{"kind":"shape","id":"sh/j6tovaho","slide":2,"bbox":[447.5,436,22,29]}
+{"kind":"textbox","id":"sh/ulwval87","slide":2,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[436,472,45,40]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":2,"text":"0","textPreview":"0","textChars":1,"textLines":1,"bbox":[491,390,45,42]}
+{"kind":"shape","id":"sh/8nqxs72x","slide":2,"bbox":[502.5,436,22,29]}
+{"kind":"textbox","id":"sh/mhk3q5o7","slide":2,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[491,472,45,40]}
+{"kind":"textbox","id":"sh/b2hwfyxo","slide":2,"text":"0","textPreview":"0","textChars":1,"textLines":1,"bbox":[546,390,45,42]}
+{"kind":"shape","id":"sh/4nap4r65","slide":2,"bbox":[557.5,436,22,29]}
+{"kind":"textbox","id":"sh/t83itgfm","slide":2,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[546,472,45,40]}
+{"kind":"textbox","id":"sh/m58z25kb","slide":2,"text":"100","textPreview":"100","textChars":3,"textLines":1,"bbox":[601,390,62,42]}
+{"kind":"shape","id":"sh/bq1oryts","slide":2,"bbox":[621,436,22,29]}
+{"kind":"textbox","id":"sh/4byhgn29","slide":2,"text":"D","textPreview":"D","textChars":1,"textLines":1,"bbox":[601,472,62,40]}
+{"kind":"textbox","id":"sh/twra5gbq","slide":2,"text":"100","textPreview":"100","textChars":3,"textLines":1,"bbox":[673,390,62,42]}
+{"kind":"shape","id":"sh/m1cfa9w3","slide":2,"bbox":[693,436,22,29]}
+{"kind":"textbox","id":"sh/bm58z25k","slide":2,"text":"D","textPreview":"D","textChars":1,"textLines":1,"bbox":[673,472,62,40]}
+{"kind":"textbox","id":"sh/vixczed8","slide":2,"text":"101","textPreview":"101","textChars":3,"textLines":1,"bbox":[745,390,62,42]}
+{"kind":"shape","id":"sh/2x4nap4r","slide":2,"bbox":[765,436,22,29]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":2,"text":"L","textPreview":"L","textChars":1,"textLines":1,"bbox":[745,472,62,40]}
+{"kind":"textbox","id":"sh/k3q5o7qp","slide":2,"text":"0","textPreview":"0","textChars":1,"textLines":1,"bbox":[817,390,45,42]}
+{"kind":"shape","id":"sh/val87ed8","slide":2,"bbox":[828.5,436,22,29]}
+{"kind":"textbox","id":"sh/6psfil0r","slide":2,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[817,472,45,40]}
+{"kind":"textbox","id":"sh/dcbulwva","slide":2,"text":"Repeated symbols come from repeated codewords in the payload, not from per-symbol counts in the header.","textPreview":"Repeated symbols come from repeated codewords in the payload, not from per-symbol counts in the header.","textChars":103,"textLines":1,"bbox":[435,550,360,42]}
+{"kind":"shape","id":"sh/kre1w7mp","slide":2,"bbox":[867,295,320,315]}
+{"kind":"shape","id":"sh/v6psfil0","slide":2,"bbox":[867,295,320,42]}
+{"kind":"textbox","id":"sh/2lszqtcj","slide":2,"text":"3. Stop by block_size","textPreview":"3. Stop by block_size","textChars":21,"textLines":1,"bbox":[883,304,288,25]}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":2,"text":"Recovered bytes:","textPreview":"Recovered bytes:","textChars":16,"textLines":1,"bbox":[895,356,248,28]}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":2,"text":"E E E D D L E","textPreview":"E E E D D L E","textChars":13,"textLines":1,"bbox":[905,408,220,57]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":2,"text":"output_count = 7\nblock_size = 7","textPreview":"output_count = 7 | block_size = 7","textChars":31,"textLines":2,"bbox":[908,491,255,64]}
+{"kind":"textbox","id":"sh/nuxc3ylc","slide":2,"text":"DONE","textPreview":"DONE","textChars":4,"textLines":1,"bbox":[935,562,150,42]}
+{"kind":"shape","id":"sh/gn29gr2p","slide":2,"bbox":[42,634,1145,36]}
+{"kind":"textbox","id":"sh/58z25kb6","slide":2,"text":"Key idea: the payload carries the repeated occurrences; block_size tells RX when the original block is fully recovered.","textPreview":"Key idea: the payload carries the repeated occurrences; block_size tells RX when the original block is fully recovered.","textChars":119,"textLines":1,"bbox":[58,642,1110,23]}
+{"kind":"notes","id":"nt/thck9m","slide":2,"text":""}

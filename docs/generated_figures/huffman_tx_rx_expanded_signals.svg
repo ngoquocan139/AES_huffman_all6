@@ -1,0 +1,211 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <marker id="arrowBlue" markerWidth="14" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L14,5 L0,10 z" fill="#1556b3"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="14" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L14,5 L0,10 z" fill="#17885c"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="14" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L14,5 L0,10 z" fill="#f28c1b"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="14" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L14,5 L0,10 z" fill="#6b7280"/>
+    </marker>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.14"/>
+    </filter>
+    <style>
+      .bg { fill: #f6f8fb; }
+      .title { font: 700 42px Arial, Helvetica, sans-serif; fill: #073b91; }
+      .subtitle { font: 400 22px Arial, Helvetica, sans-serif; fill: #334155; }
+      .laneTitle { font: 700 25px Arial, Helvetica, sans-serif; fill: #ffffff; }
+      .boxTitle { font: 700 21px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      .smallTitle { font: 700 18px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      .body { font: 400 17px Arial, Helvetica, sans-serif; fill: #1f2937; }
+      .tiny { font: 400 14px Arial, Helvetica, sans-serif; fill: #334155; }
+      .signal { font: 700 16px Consolas, 'Courier New', monospace; fill: #1e3a8a; }
+      .signalGreen { font: 700 16px Consolas, 'Courier New', monospace; fill: #047857; }
+      .signalOrange { font: 700 16px Consolas, 'Courier New', monospace; fill: #b45309; }
+      .signalGray { font: 700 14px Consolas, 'Courier New', monospace; fill: #4b5563; }
+      .lane { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; filter: url(#shadow); }
+      .txHead { fill: #0b3f99; }
+      .rxHead { fill: #0f766e; }
+      .block { fill: #edf4ff; stroke: #2563eb; stroke-width: 2; rx: 8; }
+      .blockGreen { fill: #e9f9f0; stroke: #15965d; stroke-width: 2; rx: 8; }
+      .blockOrange { fill: #fff4e6; stroke: #f28c1b; stroke-width: 2; rx: 8; }
+      .blockPurple { fill: #f1edff; stroke: #7c3aed; stroke-width: 2; rx: 8; }
+      .mem { fill: #f8fafc; stroke: #334155; stroke-width: 2; rx: 8; }
+      .boundary { fill: #ffffff; stroke: #ef4444; stroke-width: 3; stroke-dasharray: 10 9; rx: 10; }
+      .arrowBlue { stroke: #1556b3; stroke-width: 4; fill: none; marker-end: url(#arrowBlue); }
+      .arrowGreen { stroke: #17885c; stroke-width: 4; fill: none; marker-end: url(#arrowGreen); }
+      .arrowOrange { stroke: #f28c1b; stroke-width: 4; fill: none; marker-end: url(#arrowOrange); }
+      .arrowGray { stroke: #6b7280; stroke-width: 3; fill: none; marker-end: url(#arrowGray); }
+      .dashGray { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 7 6; marker-end: url(#arrowGray); }
+      .formatBox { stroke-width: 2; rx: 6; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1920" height="1080"/>
+  <text class="title" x="70" y="70">Expanded Huffman Flow in the Secure-Storage SoC</text>
+  <text class="subtitle" x="70" y="105">TX builds a canonical Huffman stream; RX reads the header, rebuilds the same canonical table, and restores the original bytes.</text>
+
+  <rect class="boundary" x="46" y="132" width="1828" height="868"/>
+  <text class="tiny" x="760" y="157">Secure-storage accelerator boundary</text>
+
+  <!-- TX lane -->
+  <rect class="lane" x="80" y="170" width="1760" height="300" rx="14"/>
+  <rect class="txHead" x="80" y="170" width="1760" height="50" rx="14"/>
+  <text class="laneTitle" x="110" y="204">TX Huffman compression flow</text>
+  <text class="tiny" x="1410" y="203">plaintext bytes -> Huffman header + compressed payload</text>
+
+  <rect class="mem" x="110" y="264" width="150" height="92"/>
+  <text class="boxTitle" x="144" y="296">DMEM</text>
+  <text class="body" x="129" y="324">plaintext</text>
+  <text class="signal" x="126" y="349">word[31:0]</text>
+
+  <rect class="block" x="310" y="246" width="170" height="128"/>
+  <text class="boxTitle" x="330" y="280">Word-to-byte</text>
+  <text class="body" x="341" y="310">adapter</text>
+  <text class="signal" x="326" y="342">byte_in[7:0]</text>
+
+  <rect class="blockGreen" x="530" y="246" width="210" height="128"/>
+  <text class="boxTitle" x="551" y="278">input_collect_unit</text>
+  <text class="body" x="552" y="309">block_buffer</text>
+  <text class="body" x="552" y="333">frequency_counter</text>
+  <text class="signalGreen" x="552" y="361">freq + bytes</text>
+
+  <rect class="blockOrange" x="790" y="236" width="260" height="148"/>
+  <text class="boxTitle" x="822" y="269">huffman_builder</text>
+  <text class="body" x="814" y="302">symbol_list_builder</text>
+  <text class="body" x="814" y="326">code_length_builder</text>
+  <text class="body" x="814" y="350">canonical_code_generator</text>
+  <text class="signalOrange" x="814" y="376">code_len + code</text>
+
+  <rect class="blockPurple" x="1100" y="236" width="255" height="148"/>
+  <text class="boxTitle" x="1145" y="269">emit_backend</text>
+  <text class="body" x="1122" y="302">header_formatter</text>
+  <text class="body" x="1122" y="326">payload_emitter</text>
+  <text class="signal" x="1122" y="356">stream_data[31:0]</text>
+  <text class="signal" x="1122" y="379">stream_len[5:0]</text>
+
+  <rect class="block" x="1410" y="246" width="185" height="128"/>
+  <text class="boxTitle" x="1432" y="283">bit_packer_128</text>
+  <text class="body" x="1431" y="315">packs bit chunks</text>
+  <text class="signal" x="1431" y="347">transport[127:0]</text>
+
+  <rect class="mem" x="1645" y="264" width="155" height="92"/>
+  <text class="boxTitle" x="1677" y="296">AES TX</text>
+  <text class="body" x="1666" y="324">CBC encrypt</text>
+  <text class="signal" x="1660" y="349">ciphertext</text>
+
+  <line class="arrowBlue" x1="260" y1="310" x2="303" y2="310"/>
+  <line class="arrowBlue" x1="480" y1="310" x2="523" y2="310"/>
+  <line class="arrowGreen" x1="740" y1="310" x2="783" y2="310"/>
+  <line class="arrowOrange" x1="1050" y1="310" x2="1093" y2="310"/>
+  <line class="arrowBlue" x1="1355" y1="310" x2="1403" y2="310"/>
+  <line class="arrowBlue" x1="1595" y1="310" x2="1638" y2="310"/>
+
+  <text class="signalGray" x="300" y="401">word_valid / word_ready</text>
+  <line class="arrowGray" x1="325" y1="390" x2="245" y2="360"/>
+  <text class="signalGray" x="566" y="401">byte_valid / byte_ready / block_end</text>
+  <text class="signalGray" x="1115" y="401">stream_valid / stream_ready / stream_last</text>
+  <text class="signalGray" x="1410" y="426">transport_valid / transport_ready</text>
+
+  <!-- Compressed block format -->
+  <rect class="lane" x="180" y="500" width="1560" height="160" rx="14"/>
+  <text class="boxTitle" x="210" y="537">Compressed Huffman block emitted by TX and consumed by RX</text>
+  <text class="body" x="210" y="565">Header is codebook information. Payload is the actual compressed bitstream encoded with that codebook.</text>
+
+  <g transform="translate(210 592)">
+    <rect class="formatBox" x="0" y="0" width="130" height="48" fill="#dbeafe" stroke="#2563eb"/>
+    <text class="smallTitle" x="30" y="21">mode</text>
+    <text class="tiny" x="50" y="39">2b</text>
+    <rect class="formatBox" x="130" y="0" width="170" height="48" fill="#dcfce7" stroke="#16a34a"/>
+    <text class="smallTitle" x="158" y="21">block_size</text>
+    <text class="tiny" x="205" y="39">6b</text>
+    <rect class="formatBox" x="300" y="0" width="190" height="48" fill="#ffedd5" stroke="#f97316"/>
+    <text class="smallTitle" x="326" y="21">symbol_count</text>
+    <text class="tiny" x="380" y="39">9b</text>
+    <rect class="formatBox" x="490" y="0" width="190" height="48" fill="#f3e8ff" stroke="#8b5cf6"/>
+    <text class="smallTitle" x="530" y="21">entry 0</text>
+    <text class="tiny" x="527" y="39">symbol + len</text>
+    <rect class="formatBox" x="680" y="0" width="190" height="48" fill="#f3e8ff" stroke="#8b5cf6"/>
+    <text class="smallTitle" x="720" y="21">entry 1</text>
+    <text class="tiny" x="717" y="39">symbol + len</text>
+    <rect class="formatBox" x="870" y="0" width="90" height="48" fill="#f3e8ff" stroke="#8b5cf6"/>
+    <text class="smallTitle" x="902" y="29">...</text>
+    <rect class="formatBox" x="960" y="0" width="210" height="48" fill="#f3e8ff" stroke="#8b5cf6"/>
+    <text class="smallTitle" x="997" y="21">entry N-1</text>
+    <text class="tiny" x="1002" y="39">symbol + len</text>
+    <rect class="formatBox" x="1170" y="0" width="280" height="48" fill="#fff7ed" stroke="#f97316"/>
+    <text class="smallTitle" x="1250" y="21">payload bits</text>
+    <text class="tiny" x="1223" y="39">canonical codewords</text>
+  </g>
+  <line class="dashGray" x1="1355" y1="430" x2="1390" y2="500"/>
+  <line class="dashGray" x1="1260" y1="660" x2="1220" y2="708"/>
+  <text class="signalGray" x="1230" y="688">header + payload stream</text>
+
+  <!-- RX lane -->
+  <rect class="lane" x="80" y="710" width="1760" height="255" rx="14"/>
+  <rect class="rxHead" x="80" y="710" width="1760" height="50" rx="14"/>
+  <text class="laneTitle" x="110" y="744">RX Huffman decompression flow</text>
+  <text class="tiny" x="1410" y="743">compressed transport word -> recovered plaintext words</text>
+
+  <rect class="mem" x="110" y="800" width="155" height="92"/>
+  <text class="boxTitle" x="144" y="831">AES RX</text>
+  <text class="body" x="134" y="858">CBC decrypt</text>
+  <text class="signal" x="125" y="883">transport[127:0]</text>
+
+  <rect class="block" x="315" y="790" width="190" height="112"/>
+  <text class="boxTitle" x="336" y="824">bit_depacker_128</text>
+  <text class="body" x="342" y="853">splits 128-bit word</text>
+  <text class="signal" x="340" y="879">stream chunks</text>
+
+  <rect class="blockGreen" x="560" y="780" width="245" height="132"/>
+  <text class="boxTitle" x="590" y="813">huffman_block_parser</text>
+  <text class="body" x="590" y="844">reads header fields</text>
+  <text class="signalGreen" x="585" y="872">entry_symbol</text>
+  <text class="signalGreen" x="585" y="895">entry_code_len</text>
+
+  <rect class="blockOrange" x="865" y="780" width="285" height="132"/>
+  <text class="boxTitle" x="895" y="813">huffman_block_decoder</text>
+  <text class="body" x="895" y="844">rebuilds canonical table</text>
+  <text class="body" x="895" y="868">prefix match + consume bits</text>
+  <text class="signalOrange" x="895" y="895">out_byte[7:0]</text>
+
+  <rect class="block" x="1210" y="790" width="215" height="112"/>
+  <text class="boxTitle" x="1242" y="824">rx_byte_packer_32</text>
+  <text class="body" x="1245" y="854">packs bytes to words</text>
+  <text class="signal" x="1242" y="879">rx_word[31:0]</text>
+
+  <rect class="mem" x="1490" y="800" width="160" height="92"/>
+  <text class="boxTitle" x="1531" y="831">DMEM</text>
+  <text class="body" x="1511" y="858">recovered</text>
+  <text class="signal" x="1512" y="883">plaintext</text>
+
+  <rect class="blockPurple" x="1685" y="800" width="125" height="92"/>
+  <text class="boxTitle" x="1714" y="832">CPU</text>
+  <text class="body" x="1704" y="858">reads result</text>
+  <text class="signal" x="1700" y="883">APB</text>
+
+  <line class="arrowBlue" x1="265" y1="846" x2="308" y2="846"/>
+  <line class="arrowBlue" x1="505" y1="846" x2="553" y2="846"/>
+  <line class="arrowGreen" x1="805" y1="846" x2="858" y2="846"/>
+  <line class="arrowOrange" x1="1150" y1="846" x2="1203" y2="846"/>
+  <line class="arrowBlue" x1="1425" y1="846" x2="1483" y2="846"/>
+  <line class="arrowBlue" x1="1650" y1="846" x2="1678" y2="846"/>
+
+  <text class="signalGray" x="315" y="936">transport_valid / transport_ready</text>
+  <text class="signalGray" x="560" y="956">stream_valid / stream_ready / stream_last</text>
+  <text class="signalGray" x="865" y="936">payload_window + consume_len</text>
+  <text class="signalGray" x="1210" y="956">out_valid / out_ready / valid_bytes</text>
+
+  <rect x="70" y="1018" width="500" height="34" fill="#e0f2fe" stroke="#38bdf8" rx="6"/>
+  <line x1="90" y1="1035" x2="140" y2="1035" class="arrowBlue"/>
+  <text class="tiny" x="154" y="1040">data path</text>
+  <line x1="250" y1="1035" x2="300" y2="1035" class="arrowGreen"/>
+  <text class="tiny" x="314" y="1040">metadata/codebook</text>
+  <line x1="455" y1="1035" x2="505" y2="1035" class="arrowGray"/>
+  <text class="tiny" x="520" y="1040">handshake/status</text>
+</svg>

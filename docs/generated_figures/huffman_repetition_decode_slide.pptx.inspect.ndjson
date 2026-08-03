@@ -1,0 +1,68 @@
+{"kind":"deck","id":"pr/282lyt","name":"Deck"}
+{"kind":"layout","layoutId":"306896a2-0a50-462e-ab07-fe9efc8c2143","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"dc3ada27-dbd1-4cfe-80dc-a0ff6148a587","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/u7ss06","slide":1,"title":"3. System design","textShapes":38}
+{"kind":"shape","id":"sh/il0rqd4v","slide":1,"bbox":[0,0,390,92]}
+{"kind":"textbox","id":"sh/tcj6tova","slide":1,"text":"3. System design","textPreview":"3. System design","textChars":16,"textLines":1,"bbox":[28,24,340,42]}
+{"kind":"textbox","id":"sh/0rqd4vmt","slide":1,"text":"How repeated symbols are recovered in Huffman decoding","textPreview":"How repeated symbols are recovered in Huffman decoding","textChars":54,"textLines":1,"bbox":[435,28,780,40]}
+{"kind":"shape","id":"sh/byhgn29g","slide":1,"bbox":[50,120,1180,190]}
+{"kind":"shape","id":"sh/idonyd0z","slide":1,"bbox":[50,120,1180,42]}
+{"kind":"textbox","id":"sh/t47y1kre","slide":1,"text":"Compressed block contains a codebook header followed by payload bits","textPreview":"Compressed block contains a codebook header followed by payload bits","textChars":68,"textLines":1,"bbox":[68,129,1144,24]}
+{"kind":"shape","id":"sh/0je9cvix","slide":1,"bbox":[80,182,110,66]}
+{"kind":"textbox","id":"sh/bulwval8","slide":1,"text":"mode","textPreview":"mode","textChars":4,"textLines":1,"bbox":[88,192,94,22]}
+{"kind":"textbox","id":"sh/i9s36hcr","slide":1,"text":"2b","textPreview":"2b","textChars":2,"textLines":1,"bbox":[88,220,94,20]}
+{"kind":"shape","id":"sh/0fepkzup","slide":1,"bbox":[190,182,150,66]}
+{"kind":"textbox","id":"sh/p0bi9s36","slide":1,"text":"block_size","textPreview":"block_size","textChars":10,"textLines":1,"bbox":[198,192,134,22]}
+{"kind":"textbox","id":"sh/i9s36hcr","slide":1,"text":"7 bytes","textPreview":"7 bytes","textChars":7,"textLines":1,"bbox":[198,220,134,20]}
+{"kind":"shape","id":"sh/bulwval8","slide":1,"bbox":[340,182,165,66]}
+{"kind":"textbox","id":"sh/032lszqt","slide":1,"text":"symbol_count","textPreview":"symbol_count","textChars":12,"textLines":1,"bbox":[348,192,149,22]}
+{"kind":"textbox","id":"sh/tovahoza","slide":1,"text":"3 entries","textPreview":"3 entries","textChars":9,"textLines":1,"bbox":[348,220,149,20]}
+{"kind":"shape","id":"sh/ixczed8v","slide":1,"bbox":[505,182,150,66]}
+{"kind":"textbox","id":"sh/bi9s36hc","slide":1,"text":"E : len 1","textPreview":"E : len 1","textChars":9,"textLines":1,"bbox":[513,192,134,32]}
+{"kind":"shape","id":"sh/0rqd4vmt","slide":1,"bbox":[655,182,150,66]}
+{"kind":"textbox","id":"sh/tcj6tova","slide":1,"text":"D : len 2","textPreview":"D : len 2","textChars":9,"textLines":1,"bbox":[663,192,134,32]}
+{"kind":"shape","id":"sh/x0nuxc3y","slide":1,"bbox":[805,182,150,66]}
+{"kind":"textbox","id":"sh/4fu18jqh","slide":1,"text":"L : len 2","textPreview":"L : len 2","textChars":9,"textLines":1,"bbox":[813,192,134,32]}
+{"kind":"shape","id":"sh/fu18jqh0","slide":1,"bbox":[955,182,240,66]}
+{"kind":"textbox","id":"sh/m94fu18j","slide":1,"text":"payload bits","textPreview":"payload bits","textChars":12,"textLines":1,"bbox":[963,192,224,22]}
+{"kind":"textbox","id":"sh/xobm58z2","slide":1,"text":"0001010110","textPreview":"0001010110","textChars":10,"textLines":1,"bbox":[963,220,224,20]}
+{"kind":"textbox","id":"sh/83itgfml","slide":1,"text":"Header stores each symbol once. It does not store how many times each symbol repeats.","textPreview":"Header stores each symbol once. It does not store how many times each symbol repeats.","textChars":85,"textLines":1,"bbox":[82,262,720,28]}
+{"kind":"textbox","id":"sh/fil0rqd4","slide":1,"text":"Repetitions are represented by repeated codewords in the payload.","textPreview":"Repetitions are represented by repeated codewords in the payload.","textChars":65,"textLines":1,"bbox":[822,262,370,28]}
+{"kind":"shape","id":"sh/qxs72x4n","slide":1,"bbox":[50,340,360,290]}
+{"kind":"shape","id":"sh/xkf6dcbu","slide":1,"bbox":[50,340,360,42]}
+{"kind":"textbox","id":"sh/4zidonyd","slide":1,"text":"1. RX rebuilds the canonical table","textPreview":"1. RX rebuilds the canonical table","textChars":34,"textLines":1,"bbox":[68,349,324,24]}
+{"kind":"textbox","id":"sh/itgfmlkj","slide":1,"text":"From header entries:","textPreview":"From header entries:","textChars":20,"textLines":1,"bbox":[78,395,280,25]}
+{"kind":"textbox","id":"sh/7ed8bat4","slide":1,"text":"E len=1\nD len=2\nL len=2","textPreview":"E len=1 | D len=2 | L len=2","textChars":23,"textLines":3,"bbox":[95,428,140,95]}
+{"kind":"shape","id":"sh/0z61032l","slide":1,"bbox":[214,452,48,26]}
+{"kind":"textbox","id":"sh/pkzupwb2","slide":1,"text":"Canonical table:","textPreview":"Canonical table:","textChars":16,"textLines":1,"bbox":[78,538,280,24]}
+{"kind":"textbox","id":"sh/ih4byhgn","slide":1,"text":"E = 0\nD = 10\nL = 11","textPreview":"E = 0 | D = 10 | L = 11","textChars":19,"textLines":3,"bbox":[95,568,160,80]}
+{"kind":"shape","id":"sh/72x4nap4","slide":1,"bbox":[460,340,385,290]}
+{"kind":"shape","id":"sh/0nuxc3yl","slide":1,"bbox":[460,340,385,42]}
+{"kind":"textbox","id":"sh/p8nqxs72","slide":1,"text":"2. Payload is decoded sequentially","textPreview":"2. Payload is decoded sequentially","textChars":34,"textLines":1,"bbox":[478,349,349,24]}
+{"kind":"textbox","id":"sh/ed8v6psf","slide":1,"text":"Payload bits:","textPreview":"Payload bits:","textChars":13,"textLines":1,"bbox":[488,395,180,24]}
+{"kind":"textbox","id":"sh/7y1kre1w","slide":1,"text":"0 0 0 10 10 11 0","textPreview":"0 0 0 10 10 11 0","textChars":16,"textLines":1,"bbox":[488,432,310,34]}
+{"kind":"textbox","id":"sh/rytsvu9k","slide":1,"text":"Each matched codeword emits one byte:","textPreview":"Each matched codeword emits one byte:","textChars":37,"textLines":1,"bbox":[488,490,330,24]}
+{"kind":"shape","id":"sh/yd0z6103","slide":1,"bbox":[500,532,58,42]}
+{"kind":"textbox","id":"sh/90je9cvi","slide":1,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[500,540,58,22]}
+{"kind":"shape","id":"sh/gfmlkjm1","slide":1,"bbox":[568,532,58,42]}
+{"kind":"textbox","id":"sh/rmhk3q5o","slide":1,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[568,540,58,22]}
+{"kind":"shape","id":"sh/y1kre1w7","slide":1,"bbox":[636,532,58,42]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":1,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[636,540,58,22]}
+{"kind":"shape","id":"sh/g7adsji5","slide":1,"bbox":[704,532,58,42]}
+{"kind":"textbox","id":"sh/nih4byhg","slide":1,"text":"D","textPreview":"D","textChars":1,"textLines":1,"bbox":[704,540,58,22]}
+{"kind":"shape","id":"sh/yxobm58z","slide":1,"bbox":[772,532,58,42]}
+{"kind":"textbox","id":"sh/s72x4nap","slide":1,"text":"D","textPreview":"D","textChars":1,"textLines":1,"bbox":[772,540,58,22]}
+{"kind":"shape","id":"sh/lszqtcj6","slide":1,"bbox":[568,585,58,42]}
+{"kind":"textbox","id":"sh/a5gbq1or","slide":1,"text":"L","textPreview":"L","textChars":1,"textLines":1,"bbox":[568,593,58,22]}
+{"kind":"shape","id":"sh/3m94fu18","slide":1,"bbox":[636,585,58,42]}
+{"kind":"textbox","id":"sh/sji5snel","slide":1,"text":"E","textPreview":"E","textChars":1,"textLines":1,"bbox":[636,593,58,22]}
+{"kind":"shape","id":"sh/h4byhgn2","slide":1,"bbox":[895,340,335,290]}
+{"kind":"shape","id":"sh/adsji5sn","slide":1,"bbox":[895,340,335,42]}
+{"kind":"textbox","id":"sh/3ylc7u54","slide":1,"text":"3. Stop after block_size outputs","textPreview":"3. Stop after block_size outputs","textChars":32,"textLines":1,"bbox":[913,349,299,24]}
+{"kind":"textbox","id":"sh/svu9knih","slide":1,"text":"The decoder does not need per-symbol repetition counts.","textPreview":"The decoder does not need per-symbol repetition counts.","textChars":55,"textLines":1,"bbox":[923,398,280,58]}
+{"kind":"textbox","id":"sh/hgn29gr2","slide":1,"text":"It counts recovered bytes:","textPreview":"It counts recovered bytes:","textChars":26,"textLines":1,"bbox":[923,478,255,28]}
+{"kind":"textbox","id":"sh/l87ed8ba","slide":1,"text":"E E E D D L E","textPreview":"E E E D D L E","textChars":13,"textLines":1,"bbox":[923,516,250,34]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":1,"text":"output_count = 7\nblock_size = 7\nDONE","textPreview":"output_count = 7 | block_size = 7 | DONE","textChars":36,"textLines":3,"bbox":[923,565,250,78]}
+{"kind":"shape","id":"sh/32lszqtc","slide":1,"bbox":[0,678,1280,6]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":1,"text":"Key idea: the header is the dictionary; repeated occurrences are encoded as repeated codewords in the payload.","textPreview":"Key idea: the header is the dictionary; repeated occurrences are encoded as repeated codewords in the payload.","textChars":110,"textLines":1,"bbox":[66,646,1120,28]}
+{"kind":"notes","id":"nt/u7ss06","slide":1,"text":""}

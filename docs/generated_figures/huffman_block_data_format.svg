@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <style>
+      .title { font: 700 38px Arial, sans-serif; fill: #0b2f89; }
+      .subtitle { font: 20px Arial, sans-serif; fill: #374151; }
+      .h2 { font: 700 26px Arial, sans-serif; fill: #0b2f89; }
+      .txt { font: 20px Arial, sans-serif; fill: #111827; }
+      .small { font: 17px Arial, sans-serif; fill: #374151; }
+      .mono { font: 20px Consolas, monospace; fill: #111827; }
+      .monoSmall { font: 16px Consolas, monospace; fill: #111827; }
+      .frame { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 14; }
+      .mode { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; }
+      .size { fill: #dcfce7; stroke: #16a34a; stroke-width: 2; }
+      .count { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+      .entry { fill: #fae8ff; stroke: #a21caf; stroke-width: 2; }
+      .payload { fill: #ffedd5; stroke: #ea580c; stroke-width: 2; }
+      .symbol { fill: #ede9fe; stroke: #7c3aed; stroke-width: 2; }
+      .len { fill: #cffafe; stroke: #0891b2; stroke-width: 2; }
+      .note { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.5; rx: 10; }
+      .arrow { stroke: #475569; stroke-width: 3; fill: none; marker-end: url(#arrowHead); }
+      .bracket { stroke: #0f172a; stroke-width: 3; fill: none; }
+    </style>
+    <marker id="arrowHead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <text x="60" y="65" class="title">Compressed Huffman Block Data Format</text>
+  <text x="60" y="102" class="subtitle">Header is a bitstream placed before the compressed Huffman payload.</text>
+
+  <rect x="50" y="140" width="1500" height="245" class="frame"/>
+  <text x="80" y="182" class="h2">Field-level view</text>
+  <text x="80" y="215" class="small">Compressed block with a new Huffman table:</text>
+
+  <!-- Main strip -->
+  <g transform="translate(80,250)">
+    <rect x="0" y="0" width="120" height="78" class="mode"/>
+    <text x="31" y="31" class="txt">mode</text>
+    <text x="42" y="58" class="monoSmall">2b</text>
+
+    <rect x="120" y="0" width="180" height="78" class="size"/>
+    <text x="155" y="31" class="txt">block_size</text>
+    <text x="196" y="58" class="monoSmall">6b</text>
+
+    <rect x="300" y="0" width="210" height="78" class="count"/>
+    <text x="332" y="31" class="txt">symbol_count</text>
+    <text x="390" y="58" class="monoSmall">9b</text>
+
+    <rect x="510" y="0" width="165" height="78" class="entry"/>
+    <text x="552" y="31" class="txt">entry 0</text>
+    <text x="565" y="58" class="monoSmall">13b</text>
+
+    <rect x="675" y="0" width="165" height="78" class="entry"/>
+    <text x="717" y="31" class="txt">entry 1</text>
+    <text x="730" y="58" class="monoSmall">13b</text>
+
+    <rect x="840" y="0" width="130" height="78" class="entry"/>
+    <text x="884" y="42" class="mono">...</text>
+
+    <rect x="970" y="0" width="180" height="78" class="entry"/>
+    <text x="1008" y="31" class="txt">entry N-1</text>
+    <text x="1032" y="58" class="monoSmall">13b</text>
+
+    <rect x="1150" y="0" width="250" height="78" class="payload"/>
+    <text x="1188" y="31" class="txt">payload bits</text>
+    <text x="1195" y="58" class="monoSmall">Huffman-coded data</text>
+  </g>
+
+  <path d="M590 356 L590 420" class="arrow"/>
+
+  <rect x="50" y="430" width="720" height="360" class="frame"/>
+  <text x="80" y="472" class="h2">Each entry format</text>
+  <text x="80" y="505" class="small">Each table entry stores one symbol once, plus its code length.</text>
+
+  <g transform="translate(95,540)">
+    <rect x="0" y="0" width="270" height="92" class="symbol"/>
+    <text x="78" y="35" class="txt">symbol</text>
+    <text x="65" y="66" class="monoSmall">8-bit ASCII byte</text>
+
+    <rect x="270" y="0" width="220" height="92" class="len"/>
+    <text x="328" y="35" class="txt">code_len</text>
+    <text x="347" y="66" class="monoSmall">5 bits</text>
+  </g>
+
+  <rect x="95" y="675" width="600" height="78" class="note"/>
+  <text x="120" y="704" class="txt">Example entry for D:</text>
+  <text x="120" y="735" class="mono">symbol = 0x44 ('D'), code_len = 3</text>
+
+  <rect x="830" y="430" width="720" height="360" class="frame"/>
+  <text x="860" y="472" class="h2">Human-readable example</text>
+  <text x="860" y="505" class="small">The actual hardware stores bits, but conceptually it means:</text>
+
+  <text x="880" y="548" class="mono">HEADER:</text>
+  <text x="910" y="583" class="monoSmall">mode = COMPRESSED</text>
+  <text x="910" y="615" class="monoSmall">block_size = 8</text>
+  <text x="910" y="647" class="monoSmall">symbol_count = 8</text>
+  <text x="910" y="679" class="monoSmall">entries = {E:1, D:3, L:3, U:3, C:4, M:5, K:6, Z:6}</text>
+
+  <text x="880" y="730" class="mono">PAYLOAD:</text>
+  <text x="910" y="765" class="monoSmall">0 100 101 110 1110 11110 111110 111111</text>
+
+  <rect x="50" y="815" width="1500" height="54" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5" rx="10"/>
+  <text x="80" y="849" class="txt">Header = codebook information. Payload = actual compressed data encoded using that codebook.</text>
+</svg>

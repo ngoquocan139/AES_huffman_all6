@@ -95,12 +95,13 @@ loader is idle.
 | `0x0000_0248` | snapshot count | 1-based snapshot counter |
 | `0x0000_024C` | snapshot status | board-control status word at snapshot completion |
 
-The zeroize pushbutton clears `0x0000_0100..0x0000_01FF`, which covers the
-secure metadata records and firmware IV counter. It also holds the SoC in reset
-while clearing and drops the run latch. The AES key is currently a fixed RTL
-parameter, not writable key RAM, so this operation zeroizes firmware-owned IV
-and metadata state and resets DMA IV registers through SoC reset; it does not
-erase a runtime key store because no runtime key store exists yet.
+The zeroize pushbutton clears `0x0000_0100..0x0000_7FFF`, covering secure
+metadata, firmware IV state, plaintext staging regions, ciphertext slots, RX
+readback scratch, and the demo stack area. It also holds the SoC in reset while
+clearing and drops the run latch. The AES key is currently a fixed RTL
+parameter, not writable key RAM, so this operation erases DMEM-resident secure
+state and resets DMA IV registers through SoC reset; it does not erase a runtime
+key store because no runtime key store exists yet.
 
 ## 4. Secure Metadata Contract
 
